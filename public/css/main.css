@@ -1,0 +1,104 @@
+.sidebar {
+    width: 270px !important;
+    position: fixed;
+    top: 70px;
+    left: 0;
+    height: 100%;
+    background-color: #f8f9fa;
+    padding-top: 20px;
+    overflow-y: auto;
+}
+
+.main-content {
+    margin-left: 270px;
+    padding: 20px;
+    flex-grow: 1;
+}
+
+.nav-item .arrow-icon {
+    border: solid black;
+    border-width: 0 2px 2px 0;
+    display: inline-block;
+    padding: 3px;
+    transform: rotate(-45deg);
+    transition: transform 0.3s ease;
+}
+
+.nav-item .nav-link[aria-expanded="true"] .arrow-icon {
+    transform: rotate(45deg);
+}
+
+.nav-item .nav-link {
+    background-color: transparent;
+    color: #000;
+    padding: 10px;
+    margin-bottom: -10px;
+    border-radius: 8px;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.nav-item .nav-link[aria-expanded="true"] {
+    background-color: #4B49AC;
+    color: #ffffff;
+    border-radius: 8px;
+}
+
+.nav-item .nav-link[aria-expanded="true"] .menu-icon,
+.nav-item .nav-link[aria-expanded="true"] .arrow-icon {
+    filter: brightness(0) invert(1);
+}
+
+.nav-item .submenu {
+    background-color: #4B49AC;
+    padding-left: 20px;
+    list-style: none;
+    margin-top: -2px;
+}
+
+.nav-item .submenu .nav-link {
+    color: #ffffff;
+    padding: 8px 20px;
+    list-style-type: disc;
+    margin-left: 30px;
+}
+
+.nav-item .nav-link[aria-expanded="true"] + .submenu .nav-link {
+    background-color: #4B49AC;
+    color: #ffffff;
+}
+
+.nav-item .submenu .nav-link:hover {
+    background-color: #4B49AC;
+    color: #ffffff;
+}
+
+.nav-item .nav-link:not([aria-expanded="true"]) {
+    background-color: transparent;
+    color: #000;
+}
+
+.nav-item .submenu .nav-link:not(:hover) {
+    background-color: #4B49AC;
+    color: #ffffff;
+}
+
+.nav-item .nav-link,
+.nav-item .submenu .nav-link {
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.dashboard-list {
+    margin-bottom: 2px; 
+}
+
+.dashboard-list .nav-link::before {
+    content: "•"; 
+    margin-right: 5px; 
+    color: #ffffff; 
+}
+
+.dashboard-list .nav-link {
+    padding: 5px 10px; 
+    font-size: 14px; 
+    display: block; 
+}
