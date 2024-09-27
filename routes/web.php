@@ -22,6 +22,8 @@ Route::post('rates', 'PayrollController@getRatesStore')->name('store-rates');
 
 Route::group(['middleware' => 'auth'], function () {
 
+    Route::get('/settings/roles', 'SettingsController@roles')->name('settings.roles');
+
     Route::get('sample', 'AttendanceController@sample');
     Route::get('/get-history', 'AttendanceController@get')->name('scum');
 
