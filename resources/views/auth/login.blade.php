@@ -53,10 +53,6 @@
                                 </button>
                             </div>
                         </form>
-
-                        <div class="text-center mt-4">
-                            <a href="#" class="text-muted">Submit a Ticket</a>
-                        </div>
                     </div>
                 </div>
             </div>

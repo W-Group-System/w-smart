@@ -13,22 +13,10 @@ use Illuminate\Http\Request;
 |
 */
 
-Route::middleware('auth:api')->get('/user', function (Request $request) {
-    Route::post('attendance', 'AttendanceController@create')->name('create-attendance');
-    return $request->user();
-});
+Route::get('permissions', 'PermissionController@index')->name('permissions');
+Route::get('features', 'PermissionController@getFeatures')->name('features');
+Route::get('roles', 'PermissionController@getRoles')->name('roles');
+Route::post('create-role', 'PermissionController@createRole')->name('create-role');
+Route::post('create-permission', 'PermissionController@createPermission')->name('create-permission');
 
-Route::post('attendance', 'AttendanceController@create')->name('create-attendance');
-Route::get('get-history', 'AttendanceController@get')->name('get-attendance');
-Route::post('save', 'PayrollController@save')->name('save-payroll');
-Route::post('schedule', 'ScheduleController@create')->name('create-schedule');
-Route::post('rates', 'PayrollController@getRatesStore')->name('rates');
-Route::post('additional/{id}', 'PayrollController@additionalIncome')->name('additional-income');
-Route::post('additional-remarks/{id}', 'PayrollController@additionalRemarks')->name('additional-remarks');
-Route::post('deduction/{id}', 'PayrollController@additionalDeduction')->name('additional-deduction');
-Route::post('deduction-remarks/{id}', 'PayrollController@deductionRemarks')->name('deduction-remarks');
-Route::get('getPayrollInfo/{id}', 'PayrollController@getPayrollInfo')->name('get-payrollinfo');
-Route::post('getPayrollInfoV2/{id}', 'PayrollController@getPayrollInfoV2')->name('get-payrollinfov2');
-Route::post('updateStoreName', 'PayrollController@updateStoreName')->name('update-store-name');
-Route::get('editcompany', 'PayrollController@updateCompanyAPI')->name('edit-store');
 

@@ -54,10 +54,13 @@
                             <i class="ti-settings text-primary mr-2"></i>
                             Settings
                         </a>
-                        <a class="dropdown-item" href="#">
+                        <a class="dropdown-item" href="{{ route('logout') }}" onclick="logout(); show();">
                             <i class="ti-power-off text-primary mr-2"></i>
                             Logout
                         </a>
+                        <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+                            {{ csrf_field() }}
+                        </form>
                     </div>
                 </li>
             </ul>
@@ -70,6 +73,15 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-fQybjgWLrvvRgtW6mnf6cnydrs0ufZ80x1MWtEC+9eI3ZPqvycuFTRaFw7vRg63f"
         crossorigin="anonymous"></script>
+    <script>
+        function logout() {
+            event.preventDefault();
+            document.getElementById('logout-form').submit();
+        }    
+    function show() {
+            document.getElementById("loader").style.display = "block";
+        }
+    </script>
 </body>
 
 </html>
