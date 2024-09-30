@@ -4,6 +4,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function toggleCreateRoleButton() {
         let roleName = document.getElementById("role").value.trim();
+        console.log(roleName)
         let selectedFeatures = Array.from(
             document.querySelectorAll(
                 '#features input[type="checkbox"]:checked'
@@ -24,19 +25,34 @@ document.addEventListener("DOMContentLoaded", function () {
     axios
         .get("/api/features")
         .then((response) => {
-            let featureContainer = document.getElementById("features");
-            featureContainer.classList.add("ps-4");
-            response.data.data.forEach((feature) => {
-                let checkboxDiv = document.createElement("div");
-                checkboxDiv.className = "form-check mb-2";
-                checkboxDiv.innerHTML = `
-                    <input class="form-check-input" type="checkbox" id="feature_${feature.id}" value="${feature.id}">
-                    <label class="form-check-label ms-1" for="feature_${feature.id}">${feature.feature}</label>
-                `;
-                featureContainer.appendChild(checkboxDiv);
-            });
+            if (response.data.data.length > 0) {
+                let featureContainer = document.getElementById("features");
+                featureContainer.classList.add("ps-4");
+                response.data.data.forEach((feature) => {
+                    let checkboxDiv = document.createElement("div");
+                    checkboxDiv.className = "form-check mb-2";
+                    checkboxDiv.innerHTML = `
+                        <input class="form-check-input" type="checkbox" id="feature_${feature.id}" value="${feature.id}">
+                        <label class="form-check-label ms-1" for="feature_${feature.id}">${feature.feature}</label>
+                    `;
+                    featureContainer.appendChild(checkboxDiv);
+                });
 
-            toggleCreateRoleButton();
+                toggleCreateRoleButton();    
+            }
+            else {
+                let featureContainer = document.getElementById("features");
+
+                featureContainer.innerHTML = ''; 
+                featureContainer.classList.add("ps-4");
+
+                let labelDiv = document.createElement("div");
+                labelDiv.className = "alert alert-warning mt-2"; // Added margin for better display
+                labelDiv.innerHTML = "No features available.";
+
+                featureContainer.appendChild(labelDiv);   
+            }
+
         })
         .catch((error) => {
             console.error("Error fetching features:", error);

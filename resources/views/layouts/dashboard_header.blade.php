@@ -67,12 +67,6 @@
         </div>
     </nav>
 
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
-        integrity="sha384-DfXdYJ8qbOskQIW7BzOFx+UvnydWWr+PGY8xnYjdjfbjgQgB03kXKefcFum2nJgr"
-        crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-fQybjgWLrvvRgtW6mnf6cnydrs0ufZ80x1MWtEC+9eI3ZPqvycuFTRaFw7vRg63f"
-        crossorigin="anonymous"></script>
     <script>
         function logout() {
             event.preventDefault();
