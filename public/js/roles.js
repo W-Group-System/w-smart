@@ -2,7 +2,6 @@ document.addEventListener("DOMContentLoaded", function () {
     let createRoleButton = document.querySelector("button[type='submit']");
     createRoleButton.disabled = true;
 
-    // Function to enable/disable the Create Role button
     function toggleCreateRoleButton() {
         let roleName = document.getElementById("role").value.trim();
         let selectedFeatures = Array.from(
@@ -22,7 +21,6 @@ document.addEventListener("DOMContentLoaded", function () {
         .getElementById("features")
         .addEventListener("change", toggleCreateRoleButton);
 
-    // Fetch features and generate checkboxes
     axios
         .get("/api/features")
         .then((response) => {
@@ -44,7 +42,6 @@ document.addEventListener("DOMContentLoaded", function () {
             console.error("Error fetching features:", error);
         });
 
-    // Handle role creation
     document
         .getElementById("createRoleForm")
         .addEventListener("submit", function (e) {
@@ -57,13 +54,11 @@ document.addEventListener("DOMContentLoaded", function () {
                 )
             );
 
-            // Step 1: Create the role
             axios
                 .post("/api/create-role", { role: roleName })
                 .then((response) => {
-                    let newRole = response.data.data; // Role data
+                    let newRole = response.data.data;
 
-                    // Step 2: Iterate over the selected features and create permissions
                     let permissionPromises = selectedFeatures.map(
                         (checkbox) => {
                             let featureId = checkbox.value;
@@ -82,14 +77,24 @@ document.addEventListener("DOMContentLoaded", function () {
                         }
                     );
 
-                    // Wait for all permissions to be created
                     Promise.all(permissionPromises)
                         .then((results) => {
                             console.log(
                                 "Permissions created for all features:",
                                 results
                             );
-                            loadRoles(); // Refresh the list of roles
+
+                            Swal.fire({
+                                title: "Role Created!",
+                                text: "The role has been successfully created.",
+                                icon: "success",
+                                confirmButtonText: "OK",
+                            });
+
+                            loadPermissions();
+
+                            document.getElementById("createRoleForm").reset();
+                            createRoleButton.disabled = true;
                         })
                         .catch((error) => {
                             console.error("Error creating permissions:", error);
@@ -100,29 +105,45 @@ document.addEventListener("DOMContentLoaded", function () {
                 });
         });
 
-    // Fetch and display roles
-    function loadRoles() {
+    function loadPermissions() {
         axios
-            .get("/api/roles")
+            .get("/api/permissions")
             .then((response) => {
                 let roleList = document.getElementById("roleList");
-                roleList.innerHTML = ""; // Clear the current list
-                response.data.data.forEach((role) => {
+                roleList.innerHTML = ""; 
+
+                let roleMap = {};
+
+                response.data.data.forEach((permission) => {
+                    let roleId = permission.roleid;
+                    let roleName = permission.role;
+                    let featureName = permission.feature;
+
+                    if (!roleMap[roleId]) {
+                        roleMap[roleId] = {
+                            role: roleName,
+                            features: [],
+                        };
+                    }
+                    roleMap[roleId].features.push(featureName);
+                });
+
+                for (let roleId in roleMap) {
                     let row = document.createElement("tr");
                     row.innerHTML = `
-                        <td>${role.role}</td>
-                        <td>${role.features
-                            .map((f) => f.feature)
-                            .join(", ")}</td>
-                        <td><button class="btn btn-danger">Delete</button></td>
-                    `;
+                            <td>${roleMap[roleId].role}</td>
+                            <td class="text-wrap">${roleMap[
+                                roleId
+                            ].features.join(", ")}</td>
+                            <td><button class="btn btn-danger" data-role-id="${roleId}">Delete</button></td>
+                        `;
                     roleList.appendChild(row);
-                });
+                }
             })
             .catch((error) => {
-                console.error("Error fetching roles:", error);
+                console.error("Error fetching permissions:", error);
             });
     }
 
-    loadRoles(); // Initial load of roles
+    loadPermissions();
 });

@@ -2,7 +2,7 @@
 
 @section('dashboard_content')
 <div class="container-fluid">
-    <h4 class="mb-4">Role and Feature Management</h4>
+    <h4 class="mb-4 mt-4">Role and Feature Management</h4>
 
     <!-- Add Role Section -->
     <div class="mb-4">
@@ -14,8 +14,7 @@
             </div>
             <div class="form-group">
                 <label for="features">Assign Features</label>
-                <div id="features">
-                </div>
+                <div id="features"></div>
             </div>
             <button type="submit" class="btn btn-primary">Create Role</button>
         </form>
@@ -33,6 +32,7 @@
                 </tr>
             </thead>
             <tbody id="roleList">
+                <!-- JavaScript will populate this -->
             </tbody>
         </table>
     </div>
@@ -43,13 +43,11 @@
         <form id="assignRoleForm">
             <div class="form-group">
                 <label for="employee">Employee</label>
-                <select id="employee" class="form-control">
-                </select>
+                <select id="employee" class="form-control"></select>
             </div>
             <div class="form-group">
                 <label for="assignRole">Role</label>
-                <select id="assignRole" class="form-control">
-                </select>
+                <select id="assignRole" class="form-control"></select>
             </div>
             <button type="submit" class="btn btn-primary">Assign Role</button>
         </form>
