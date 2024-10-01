@@ -22,6 +22,6 @@ Route::get('inventory', 'InventoryController@index')->name('inventory');
 Route::get('subsidiary', 'InventoryController@getSubsidiary')->name('subsidiary');
 Route::post('create-inventory', 'InventoryController@createInventory')->name('create-inventory');
 Route::patch('update-role/{id}', 'UserController@update')->name('update-role');
-Route::get('user', 'UserController@index')->name('user');
+Route::get('users', 'UserController@index')->name('users');
 
 

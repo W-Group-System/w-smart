@@ -1,7 +1,7 @@
 @php
     $user = Auth::user();
     $userRole = $user->role ?? null;
-    $userFeatures = $userRole ? $userRole->features->pluck('feature')->toArray() : []; // Fetch all feature names
+    $userFeatures = $userRole ? $userRole->features->pluck('feature')->toArray() : [];
     $isSuperAdmin = !$userRole;
 @endphp
 
