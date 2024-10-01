@@ -2,50 +2,131 @@
 
 @section('dashboard_content')
 <div class="container-fluid">
-    <!-- Include the Inventory Header -->
     @include('layouts.inventory_header')
 
     <!-- Main Content Section -->
-    <div class="card p-4 mt-4">
+    <div class="card p-4" style="border: 1px solid #ddd; border-radius: 20px; margin-top: -25px;">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <div class="d-flex align-items-center">
+                <h6 class="fw-bold me-3">Masterlist</h6>
+                <div class="input-group" style="max-width: 350px; position: relative;">
+                    <input type="text" class="form-control" placeholder="Search here" aria-label="Search"
+                        style="padding-right: 100px; border-radius: 20px; height: 35px;">
+                    <img src="{{ asset('images/search.svg') }}" alt="Search Icon"
+                        style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); width: 16px; height: 16px;">
+                </div>
+                <div class="btn-group ms-3" style="height: 35px; position: relative;">
+                    <button type="button" class="btn btn-outline-secondary" id="downloadButton"
+                        style="height: 35px; padding: 0 15px;" data-bs-toggle="popover" data-bs-html="true"
+                        data-bs-trigger="focus" data-bs-content='
+                        <div style="font-family: "Inter", sans-serif; color: #79747E;">
+                            <button class="btn btn-sm btn-light" id="downloadCSV" style="display: flex; justify-content: space-between; width: 100%; align-items: center; border-radius: 8px; color: #79747E;">
+                                Download CSV 
+                                <img src="{{ asset('images/download.svg') }}" style="width: 16px; height: 16px; margin-left: 8px;" alt="Download CSV">
+                            </button>
+                            <button class="btn btn-sm btn-light mt-1" id="downloadExcel" style="display: flex; justify-content: space-between; width: 100%; align-items: center; border-radius: 8px; color: #79747E;">
+                                Download Excel 
+                                <img src="{{ asset('images/download.svg') }}" style="width: 16px; height: 16px; margin-left: 8px;" alt="Download Excel">
+                            </button>
+                            <button class="btn btn-sm btn-light mt-1" id="downloadPDF" style="display: flex; justify-content: space-between; width: 100%; align-items: center; border-radius: 8px; color: #79747E;">
+                                Download PDF 
+                                <img src="{{ asset('images/download.svg') }}" style="width: 16px; height: 16px; margin-left: 8px;" alt="Download PDF">
+                            </button>
+                        </div>'>
+                        Download
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary" style="height: 35px; padding: 0 15px;">
+                        Print
+                    </button>
+                </div>
+            </div>
+
+            <div class="d-flex align-items-center">
+                <select class="form-select me-3"
+                    style="width: 150px; height: 35px; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); color: #6c757d; border-radius: 25px; font-size: 14px;">
+                    <option selected disabled>Subsidiary</option>
+                    <option value="1">HO</option>
+                    <option value="2">WTCC</option>
+                    <option value="3">CITI</option>
+                    <option value="4">WCC</option>
+                    <option value="5">WFA</option>
+                    <option value="6">WOI</option>
+                    <option value="7">WGC</option>
+                </select>
+                <a href="#" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addInventoryModal"
+                    style="height: 35px; padding: 0 15px; display: flex; align-items: center; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); font-size: 14px;">
+                    Add New Inventory
+                </a>
+            </div>
+
+        </div>
+
         <!-- Table Section -->
-        <div class="table-responsive">
-            <table class="table table-striped table-hover">
-                <thead>
+        <div class="table-responsive " style="overflow: visible;">
+            <table class="table table-hover table-bordered" style="border-collapse: collapse;">
+                <thead class="table-light">
                     <tr>
-                        <th><input type="checkbox"></th>
-                        <th>Date</th>
-                        <th>Item Code</th>
-                        <th>Item Description</th>
-                        <th>Item Category</th>
-                        <th>QTY</th>
-                        <th>UOM</th>
-                        <th>Cost</th>
-                        <th>Usage</th>
-                        <th>Action</th>
+                        <th
+                            style="text-align: center; padding: 8px 10px; border: none; font-weight: 400; color: #637281;">
+                        </th>
+                        <th
+                            style="text-align: center; padding: 8px 10px; border: none; font-weight: 400; color: #637281;">
+                            Date <i class="bi bi-three-dots-vertical"></i></th>
+                        <th
+                            style="text-align: center; padding: 8px 10px; border: none; font-weight: 400; color: #637281;">
+                            Item Code <i class="bi bi-three-dots-vertical"></i></th>
+                        <th
+                            style="text-align: center; padding: 8px 10px; border: none; font-weight: 400; color: #637281;">
+                            Item Description <i class="bi bi-three-dots-vertical"></i></th>
+                        <th
+                            style="text-align: center; padding: 8px 10px; border: none; font-weight: 400; color: #637281;">
+                            Item Category <i class="bi bi-three-dots-vertical"></i></th>
+                        <th
+                            style="text-align: center; padding: 8px 10px; border: none; font-weight: 400; color: #637281;">
+                            QTY <i class="bi bi-three-dots-vertical"></i></th>
+                        <th
+                            style="text-align: center; padding: 8px 10px; border: none; font-weight: 400; color: #637281;">
+                            UOM <i class="bi bi-three-dots-vertical"></i></th>
+                        <th
+                            style="text-align: center; padding: 8px 10px; border: none; font-weight: 400; color: #637281;">
+                            Cost <i class="bi bi-three-dots-vertical"></i></th>
+                        <th
+                            style="text-align: center; padding: 8px 10px; border: none; font-weight: 400; color: #637281;">
+                            Usage <i class="bi bi-three-dots-vertical"></i></th>
+                        <th
+                            style="text-align: center; padding: 8px 10px; border: none; font-weight: 400; color: #637281;">
+                            Action </th>
                     </tr>
                 </thead>
                 <tbody>
-                    <!-- Example Data Row, dynamic data will be added here -->
                     <tr>
-                        <td><input type="checkbox"></td>
-                        <td>00/00/0000</td>
-                        <td>000000</td>
-                        <td>Item Description</td>
-                        <td>Item Category</td>
-                        <td>00.00</td>
-                        <td>PCS</td>
-                        <td>00.00</td>
-                        <td>Usage</td>
-                        <td>
-                            <div class="dropdown">
-                                <button class="btn btn-link dropdown-toggle" type="button" id="actionMenu"
-                                    data-bs-toggle="dropdown" aria-expanded="false">
-                                    <i class="bi bi-three-dots"></i>
+                        <td style="text-align: center; padding: 2px 10px;"></td>
+                        <td style="text-align: center; padding: 2px 10px;">00/00/0000</td>
+                        <td style="text-align: center; padding: 2px 10px;">000000</td>
+                        <td style="text-align: center; padding: 2px 10px;">Item Description</td>
+                        <td style="text-align: center; padding: 2px 10px;">Item Category</td>
+                        <td style="text-align: center; padding: 2px 10px;">00.00</td>
+                        <td style="text-align: center; padding: 2px 10px;">PCS</td>
+                        <td style="text-align: center; padding: 2px 10px;">00.00</td>
+                        <td style="text-align: center; padding: 2px 10px;">Usage</td>
+                        <td style="text-align: center; padding: 2px 10px;">
+                            <div style="position: relative;">
+                                <button type="button" class="btn btn-link actionButton" data-bs-toggle="popover"
+                                    data-bs-html="true" aria-expanded="false" data-bs-trigger="focus" data-bs-content='
+                                <div style="font-family: Inter, sans-serif; color: #79747E; text-align: center;">
+                                    <button type="button" 
+                                            class="btn btn-sm btn-light mt-1 modify-button" 
+                                            style="display: flex; justify-content: center; width: 100%; align-items: center; border-radius: 8px; color: #79747E;"
+                                            data-bs-toggle="modal" 
+                                            data-bs-target="#modifyModal">
+                                        Modify
+                                    </button>
+                                    <button class="btn btn-sm btn-light mt-1" style="display: flex; justify-content: center; width: 100%; align-items: center; border-radius: 8px; color: #79747E;">
+                                        Inactive 
+                                    </button>
+                                </div>'>
+                                    <i class="bi bi-three-dots-vertical" style="color: black;"></i>
                                 </button>
-                                <ul class="dropdown-menu" aria-labelledby="actionMenu">
-                                    <li><a class="dropdown-item" href="#">Edit</a></li>
-                                    <li><a class="dropdown-item" href="#">Delete</a></li>
-                                </ul>
                             </div>
                         </td>
                     </tr>
@@ -54,33 +135,161 @@
         </div>
 
         <!-- Pagination Section -->
-        <div class="d-flex justify-content-between">
-            <div>Rows per page:
-                <select class="form-select form-select-sm d-inline-block w-auto">
+        <hr style="border-top: 1px solid #ddd; margin-top: 10px; margin-bottom: 10px;">
+
+        <div class="d-flex justify-content-end align-items-center mt-3 border-top pt-3">
+            <div class="d-flex align-items-center me-3">
+                <span>Rows per page:</span>
+                <select class="form-select form-select-sm d-inline-block w-auto ms-2" style="border-radius: 5px;">
                     <option>5</option>
                     <option>10</option>
                     <option>20</option>
                 </select>
             </div>
-            <div>Showing 1-5 of 13 items</div>
-            <div>
-                <nav aria-label="Page navigation">
-                    <ul class="pagination pagination-sm">
-                        <li class="page-item disabled">
-                            <a class="page-link" href="#" aria-label="Previous">
-                                <span aria-hidden="true">&laquo;</span>
-                            </a>
-                        </li>
-                        <li class="page-item"><a class="page-link" href="#">1</a></li>
-                        <li class="page-item"><a class="page-link" href="#">2</a></li>
-                        <li class="page-item"><a class="page-link" href="#">3</a></li>
-                        <li class="page-item">
-                            <a class="page-link" href="#" aria-label="Next">
-                                <span aria-hidden="true">&raquo;</span>
-                            </a>
-                        </li>
-                    </ul>
-                </nav>
+            <div class="me-3 dynamic-rows-info">1-5 of 13</div>
+            <nav aria-label="Page navigation">
+                <ul class="pagination pagination-sm mb-0">
+                    <li class="page-item disabled">
+                        <a class="page-link" href="#" aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+                    <li class="page-item"><a class="page-link" href="#">1</a></li>
+                    <li class="page-item"><a class="page-link" href="#">2</a></li>
+                    <li class="page-item"><a class="page-link" href="#">3</a></li>
+                    <li class="page-item">
+                        <a class="page-link" href="#" aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+<!-- Modify Modal -->
+<div class="modal fade" id="modifyModal" tabindex="-1" aria-labelledby="modifyModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modifyModalLabel">Modify</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="modifyForm">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="itemCode" class="form-label">Item Code</label>
+                            <input type="text" class="form-control" id="itemCode" value="Auto Generate" readonly>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="itemDescription" class="form-label">Item Description</label>
+                            <input type="text" class="form-control" id="itemDescription">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="category" class="form-label">Category</label>
+                            <select class="form-select" id="category">
+                                <option value="">Select Category</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="primaryUOM" class="form-label">Primary UOM</label>
+                            <select class="form-select" id="primaryUOM">
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="secondaryUOM" class="form-label">Secondary UOM</label>
+                            <select class="form-select" id="secondaryUOM">
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="tertiaryUOM" class="form-label">Tertiary UOM</label>
+                            <select class="form-select" id="tertiaryUOM">
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="quantity" class="form-label">Quantity</label>
+                            <input type="number" class="form-control" id="quantity">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="cost" class="form-label">Cost</label>
+                            <input type="number" class="form-control" id="cost">
+                        </div>
+                        <div class="col-md-12">
+                            <label for="usage" class="form-label">Usage</label>
+                            <input type="text" class="form-control" id="usage" value="Auto Generate" readonly>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-success" id="saveChanges">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Inventory Modal -->
+<div class="modal fade" id="addInventoryModal" tabindex="-1" aria-labelledby="addInventoryModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addInventoryModalLabel">Add New Inventory</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addInventoryForm">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="newItemCode" class="form-label">Item Code</label>
+                            <input type="text" class="form-control" id="newItemCode" value="Auto Generate" readonly>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="newItemDescription" class="form-label">Item Description</label>
+                            <input type="text" class="form-control" id="newItemDescription">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="newCategory" class="form-label">Category</label>
+                            <select class="form-select" id="newCategory">
+                                <option value="">Select Category</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="newPrimaryUOM" class="form-label">Primary UOM</label>
+                            <select class="form-select" id="newPrimaryUOM">
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="newSecondaryUOM" class="form-label">Secondary UOM</label>
+                            <select class="form-select" id="newSecondaryUOM">
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="newTertiaryUOM" class="form-label">Tertiary UOM</label>
+                            <select class="form-select" id="newTertiaryUOM">
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="newQuantity" class="form-label">Quantity</label>
+                            <input type="number" class="form-control" id="newQuantity">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="newCost" class="form-label">Cost</label>
+                            <input type="number" class="form-control" id="newCost">
+                        </div>
+                        <div class="col-md-12">
+                            <label for="newUsage" class="form-label">Usage</label>
+                            <input type="text" class="form-control" id="newUsage" value="Auto Generate" readonly>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-success" id="saveNewInventory">Save</button>
             </div>
         </div>
     </div>
