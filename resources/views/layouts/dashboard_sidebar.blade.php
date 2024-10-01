@@ -38,6 +38,10 @@
                     <a class="nav-link {{ request()->is('inventory/withdrawal') ? 'submenu-active' : '' }}" href="#">
                         Withdrawal Request</a>
                 </li>
+                <li class="nav-item dashboard-list">
+                    <a class="nav-link {{ request()->is('inventory/returned') ? 'submenu-active' : '' }}" href="#">
+                        Returned Inventory</a>
+                </li>
             </ul>
         </li>
 

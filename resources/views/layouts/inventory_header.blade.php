@@ -13,40 +13,47 @@
     </div>
 
     <div class="row align-items-center mb-4">
-        <div class="col-lg-4 col-md-6">
-            <form class="d-flex gap-2 align-items-center">
+        <div class="col-12 d-flex justify-content-between align-items-center flex-wrap">
+            <form class="d-flex gap-2 align-items-center me-3" style="flex-shrink: 0; flex-basis: 400px;">
                 <label class="fw-bold me-2" for="start-date">From</label>
                 <div class="input-group" style="border-radius: 10px; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);">
                     <input type="date" class="form-control" id="start-date" placeholder="dd/mm/yyyy"
-                        aria-label="Start Date"
-                        style="border-radius: 10px; font-size: 1.1rem; padding: 0.75rem 0.75rem;">
+                        aria-label="Start Date" style="border-radius: 10px; font-size: 1rem; padding: 0.5rem 0.5rem;">
                 </div>
                 <label class="fw-bold me-2" for="end-date">To</label>
                 <div class="input-group" style="border-radius: 10px; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);">
                     <input type="date" class="form-control" id="end-date" placeholder="dd/mm/yyyy" aria-label="End Date"
-                        style="border-radius: 10px; font-size: 1.1rem; padding: 0.75rem 0.75rem;">
+                        style="border-radius: 10px; font-size: 1rem; padding: 0.5rem 0.5rem;">
                 </div>
                 <button type="submit" class="btn btn-primary ms-2"
-                    style="min-width: 120px; width: 100%; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);">
+                    style="min-width: 120px; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);">
                     Submit
                 </button>
             </form>
-        </div>
 
-        <div class="col-lg-8 col-md-6 d-flex justify-content-end">
-            <div class="card text-center me-2" style="min-width: 150px;">
-                <div class="card-body">
-                    <h6 class="card-title">Transfer</h6>
-                    <h3 class="card-text fw-bold">0</h3>
-                    <a href="#" class="btn btn-primary btn-sm">View All</a>
+            <!-- Transfer Card -->
+            <div class="card shadow-sm"
+                style="flex: 1 1 220px; padding: 15px; border-radius: 10px; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); margin-right: 15px;">
+                <div class="card-body d-flex justify-content-between align-items-center">
+                    <div class="text-center">
+                        <h6 class="card-title mb-3">Transfer</h6>
+                        <h3 class="card-text fw-bold mb-0">0</h3>
+                    </div>
+                    <a href="#" class="btn btn-primary btn-sm" style="min-width: 110px; border-radius: 7px;">View
+                        All</a>
                 </div>
             </div>
 
-            <div class="card text-center" style="min-width: 150px;">
-                <div class="card-body">
-                    <h6 class="card-title">Withdrawal</h6>
-                    <h3 class="card-text fw-bold">0</h3>
-                    <a href="#" class="btn btn-primary btn-sm">View All</a>
+            <!-- Withdrawal Card -->
+            <div class="card shadow-sm"
+                style="flex: 1 1 220px; padding: 15px; border-radius: 10px; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);">
+                <div class="card-body d-flex justify-content-between align-items-center">
+                    <div class="text-center">
+                        <h6 class="card-title mb-3">Withdrawal</h6>
+                        <h3 class="card-text fw-bold mb-0">0</h3>
+                    </div>
+                    <a href="#" class="btn btn-primary btn-sm" style="min-width: 110px; border-radius: 7px;">View
+                        All</a>
                 </div>
             </div>
         </div>
