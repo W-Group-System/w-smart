@@ -37,16 +37,20 @@
                 </a>
                 <ul id="inventorySubmenu" class="collapse submenu {{ request()->is('inventory*') ? 'show' : '' }}">
                     <li class="nav-item dashboard-list">
-                        <a class="nav-link {{ request()->is('inventory/list') ? 'submenu-active' : '' }}" href="#">Inventory
-                            List</a>
+                        <a class="nav-link {{ request()->is('inventory/list') ? 'submenu-active' : '' }}"
+                            href="{{ route('inventory.list') }}">
+                            Inventory List
+                        </a>
                     </li>
                     <li class="nav-item dashboard-list">
-                        <a class="nav-link {{ request()->is('inventory/transfer') ? 'submenu-active' : '' }}"
-                            href="#">Inventory Transfer</a>
+                        <a class="nav-link {{ request()->is('inventory/transfer') ? 'submenu-active' : '' }}" href="#">
+                            Inventory Transfer
+                        </a>
                     </li>
                     <li class="nav-item dashboard-list">
-                        <a class="nav-link {{ request()->is('inventory/withdrawal') ? 'submenu-active' : '' }}"
-                            href="#">Withdrawal Request</a>
+                        <a class="nav-link {{ request()->is('inventory/withdrawal') ? 'submenu-active' : '' }}" href="#">
+                            Withdrawal Request
+                        </a>
                     </li>
                 </ul>
             </li>

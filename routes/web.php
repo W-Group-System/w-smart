@@ -22,7 +22,8 @@ Route::post('rates', 'PayrollController@getRatesStore')->name('store-rates');
 
 Route::group(['middleware' => 'auth'], function () {
 
-    Route::get('/settings/roles', 'SettingsController@roles')->name('settings.roles');
+    Route::get('/inventory/list', 'RoutesController@inventoryList')->name('inventory.list');
+    Route::get('/settings/roles', 'RoutesController@settingsRoles')->name('settings.roles');
 
     Route::get('sample', 'AttendanceController@sample');
     Route::get('/get-history', 'AttendanceController@get')->name('scum');
@@ -47,9 +48,9 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('edit-holiday/{id}', 'HolidayController@edit_holiday');
 
     // Route::group(['middleware' => 'store-account'], function () {
-        //Stores
-        Route::get('stores', 'StoreController@index')->name('store');
-        Route::get('store-remove', 'StoreController@remove')->name('store-remove');
+    //Stores
+    Route::get('stores', 'StoreController@index')->name('store');
+    Route::get('store-remove', 'StoreController@remove')->name('store-remove');
     // });
     //generate payroll
     Route::get('generate', 'PayrollController@index')->name('generate-payroll');
@@ -70,7 +71,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('save-payroll', 'PayrollController@savePayroll');
     Route::get('payslips', 'PayrollController@payslips');
     Route::get('payslip/{id}', 'PayrollController@payslip');
-    Route::get('payslips_all','PayrollController@payslips_all');
+    Route::get('payslips_all', 'PayrollController@payslips_all');
 
     Route::post('additional-income/{id}', 'PayrollController@additionaIncome');
     Route::delete('additional-income/delete/{allowanceId}', 'PayrollController@deleteAllowance');
