@@ -118,6 +118,10 @@ body {
     color: yellow !important;
 }
 
+.nav-item .submenu .nav-link:not(.active) {
+    color: #ffffff;
+}
+
 .nav-item .nav-link.active .menu-icon,
 .nav-item .nav-link.active .arrow-icon {
     filter: brightness(0) invert(1);
@@ -139,6 +143,10 @@ body {
     color: inherit;
 }
 
+.nav-item .submenu .nav-link.submenu-active {
+    color: yellow;
+}
+
 /* Dashboard Page */
 
 .dashboard-list {
@@ -155,6 +163,10 @@ body {
     padding: 5px 10px;
     font-size: 14px;
     display: block;
+}
+
+.dashboard-list .nav-link:not(.submenu-active) {
+    color: #ffffff !important;
 }
 
 .input-group {
