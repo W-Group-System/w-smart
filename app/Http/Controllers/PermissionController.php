@@ -118,4 +118,16 @@ class PermissionController extends Controller
             ], 500);
         }
     }
+    public function deleteRole($id)
+    {
+        $role = Role::find($id);
+
+        if (!$role) {
+            return Response::json(['message' => 'Role not found'], 404);
+        }
+
+        $role->delete();
+
+        return Response::json(['message' => 'Role deleted successfully'], 200);
+    }
 }
