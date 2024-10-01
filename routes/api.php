@@ -23,6 +23,6 @@ Route::get('subsidiary', 'InventoryController@getSubsidiary')->name('subsidiary'
 Route::post('create-inventory', 'InventoryController@createInventory')->name('create-inventory');
 Route::patch('update-role/{id}', 'UserController@update')->name('update-role');
 Route::get('users', 'UserController@index')->name('users');
-Route::delete('delete-role/{id}', 'PermissionController@delete')->name('delete-role');
+Route::post('delete-role', 'PermissionController@delete')->name('delete-role');
 
 

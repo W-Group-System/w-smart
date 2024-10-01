@@ -78,7 +78,7 @@ class PermissionController extends Controller
             return response()->json([
                 'status' => 'success',
                 'data' => $new_role,
-            ], 201);
+            ], 200);
         } catch (\Exception $e) {
             Log::error('Failed to create role: ' . $e->getMessage());
             return response()->json([
@@ -108,7 +108,7 @@ class PermissionController extends Controller
             return response()->json([
                 'status' => 'success',
                 'data' => $new_permission,
-            ], 201);
+            ], 200);
         } catch (\Exception $e) {
             Log::error('Failed to create permission: ' . $e->getMessage());
             return response()->json([
@@ -118,16 +118,47 @@ class PermissionController extends Controller
             ], 500);
         }
     }
-    public function deleteRole($id)
+    public function delete(Request $request)
     {
-        $role = Role::find($id);
 
-        if (!$role) {
-            return Response::json(['message' => 'Role not found'], 404);
-        }
+       try {
+           // Find the user by the provided user_id
+           $user = User::findOrFail($request->id);
 
-        $role->delete();
+           // Find the current role of the user
+           $role = Roles::find($user->role);
 
-        return Response::json(['message' => 'Role deleted successfully'], 200);
+           // Update the user's role to the new_role_id
+           $user->role = $request->newrole;
+           $user->save();
+
+           // Delete the old role
+           if ($role) {
+               $role->delete();
+           }
+
+           // Success response
+           return response()->json([
+               'status' => 'success',
+               'message' => 'Role deleted successfully',
+            ], 200);
+
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+           // Catch case where the user is not found
+           return response()->json([
+               'status' => 'error',
+               'message' => 'User not found.',
+               'error' => $e->getMessage(),
+            ], 404);
+
+        } catch (\Exception $e) {
+           // Catch any other general exception
+            return response()->json([
+               'status' => 'error',
+               'message' => 'Failed to delete role.',
+               'error' => $e->getMessage(),
+            ], 500);
+       }
     }
+
 }
