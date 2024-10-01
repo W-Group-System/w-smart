@@ -10,22 +10,32 @@ use RealRashid\SweetAlert\Facades\Alert;
 class InventoryController extends Controller
 {
     public function index(Request $request)
-   	{
+    {
         try {
-        $inventory = Inventory::all();
+            $startDate = $request->start_date;
+            $endDate = $request->end_date;
 
-        return response()->json([
-            'status' => 'success',
-            'data' => $inventory,
-        ], 200);
-	    } catch (\Exception $e) {
-	        return response()->json([
-	            'status' => 'error',
-	            'message' => 'Failed to fetch permissions.',
-	            'error' => $e->getMessage(),
-	        ], 500); 
-	    }
-   	}
+            $query = Inventory::query();
+
+            if ($startDate && $endDate) {
+                $query->whereBetween('date', [$startDate, $endDate]);
+            }
+
+            $inventory = $query->get();
+
+            return response()->json([
+                'status' => 'success',
+                'data' => $inventory,
+            ], 200);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to fetch inventory.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
    	public function getSubsidiary(Request $request)
    	{
         try {

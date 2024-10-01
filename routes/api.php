@@ -18,7 +18,7 @@ Route::get('features', 'PermissionController@getFeatures')->name('features');
 Route::get('roles', 'PermissionController@getRoles')->name('roles');
 Route::post('create-role', 'PermissionController@createRole')->name('create-role');
 Route::post('create-permission', 'PermissionController@createPermission')->name('create-permission');
-Route::get('inventory', 'InventoryController@index')->name('inventory');
+Route::post('inventory', 'InventoryController@index')->name('inventory');
 Route::get('subsidiary', 'InventoryController@getSubsidiary')->name('subsidiary');
 Route::post('create-inventory', 'InventoryController@createInventory')->name('create-inventory');
 Route::patch('update-role/{id}', 'UserController@update')->name('update-role');

@@ -14,7 +14,7 @@
 
     <div class="row align-items-center mb-4">
         <div class="col-12 d-flex justify-content-between align-items-center flex-wrap">
-            <form class="d-flex gap-2 align-items-center me-3" style="flex-shrink: 0; flex-basis: 400px;">
+            <form class="d-flex gap-2 align-items-center me-3" style="flex-shrink: 0; flex-basis: 400px;" id="filter-submit">
                 <label class="fw-bold me-2" for="start-date">From</label>
                 <div class="input-group" style="border-radius: 10px; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);">
                     <input type="date" class="form-control" id="start-date" placeholder="dd/mm/yyyy"

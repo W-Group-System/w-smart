@@ -1,7 +1,7 @@
 document.addEventListener("DOMContentLoaded", function () {
+
     var startDateInput = document.getElementById("start-date");
     var endDateInput = document.getElementById("end-date");
-
     startDateInput.style.setProperty("color", "#adb5bd", "important");
     endDateInput.style.setProperty("color", "#adb5bd", "important");
     startDateInput.style.fontWeight = "300";
@@ -14,24 +14,79 @@ document.addEventListener("DOMContentLoaded", function () {
     endDateInput.addEventListener("input", function () {
         this.style.color = this.value === "" ? "#adb5bd" : "";
     });
+    function getFormattedDate(date) {
+        let year = date.getFullYear();
+        let month = ("0" + (date.getMonth() + 1)).slice(-2);
+        let day = ("0" + date.getDate()).slice(-2);
+        return `${year}-${month}-${day}`;
+    }
+
+    var today = new Date();
+
+    startDateInput.value = getFormattedDate(today);
+
+    endDateInput.value = getFormattedDate(today);
 
     fetch("/api/inventory", {
-        method: "GET",
+        method: "POST",
         headers: {
             "Content-Type": "application/json",
         },
-    })
-        .then((response) => response.json())
-        .then((data) => {
-            if (data.status === "success") {
-                initializeDynamicTable(data.data);
-            } else {
-                console.error("Failed to fetch inventory:", data.message);
-            }
+        body: JSON.stringify({
+            start_date: startDateInput.value,
+            end_date: endDateInput.value
         })
-        .catch((error) => {
-            console.error("Error fetching inventory:", error);
-        });
+    })
+    .then((response) => response.json())
+    .then((data) => {
+        console.log(data.data)
+        if (data.status === "success") {
+            initializeDynamicTable(data.data);
+        } else {
+            console.error("Failed to fetch inventory:", data.message);
+        }
+    })
+    .catch((error) => {
+        console.error("Error fetching inventory:", error);
+    });
+
+    var selectedStartDate
+
+    var selectedEndDate
+
+    startDateInput.onchange = function() {
+        selectedStartDate = startDateInput.value;
+    };
+    endDateInput.onchange = function() {
+        selectedEndDate = endDateInput.value;
+    };
+
+    var form = document.getElementById("filter-submit");
+
+    form.addEventListener("submit", function(event) {
+        event.preventDefault();
+        fetch("/api/inventory", {
+            method: "POST",
+            headers: {
+               "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+               start_date: selectedStartDate ? selectedStartDate : startDateInput.value,
+               end_date: selectedEndDate ? selectedEndDate : endDateInput.value
+            })
+       })
+       .then((response) => response.json())
+       .then((data) => {
+            if (data.status === "success") {
+               initializeDynamicTable(data.data);
+            } else {
+               console.error("Failed to fetch inventory:", data.message);
+            }
+       })
+       .catch((error) => {
+           console.error("Error fetching inventory:", error);
+       });
+   });
 
     var downloadButton = document.getElementById("downloadButton");
 
@@ -68,6 +123,7 @@ document.addEventListener("DOMContentLoaded", function () {
             const currentItems = inventoryData.slice(startIndex, endIndex);
 
             currentItems.forEach((item, index) => {
+
                 const row = document.createElement("tr");
                 row.innerHTML = `
                     <td style="text-align: center; padding: 2px 10px;">${
@@ -214,7 +270,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 trigger: "focus",
             });
 
-            // Hide the popover when clicking outside
             document.addEventListener("click", function (event) {
                 if (
                     !popoverElement.contains(event.target) &&

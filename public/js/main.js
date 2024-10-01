@@ -4,18 +4,12 @@ function fetchUserPermissions(userRoleId) {
         .then((response) => {
             if (response.data.status === "success") {
                 const permissions = response.data.data;
-                console.log("Permissions:", permissions);
 
                 const userFeatures = permissions
                     .filter((p) => p.roleid == userRoleId)
                     .map((p) => p.feature);
 
-                console.log("User Features:", userFeatures);
-
                 if (userFeatures.length === 0) {
-                    console.log(
-                        "No features found for this role, defaulting to SuperAdmin access."
-                    );
                     displayAllFeatures();
                 } else {
                     displayFeatures(userFeatures);
