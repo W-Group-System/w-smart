@@ -122,29 +122,25 @@ class PermissionController extends Controller
     {
 
        try {
-           // Find the user by the provided user_id
+       
            $user = User::findOrFail($request->id);
 
-           // Find the current role of the user
            $role = Roles::find($user->role);
 
-           // Update the user's role to the new_role_id
            $user->role = $request->newrole;
+
            $user->save();
 
-           // Delete the old role
            if ($role) {
                $role->delete();
            }
 
-           // Success response
            return response()->json([
                'status' => 'success',
                'message' => 'Role deleted successfully',
             ], 200);
 
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
-           // Catch case where the user is not found
            return response()->json([
                'status' => 'error',
                'message' => 'User not found.',
@@ -152,7 +148,6 @@ class PermissionController extends Controller
             ], 404);
 
         } catch (\Exception $e) {
-           // Catch any other general exception
             return response()->json([
                'status' => 'error',
                'message' => 'Failed to delete role.',

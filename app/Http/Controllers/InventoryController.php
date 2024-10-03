@@ -14,18 +14,28 @@ class InventoryController extends Controller
         try {
             $startDate = $request->start_date;
             $endDate = $request->end_date;
+            $subsidiary = $request->subsidiary;
+            $subsidiaryid = $request->subsidiaryid;
+
+            $perPage = $request->get('per_page', 10);
 
             $query = Inventory::query();
 
             if ($startDate && $endDate) {
-                $query->whereBetween('date', [$startDate, $endDate]);
+                $query->where('subsidiaryid', $subsidiaryid)->whereBetween('date', [$startDate, $endDate]);
             }
 
-            $inventory = $query->get();
+            $inventory = $query->paginate($perPage);
 
             return response()->json([
                 'status' => 'success',
-                'data' => $inventory,
+                'data' => $inventory->items(),
+                'pagination' => [
+                    'current_page' => $inventory->currentPage(),
+                    'total_pages' => $inventory->lastPage(),
+                    'total_items' => $inventory->total(),
+                    'per_page' => $inventory->perPage(),
+                ]
             ], 200);
 
         } catch (\Exception $e) {
@@ -56,7 +66,6 @@ class InventoryController extends Controller
    	public function createInventory(Request $request)
    	{
       	try {
-           // Validate the incoming request data
            	$request->validate([
                'date' => 'required|date',
                'item_code' => 'required|string|max:100',
@@ -66,6 +75,8 @@ class InventoryController extends Controller
                'qty' => 'required|numeric|min:0',
                'cost' => 'required|numeric|min:0',
                'usage' => 'required|numeric|min:0',
+               'subsidiary' => 'required|string|max:100',
+               'subsidiaryid' => 'required|numeric|min:0',
            	]);
 
            	$new_inventory = new Inventory();
@@ -77,6 +88,8 @@ class InventoryController extends Controller
            	$new_inventory->qty = $request->qty; 
            	$new_inventory->cost = $request->cost; 
            	$new_inventory->usage = $request->usage; 
+            $new_inventory->subsidiaryid = $request->subsidiaryid; 
+            $new_inventory->subsidiary = $request->subsidiary; 
            	$new_inventory->save();
            	return response()->json([
                'status' => 'success',

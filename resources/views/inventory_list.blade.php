@@ -42,10 +42,9 @@
             </div>
 
             <div class="d-flex align-items-center">
-                <select class="form-select me-3"
+                <select class="form-select me-3" id="subsidiary"
                     style="width: 150px; height: 35px; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); color: #6c757d; border-radius: 25px; font-size: 14px;">
-                    <option selected disabled>Subsidiary</option>
-                    <option value="1">HO</option>
+                    <option selected value="1">HO</option>
                     <option value="2">WTCC</option>
                     <option value="3">CITI</option>
                     <option value="4">WCC</option>
