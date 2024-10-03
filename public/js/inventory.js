@@ -8,6 +8,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const pagination = document.querySelector("ul.pagination");
     const form = document.getElementById("filter-submit");
     const downloadButton = document.getElementById("downloadButton");
+    const searchInput = document.getElementById("searchInput");   
     let currentPage = 1;
     let rowsPerPage = parseInt(rowsPerPageSelect.value, 10) || 10;
     let selectedText = subsidiary.selectedOptions[0].text;
@@ -35,7 +36,7 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 
-    function fetchInventory(page) {
+    function fetchInventory(page, search) {
         fetch(`/api/inventory?page=${page}&per_page=${rowsPerPage}`, {
             method: "POST",
             headers: {
@@ -45,8 +46,8 @@ document.addEventListener("DOMContentLoaded", function () {
                 start_date: startDateInput.value,
                 end_date: endDateInput.value,
                 subsidiaryid: subsidiary.value,
-                subsidiary: selectedText, 
-                per_page: rowsPerPage
+                per_page: rowsPerPage,
+                search: search
             })
         })
         .then((response) => response.json())
@@ -120,7 +121,6 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function updatePagination(paginationData) {
-    
         pagination.innerHTML = ""; 
 
         if (!paginationData) {
@@ -229,4 +229,9 @@ document.addEventListener("DOMContentLoaded", function () {
             });
         });
     }
+
+    searchInput.addEventListener("input", function () {
+        const searchTerm = this.value;  
+        fetchInventory(currentPage, searchTerm);
+    });
 });

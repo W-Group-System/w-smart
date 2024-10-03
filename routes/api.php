@@ -24,5 +24,6 @@ Route::post('create-inventory', 'InventoryController@createInventory')->name('cr
 Route::patch('update-role/{id}', 'UserController@update')->name('update-role');
 Route::get('users', 'UserController@index')->name('users');
 Route::post('delete-role', 'PermissionController@delete')->name('delete-role');
+Route::post('search-inventory', 'InventoryController@search')->name('search-inventory');
 
 

@@ -16,13 +16,23 @@ class InventoryController extends Controller
             $endDate = $request->end_date;
             $subsidiary = $request->subsidiary;
             $subsidiaryid = $request->subsidiaryid;
+            $searchTerm = $request->search;
 
             $perPage = $request->get('per_page', 10);
 
             $query = Inventory::query();
 
+            // Apply date range filter if provided
             if ($startDate && $endDate) {
-                $query->where('subsidiaryid', $subsidiaryid)->whereBetween('date', [$startDate, $endDate]);
+                $query->where('subsidiaryid', $subsidiaryid)
+                      ->whereBetween('date', [$startDate, $endDate]);
+            }
+
+            if ($searchTerm) {
+                $query->where(function ($q) use ($searchTerm) {
+                    $q->where('item_description', 'LIKE', '%' . $searchTerm . '%')
+                      ->orWhere('item_code', 'LIKE', '%' . $searchTerm . '%');
+                });
             }
 
             $inventory = $query->paginate($perPage);
@@ -104,4 +114,35 @@ class InventoryController extends Controller
            	], 500);
        	}
    	}
+    public function search(Request $request)
+    {
+        $searchTerm = $request->search;
+        $perPage = $request->get('per_page', 10);
+        $subsidiaryid = $request->subsidiaryid;
+        try {
+            $query = Inventory::query();
+            $query->where('subsidiaryid', $subsidiaryid)->where(function ($q) use ($searchTerm) {
+                $q->where('item_description', 'LIKE', '%' . $searchTerm . '%')
+                ->orWhere('item_code', 'LIKE', '%' . $searchTerm . '%');
+            });
+
+            $inventory = $query->paginate($perPage);
+            return response()->json([
+                'status' => 'success',
+                'data' => $inventory->items(),
+                'pagination' => [
+                   'current_page' => $inventory->currentPage(),
+                   'total_pages' => $inventory->lastPage(),
+                   'total_items' => $inventory->total(),
+                   'per_page' => $inventory->perPage(),
+                ]
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to fetch permissions.',
+                'error' => $e->getMessage(),
+            ], 500); 
+        }
+    }
 }
