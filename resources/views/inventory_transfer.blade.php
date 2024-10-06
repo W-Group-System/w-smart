@@ -52,9 +52,9 @@
                     <option value="6">WOI</option>
                     <option value="7">WGC</option>
                 </select>
-                <a href="#" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addInventoryModal"
+                <a href="#" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#requestTransferModal"
                     style="height: 35px; padding: 0 15px; display: flex; align-items: center; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); font-size: 14px;">
-                    Add New Inventory
+                    Request Transfer
                 </a>
             </div>
 
@@ -70,7 +70,12 @@
                         </th>
                         <th
                             style="text-align: center; padding: 8px 10px; border: none; font-weight: 400; color: #637281;">
-                            Date <i class="bi bi-three-dots-vertical"></i></th>
+                            Transfer From <i class="bi bi-three-dots-vertical"></i>
+                        </th>
+                        <th
+                            style="text-align: center; padding: 8px 10px; border: none; font-weight: 400; color: #637281;">
+                            Transfer To <i class="bi bi-three-dots-vertical"></i>
+                        </th>
                         <th
                             style="text-align: center; padding: 8px 10px; border: none; font-weight: 400; color: #637281;">
                             Item Code <i class="bi bi-three-dots-vertical"></i></th>
@@ -94,13 +99,15 @@
                             Usage <i class="bi bi-three-dots-vertical"></i></th>
                         <th
                             style="text-align: center; padding: 8px 10px; border: none; font-weight: 400; color: #637281;">
-                            Action </th>
+                            Status <i class="bi bi-three-dots-vertical"></i>
+                        </th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
                         <td style="text-align: center; padding: 2px 10px;"></td>
-                        <td style="text-align: center; padding: 2px 10px;">00/00/0000</td>
+                        <td style="text-align: center; padding: 2px 10px;">Transfer From</td>
+                        <td style="text-align: center; padding: 2px 10px;">Transfer To</td>
                         <td style="text-align: center; padding: 2px 10px;">000000</td>
                         <td style="text-align: center; padding: 2px 10px;">Item Description</td>
                         <td style="text-align: center; padding: 2px 10px;">Item Category</td>
@@ -109,24 +116,7 @@
                         <td style="text-align: center; padding: 2px 10px;">00.00</td>
                         <td style="text-align: center; padding: 2px 10px;">Usage</td>
                         <td style="text-align: center; padding: 2px 10px;">
-                            <div style="position: relative;">
-                                <button type="button" class="btn btn-link actionButton" data-bs-toggle="popover"
-                                    data-bs-html="true" aria-expanded="false" data-bs-trigger="focus" data-bs-content='
-                                <div style="font-family: Inter, sans-serif; color: #79747E; text-align: center;">
-                                    <button type="button" 
-                                            class="btn btn-sm btn-light mt-1 modify-button" 
-                                            style="display: flex; justify-content: center; width: 100%; align-items: center; border-radius: 8px; color: #79747E;"
-                                            data-bs-toggle="modal" 
-                                            data-bs-target="#modifyModal">
-                                        Modify
-                                    </button>
-                                    <button class="btn btn-sm btn-light mt-1" style="display: flex; justify-content: center; width: 100%; align-items: center; border-radius: 8px; color: #79747E;">
-                                        Inactive 
-                                    </button>
-                                </div>'>
-                                    <i class="bi bi-three-dots-vertical" style="color: black;"></i>
-                                </button>
-                            </div>
+                            <span class="badge bg-danger">Pending</span>
                         </td>
                     </tr>
                 </tbody>
@@ -167,162 +157,128 @@
     </div>
 </div>
 
-<!-- Modify Modal -->
-<div class="modal fade" id="modifyModal" tabindex="-1" aria-labelledby="modifyModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="modifyModalLabel">Modify</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <form id="modifyForm">
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <label for="itemCode" class="form-label">Item Code</label>
-                            <input type="text" class="form-control" id="itemCode" value="Auto Generate" readonly>
-                        </div>
-                        <div class="col-md-6">
-                            <label for="itemDescription" class="form-label">Item Description</label>
-                            <input type="text" class="form-control" id="itemDescription">
-                        </div>
-                        <div class="col-md-6">
-                            <label for="category" class="form-label">Category</label>
-                            <select class="form-select" id="category">
-                                <option value="">Select Category</option>
-                            </select>
-                        </div>
-                        <div class="col-md-6">
-                            <label for="primaryUOM" class="form-label">Primary UOM</label>
-                            <select class="form-select" id="primaryUOM">
-                            </select>
-                        </div>
-                        <div class="col-md-6">
-                            <label for="secondaryUOM" class="form-label">Secondary UOM</label>
-                            <select class="form-select" id="secondaryUOM">
-                            </select>
-                        </div>
-                        <div class="col-md-6">
-                            <label for="tertiaryUOM" class="form-label">Tertiary UOM</label>
-                            <select class="form-select" id="tertiaryUOM">
-                            </select>
-                        </div>
-                        <div class="col-md-6">
-                            <label for="quantity" class="form-label">Quantity</label>
-                            <input type="number" class="form-control" id="quantity">
-                        </div>
-                        <div class="col-md-6">
-                            <label for="cost" class="form-label">Cost</label>
-                            <input type="number" class="form-control" id="cost">
-                        </div>
-                        <div class="col-md-12">
-                            <label for="usage" class="form-label">Usage</label>
-                            <input type="text" class="form-control" id="usage" value="Auto Generate" readonly>
-                        </div>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-success" id="saveChanges">Save</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Inventory Modal -->
-<div class="modal fade" id="addInventoryModal" tabindex="-1" aria-labelledby="addInventoryModalLabel"
+<!-- Transfer Modal -->
+<div class="modal fade" id="requestTransferModal" tabindex="-1" aria-labelledby="requestTransferModalLabel"
     aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="addInventoryModalLabel">New Inventory</h5>
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content" style="padding: 20px;">
+            <div class="modal-header d-flex justify-content-start">
+                <h5 class="modal-title" id="requestTransferModalLabel">Inventory Transfer</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body">
-                <form id="addInventoryForm">
-                    <div class="row g-3">
+            <div class="modal-body p-2">
+                <form id="requestTransferForm">
+                    <!-- Transaction Information -->
+                    <div class="row g-2 mb-3">
                         <div class="col-md-6">
-                            <label for="dateCreated" class="form-label">Date Created</label>
-                            <input type="text" class="form-control" id="dateCreated" value="Auto Generate" readonly>
+                            <label for="transactionDate" class="form-label">Transaction Date</label>
+                            <input type="date" class="form-control form-control-sm" id="transactionDate">
                         </div>
                         <div class="col-md-6">
-                            <label for="newItemCode" class="form-label">Item Code</label>
-                            <input type="text" class="form-control" id="newItemCode" value="Auto Generate" readonly>
+                            <label for="transactionNumber" class="form-label">Transaction Number</label>
+                            <input type="text" class="form-control form-control-sm" id="transactionNumber">
                         </div>
                         <div class="col-md-6">
-                            <label for="newItemDescription" class="form-label">Item Description</label>
-                            <input type="text" class="form-control" id="newItemDescription">
-                        </div>
-                        <div class="col-md-6">
-                            <label for="newSubsidiary" class="form-label">Subsidiary</label>
-                            <input type="text" class="form-control" id="newSubsidiary">
-                        </div>
-
-                        <div class="col-md-6">
-                            <label for="newCategory" class="form-label">Category</label>
-                            <select class="form-select" id="newCategory">
-                                <option value="">Select Category</option>
+                            <label for="transferFrom" class="form-label">Transfer From</label>
+                            <select class="form-select form-select-sm" id="transferFrom">
+                                <option>Select</option>
                             </select>
                         </div>
-
                         <div class="col-md-6">
-                            <div class="row g-3">
-                                <div class="col-md-6">
-                                    <label for="newPrimaryUOM" class="form-label">Primary UOM</label>
-                                    <select class="form-select" id="newPrimaryUOM">
-                                    </select>
-                                </div>
-                                <div class="col-md-6">
-                                    <label for="newSecondaryUOM" class="form-label">Secondary UOM</label>
-                                    <select class="form-select" id="newSecondaryUOM">
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-md-6">
-                            <label for="newCost" class="form-label">Cost</label>
-                            <input type="text" class="form-control" id="newCost">
-                        </div>
-
-                        <div class="col-md-6">
-                            <div class="row g-3">
-                                <div class="col-md-6">
-                                    <label for="newTertiaryUOM" class="form-label">Tertiary UOM</label>
-                                    <select class="form-select" id="newTertiaryUOM">
-                                    </select>
-                                </div>
-                                <div class="col-md-6">
-                                    <label for="newQuantity" class="form-label">Quantity</label>
-                                    <select class="form-select" id="newQuantity">
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row g-3">
-                            <div class="col-md-7">
-                                <label for="remarks" class="form-label">Remarks</label>
-                                <textarea class="form-control" id="remarks" rows="3"></textarea>
-                            </div>
-                            <div class="col-md-5">
-                                <label for="newUsage" class="form-label">Usage</label>
-                                <input type="text" class="form-control" id="newUsage" value="00.00">
-                            </div>
+                            <label for="transferTo" class="form-label">Transfer To</label>
+                            <select class="form-select form-select-sm" id="transferTo">
+                                <option>Select</option>
+                            </select>
                         </div>
                     </div>
-                </form>
-            </div>
-            <div class="modal-footer d-flex justify-content-end">
-                <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-success" id="saveNewInventory">Save</button>
+
+                    <!-- Item Information Table -->
+                    <div class="table-responsive mb-3">
+                        <table class="table table-bordered table-sm">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Item Code</th>
+                                    <th>Item Description</th>
+                                    <th>Category</th>
+                                    <th>Primary UOM</th>
+                                    <th>Secondary UOM</th>
+                                    <th>Tertiary UOM</th>
+                                    <th>QTY</th>
+                                    <th>Cost</th>
+                                    <th>Usage</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td contenteditable="false">Auto Generate</td>
+                                    <td contenteditable="true"></td>
+                                    <td contenteditable="true"></td>
+                                    <td contenteditable="true"></td>
+                                    <td contenteditable="true"></td>
+                                    <td contenteditable="true"></td>
+                                    <td contenteditable="true"></td>
+                                    <td contenteditable="true"></td>
+                                    <td contenteditable="false">Auto Generate</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="remarks" class="form-label">Remarks</label>
+                        <textarea class="form-control form-control-sm" id="remarks"></textarea>
+                    </div>
+
+                    <!-- Approver Section -->
+                    <div class="table-responsive mb-3">
+                        <table class="table table-bordered table-sm">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Status</th>
+                                    <th>Start Date</th>
+                                    <th>Action Date</th>
+                                    <th>Remarks</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td contenteditable="false">Auto Generate</td>
+                                    <td contenteditable="false">Auto Generate</td>
+                                    <td contenteditable="true"></td>
+                                    <td contenteditable="true"></td>
+                                    <td contenteditable="true"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Action Section -->
+                    <div class="row g-2 align-items-end mb-3">
+                        <div class="col-md-3">
+                            <label for="action" class="form-label">Action</label>
+                            <select class="form-select form-select-sm" id="action">
+                                <option>Select</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="actionRemarks" class="form-label">Remarks</label>
+                            <input type="text" class="form-control form-control-sm" id="actionRemarks"
+                                style="height: 50px;">
+                        </div>
+                        <div class="col-md-3 d-flex justify-content-end">
+                            <button type="button" class="btn btn-success btn-sm" id="submitRequestTransfer"
+                                style="background-color: #28a745; color: white; border: 1px solid #28a745; padding: 6px 12px;">
+                                Submit
+                            </button>
+                        </div>
+                    </div>
             </div>
         </div>
     </div>
-</div>
 
-@endsection
+    @endsection
 
-@push('scripts')
-    <script src="{{ asset('js/inventory.js') }}"></script>
-@endpush
+    @push('scripts')
+        <script src="{{ asset('js/inventory.js') }}"></script>
+    @endpush

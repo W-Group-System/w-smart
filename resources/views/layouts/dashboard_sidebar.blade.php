@@ -31,16 +31,22 @@
                         href="{{ route('inventory.list') }}">Inventory List</a>
                 </li>
                 <li class="nav-item dashboard-list">
-                    <a class="nav-link {{ request()->is('inventory/transfer') ? 'submenu-active' : '' }}" href="#">
-                        Inventory Transfer</a>
+                    <a class="nav-link {{ request()->is('inventory/transfer') ? 'submenu-active' : '' }}"
+                        href="{{ route('inventory.transfer') }}">
+                        Inventory Transfer
+                    </a>
                 </li>
                 <li class="nav-item dashboard-list">
-                    <a class="nav-link {{ request()->is('inventory/withdrawal') ? 'submenu-active' : '' }}" href="#">
-                        Withdrawal Request</a>
+                    <a class="nav-link {{ request()->is('inventory/withdrawal') ? 'submenu-active' : '' }}"
+                        href="{{ route('inventory.withdrawal') }}">
+                        Withdrawal Request
+                    </a>
                 </li>
                 <li class="nav-item dashboard-list">
-                    <a class="nav-link {{ request()->is('inventory/returned') ? 'submenu-active' : '' }}" href="#">
-                        Returned Inventory</a>
+                    <a class="nav-link {{ request()->is('inventory/returned') ? 'submenu-active' : '' }}"
+                        href="{{ route('inventory.returned') }}">
+                        Returned Inventory
+                    </a>
                 </li>
             </ul>
         </li>

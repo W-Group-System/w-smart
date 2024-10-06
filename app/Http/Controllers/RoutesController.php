@@ -15,4 +15,19 @@ class RoutesController extends Controller
     {
         return view('inventory_list');
     }
+
+    public function inventoryTransfer()
+    {
+        return view('inventory_transfer');
+    }
+
+    public function inventoryWithdrawal()
+    {
+        return view('inventory_withdrawal');
+    }
+
+    public function inventoryReturned()
+    {
+        return view('inventory_returned');
+    }
 }
