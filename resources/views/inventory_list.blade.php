@@ -52,7 +52,7 @@
                     <option value="6">WOI</option>
                     <option value="7">WGC</option>
                 </select>
-                <a href="#" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addInventoryModal"
+                <a href="#" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addInventoryModal" id="addInventory"
                     style="height: 35px; padding: 0 15px; display: flex; align-items: center; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); font-size: 14px;">
                     Add New Inventory
                 </a>
@@ -183,13 +183,16 @@
                             <input type="text" class="form-control" id="itemCode" value="Auto Generate" readonly>
                         </div>
                         <div class="col-md-6">
-                            <label for="itemDescription" class="form-label">Item Description</label>
+                            <label for="itemDescription" class="form-label" required>Item Description</label>
                             <input type="text" class="form-control" id="itemDescription">
                         </div>
                         <div class="col-md-6">
                             <label for="category" class="form-label">Category</label>
                             <select class="form-select" id="category">
                                 <option value="">Select Category</option>
+                                <option value="test1">Test1</option>
+                                <option value="test2">Test2</option>
+                                <option value="test3">Test3</option>
                             </select>
                         </div>
                         <div class="col-md-6">
@@ -241,6 +244,7 @@
             </div>
             <div class="modal-body">
                 <form id="addInventoryForm">
+                    @csrf
                     <div class="row g-3">
                         <div class="col-md-6">
                             <label for="dateCreated" class="form-label">Date Created</label>
@@ -248,21 +252,31 @@
                         </div>
                         <div class="col-md-6">
                             <label for="newItemCode" class="form-label">Item Code</label>
-                            <input type="text" class="form-control" id="newItemCode" value="Auto Generate" readonly>
+                            <input type="text" class="form-control" id="newItemCode" readonly>
                         </div>
                         <div class="col-md-6">
-                            <label for="newItemDescription" class="form-label">Item Description</label>
-                            <input type="text" class="form-control" id="newItemDescription">
+                            <label for="newItemDescription" class="form-label" >Item Description</label>
+                            <input type="text" class="form-control" id="newItemDescription" required>
                         </div>
                         <div class="col-md-6">
                             <label for="newSubsidiary" class="form-label">Subsidiary</label>
-                            <input type="text" class="form-control" id="newSubsidiary">
+                            <select class="form-select me-3" id="modalSubsidiary" required>
+                                <option selected value="1">HO</option>
+                                <option value="2">WTCC</option>
+                                <option value="3">CITI</option>
+                                <option value="4">WCC</option>
+                                <option value="5">WFA</option>
+                                <option value="6">WOI</option>
+                                <option value="7">WGC</option>
+                            </select>
                         </div>
 
                         <div class="col-md-6">
                             <label for="newCategory" class="form-label">Category</label>
-                            <select class="form-select" id="newCategory">
-                                <option value="">Select Category</option>
+                            <select class="form-select" id="newCategory" required>
+                                <option value="test1">Test1</option>
+                                <option value="test2">Test2</option>
+                                <option value="test3">Test3</option>
                             </select>
                         </div>
 
@@ -270,12 +284,18 @@
                             <div class="row g-3">
                                 <div class="col-md-6">
                                     <label for="newPrimaryUOM" class="form-label">Primary UOM</label>
-                                    <select class="form-select" id="newPrimaryUOM">
+                                    <select class="form-select" id="newPrimaryUOM" required>
+                                        <option value="test1">Test1</option>
+                                        <option value="test2">Test2</option>
+                                        <option value="test3">Test3</option>
                                     </select>
                                 </div>
                                 <div class="col-md-6">
                                     <label for="newSecondaryUOM" class="form-label">Secondary UOM</label>
-                                    <select class="form-select" id="newSecondaryUOM">
+                                    <select class="form-select" id="newSecondaryUOM" required>
+                                        <option value="test1">Test1</option>
+                                        <option value="test2">Test2</option>
+                                        <option value="test3">Test3</option>
                                     </select>
                                 </div>
                             </div>
@@ -283,20 +303,22 @@
 
                         <div class="col-md-6">
                             <label for="newCost" class="form-label">Cost</label>
-                            <input type="text" class="form-control" id="newCost">
+                            <input type="number" class="form-control" id="newCost" required>
                         </div>
 
                         <div class="col-md-6">
                             <div class="row g-3">
                                 <div class="col-md-6">
                                     <label for="newTertiaryUOM" class="form-label">Tertiary UOM</label>
-                                    <select class="form-select" id="newTertiaryUOM">
+                                    <select class="form-select" id="newTertiaryUOM" required>
+                                        <option value="test1">Test1</option>
+                                        <option value="test2">Test2</option>
+                                        <option value="test3">Test3</option>    
                                     </select>
                                 </div>
                                 <div class="col-md-6">
                                     <label for="newQuantity" class="form-label">Quantity</label>
-                                    <select class="form-select" id="newQuantity">
-                                    </select>
+                                    <input type="number" class="form-control" id="newQuantity" required>
                                 </div>
                             </div>
                         </div>
@@ -307,16 +329,17 @@
                             </div>
                             <div class="col-md-5">
                                 <label for="newUsage" class="form-label">Usage</label>
-                                <input type="text" class="form-control" id="newUsage" value="00.00">
+                                <input type="number" class="form-control" id="newUsage" value=0 required>
                             </div>
                         </div>
                     </div>
+                    <div class="modal-footer d-flex justify-content-end">
+                        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-success" id="saveNewInventory">Save</button>
+                    </div>
                 </form>
             </div>
-            <div class="modal-footer d-flex justify-content-end">
-                <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-success" id="saveNewInventory">Save</button>
-            </div>
+
         </div>
     </div>
 </div>

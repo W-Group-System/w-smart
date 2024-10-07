@@ -81,20 +81,25 @@ class InventoryController extends Controller
                'item_code' => 'required|string|max:100',
                'item_description' => 'required|string|max:255',
                'item_category' => 'required|string|max:100',
-               'uom' => 'required|string|max:10',
+               'primaryUOM' => 'required|string|max:10',
+               'secondaryUOM' => 'required|string|max:10',
+               'tertiaryUOM' => 'required|string|max:10',
                'qty' => 'required|numeric|min:0',
                'cost' => 'required|numeric|min:0',
                'usage' => 'required|numeric|min:0',
                'subsidiary' => 'required|string|max:100',
                'subsidiaryid' => 'required|numeric|min:0',
+               'remarks' => 'string|max:100',
            	]);
-
+            
            	$new_inventory = new Inventory();
            	$new_inventory->date = $request->date; 
            	$new_inventory->item_code = $request->item_code; 
            	$new_inventory->item_description = $request->item_description; 
            	$new_inventory->item_category = $request->item_category; 
-           	$new_inventory->uom = $request->uom; 
+           	$new_inventory->uomp = $request->primaryUOM; 
+            $new_inventory->uoms = $request->secondaryUOM; 
+            $new_inventory->uomt = $request->tertiaryUOM; 
            	$new_inventory->qty = $request->qty; 
            	$new_inventory->cost = $request->cost; 
            	$new_inventory->usage = $request->usage; 
