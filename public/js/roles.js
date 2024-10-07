@@ -4,7 +4,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function toggleCreateRoleButton() {
         let roleName = document.getElementById("role").value.trim();
-        console.log(roleName)
+        console.log(roleName);
         let selectedFeatures = Array.from(
             document.querySelectorAll(
                 '#features input[type="checkbox"]:checked'
@@ -22,6 +22,35 @@ document.addEventListener("DOMContentLoaded", function () {
         .getElementById("features")
         .addEventListener("change", toggleCreateRoleButton);
 
+    document
+        .getElementById("createRoleBtn")
+        .addEventListener("click", function () {
+            let createRoleModal = new bootstrap.Modal(
+                document.getElementById("createRoleModal")
+            );
+            createRoleModal.show();
+        });
+
+    document
+        .getElementById("assignRoleBtn")
+        .addEventListener("click", function () {
+            let assignRoleModal = new bootstrap.Modal(
+                document.getElementById("assignRoleModal")
+            );
+            assignRoleModal.show();
+        });
+
+    function toggleCreateRoleButton() {
+        let roleName = document.getElementById("role").value.trim();
+        let selectedFeatures = Array.from(
+            document.querySelectorAll(
+                '#features input[type="checkbox"]:checked'
+            )
+        );
+        createRoleButton.disabled =
+            roleName === "" || selectedFeatures.length === 0;
+    }
+
     axios
         .get("/api/features")
         .then((response) => {
@@ -38,21 +67,19 @@ document.addEventListener("DOMContentLoaded", function () {
                     featureContainer.appendChild(checkboxDiv);
                 });
 
-                toggleCreateRoleButton();    
-            }
-            else {
+                toggleCreateRoleButton();
+            } else {
                 let featureContainer = document.getElementById("features");
 
-                featureContainer.innerHTML = ''; 
+                featureContainer.innerHTML = "";
                 featureContainer.classList.add("ps-4");
 
                 let labelDiv = document.createElement("div");
                 labelDiv.className = "alert alert-warning mt-2"; // Added margin for better display
                 labelDiv.innerHTML = "No features available.";
 
-                featureContainer.appendChild(labelDiv);   
+                featureContainer.appendChild(labelDiv);
             }
-
         })
         .catch((error) => {
             console.error("Error fetching features:", error);
@@ -126,8 +153,7 @@ document.addEventListener("DOMContentLoaded", function () {
             .get("/api/permissions")
             .then((response) => {
                 let roleList = document.getElementById("roleList");
-                roleList.innerHTML = ""; 
-
+                roleList.innerHTML = "";
                 let roleMap = {};
 
                 response.data.data.forEach((permission) => {
@@ -136,10 +162,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     let featureName = permission.feature;
 
                     if (!roleMap[roleId]) {
-                        roleMap[roleId] = {
-                            role: roleName,
-                            features: [],
-                        };
+                        roleMap[roleId] = { role: roleName, features: [] };
                     }
                     roleMap[roleId].features.push(featureName);
                 });
@@ -147,112 +170,244 @@ document.addEventListener("DOMContentLoaded", function () {
                 for (let roleId in roleMap) {
                     let row = document.createElement("tr");
                     row.innerHTML = `
-                            <td>${roleMap[roleId].role}</td>
-                            <td class="text-wrap">${roleMap[
-                                roleId
-                            ].features.join(", ")}</td>
-                            <td><button class="btn btn-danger" data-role-id="${roleId}">Delete</button></td>
-                        `;
+                        <td>${roleMap[roleId].role}</td>
+                        <td class="text-wrap">${roleMap[roleId].features.join(
+                            ", "
+                        )}</td>
+                        <td><button class="btn btn-danger" data-role-id="${roleId}">Delete</button></td>
+                    `;
                     roleList.appendChild(row);
                 }
             })
-            .catch((error) => {
-                console.error("Error fetching permissions:", error);
-            });
+            .catch((error) =>
+                console.error("Error fetching permissions:", error)
+            );
     }
-    function loadUsers() {
-        axios
-            .get("/api/users")
-            .then((response) => {
-                let employees = document.getElementById("employee");
-                employees.innerHTML = ""; // Clear any existing options
 
-                // Add a default 'Select an Employee' option that behaves like a placeholder
-                let defaultOption = document.createElement("option");
-                defaultOption.text = "Select an Employee";
-                defaultOption.value = "";
-                defaultOption.disabled = true;
-                defaultOption.selected = true; // Ensure it's selected by default
-                employees.appendChild(defaultOption);
+    let roleMap = {};
 
-                // Loop through the user data and create options
-                response.data.data.forEach((data) => {
-                    // Assuming 'data' contains employee details, like 'id' and 'name'
-                    let option = document.createElement("option");
-                    option.value = data.id;  // Assign user ID as the value
-                    option.text = data.name; // Assign user name as the display text
-
-                    // Append the option to the select element
-                    employees.appendChild(option);
-                });
-            })
-            .catch((error) => {
-                console.error("Error fetching users:", error);
-            });
-    }
     function loadRoles() {
         axios
             .get("/api/roles")
             .then((response) => {
-                console.log(response)
                 let roles = document.getElementById("assignRole");
-                roles.innerHTML = ""; // Clear any existing options
+                roles.innerHTML = "";
 
-                // Add a default 'Select an Employee' option that behaves like a placeholder
                 let defaultOption = document.createElement("option");
-                defaultOption.text = "Select an Role";
+                defaultOption.text = "Select a Role";
                 defaultOption.value = "";
                 defaultOption.disabled = true;
-                defaultOption.selected = true; // Ensure it's selected by default
+                defaultOption.selected = true;
                 roles.appendChild(defaultOption);
 
-                // Loop through the user data and create options
                 response.data.data.forEach((data) => {
-                    // Assuming 'data' contains employee details, like 'id' and 'name'
                     let option = document.createElement("option");
-                    option.value = data.id;  // Assign user ID as the value
-                    option.text = data.role; // Assign user name as the display text
-
-                    // Append the option to the select element
+                    option.value = data.id;
+                    option.text = data.role;
                     roles.appendChild(option);
+
+                    roleMap[data.id] = data.role;
                 });
             })
-            .catch((error) => {
-                console.error("Error fetching users:", error);
-            });
+            .catch((error) => console.error("Error fetching roles:", error));
     }
-    document.getElementById("assignRoleForm").addEventListener("submit", function(event) {
-        event.preventDefault();
 
-        const employeeId = document.getElementById("employee").value;
-        const roleId = document.getElementById("assignRole").value;
-        if (!employeeId) {
-            alert("Please select employee.")
-        }
-        else if(!roleId) {
-            alert("Please assign role.")
-        }
-        else {
-            submitAssignRole(employeeId, roleId);
-        }
-        
-        
-    });
-    function submitAssignRole(id,role) {
+    function loadUsers() {
+        axios
+            .get("/api/users")
+            .then((response) => {
+                let userList = document.getElementById("userList");
+                userList.innerHTML = "";
+
+                response.data.data.forEach((user) => {
+                    let roleName = roleMap[user.role] || "Super Admin"; // Default to "Super Admin" if role ID doesn't match
+
+                    let row = document.createElement("tr");
+                    row.innerHTML = `
+                        <td>${user.name}</td>
+                        <td>${roleName}</td>
+                    `;
+                    userList.appendChild(row);
+                });
+
+                let employeeSelect = document.getElementById("employee");
+                employeeSelect.innerHTML = "";
+
+                response.data.data.forEach((user) => {
+                    let option = document.createElement("option");
+                    option.value = user.id;
+                    option.text = user.name;
+                    employeeSelect.appendChild(option);
+                });
+            })
+            .catch((error) => console.error("Error fetching users:", error));
+    }
+
+    document
+        .getElementById("assignRoleForm")
+        .addEventListener("submit", function (event) {
+            event.preventDefault();
+            const employeeId = document.getElementById("employee").value;
+            const roleId = document.getElementById("assignRole").value;
+            if (!employeeId) {
+                alert("Please select employee.");
+            } else if (!roleId) {
+                alert("Please assign role.");
+            } else {
+                submitAssignRole(employeeId, roleId);
+            }
+        });
+
+    function submitAssignRole(id, role) {
         axios
             .patch(`/api/update-role/${id}`, { role: role })
             .then((response) => {
-               console.log(response);
-               alert("Role assigned successfully!");s
+                alert("Role assigned successfully!");
+                loadUsers();
             })
             .catch((error) => {
-               console.error("Error assigning role:", error);
-               alert("Error assigning role.");
+                console.error("Error assigning role:", error);
+                alert("Error assigning role.");
             });
     }
 
+    document.getElementById("roleList").addEventListener("click", function (e) {
+        if (e.target && e.target.matches("button.btn-danger")) {
+            const roleId = e.target.getAttribute("data-role-id");
+            const roleName = roleMap[roleId];
+
+            axios
+                .get(`/api/users`, {
+                    params: {
+                        role: roleId,
+                    },
+                })
+                .then((response) => {
+                    const usersInRole = response.data.data;
+
+                    if (usersInRole.length > 0) {
+                        let userText =
+                            usersInRole.length === 1 ? "user" : "users";
+
+                        Swal.fire({
+                            title: `There are currently ${usersInRole.length} ${userText} in this role.`,
+                            text: "Proceed to transferring them?",
+                            icon: "warning",
+                            showCancelButton: true,
+                            confirmButtonText: "Yes, transfer",
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                showTransferRoleModal(roleId, usersInRole);
+                            }
+                        });
+                    } else {
+                        Swal.fire({
+                            title: `Do you want to delete the role "${roleName}"?`,
+                            text: "This action is permanent.",
+                            icon: "warning",
+                            showCancelButton: true,
+                            confirmButtonText: "Yes, delete it",
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                deleteRole(roleId);
+                            }
+                        });
+                    }
+                })
+                .catch((error) => {
+                    console.error("Error fetching users in role:", error);
+                });
+        }
+    });
+
+    function deleteRole(roleId) {
+        axios
+            .post("/api/delete-role", { id: roleId })
+            .then(() => {
+                Swal.fire("Deleted!", "Role has been deleted.", "success");
+                loadPermissions();
+            })
+            .catch((error) => {
+                console.error("Error deleting role:", error);
+                Swal.fire("Error!", "Failed to delete the role.", "error");
+            });
+    }
+
+    function showTransferRoleModal(roleId, users) {
+        let transferRoleModal = new bootstrap.Modal(
+            document.getElementById("transferRoleModal")
+        );
+
+        let affectedUsersContainer = document.getElementById("affectedUsers");
+        affectedUsersContainer.innerHTML = "";
+
+        users.forEach((user) => {
+            let listItem = document.createElement("li");
+            listItem.textContent = user.name;
+            affectedUsersContainer.appendChild(listItem);
+        });
+
+        transferRoleModal.show();
+
+        let roleSelect = document.getElementById("transferRole");
+        roleSelect.innerHTML = "";
+
+        axios
+            .get("/api/roles")
+            .then((response) => {
+                let roles = response.data.data;
+
+                roles.forEach((role) => {
+                    if (role.id != roleId) {
+                        let option = document.createElement("option");
+                        option.value = role.id;
+                        option.text = role.role;
+                        roleSelect.appendChild(option);
+                    }
+                });
+            })
+            .catch((error) => {
+                console.error("Error fetching roles:", error);
+            });
+
+        document
+            .getElementById("transferRoleForm")
+            .addEventListener("submit", function (event) {
+                event.preventDefault();
+                const newRoleId = document.getElementById("transferRole").value;
+
+                if (!newRoleId) {
+                    alert("Please select a new role to transfer users.");
+                    return;
+                }
+
+                let updatePromises = users.map((user) =>
+                    axios.patch(`/api/update-role/${user.id}`, {
+                        role: newRoleId,
+                    })
+                );
+
+                Promise.all(updatePromises)
+                    .then(() => {
+                        Swal.fire(
+                            "Transferred!",
+                            "All users have been transferred.",
+                            "success"
+                        );
+                        deleteRole(roleId);
+                    })
+                    .catch((error) => {
+                        console.error("Error updating user roles:", error);
+                        Swal.fire(
+                            "Error!",
+                            "Failed to transfer users.",
+                            "error"
+                        );
+                    });
+            });
+    }
 
     loadPermissions();
-    loadUsers();
     loadRoles();
+    loadUsers();
 });

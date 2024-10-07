@@ -120,40 +120,45 @@ class PermissionController extends Controller
     }
     public function delete(Request $request)
     {
+        try {
+            $role = Roles::find($request->id);
 
-       try {
-       
-           $user = User::findOrFail($request->id);
+            if (!$role) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Role not found.',
+                ], 404);
+            }
 
-           $role = Roles::find($user->role);
+            $usersWithRole = User::where('role', $role->id)->count();
 
-           $user->role = $request->newrole;
+            if ($usersWithRole > 0) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'There are still users assigned to this role. Transfer users before deleting.',
+                ], 400);
+            }
 
-           $user->save();
+            $permissions = Permissions::where('roleid', $role->id)->get();
 
-           if ($role) {
-               $role->delete();
-           }
+            foreach ($permissions as $permission) {
+                $permission->delete();
+            }
 
-           return response()->json([
-               'status' => 'success',
-               'message' => 'Role deleted successfully',
+            $role->delete();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Role and associated permissions deleted successfully',
             ], 200);
-
-        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
-           return response()->json([
-               'status' => 'error',
-               'message' => 'User not found.',
-               'error' => $e->getMessage(),
-            ], 404);
 
         } catch (\Exception $e) {
             return response()->json([
-               'status' => 'error',
-               'message' => 'Failed to delete role.',
-               'error' => $e->getMessage(),
+                'status' => 'error',
+                'message' => 'Failed to delete role and associated permissions.',
+                'error' => $e->getMessage(),
             ], 500);
-       }
+        }
     }
 
 }

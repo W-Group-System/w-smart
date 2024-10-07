@@ -8,26 +8,31 @@ use Illuminate\Http\Request;
 class UserController extends Controller
 {
     public function index(Request $request)
-   	{
+    {
         try {
-	        $users = User::all();
+            if ($request->has('role')) {
+                $role = $request->input('role');
+                $users = User::where('role', $role)->get();
+            } else {
+                $users = User::all();
+            }
 
-	        return response()->json([
-	            'status' => 'success',
-	            'data' => $users,
-	        ], 200);
-	    } catch (\Exception $e) {
-	        return response()->json([
-	            'status' => 'error',
-	            'message' => 'Failed to users.',
-	            'error' => $e->getMessage(),
-	        ], 500); 
-	    }
-   	}
+            return response()->json([
+                'status' => 'success',
+                'data' => $users,
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to retrieve users.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
     public function update(Request $request, $id)
     {
         $request->validate([
-            'role' => 'required|integer', 
+            'role' => 'required|integer',
         ]);
 
         $user = User::find($id);
