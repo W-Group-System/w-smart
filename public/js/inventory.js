@@ -1,4 +1,6 @@
 document.addEventListener("DOMContentLoaded", function () {
+
+
     const startDateInput = document.getElementById("start-date");
     const endDateInput = document.getElementById("end-date");
     const subsidiary = document.getElementById("subsidiary");
@@ -233,5 +235,61 @@ document.addEventListener("DOMContentLoaded", function () {
     searchInput.addEventListener("input", function () {
         const searchTerm = this.value;  
         fetchInventory(currentPage, searchTerm);
+    });
+
+    function generateItemCode() {
+        const prefix = 'ITEM'; // Customize the prefix if needed
+        const datePart = new Date().toISOString().split('T')[0].replace(/-/g, ''); // YYYYMMDD
+        const randomPart = Math.floor(Math.random() * 90000) + 10000; // Random 5-digit number
+        return `${prefix}-${datePart}-${randomPart}`;
+    }
+
+    document.getElementById('addInventory').addEventListener('click', async (e) => {
+        e.preventDefault();
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('dateCreated').value = today;
+
+        const itemCode = generateItemCode();
+        document.getElementById('newItemCode').value = itemCode;  
+    });
+
+    document.getElementById('addInventoryForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const descriptionInput = document.getElementById('newItemDescription');
+
+        if (!descriptionInput.value.trim()) {
+            alert("Item Description cannot be empty or whitespace only.");
+            descriptionInput.focus();
+            return;
+        }
+        const data = {
+            date: document.getElementById('dateCreated').value,
+            item_code: document.getElementById('newItemCode').value,
+            item_description: descriptionInput.value,
+            item_category: document.getElementById('newCategory').value,
+            subsidiaryid: document.getElementById('modalSubsidiary').value,
+            subsidiary: document.getElementById('modalSubsidiary').options[document.getElementById('modalSubsidiary').selectedIndex].text,
+            cost: document.getElementById('newCost').value,
+            primaryUOM: document.getElementById('newPrimaryUOM').options[document.getElementById('newPrimaryUOM').selectedIndex].text,
+            secondaryUOM: document.getElementById('newSecondaryUOM').options[document.getElementById('newSecondaryUOM').selectedIndex].text,
+            tertiaryUOM: document.getElementById('newTertiaryUOM').options[document.getElementById('newTertiaryUOM').selectedIndex].text,
+            qty: document.getElementById('newQuantity').value,
+            remarks: document.getElementById('remarks').value,
+            usage: document.getElementById('newUsage').value
+        };
+        axios
+            .post(`/api/create-inventory`, data)
+            .then((response) => {
+                fetchInventory(currentPage)
+                const modalElement = document.getElementById('addInventoryModal');
+                const modal = bootstrap.Modal.getInstance(modalElement);
+                modal.hide();
+                alert("Item save successfully!");
+            })
+            .catch((error) => {
+                console.error("Error assigning role:", error);
+                alert("Error saving new Item.", error);
+            });
+        
     });
 });
