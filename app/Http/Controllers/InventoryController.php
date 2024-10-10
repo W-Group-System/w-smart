@@ -6,6 +6,8 @@ use Illuminate\Support\Facades\Log;
 use App\Inventory;
 use App\Transfer;
 use App\Subsidiary;
+use App\Withdrawal;
+use App\WithdrawalItems;
 use RealRashid\SweetAlert\Facades\Alert;
 
 class InventoryController extends Controller
@@ -434,6 +436,184 @@ class InventoryController extends Controller
             return response()->json([
                 'status' => 'error',
                 'message' => 'Failed to approve transfer.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+    public function getInventorySuggestions(Request $request)
+    {
+        try {
+            $subsidiaryId = $request->input('subsidiaryId');
+            $searchTerm = $request->input('searchTerm');
+
+            $inventory = Inventory::where('subsidiaryid', $subsidiaryId);
+
+            if ($searchTerm) {
+                $inventory->where('item_code', 'LIKE', '%' . $searchTerm . '%');
+            }
+
+            
+            $results = $inventory->limit(10)->get();
+
+            return response()->json([
+                'status' => 'success',
+                'data' => $results,
+            ], 200);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to fetch inventory.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+    public function fetchWithdraw(Request $request)
+    {
+        try {
+            $startDate = $request->start_date;
+            $endDate = $request->end_date;
+            $subsidiaryid = $request->subsidiaryid;
+            $perPage = $request->get('per_page', 10);
+
+            $withdrawQuery = Withdrawal::query();
+            $withdrawItemsQuery = WithdrawalItems::query();
+            Log::info('Fetching withdrawal with parameters:', [
+                'start_date' => $startDate,
+                'end_date' => $endDate,
+                'subsidiary_id' => $subsidiaryid,
+            ]);
+
+            if ($startDate && $endDate) {
+                $withdrawQuery->whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59']);
+            }
+
+            if ($subsidiaryid) {
+                $withdrawQuery->where('subsidiaryid', $subsidiaryid);
+            } else {
+                Log::warning("No subsidiary found for ID: {$subsidiaryid}");
+            }
+
+            Log::info('Executing Transfer Query:', [
+                'query' => $withdrawQuery->toSql(),
+                'bindings' => $withdrawQuery->getBindings(),
+            ]);
+
+            $withdrawQueryResult = $withdrawQuery->first();
+            if ($withdrawQueryResult) {
+                $withdrawItemsQuery->where('withdrawal_id', $withdrawQueryResult->id);
+                $withdrawQueryResult = Withdrawal::query()
+                    ->join('withdrawal_items', 'withdrawals.id', '=', 'withdrawal_items.withdrawal_id')
+                    ->select('withdrawals.*', 'withdrawal_items.*')
+                    ->paginate($perPage);
+                return response()->json([
+                    'status' => 'success',
+                    'data' => $withdrawQueryResult->items(),
+                    'pagination' => [
+                        'current_page' => $withdrawQueryResult->currentPage(),
+                        'total_pages' => $withdrawQueryResult->lastPage(),
+                        'total_items' => $withdrawQueryResult->total(),
+                        'per_page' => $withdrawQueryResult->perPage(),
+                    ]
+                ], 200);
+            }
+            else {
+                return response()->json([
+                    'status' => 'success',
+                    'data' => [],
+                    'pagination' => [
+                        'current_page' => 1,
+                        'total_pages' => 1,
+                        'total_items' => 0,
+                        'per_page' => $perPage,
+                    ]
+                ], 200);
+            }
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to fetch withdrawal records.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+    public function requestWithdraw(Request $request)
+    {
+        try {
+            $request->validate([
+                'requestor_name' => 'required|string|max:50',
+                'requestor_number' => 'required|string|max:50',
+                'requestor_id' => 'required|string|max:50',
+                'remarks' => 'nullable|string|max:50',
+                'subsidiaryid' => 'required|integer|exists:subsidiaries,subsidiary_id',
+                'subsidiaryname' => 'required|string|max:100|exists:subsidiaries,subsidiary_name',
+                'items' => 'required|array|min:1',
+                'items.*.item_code' => 'required|string|max:50',
+                'items.*.item_description' => 'required|string|max:255',
+                'items.*.item_category' => 'required|string|max:100',
+                'items.*.uom' => 'required|string|max:50',
+                'items.*.reason' => 'required|string|max:50',
+                'items.*.qty' => 'required|numeric|min:0.01',
+            ]);
+
+            $requestId = $request->requestor_number;
+            $requestorName = $request->requestor_name;
+            $requestorId = $request->requestor_id;
+            $remarks = $request->remarks;
+            $subsidiaryid = $request->subsidiaryid;
+
+            $withdrawal = new Withdrawal();
+            $withdrawal->request_number = $requestId;
+            $withdrawal->requestor_name = $requestorName;
+            $withdrawal->requestor_id = $requestorId;
+            $withdrawal->remarks = $remarks;
+            $withdrawal->subsidiaryid = $subsidiaryid;
+            $withdrawal->status = 0;
+
+            $withdrawal->save();
+            $savedWithdrawal = $withdrawal->fresh();
+            $withdrawalLog = [];
+
+            foreach ($request->items as $item) {
+                $itemCode = $item['item_code'];
+                $qty = $item['qty'];
+                $uom = $item['uom'];
+                $reason = $item['reason'];
+                $item_description = $item['item_description'];
+                $item_category = $item['item_category'];
+
+                $inventory = Inventory::where('item_code', $itemCode)
+                    ->where('subsidiaryid', $subsidiaryid)
+                    ->first();
+
+                if (!$inventory) {
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => "Item '{$itemCode}' not found in the specified subsidiary.",
+                    ], 404);
+                }
+                else{
+                    $newWithdrawalLog = new WithdrawalItems();
+                    $newWithdrawalLog->withdrawal_id = $savedWithdrawal->id;
+                    $newWithdrawalLog->item_code = $itemCode;
+                    $newWithdrawalLog->item_description = $item_description;
+                    $newWithdrawalLog->category = $item_category;
+                    $newWithdrawalLog->requested_qty = $qty;
+                    $newWithdrawalLog->uom = $uom;
+                    $newWithdrawalLog->reason = $reason;
+                    $newWithdrawalLog->save();
+                    $withdrawalLog[] = $newWithdrawalLog;    
+                }  
+            }
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Withdrawal request has been logged and is pending approval.',
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to create withdrawal request.',
                 'error' => $e->getMessage(),
             ], 500);
         }

@@ -9,6 +9,10 @@
         <div class="d-flex justify-content-between align-items-center mb-3">
             <div class="d-flex align-items-center">
                 <h6 class="fw-bold me-3">Masterlist</h6>
+                <input type="hidden" id="userId" value="{{ auth()->user()->id }}">
+                <input type="hidden" id="userName" value="{{ auth()->user()->name }}">
+                <input type="hidden" id="usersubsidiary" value="{{ auth()->user()->subsidiary }}">
+                <input type="hidden" id="usersubsidiaryid" value="{{ auth()->user()->subsidiaryid }}">
                 <div class="input-group" style="max-width: 350px; position: relative;">
                     <input type="text" class="form-control" placeholder="Search here" aria-label="Search"
                         id="searchInput" style="padding-right: 100px; border-radius: 20px; height: 35px;">

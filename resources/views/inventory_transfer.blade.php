@@ -9,6 +9,10 @@
         <div class="d-flex justify-content-between align-items-center mb-3">
             <div class="d-flex align-items-center">
                 <h6 class="fw-bold me-3">Masterlist</h6>
+                <input type="hidden" id="userId" value="{{ auth()->user()->id }}">
+                <input type="hidden" id="userName" value="{{ auth()->user()->name }}">
+                <input type="hidden" id="usersubsidiary" value="{{ auth()->user()->subsidiary }}">
+                <input type="hidden" id="usersubsidiaryid" value="{{ auth()->user()->subsidiaryid }}">
                 <div class="input-group" style="max-width: 350px; position: relative;">
                     <input type="text" class="form-control" placeholder="Search here" aria-label="Search"
                         id="searchInput" style="padding-right: 100px; border-radius: 20px; height: 35px;">
@@ -222,7 +226,12 @@
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td contenteditable="true" id="itemCode" placeholder="Enter Item Code"></td>
+                                    <td contenteditable="true">
+                                        <div style="position: relative;">
+                                            <input type="text" id="itemCodeInput" list="itemSuggestions" class="form-control form-control-sm" placeholder="Enter Item Code" style="width: 100%; max-width: 200px; padding: 6px; border-radius: 5px; border: 1px solid #ced4da;">
+                                            <datalist id="itemSuggestions"></datalist>
+                                        </div>
+                                    </td>
                                     <td contenteditable="false" id="itemDescription"
                                         style="background-color: #E9ECEF; color: #999; pointer-events: none;"></td>
                                     <td contenteditable="false" id="itemCategory"

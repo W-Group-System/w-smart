@@ -37,13 +37,17 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     function fetchTransfer(page) {
-        const url = `/api/inventory/transfer?page=${page}&per_page=${rowsPerPage}&start_date=${startDateInput.value}&end_date=${endDateInput.value}&subsidiaryid=${subsidiary.value}`;
-
+        const url = `/api/inventory/transfer?page=${page}&per_page=${rowsPerPage}`;
+        const requestBody = {
+           start_date: startDateInput.value,
+           end_date: endDateInput.value,
+           subsidiaryid: subsidiary.value
+        };
         axios
-            .get(url)
+            .post(url, requestBody)
             .then((response) => {
                 if (response.data.status === "success") {
-                    renderTransferTable(response.data.data);
+                    renderTransferTable(response.data.data, response.data.pagination.total_items);
                     updatePagination(response.data.pagination);
                 } else {
                     console.error(
@@ -74,7 +78,7 @@ document.addEventListener("DOMContentLoaded", function () {
             .then((response) => response.json())
             .then((data) => {
                 if (data.status === "success") {
-                    initializeDynamicTable(data.data);
+                    initializeDynamicTable(data.data, data.pagination.total_items);
                     updatePagination(data.pagination);
                 } else {
                     console.error("Failed to fetch inventory:", data.message);
@@ -99,12 +103,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
     determineFetchFunction();
 
-    function initializeDynamicTable(inventoryData) {
-        renderTable(inventoryData);
+    function initializeDynamicTable(inventoryData, totalPages) {
+        renderTable(inventoryData, totalPages);
         initializePopovers();
     }
 
-    function renderTable(inventoryData) {
+    function renderTable(inventoryData, totalPages) {
         tableBody.innerHTML = "";
         const startIndex = (currentPage - 1) * rowsPerPage;
         const endIndex = startIndex + rowsPerPage;
@@ -169,10 +173,10 @@ document.addEventListener("DOMContentLoaded", function () {
         totalItemsText.textContent = `${startIndex + 1}-${Math.min(
             endIndex,
             inventoryData.length
-        )} of ${inventoryData.length}`;
+        )} of ${totalPages}`;
     }
 
-    function renderTransferTable(transferData) {
+    function renderTransferTable(transferData, totalPages) {
         tableBody.innerHTML = "";
         const startIndex = (currentPage - 1) * rowsPerPage;
         const endIndex = startIndex + rowsPerPage;
@@ -250,7 +254,7 @@ document.addEventListener("DOMContentLoaded", function () {
         totalItemsText.textContent = `${startIndex + 1}-${Math.min(
             endIndex,
             transferData.length
-        )} of ${transferData.length}`;
+        )} of ${totalPages}`;
     }
 
     function updatePagination(paginationData) {
@@ -278,7 +282,14 @@ document.addEventListener("DOMContentLoaded", function () {
         prevPage.addEventListener("click", function (event) {
             event.preventDefault();
             if (currentPage > 1) {
-                fetchInventory(currentPage - 1);
+                const isTransferRoute = window.location.pathname.includes(
+                    "/inventory/transfer"
+                );
+                if (isTransferRoute) {
+                    fetchTransfer(currentPage - 1);
+                } else {
+                    fetchInventory(currentPage - 1);
+                }
             }
         });
         pagination.appendChild(prevPage);
@@ -292,7 +303,14 @@ document.addEventListener("DOMContentLoaded", function () {
             pageItem.innerHTML = `<a class="page-link" href="#">${i}</a>`;
             pageItem.addEventListener("click", function (event) {
                 event.preventDefault();
-                fetchInventory(i);
+                const isTransferRoute = window.location.pathname.includes(
+                    "/inventory/transfer"
+                );
+                if (isTransferRoute) {
+                    fetchTransfer(i);
+                } else {
+                    fetchInventory(i);
+                }
             });
             pagination.appendChild(pageItem);
         }
@@ -311,7 +329,14 @@ document.addEventListener("DOMContentLoaded", function () {
         nextPage.addEventListener("click", function (event) {
             event.preventDefault();
             if (currentPage < totalPages) {
-                fetchInventory(currentPage + 1);
+                const isTransferRoute = window.location.pathname.includes(
+                    "/inventory/transfer"
+                );
+                if (isTransferRoute) {
+                    fetchTransfer(currentPage + 1);
+                } else {
+                    fetchInventory(currentPage + 1);
+                }
             }
         });
         pagination.appendChild(nextPage);
@@ -385,9 +410,10 @@ document.addEventListener("DOMContentLoaded", function () {
         return `${prefix}-${datePart}-${randomPart}`;
     }
 
-    document
-        .getElementById("addInventory")
-        .addEventListener("click", async (e) => {
+    const addInventoryButton = document.getElementById("addInventory");
+
+    if (addInventoryButton) {
+        addInventoryButton.addEventListener("click", async (e) => {
             e.preventDefault();
             const today = new Date().toISOString().split("T")[0];
             document.getElementById("dateCreated").value = today;
@@ -395,59 +421,65 @@ document.addEventListener("DOMContentLoaded", function () {
             const itemCode = generateItemCode();
             document.getElementById("newItemCode").value = itemCode;
         });
+    } else {
+        console.warn("Element with ID 'addInventory' not found.");
+    }
 
-    document
-        .getElementById("addInventoryForm")
-        .addEventListener("submit", async (e) => {
-            e.preventDefault();
-            const descriptionInput =
-                document.getElementById("newItemDescription");
+    const addInventoryButtonForm = document.getElementById("addInventoryForm");
+    if (addInventoryButton) {
+        document
+            .getElementById("addInventoryForm")
+            .addEventListener("submit", async (e) => {
+                e.preventDefault();
+                const descriptionInput =
+                    document.getElementById("newItemDescription");
 
-            if (!descriptionInput.value.trim()) {
-                alert("Item Description cannot be empty or whitespace only.");
-                descriptionInput.focus();
-                return;
-            }
-            const data = {
-                date: document.getElementById("dateCreated").value,
-                item_code: document.getElementById("newItemCode").value,
-                item_description: descriptionInput.value,
-                item_category: document.getElementById("newCategory").value,
-                subsidiaryid: document.getElementById("modalSubsidiary").value,
-                subsidiary:
-                    document.getElementById("modalSubsidiary").options[
-                        document.getElementById("modalSubsidiary").selectedIndex
-                    ].text,
-                cost: document.getElementById("newCost").value,
-                primaryUOM:
-                    document.getElementById("newPrimaryUOM").options[
-                        document.getElementById("newPrimaryUOM").selectedIndex
-                    ].text,
-                secondaryUOM:
-                    document.getElementById("newSecondaryUOM").options[
-                        document.getElementById("newSecondaryUOM").selectedIndex
-                    ].text,
-                tertiaryUOM:
-                    document.getElementById("newTertiaryUOM").options[
-                        document.getElementById("newTertiaryUOM").selectedIndex
-                    ].text,
-                qty: document.getElementById("newQuantity").value,
-                remarks: document.getElementById("remarks").value,
-                usage: document.getElementById("newUsage").value,
-            };
-            axios
-                .post(`/api/create-inventory`, data)
-                .then((response) => {
-                    fetchInventory(currentPage);
-                    const modalElement =
-                        document.getElementById("addInventoryModal");
-                    const modal = bootstrap.Modal.getInstance(modalElement);
-                    modal.hide();
-                    alert("Item save successfully!");
-                })
-                .catch((error) => {
-                    console.error("Error assigning role:", error);
-                    alert("Error saving new Item.", error);
-                });
-        });
+                if (!descriptionInput.value.trim()) {
+                    alert("Item Description cannot be empty or whitespace only.");
+                    descriptionInput.focus();
+                    return;
+                }
+                const data = {
+                    date: document.getElementById("dateCreated").value,
+                    item_code: document.getElementById("newItemCode").value,
+                    item_description: descriptionInput.value,
+                    item_category: document.getElementById("newCategory").value,
+                    subsidiaryid: document.getElementById("modalSubsidiary").value,
+                    subsidiary:
+                        document.getElementById("modalSubsidiary").options[
+                            document.getElementById("modalSubsidiary").selectedIndex
+                        ].text,
+                    cost: document.getElementById("newCost").value,
+                    primaryUOM:
+                        document.getElementById("newPrimaryUOM").options[
+                            document.getElementById("newPrimaryUOM").selectedIndex
+                        ].text,
+                    secondaryUOM:
+                        document.getElementById("newSecondaryUOM").options[
+                            document.getElementById("newSecondaryUOM").selectedIndex
+                        ].text,
+                    tertiaryUOM:
+                        document.getElementById("newTertiaryUOM").options[
+                            document.getElementById("newTertiaryUOM").selectedIndex
+                        ].text,
+                    qty: document.getElementById("newQuantity").value,
+                    remarks: document.getElementById("remarks").value,
+                    usage: document.getElementById("newUsage").value,
+                };
+                axios
+                    .post(`/api/create-inventory`, data)
+                    .then((response) => {
+                        fetchInventory(currentPage);
+                        const modalElement =
+                            document.getElementById("addInventoryModal");
+                        const modal = bootstrap.Modal.getInstance(modalElement);
+                        modal.hide();
+                        alert("Item save successfully!");
+                    })
+                    .catch((error) => {
+                        console.error("Error assigning role:", error);
+                        alert("Error saving new Item.", error);
+                    });
+            });
+        }
 });

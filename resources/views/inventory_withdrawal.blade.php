@@ -9,6 +9,10 @@
         <div class="d-flex justify-content-between align-items-center mb-3">
             <div class="d-flex align-items-center">
                 <h6 class="fw-bold me-3">Masterlist</h6>
+                <input type="hidden" id="userId" value="{{ auth()->user()->id }}">
+                <input type="hidden" id="userName" value="{{ auth()->user()->name }}">
+                <input type="hidden" id="usersubsidiary" value="{{ auth()->user()->subsidiary }}">
+                <input type="hidden" id="usersubsidiaryid" value="{{ auth()->user()->subsidiaryid }}">
                 <div class="input-group" style="max-width: 350px; position: relative;">
                     <input type="text" class="form-control" placeholder="Search here" aria-label="Search"
                         id="searchInput" style="padding-right: 100px; border-radius: 20px; height: 35px;">
@@ -52,7 +56,7 @@
                     <option value="6">WOI</option>
                     <option value="7">WGC</option>
                 </select>
-                <a href="#" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#inventoryWithdrawalModal"
+                <a href="#" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#inventoryWithdrawalModal" id="addWithdraw"
                     style="height: 35px; padding: 0 15px; display: flex; align-items: center; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); font-size: 14px;">
                     Inventory Withdrawal
                 </a>
@@ -105,36 +109,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td style="text-align: center; padding: 2px 10px;"></td>
-                        <td style="text-align: center; padding: 2px 10px;">00/00/0000</td>
-                        <td style="text-align: center; padding: 2px 10px;">Requestor Name</td>
-                        <td style="text-align: center; padding: 2px 10px;">000000</td>
-                        <td style="text-align: center; padding: 2px 10px;">000000</td>
-                        <td style="text-align: center; padding: 2px 10px;">Item Description</td>
-                        <td style="text-align: center; padding: 2px 10px;">00.00</td>
-                        <td style="text-align: center; padding: 2px 10px;">PCS</td>
-                        <td style="text-align: center; padding: 2px 10px;">00/00/0000</td>
-                        <td style="text-align: center; padding: 2px 10px;">Reason</td>
-                        <td style="text-align: center; padding: 2px 10px;">
-                            <span class="badge bg-danger">Pending</span>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td style="text-align: center; padding: 2px 10px;"></td>
-                        <td style="text-align: center; padding: 2px 10px;">00/00/0000</td>
-                        <td style="text-align: center; padding: 2px 10px;">Requestor Name</td>
-                        <td style="text-align: center; padding: 2px 10px;">000000</td>
-                        <td style="text-align: center; padding: 2px 10px;">000000</td>
-                        <td style="text-align: center; padding: 2px 10px;">Item Description</td>
-                        <td style="text-align: center; padding: 2px 10px;">00.00</td>
-                        <td style="text-align: center; padding: 2px 10px;">PCS</td>
-                        <td style="text-align: center; padding: 2px 10px;">00/00/0000</td>
-                        <td style="text-align: center; padding: 2px 10px;">Reason</td>
-                        <td style="text-align: center; padding: 2px 10px;">
-                            <span class="badge bg-primary">Closed</span>
-                        </td>
-                    </tr>
+                    
                 </tbody>
             </table>
         </div>
@@ -188,79 +163,81 @@
                     <div class="row g-2 mb-3">
                         <div class="col-md-6">
                             <label for="requestedDateTime" class="form-label">Requested Date/Time</label>
-                            <input type="text" class="form-control form-control-sm" value="Auto Generate" readonly>
+                            <input type="text" class="form-control form-control-sm" id="withdrawalDate" value="Auto Generate" readonly>
                         </div>
                         <div class="col-md-6">
                             <label for="requestNumber" class="form-label">Request Number</label>
-                            <input type="text" class="form-control form-control-sm" value="Auto Generate" readonly>
+                            <input type="text" class="form-control form-control-sm" id="requestNumber" readonly>
                         </div>
                         <div class="col-md-6">
                             <label for="requestorName" class="form-label">Requestor Name</label>
-                            <input type="text" class="form-control form-control-sm" value="Auto Generate" readonly>
+                            <input type="text" class="form-control form-control-sm" id="requestName" readonly>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="requestorName" class="form-label">Subsidiary</label>
+                            <input type="text" class="form-control form-control-sm" id="subsidiary" value="HO" readonly>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="requestorName" class="form-label">Subsidiary</label>
+                            <input type="hidden" class="form-control form-control-sm" id="subsidiaryid" value="HO" readonly>
                         </div>
                     </div>
 
                     <!-- Item Information Table -->
+
                     <div class="table-responsive mb-3">
-                        <table class="table table-bordered table-sm">
+                        <!-- Button to add a new row -->
+                        <button type="button" class="btn btn-link text-secondary fw-bold" id="addRowBtn"
+                            style="font-size: 14px;">
+                            + Add More Item
+                        </button>
+                        <table class="table table-bordered table-sm" id="itemsTable">
                             <thead class="table-light">
                                 <tr>
                                     <th>Item Code</th>
                                     <th>Item Description</th>
                                     <th>Category</th>
-                                    <th>Primary UOM</th>
-                                    <th>Secondary UOM</th>
-                                    <th>Tertiary UOM</th>
+                                    <th>UOM</th>
+                                    <th>Reason of Withdrawal</th>
                                     <th>Requested QTY</th>
                                     <th>Released QTY</th>
                                 </tr>
                             </thead>
-                            <tbody>
+                            <tbody id="itemTableBody">
                                 <tr>
-                                    <td contenteditable="false">Auto Generate</td>
-                                    <td contenteditable="true"></td>
-                                    <td contenteditable="true"></td>
-                                    <td contenteditable="true"></td>
-                                    <td contenteditable="true"></td>
-                                    <td contenteditable="true"></td>
-                                    <td contenteditable="true"></td>
-                                    <td contenteditable="true"></td>
+                                    <div style="position: relative;">
+                                    <td contenteditable="true">
+                                        <div style="position: relative;">
+                                            <input type="text" id="itemCodeInput" list="itemSuggestions" class="form-control form-control-sm" placeholder="Enter Item Code" style="width: 100%; max-width: 200px; padding: 6px; border-radius: 5px; border: 1px solid #ced4da;">
+                                            <datalist id="itemSuggestions"></datalist>
+                                        </div>
+                                    </td>
+                                    <td contenteditable="false" id="itemDescription" style="background-color: #E9ECEF; color: #999; pointer-events: none;"></td>
+                                    <td contenteditable="false" id="itemCategory" style="background-color: #E9ECEF; color: #999; pointer-events: none;"></td>
+                                    <td contenteditable="true" id="uom"></td>
+                                    <td contenteditable="true" id="reason"></td>
+                                    <td contenteditable="true" id="requestedQty"></td>
+                                    <td contenteditable="true" id="releasedQty"></td>
                                 </tr>
                             </tbody>
                         </table>
                     </div>
-
+                  
                     <div class="mb-3">
                         <label for="remarks" class="form-label">Remarks</label>
                         <textarea class="form-control form-control-sm" id="remarks"></textarea>
                     </div>
 
-                    <!-- Approver Section -->
-                    <div class="table-responsive mb-3">
-                        <table class="table table-bordered table-sm">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>Name</th>
-                                    <th>Status</th>
-                                    <th>Start Date</th>
-                                    <th>Action Date</th>
-                                    <th>Remarks</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td contenteditable="false">Auto Generate</td>
-                                    <td contenteditable="false">Auto Generate</td>
-                                    <td contenteditable="true"></td>
-                                    <td contenteditable="true"></td>
-                                    <td contenteditable="true"></td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-
                     <!-- Action Section -->
                     <div class="row g-2 align-items-end mb-3">
+                        <div class="col-md-12 d-flex justify-content-end">
+                            <button type="button" class="btn btn-success btn-lg" id="submitRequestWithdraw"
+                                style="background-color: #28a745; color: white; border: 1px solid #28a745; padding: 10px 20px;">
+                                Submit
+                            </button>
+                        </div>
+                    </div>
+<!--                     <div class="row g-2 align-items-end mb-3">
                         <div class="col-md-3">
                             <label for="action" class="form-label">Action</label>
                             <select class="form-select form-select-sm" id="action">
@@ -278,7 +255,7 @@
                                 Submit
                             </button>
                         </div>
-                    </div>
+                    </div> -->
                 </form>
             </div>
         </div>
@@ -288,5 +265,5 @@
 @endsection
 
 @push('scripts')
-    <script src="{{ asset('js/inventory.js') }}"></script>
+    <script src="{{ asset('js/withdrawal.js') }}"></script>
 @endpush

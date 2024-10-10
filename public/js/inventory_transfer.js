@@ -7,7 +7,7 @@ document.addEventListener("DOMContentLoaded", function () {
         let hasValidItems = false;
 
         Array.from(rows).forEach((row) => {
-            const itemCode = row.querySelector("#itemCode").textContent.trim();
+            const itemCode = row.querySelector("#itemCodeInput").value;
             const itemDescription = row
                 .querySelector("#itemDescription")
                 .textContent.trim();
@@ -102,16 +102,14 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Item Code Search
     document
-        .getElementById("itemCode")
-        .addEventListener("keypress", function (e) {
-            if (e.key === "Enter") {
-                e.preventDefault();
-                const itemCode = e.target.textContent.trim();
-                const transferFromValue =
-                    document.getElementById("transferFrom").value;
-                if (itemCode && transferFromValue) {
-                    fetchItemDetails(itemCode, transferFromValue, e.target);
-                }
+        .getElementById("itemCodeInput")
+        .addEventListener("blur", function (e) {
+            e.preventDefault();
+            const itemCode = e.target.value;
+            const transferFromValue =
+                document.getElementById("transferFrom").value;
+            if (itemCode && transferFromValue) {
+                fetchItemDetails(itemCode, transferFromValue, e.target);
             }
         });
 
@@ -169,15 +167,15 @@ document.addEventListener("DOMContentLoaded", function () {
         const transferFrom = document.getElementById("transferFrom").value;
         const transferTo = document.getElementById("transferTo").value;
         const remarks = document.getElementById("remarks").value;
-
+        console.log(transferFrom)
         const items = Array.from(
             document.querySelectorAll("#itemsTable tbody tr")
         )
             .map((row) => {
                 return {
                     item_code: row
-                        .querySelector("#itemCode")
-                        .textContent.trim(),
+                        .querySelector("#itemCodeInput")
+                        .value,
                     qty: parseFloat(
                         row.querySelector("#qty").textContent.trim()
                     ),
@@ -274,7 +272,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const rows = tableBody.getElementsByTagName("tr");
 
         Array.from(rows).forEach((row) => {
-            row.querySelector("#itemCode").textContent = "";
+            row.querySelector("#itemCodeInput").value = "";
             row.querySelector("#itemDescription").textContent = "";
             row.querySelector("#itemCategory").textContent = "";
             row.querySelector("#primaryUOM").textContent = "";
@@ -301,6 +299,43 @@ document.addEventListener("DOMContentLoaded", function () {
             (parseInt(incrementNumber) + 1).toString().padStart(5, "0") 
         );
     }
+
+    document.getElementById('itemCodeInput').addEventListener('input', async (e) => {
+        
+        const searchTerm = e.target.value.trim();
+        if (searchTerm.length > 1) {
+            const subsidiaryId = 2;
+            const url = `/api/inventory/suggestions`;
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                    },
+                    body: JSON.stringify({
+                        subsidiaryId: 1,
+                        searchTerm: searchTerm 
+                    }),
+                });
+                if (!response.ok) {
+                   throw new Error('Failed to fetch data');
+                }
+
+                const data = await response.json();
+                const suggestions = document.getElementById('itemSuggestions');
+                suggestions.innerHTML = '';
+
+                data.data.forEach(item => {
+                   const option = document.createElement('option');
+                   option.value = item.item_code;
+                   suggestions.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Error fetching items:', error);
+            }
+        }
+    });
 
     validateItems();
 });
