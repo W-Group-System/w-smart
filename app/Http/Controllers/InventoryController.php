@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use App\Inventory;
+use App\Transfer;
 use App\Subsidiary;
 use RealRashid\SweetAlert\Facades\Alert;
 
@@ -148,6 +149,293 @@ class InventoryController extends Controller
                 'message' => 'Failed to fetch permissions.',
                 'error' => $e->getMessage(),
             ], 500); 
+        }
+    }
+    public function searchItem(Request $request)
+    {
+        $itemCode = $request->query('item_code');
+        $subsidiaryId = $request->query('subsidiary_id');
+
+        try {
+            $item = Inventory::where('item_code', $itemCode)
+                ->where('subsidiaryid', $subsidiaryId)
+                ->first();
+
+            if ($item) {
+                return response()->json([
+                    'status' => 'success',
+                    'data' => $item,
+                ], 200);
+            } else {
+                $otherSubsidiaryItem = Inventory::where('item_code', $itemCode)->first();
+
+                if ($otherSubsidiaryItem) {
+                    return response()->json([
+                        'status' => 'warning',
+                        'message' => "ItemCode '{$itemCode}' is found in subsidiary '{$otherSubsidiaryItem->subsidiary}'.",
+                        'data' => $otherSubsidiaryItem,
+                    ], 200);
+                } else {
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'Item not found in any subsidiary.',
+                    ], 404);
+                }
+            }
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to fetch item details.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function fetchTransfers(Request $request)
+    {
+        try {
+            $startDate = $request->start_date;
+            $endDate = $request->end_date;
+            $subsidiaryid = $request->subsidiaryid;
+            $perPage = $request->get('per_page', 10);
+
+            $subsidiary = Subsidiary::where('subsidiary_id', $subsidiaryid)->first();
+            $query = Transfer::query();
+
+            Log::info('Fetching transfers with parameters:', [
+                'start_date' => $startDate,
+                'end_date' => $endDate,
+                'subsidiary_id' => $subsidiaryid,
+                'subsidiary_name' => $subsidiary ? $subsidiary->subsidiary_name : null,
+            ]);
+
+            if ($startDate && $endDate) {
+                $query->whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59']);
+            }
+
+            if ($subsidiary) {
+                $query->where('transfer_to', $subsidiary->subsidiary_name);
+            } else {
+                Log::warning("No subsidiary found for ID: {$subsidiaryid}");
+            }
+
+            Log::info('Executing Transfer Query:', [
+                'query' => $query->toSql(),
+                'bindings' => $query->getBindings(),
+            ]);
+
+            $transfers = $query->paginate($perPage);
+
+            return response()->json([
+                'status' => 'success',
+                'data' => $transfers->items(),
+                'pagination' => [
+                    'current_page' => $transfers->currentPage(),
+                    'total_pages' => $transfers->lastPage(),
+                    'total_items' => $transfers->total(),
+                    'per_page' => $transfers->perPage(),
+                ]
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to fetch transfer records.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function requestTransfer(Request $request)
+    {
+        try {
+            $request->validate([
+                'transact_id' => 'required|string|max:50',
+                'items' => 'required|array|min:1',
+                'items.*.item_code' => 'required|string|max:50',
+                'items.*.qty' => 'required|numeric|min:0.01',
+                'transfer_from' => 'required|integer|exists:subsidiaries,subsidiary_id',
+                'transfer_to' => 'required|integer|exists:subsidiaries,subsidiary_id|different:transfer_from',
+                'remarks' => 'nullable|string|max:255',
+            ]);
+
+            $transactId = $request->transact_id;
+            $transferFromId = $request->transfer_from;
+            $transferToId = $request->transfer_to;
+            $transferFromName = Subsidiary::where('subsidiary_id', $transferFromId)->value('subsidiary_name');
+            $transferToName = Subsidiary::where('subsidiary_id', $transferToId)->value('subsidiary_name');
+            $remarks = $request->remarks;
+
+            $transferLogs = [];
+
+            foreach ($request->items as $item) {
+                $itemCode = $item['item_code'];
+                $qty = $item['qty'];
+
+                $inventory = Inventory::where('item_code', $itemCode)
+                    ->where('subsidiaryid', $transferFromId)
+                    ->first();
+
+                if (!$inventory) {
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => "Item '{$itemCode}' not found in the specified subsidiary.",
+                    ], 404);
+                }
+
+                $existingTargetInventory = Inventory::where('item_code', $itemCode)
+                    ->where('subsidiaryid', $transferToId)
+                    ->first();
+
+                $transferCode = $existingTargetInventory ? $itemCode : null;
+
+                if (!$existingTargetInventory) {
+                    $existingTransfer = Transfer::where('transfer_code', $itemCode)
+                        ->where('transfer_from', $transferToName)
+                        ->first();
+
+                    if ($existingTransfer) {
+                        $transferCode = $existingTransfer->item_code;
+                    } else {
+                        $existingInventoryCodes = Inventory::where('item_code', 'LIKE', 'ITEM-' . now()->format('Ymd') . '%')
+                            ->pluck('item_code');
+
+                        $existingTransferCodes = Transfer::where('transfer_code', 'LIKE', 'ITEM-' . now()->format('Ymd') . '%')
+                            ->pluck('transfer_code');
+
+                        $combinedCodes = $existingInventoryCodes->merge($existingTransferCodes);
+
+                        $maxSequence = $combinedCodes->map(function ($code) {
+                            return (int) substr($code, strrpos($code, '-') + 1);
+                        })->max();
+
+                        $nextSequence = str_pad($maxSequence + 1, 5, '0', STR_PAD_LEFT);
+                        $transferCode = 'ITEM-' . now()->format('Ymd') . '-' . $nextSequence;
+                    }
+                }
+
+                $newTransferLog = new Transfer();
+                $newTransferLog->transact_id = $transactId;
+                $newTransferLog->inventory_id = $inventory->inventory_id;
+                $newTransferLog->transfer_from = $transferFromName;
+                $newTransferLog->transfer_to = $transferToName;
+                $newTransferLog->item_code = $itemCode;
+                $newTransferLog->transfer_code = $transferCode;
+                $newTransferLog->item_description = $inventory->item_description;
+                $newTransferLog->item_category = $inventory->item_category;
+                $newTransferLog->qty = $qty;
+                $newTransferLog->uomp = $inventory->uomp;
+                $newTransferLog->uoms = $inventory->uoms;
+                $newTransferLog->uomt = $inventory->uomt;
+                $newTransferLog->cost = $inventory->cost;
+                $newTransferLog->usage = $inventory->usage;
+                $newTransferLog->status = 'Pending';
+                $newTransferLog->requester_id = auth()->id() ?? 0;
+                $newTransferLog->requester_name = auth()->user()->name ?? 'N/A';
+                $newTransferLog->remarks = $remarks;
+                $newTransferLog->save();
+
+                $transferLogs[] = $newTransferLog;
+            }
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Transfer request has been logged and is pending approval.',
+                'data' => $transferLogs,
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to create transfer request.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function approveTransfer(Request $request, $transactId)
+    {
+        try {
+            $transfer = Transfer::where('transfer_id', $transactId)->firstOrFail();
+
+            if ($transfer->status !== 'Pending') {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'This transfer is not pending and cannot be approved.',
+                ], 400);
+            }
+
+            $itemCode = $transfer->item_code;
+            $transferCode = $transfer->transfer_code;
+            $qty = $transfer->qty;
+            $transferFromId = Subsidiary::where('subsidiary_name', $transfer->transfer_from)->value('subsidiary_id');
+            $transferToId = Subsidiary::where('subsidiary_name', $transfer->transfer_to)->value('subsidiary_id');
+
+            $inventory = Inventory::where('item_code', $itemCode)
+                ->where('subsidiaryid', $transferFromId)
+                ->first();
+
+            if (!$inventory) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => "Item '{$itemCode}' not found in the specified subsidiary.",
+                ], 404);
+            }
+
+            if ($inventory->qty < $qty) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => "Insufficient quantity for item '{$itemCode}' in subsidiary '{$transfer->transfer_from}'.",
+                    'available_qty' => $inventory->qty,
+                ], 400);
+            }
+
+            $inventory->qty -= $qty;
+            $inventory->save();
+
+            $targetInventory = Inventory::where('item_code', $itemCode)
+                ->where('subsidiaryid', $transferToId)
+                ->first();
+
+            if (!$targetInventory) {
+                $targetInventory = Inventory::where('item_code', $transferCode)
+                    ->where('subsidiaryid', $transferToId)
+                    ->first();
+            }
+
+            if ($targetInventory) {
+                $targetInventory->qty += $qty;
+                $targetInventory->save();
+            } else {
+                Inventory::create([
+                    'item_code' => $transferCode,
+                    'item_description' => $inventory->item_description,
+                    'item_category' => $inventory->item_category,
+                    'uomp' => $inventory->uomp,
+                    'uoms' => $inventory->uoms,
+                    'uomt' => $inventory->uomt,
+                    'qty' => $qty,
+                    'cost' => $inventory->cost,
+                    'usage' => $inventory->usage,
+                    'subsidiaryid' => $transferToId,
+                    'subsidiary' => $transfer->transfer_to,
+                    'date' => now(),
+                ]);
+            }
+
+            $transfer->status = 'Active';
+            $transfer->updated_at = now();
+            $transfer->save();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Transfer has been approved and completed.',
+                'data' => $transfer,
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to approve transfer.',
+                'error' => $e->getMessage(),
+            ], 500);
         }
     }
 }

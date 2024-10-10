@@ -67,15 +67,10 @@
                     <tr>
                         <th
                             style="text-align: center; padding: 8px 10px; border: none; font-weight: 400; color: #637281;">
-                        </th>
+                            Transfer From <i class="bi bi-three-dots-vertical"></i></th>
                         <th
                             style="text-align: center; padding: 8px 10px; border: none; font-weight: 400; color: #637281;">
-                            Transfer From <i class="bi bi-three-dots-vertical"></i>
-                        </th>
-                        <th
-                            style="text-align: center; padding: 8px 10px; border: none; font-weight: 400; color: #637281;">
-                            Transfer To <i class="bi bi-three-dots-vertical"></i>
-                        </th>
+                            Transfer To <i class="bi bi-three-dots-vertical"></i></th>
                         <th
                             style="text-align: center; padding: 8px 10px; border: none; font-weight: 400; color: #637281;">
                             Item Code <i class="bi bi-three-dots-vertical"></i></th>
@@ -99,24 +94,25 @@
                             Usage <i class="bi bi-three-dots-vertical"></i></th>
                         <th
                             style="text-align: center; padding: 8px 10px; border: none; font-weight: 400; color: #637281;">
-                            Status <i class="bi bi-three-dots-vertical"></i>
-                        </th>
+                            Status <i class="bi "></i></th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td style="text-align: center; padding: 2px 10px;"></td>
-                        <td style="text-align: center; padding: 2px 10px;">Transfer From</td>
-                        <td style="text-align: center; padding: 2px 10px;">Transfer To</td>
-                        <td style="text-align: center; padding: 2px 10px;">000000</td>
-                        <td style="text-align: center; padding: 2px 10px;">Item Description</td>
-                        <td style="text-align: center; padding: 2px 10px;">Item Category</td>
-                        <td style="text-align: center; padding: 2px 10px;">00.00</td>
-                        <td style="text-align: center; padding: 2px 10px;">PCS</td>
-                        <td style="text-align: center; padding: 2px 10px;">00.00</td>
-                        <td style="text-align: center; padding: 2px 10px;">Usage</td>
-                        <td style="text-align: center; padding: 2px 10px;">
-                            <span class="badge bg-danger">Pending</span>
+                    <tr class="clickable-row" data-bs-toggle="modal" data-bs-target="#approveTransferModal">
+                        <td style="text-align: center; padding: 8px 10px;">Transfer From</td>
+                        <td style="text-align: center; padding: 8px 10px;">Transfer To</td>
+                        <td style="text-align: center; padding: 8px 10px;">000000</td>
+                        <td style="text-align: center; padding: 8px 10px;">Item Description</td>
+                        <td style="text-align: center; padding: 8px 10px;">Item Category</td>
+                        <td style="text-align: center; padding: 8px 10px;">00.00</td>
+                        <td style="text-align: center; padding: 8px 10px;">PCS</td>
+                        <td style="text-align: center; padding: 8px 10px;">00.00</td>
+                        <td style="text-align: center; padding: 8px 10px;">Usage</td>
+                        <td style="text-align: center; padding: 8px 10px;">
+                            <span class="badge bg-danger cursor-pointer" data-bs-toggle="modal"
+                                data-bs-target="#approveTransferModal">
+                                Pending
+                            </span>
                         </td>
                     </tr>
                 </tbody>
@@ -172,29 +168,45 @@
                     <div class="row g-2 mb-3">
                         <div class="col-md-6">
                             <label for="transactionDate" class="form-label">Transaction Date</label>
-                            <input type="date" class="form-control form-control-sm" id="transactionDate">
+                            <input type="date" class="form-control form-control-sm" id="transactionDate" disabled>
                         </div>
                         <div class="col-md-6">
                             <label for="transactionNumber" class="form-label">Transaction Number</label>
-                            <input type="text" class="form-control form-control-sm" id="transactionNumber">
+                            <input type="text" class="form-control form-control-sm" id="transactionNumber" readonly>
                         </div>
                         <div class="col-md-6">
                             <label for="transferFrom" class="form-label">Transfer From</label>
                             <select class="form-select form-select-sm" id="transferFrom">
-                                <option>Select</option>
+                                <option value="1" selected>HO</option>
+                                <option value="2">WTCC</option>
+                                <option value="3">CITI</option>
+                                <option value="4">WCC</option>
+                                <option value="5">WFA</option>
+                                <option value="6">WOI</option>
+                                <option value="7">WGC</option>
                             </select>
                         </div>
                         <div class="col-md-6">
                             <label for="transferTo" class="form-label">Transfer To</label>
                             <select class="form-select form-select-sm" id="transferTo">
-                                <option>Select</option>
+                                <option value="1">HO</option>
+                                <option value="2" selected>WTCC</option>
+                                <option value="3">CITI</option>
+                                <option value="4">WCC</option>
+                                <option value="5">WFA</option>
+                                <option value="6">WOI</option>
+                                <option value="7">WGC</option>
                             </select>
                         </div>
                     </div>
 
                     <!-- Item Information Table -->
                     <div class="table-responsive mb-3">
-                        <table class="table table-bordered table-sm">
+                        <button type="button" class="btn btn-link text-secondary fw-bold" id="addMoreItems"
+                            style="font-size: 14px;">
+                            + Add More Item
+                        </button>
+                        <table class="table table-bordered table-sm" id="itemsTable">
                             <thead class="table-light">
                                 <tr>
                                     <th>Item Code</th>
@@ -210,15 +222,23 @@
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td contenteditable="false">Auto Generate</td>
-                                    <td contenteditable="true"></td>
-                                    <td contenteditable="true"></td>
-                                    <td contenteditable="true"></td>
-                                    <td contenteditable="true"></td>
-                                    <td contenteditable="true"></td>
-                                    <td contenteditable="true"></td>
-                                    <td contenteditable="true"></td>
-                                    <td contenteditable="false">Auto Generate</td>
+                                    <td contenteditable="true" id="itemCode" placeholder="Enter Item Code"></td>
+                                    <td contenteditable="false" id="itemDescription"
+                                        style="background-color: #E9ECEF; color: #999; pointer-events: none;"></td>
+                                    <td contenteditable="false" id="itemCategory"
+                                        style="background-color: #E9ECEF; color: #999; pointer-events: none;"></td>
+                                    <td contenteditable="false" id="primaryUOM"
+                                        style="background-color: #E9ECEF; color: #999; pointer-events: none;"></td>
+                                    <td contenteditable="false" id="secondaryUOM"
+                                        style="background-color: #E9ECEF; color: #999; pointer-events: none;"></td>
+                                    <td contenteditable="false" id="tertiaryUOM"
+                                        style="background-color: #E9ECEF; color: #999; pointer-events: none;"></td>
+                                    <td contenteditable="true" id="qty"
+                                        style="background-color: #FFFFFF; color: #000; pointer-events: auto;"></td>
+                                    <td contenteditable="false" id="cost"
+                                        style="background-color: #E9ECEF; color: #999; pointer-events: none;"></td>
+                                    <td contenteditable="false" id="usage"
+                                        style="background-color: #E9ECEF; color: #999; pointer-events: none;"></td>
                                 </tr>
                             </tbody>
                         </table>
@@ -229,56 +249,45 @@
                         <textarea class="form-control form-control-sm" id="remarks"></textarea>
                     </div>
 
-                    <!-- Approver Section -->
-                    <div class="table-responsive mb-3">
-                        <table class="table table-bordered table-sm">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>Name</th>
-                                    <th>Status</th>
-                                    <th>Start Date</th>
-                                    <th>Action Date</th>
-                                    <th>Remarks</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td contenteditable="false">Auto Generate</td>
-                                    <td contenteditable="false">Auto Generate</td>
-                                    <td contenteditable="true"></td>
-                                    <td contenteditable="true"></td>
-                                    <td contenteditable="true"></td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-
                     <!-- Action Section -->
                     <div class="row g-2 align-items-end mb-3">
-                        <div class="col-md-3">
-                            <label for="action" class="form-label">Action</label>
-                            <select class="form-select form-select-sm" id="action">
-                                <option>Select</option>
-                            </select>
-                        </div>
-                        <div class="col-md-6">
-                            <label for="actionRemarks" class="form-label">Remarks</label>
-                            <input type="text" class="form-control form-control-sm" id="actionRemarks"
-                                style="height: 50px;">
-                        </div>
-                        <div class="col-md-3 d-flex justify-content-end">
-                            <button type="button" class="btn btn-success btn-sm" id="submitRequestTransfer"
-                                style="background-color: #28a745; color: white; border: 1px solid #28a745; padding: 6px 12px;">
+                        <div class="col-md-12 d-flex justify-content-end">
+                            <button type="button" class="btn btn-success btn-lg" id="submitRequestTransfer"
+                                style="background-color: #28a745; color: white; border: 1px solid #28a745; padding: 10px 20px;">
                                 Submit
                             </button>
                         </div>
                     </div>
+                </form>
             </div>
         </div>
     </div>
+</div>
 
-    @endsection
+<!-- Approve Transfer Modal -->
+<div class="modal fade" id="approveTransferModal" tabindex="-1" aria-labelledby="approveTransferModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="approveTransferModalLabel">Approve Transfer</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to approve this transfer request?</p>
+                <textarea class="form-control" id="approveRemarks" placeholder="Enter remarks (optional)"></textarea>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="approveTransferButton">Approve</button>
+            </div>
+        </div>
+    </div>
+</div>
 
-    @push('scripts')
-        <script src="{{ asset('js/inventory.js') }}"></script>
-    @endpush
+@endsection
+
+@push('scripts')
+    <script src="{{ asset('js/inventory.js') }}"></script>
+    <script src="{{ asset('js/inventory_transfer.js') }}"></script>
+@endpush

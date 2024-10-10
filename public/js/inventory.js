@@ -1,6 +1,4 @@
 document.addEventListener("DOMContentLoaded", function () {
-
-
     const startDateInput = document.getElementById("start-date");
     const endDateInput = document.getElementById("end-date");
     const subsidiary = document.getElementById("subsidiary");
@@ -10,12 +8,12 @@ document.addEventListener("DOMContentLoaded", function () {
     const pagination = document.querySelector("ul.pagination");
     const form = document.getElementById("filter-submit");
     const downloadButton = document.getElementById("downloadButton");
-    const searchInput = document.getElementById("searchInput");   
+    const searchInput = document.getElementById("searchInput");
     let currentPage = 1;
     let rowsPerPage = parseInt(rowsPerPageSelect.value, 10) || 10;
     let selectedText = subsidiary.selectedOptions[0].text;
     subsidiary.addEventListener("change", function () {
-        selectedText = subsidiary.selectedOptions[0].text; 
+        selectedText = subsidiary.selectedOptions[0].text;
     });
     function getFormattedDate(date) {
         let year = date.getFullYear();
@@ -32,11 +30,32 @@ document.addEventListener("DOMContentLoaded", function () {
     startDateInput.style.fontWeight = "300";
     endDateInput.style.fontWeight = "300";
 
-    [startDateInput, endDateInput].forEach(input => {
+    [startDateInput, endDateInput].forEach((input) => {
         input.addEventListener("input", function () {
             this.style.color = this.value === "" ? "#adb5bd" : "";
         });
     });
+
+    function fetchTransfer(page) {
+        const url = `/api/inventory/transfer?page=${page}&per_page=${rowsPerPage}&start_date=${startDateInput.value}&end_date=${endDateInput.value}&subsidiaryid=${subsidiary.value}`;
+
+        axios
+            .get(url)
+            .then((response) => {
+                if (response.data.status === "success") {
+                    renderTransferTable(response.data.data);
+                    updatePagination(response.data.pagination);
+                } else {
+                    console.error(
+                        "Failed to fetch transfers:",
+                        response.data.message
+                    );
+                }
+            })
+            .catch((error) => {
+                console.error("Error fetching transfers:", error);
+            });
+    }
 
     function fetchInventory(page, search) {
         fetch(`/api/inventory?page=${page}&per_page=${rowsPerPage}`, {
@@ -49,27 +68,37 @@ document.addEventListener("DOMContentLoaded", function () {
                 end_date: endDateInput.value,
                 subsidiaryid: subsidiary.value,
                 per_page: rowsPerPage,
-                search: search
+                search: search,
+            }),
+        })
+            .then((response) => response.json())
+            .then((data) => {
+                if (data.status === "success") {
+                    initializeDynamicTable(data.data);
+                    updatePagination(data.pagination);
+                } else {
+                    console.error("Failed to fetch inventory:", data.message);
+                }
             })
-        })
-        .then((response) => response.json())
-        .then((data) => {
-            if (data.status === "success") {
-                initializeDynamicTable(data.data);
-                updatePagination(data.pagination);
-            } else {
-                console.error("Failed to fetch inventory:", data.message);
-            }
-        })
-        .catch((error) => {
-            console.error("Error fetching inventory:", error);
-        });
+            .catch((error) => {
+                console.error("Error fetching inventory:", error);
+            });
     }
 
-    
-    fetchInventory(currentPage);
+    function determineFetchFunction() {
+        const isTransferRoute = window.location.pathname.includes(
+            "/inventory/transfer"
+        );
 
-    
+        if (isTransferRoute) {
+            fetchTransfer(currentPage);
+        } else {
+            fetchInventory(currentPage);
+        }
+    }
+
+    determineFetchFunction();
+
     function initializeDynamicTable(inventoryData) {
         renderTable(inventoryData);
         initializePopovers();
@@ -84,17 +113,35 @@ document.addEventListener("DOMContentLoaded", function () {
         currentItems.forEach((item, index) => {
             const row = document.createElement("tr");
             row.innerHTML = `
-                <td style="text-align: center; padding: 2px 10px;">${item.inventory_id}
+                <td style="text-align: center; padding: 2px 10px;">${
+                    item.inventory_id
+                }
                     <input type="checkbox" style="margin-left: 10px;">
                 </td>
-                <td style="text-align: center; padding: 2px 10px;">${item.date}</td>
-                <td style="text-align: center; padding: 2px 10px;">${item.item_code}</td>
-                <td style="text-align: center; padding: 2px 10px;">${item.item_description}</td>
-                <td style="text-align: center; padding: 2px 10px;">${item.item_category}</td>
-                <td style="text-align: center; padding: 2px 10px;">${item.qty}</td>
-                <td style="text-align: center; padding: 2px 10px;">${item.uom}</td>
-                <td style="text-align: center; padding: 2px 10px;">${item.cost}</td>
-                <td style="text-align: center; padding: 2px 10px;">${item.usage}</td>
+                <td style="text-align: center; padding: 2px 10px;">${
+                    item.date
+                }</td>
+                <td style="text-align: center; padding: 2px 10px;">${
+                    item.item_code
+                }</td>
+                <td style="text-align: center; padding: 2px 10px;">${
+                    item.item_description
+                }</td>
+                <td style="text-align: center; padding: 2px 10px;">${
+                    item.item_category
+                }</td>
+                <td style="text-align: center; padding: 2px 10px;">${
+                    item.qty
+                }</td>
+                <td style="text-align: center; padding: 2px 10px;">
+                    ${item.uomp || item.uoms || item.uomt || "N/A"}
+                </td>
+                <td style="text-align: center; padding: 2px 10px;">${
+                    item.cost
+                }</td>
+                <td style="text-align: center; padding: 2px 10px;">${
+                    item.usage
+                }</td>
                 <td style="text-align: center; padding: 2px 10px;">
                     <div style="position: relative;">
                         <button type="button" class="btn btn-link actionButton" data-bs-toggle="popover" 
@@ -119,18 +166,102 @@ document.addEventListener("DOMContentLoaded", function () {
             tableBody.appendChild(row);
         });
 
-        totalItemsText.textContent = `${startIndex + 1}-${Math.min(endIndex, inventoryData.length)} of ${inventoryData.length}`;
+        totalItemsText.textContent = `${startIndex + 1}-${Math.min(
+            endIndex,
+            inventoryData.length
+        )} of ${inventoryData.length}`;
+    }
+
+    function renderTransferTable(transferData) {
+        tableBody.innerHTML = "";
+        const startIndex = (currentPage - 1) * rowsPerPage;
+        const endIndex = startIndex + rowsPerPage;
+        const currentItems = transferData.slice(startIndex, endIndex);
+
+        currentItems.forEach((item) => {
+            const row = document.createElement("tr");
+            row.classList.add("clickable-row");
+            row.dataset.transactId = item.transfer_id;
+            row.dataset.status = item.status;
+            row.innerHTML = `
+                <td style="text-align: center; padding: 8px 10px;">${
+                    item.transfer_from
+                }</td>
+                <td style="text-align: center; padding: 8px 10px;">${
+                    item.transfer_to
+                }</td>
+                <td style="text-align: center; padding: 8px 10px;">${
+                    item.item_code
+                }</td>
+                <td style="text-align: center; padding: 8px 10px;">${
+                    item.item_description || "N/A"
+                }</td>
+                <td style="text-align: center; padding: 8px 10px;">${
+                    item.item_category
+                }</td>
+                <td style="text-align: center; padding: 8px 10px;">${
+                    item.qty
+                }</td>
+                <td style="text-align: center; padding: 8px 10px;">${
+                    item.uomp
+                }</td>
+                <td style="text-align: center; padding: 8px 10px;">${
+                    item.cost
+                }</td>
+                <td style="text-align: center; padding: 8px 10px;">${
+                    item.usage
+                }</td>
+                <td style="text-align: center; padding: 8px 10px;">
+                <span class="badge bg-${
+                    item.status === "Active" ? "success" : "danger"
+                }">${item.status}</span>
+            </td>
+            `;
+            tableBody.appendChild(row);
+        });
+
+        document.querySelectorAll(".clickable-row").forEach((row) => {
+            row.addEventListener("click", function () {
+                const transactionNumber = this.dataset.transactId;
+                const status = this.dataset.status;
+
+                if (status === "Pending") {
+                    console.log(
+                        "Clicked transaction number:",
+                        transactionNumber
+                    );
+
+                    document.getElementById(
+                        "approveTransferButton"
+                    ).dataset.transactionNumber = transactionNumber;
+
+                    const approveTransferModal = new bootstrap.Modal(
+                        document.getElementById("approveTransferModal")
+                    );
+                    approveTransferModal.show();
+                } else {
+                    alert(
+                        `Transfer already '${status}'.`
+                    );
+                }
+            });
+        });
+
+        totalItemsText.textContent = `${startIndex + 1}-${Math.min(
+            endIndex,
+            transferData.length
+        )} of ${transferData.length}`;
     }
 
     function updatePagination(paginationData) {
-        pagination.innerHTML = ""; 
+        pagination.innerHTML = "";
 
         if (!paginationData) {
             console.error("Pagination data is undefined.");
             return;
         }
 
-        const totalPages = paginationData.total_pages || 1; 
+        const totalPages = paginationData.total_pages || 1;
         const currentPage = paginationData.current_page || 1;
 
         // Create Previous button
@@ -186,20 +317,17 @@ document.addEventListener("DOMContentLoaded", function () {
         pagination.appendChild(nextPage);
     }
 
-    
-    form.addEventListener("submit", function(event) {
+    form.addEventListener("submit", function (event) {
         event.preventDefault();
-        fetchInventory(currentPage); // Re-fetch based on current page
-    });
-
-    
-    rowsPerPageSelect.addEventListener("change", function () {
-        rowsPerPage = parseInt(this.value, 10);
-        currentPage = 1; 
         fetchInventory(currentPage);
     });
 
-   
+    rowsPerPageSelect.addEventListener("change", function () {
+        rowsPerPage = parseInt(this.value, 10);
+        currentPage = 1;
+        determineFetchFunction();
+    });
+
     const popover = new bootstrap.Popover(downloadButton, {
         html: true,
         sanitize: false,
@@ -225,7 +353,10 @@ document.addEventListener("DOMContentLoaded", function () {
             });
 
             document.addEventListener("click", function (event) {
-                if (!popoverElement.contains(event.target) && !popoverInstance._isWithActiveTrigger()) {
+                if (
+                    !popoverElement.contains(event.target) &&
+                    !popoverInstance._isWithActiveTrigger()
+                ) {
                     popoverInstance.hide();
                 }
             });
@@ -233,63 +364,90 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     searchInput.addEventListener("input", function () {
-        const searchTerm = this.value;  
-        fetchInventory(currentPage, searchTerm);
+        const searchTerm = this.value;
+        determineFetchFunction();
     });
 
+    document
+        .getElementById("filter-submit")
+        .addEventListener("submit", function (event) {
+            event.preventDefault();
+            determineFetchFunction();
+        });
+
     function generateItemCode() {
-        const prefix = 'ITEM'; // Customize the prefix if needed
-        const datePart = new Date().toISOString().split('T')[0].replace(/-/g, ''); // YYYYMMDD
+        const prefix = "ITEM";
+        const datePart = new Date()
+            .toISOString()
+            .split("T")[0]
+            .replace(/-/g, ""); // YYYYMMDD
         const randomPart = Math.floor(Math.random() * 90000) + 10000; // Random 5-digit number
         return `${prefix}-${datePart}-${randomPart}`;
     }
 
-    document.getElementById('addInventory').addEventListener('click', async (e) => {
-        e.preventDefault();
-        const today = new Date().toISOString().split('T')[0];
-        document.getElementById('dateCreated').value = today;
+    document
+        .getElementById("addInventory")
+        .addEventListener("click", async (e) => {
+            e.preventDefault();
+            const today = new Date().toISOString().split("T")[0];
+            document.getElementById("dateCreated").value = today;
 
-        const itemCode = generateItemCode();
-        document.getElementById('newItemCode').value = itemCode;  
-    });
+            const itemCode = generateItemCode();
+            document.getElementById("newItemCode").value = itemCode;
+        });
 
-    document.getElementById('addInventoryForm').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const descriptionInput = document.getElementById('newItemDescription');
+    document
+        .getElementById("addInventoryForm")
+        .addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const descriptionInput =
+                document.getElementById("newItemDescription");
 
-        if (!descriptionInput.value.trim()) {
-            alert("Item Description cannot be empty or whitespace only.");
-            descriptionInput.focus();
-            return;
-        }
-        const data = {
-            date: document.getElementById('dateCreated').value,
-            item_code: document.getElementById('newItemCode').value,
-            item_description: descriptionInput.value,
-            item_category: document.getElementById('newCategory').value,
-            subsidiaryid: document.getElementById('modalSubsidiary').value,
-            subsidiary: document.getElementById('modalSubsidiary').options[document.getElementById('modalSubsidiary').selectedIndex].text,
-            cost: document.getElementById('newCost').value,
-            primaryUOM: document.getElementById('newPrimaryUOM').options[document.getElementById('newPrimaryUOM').selectedIndex].text,
-            secondaryUOM: document.getElementById('newSecondaryUOM').options[document.getElementById('newSecondaryUOM').selectedIndex].text,
-            tertiaryUOM: document.getElementById('newTertiaryUOM').options[document.getElementById('newTertiaryUOM').selectedIndex].text,
-            qty: document.getElementById('newQuantity').value,
-            remarks: document.getElementById('remarks').value,
-            usage: document.getElementById('newUsage').value
-        };
-        axios
-            .post(`/api/create-inventory`, data)
-            .then((response) => {
-                fetchInventory(currentPage)
-                const modalElement = document.getElementById('addInventoryModal');
-                const modal = bootstrap.Modal.getInstance(modalElement);
-                modal.hide();
-                alert("Item save successfully!");
-            })
-            .catch((error) => {
-                console.error("Error assigning role:", error);
-                alert("Error saving new Item.", error);
-            });
-        
-    });
+            if (!descriptionInput.value.trim()) {
+                alert("Item Description cannot be empty or whitespace only.");
+                descriptionInput.focus();
+                return;
+            }
+            const data = {
+                date: document.getElementById("dateCreated").value,
+                item_code: document.getElementById("newItemCode").value,
+                item_description: descriptionInput.value,
+                item_category: document.getElementById("newCategory").value,
+                subsidiaryid: document.getElementById("modalSubsidiary").value,
+                subsidiary:
+                    document.getElementById("modalSubsidiary").options[
+                        document.getElementById("modalSubsidiary").selectedIndex
+                    ].text,
+                cost: document.getElementById("newCost").value,
+                primaryUOM:
+                    document.getElementById("newPrimaryUOM").options[
+                        document.getElementById("newPrimaryUOM").selectedIndex
+                    ].text,
+                secondaryUOM:
+                    document.getElementById("newSecondaryUOM").options[
+                        document.getElementById("newSecondaryUOM").selectedIndex
+                    ].text,
+                tertiaryUOM:
+                    document.getElementById("newTertiaryUOM").options[
+                        document.getElementById("newTertiaryUOM").selectedIndex
+                    ].text,
+                qty: document.getElementById("newQuantity").value,
+                remarks: document.getElementById("remarks").value,
+                usage: document.getElementById("newUsage").value,
+            };
+            axios
+                .post(`/api/create-inventory`, data)
+                .then((response) => {
+                    fetchInventory(currentPage);
+                    const modalElement =
+                        document.getElementById("addInventoryModal");
+                    const modal = bootstrap.Modal.getInstance(modalElement);
+                    modal.hide();
+                    alert("Item save successfully!");
+                })
+                .catch((error) => {
+                    console.error("Error assigning role:", error);
+                    alert("Error saving new Item.", error);
+                });
+        });
 });
