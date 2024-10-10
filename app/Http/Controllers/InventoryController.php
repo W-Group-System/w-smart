@@ -90,9 +90,8 @@ class InventoryController extends Controller
                'usage' => 'required|numeric|min:0',
                'subsidiary' => 'required|string|max:100',
                'subsidiaryid' => 'required|numeric|min:0',
-               'remarks' => 'string|max:100',
            	]);
-            
+
            	$new_inventory = new Inventory();
            	$new_inventory->date = $request->date; 
            	$new_inventory->item_code = $request->item_code; 
@@ -106,6 +105,7 @@ class InventoryController extends Controller
            	$new_inventory->usage = $request->usage; 
             $new_inventory->subsidiaryid = $request->subsidiaryid; 
             $new_inventory->subsidiary = $request->subsidiary; 
+            $new_inventory->remarks = $request->remarks; 
            	$new_inventory->save();
            	return response()->json([
                'status' => 'success',
