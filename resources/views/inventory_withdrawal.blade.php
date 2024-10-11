@@ -208,7 +208,7 @@
                                     <div style="position: relative;">
                                     <td contenteditable="true">
                                         <div style="position: relative;">
-                                            <input type="text" id="itemCodeInput" list="itemSuggestions" class="form-control form-control-sm" placeholder="Enter Item Code" style="width: 100%; max-width: 200px; padding: 6px; border-radius: 5px; border: 1px solid #ced4da;">
+                                            <input type="text" class="form-control form-control-sm itemCodeInput" placeholder="Enter Item Code" style="width: 100%; max-width: 200px; padding: 6px; border-radius: 5px; border: 1px solid #ced4da;" list="itemSuggestions">
                                             <datalist id="itemSuggestions"></datalist>
                                         </div>
                                     </td>

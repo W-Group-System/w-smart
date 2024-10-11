@@ -625,4 +625,92 @@ class InventoryController extends Controller
             ], 500);
         }
     }
+
+    public function approveWithdraw(Request $request, $id)
+    {
+        try {
+            $withdraw = WithdrawalItems::where('withdrawal_id', $id)->firstOrFail();
+
+            if ($withdraw->status !== 0) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'This transfer is not pending and cannot be approved.',
+                ], 400);
+            }
+
+            $itemCode = $transfer->item_code;
+            $transferCode = $transfer->transfer_code;
+            $qty = $transfer->qty;
+            $transferFromId = Subsidiary::where('subsidiary_name', $transfer->transfer_from)->value('subsidiary_id');
+            $transferToId = Subsidiary::where('subsidiary_name', $transfer->transfer_to)->value('subsidiary_id');
+
+            $inventory = Inventory::where('item_code', $itemCode)
+                ->where('subsidiaryid', $transferFromId)
+                ->first();
+
+            if (!$inventory) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => "Item '{$itemCode}' not found in the specified subsidiary.",
+                ], 404);
+            }
+
+            if ($inventory->qty < $qty) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => "Insufficient quantity for item '{$itemCode}' in subsidiary '{$transfer->transfer_from}'.",
+                    'available_qty' => $inventory->qty,
+                ], 400);
+            }
+
+            $inventory->qty -= $qty;
+            $inventory->save();
+
+            $targetInventory = Inventory::where('item_code', $itemCode)
+                ->where('subsidiaryid', $transferToId)
+                ->first();
+
+            if (!$targetInventory) {
+                $targetInventory = Inventory::where('item_code', $transferCode)
+                    ->where('subsidiaryid', $transferToId)
+                    ->first();
+            }
+
+            if ($targetInventory) {
+                $targetInventory->qty += $qty;
+                $targetInventory->save();
+            } else {
+                Inventory::create([
+                    'item_code' => $transferCode,
+                    'item_description' => $inventory->item_description,
+                    'item_category' => $inventory->item_category,
+                    'uomp' => $inventory->uomp,
+                    'uoms' => $inventory->uoms,
+                    'uomt' => $inventory->uomt,
+                    'qty' => $qty,
+                    'cost' => $inventory->cost,
+                    'usage' => $inventory->usage,
+                    'subsidiaryid' => $transferToId,
+                    'subsidiary' => $transfer->transfer_to,
+                    'date' => now(),
+                ]);
+            }
+
+            $transfer->status = 'Active';
+            $transfer->updated_at = now();
+            $transfer->save();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Transfer has been approved and completed.',
+                'data' => $transfer,
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to approve transfer.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
 }
