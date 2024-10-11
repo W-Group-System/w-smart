@@ -46,7 +46,7 @@
             </div>
 
             <div class="d-flex align-items-center">
-                <select class="form-select me-3" id="subsidiary"
+<!--                 <select class="form-select me-3" id="subsidiary"
                     style="width: 150px; height: 35px; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); color: #6c757d; border-radius: 25px; font-size: 14px;">
                     <option selected value="1">HO</option>
                     <option value="2">WTCC</option>
@@ -55,7 +55,7 @@
                     <option value="5">WFA</option>
                     <option value="6">WOI</option>
                     <option value="7">WGC</option>
-                </select>
+                </select> -->
                 <a href="#" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#inventoryWithdrawalModal" id="addWithdraw"
                     style="height: 35px; padding: 0 15px; display: flex; align-items: center; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); font-size: 14px;">
                     Inventory Withdrawal
@@ -170,7 +170,7 @@
                             <input type="text" class="form-control form-control-sm" id="requestNumber" readonly>
                         </div>
                         <div class="col-md-6">
-                            <label for="requestorName" class="form-label">Requestor Name</label>
+                            <label for="requestorName" class="form-label">Custodian Name</label>
                             <input type="text" class="form-control form-control-sm" id="requestName" readonly>
                         </div>
                         <div class="col-md-6">
@@ -206,18 +206,18 @@
                             <tbody id="itemTableBody">
                                 <tr>
                                     <div style="position: relative;">
-                                    <td contenteditable="true">
+                                    <td contenteditable="false">
                                         <div style="position: relative;">
                                             <input type="text" class="form-control form-control-sm itemCodeInput" placeholder="Enter Item Code" style="width: 100%; max-width: 200px; padding: 6px; border-radius: 5px; border: 1px solid #ced4da;" list="itemSuggestions">
                                             <datalist id="itemSuggestions"></datalist>
                                         </div>
                                     </td>
-                                    <td contenteditable="false" id="itemDescription" style="background-color: #E9ECEF; color: #999; pointer-events: none;"></td>
-                                    <td contenteditable="false" id="itemCategory" style="background-color: #E9ECEF; color: #999; pointer-events: none;"></td>
-                                    <td contenteditable="true" id="uom"></td>
-                                    <td contenteditable="true" id="reason"></td>
-                                    <td contenteditable="true" id="requestedQty"></td>
-                                    <td contenteditable="true" id="releasedQty"></td>
+                                    <td contenteditable="false" class="itemDescription" style="background-color: #E9ECEF; color: #999; pointer-events: none;"></td>
+                                    <td contenteditable="false" class="itemCategory" style="background-color: #E9ECEF; color: #999; pointer-events: none;"></td>
+                                    <td contenteditable="true" class="uom"></td>
+                                    <td contenteditable="true" class="reason"></td>
+                                    <td contenteditable="true" class="requestedQty"></td>
+                                    <td contenteditable="true" class="releasedQty"></td>
                                 </tr>
                             </tbody>
                         </table>
@@ -231,7 +231,7 @@
                     <!-- Action Section -->
                     <div class="row g-2 align-items-end mb-3">
                         <div class="col-md-12 d-flex justify-content-end">
-                            <button type="button" class="btn btn-success btn-lg" id="submitRequestWithdraw"
+                            <button type="button" class="btn btn-success btn-lg" id="submitRequestWithdraw" disabled
                                 style="background-color: #28a745; color: white; border: 1px solid #28a745; padding: 10px 20px;">
                                 Submit
                             </button>

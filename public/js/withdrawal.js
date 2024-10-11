@@ -13,10 +13,10 @@ document.addEventListener("DOMContentLoaded", function () {
     const searchInput = document.getElementById("searchInput");   
     let currentPage = 1;
     let rowsPerPage = parseInt(rowsPerPageSelect.value, 10) || 10;
-    let selectedText = subsidiary.selectedOptions[0].text;
+/*    let selectedText = subsidiary.selectedOptions[0].text;
     subsidiary.addEventListener("change", function () {
         selectedText = subsidiary.selectedOptions[0].text; 
-    });
+    });*/
 
     function generateItemCode() {
         const prefix = "WITHDRAW";
@@ -29,6 +29,25 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function validateItems() {
+        const submitButton = document.getElementById('submitRequestWithdraw');
+        const rows = document.querySelectorAll('#itemTableBody tr');
+        let allFieldsFilled = true;
+
+        rows.forEach(row => {
+            const itemCode = row.querySelector(".itemCodeInput").value.trim();
+            const uom = row.querySelector('.uom').textContent.trim();
+            const reason = row.querySelector('.reason').textContent.trim();
+            console.log(itemCode)
+            if (itemCode === '' || uom === '' || reason === '') {
+                allFieldsFilled = false;
+            }
+        });
+
+        
+        submitButton.disabled = !allFieldsFilled;
+    }
+
+    /*function validateItems() {
         const table = document.getElementById("itemsTable");
         const rows = table.getElementsByTagName("tbody")[0].rows;
         let hasValidItems = false;
@@ -38,9 +57,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
         Array.from(rows).forEach((row) => {
             const itemCode = row.querySelector(".itemCodeInput").value;
-            const uomCell = row.querySelector("#uom");
-            const reasonCell = row.querySelector("#reason");
-            const qtyCell = row.querySelector("#requestedQty");
+            const uomCell = row.querySelector(".uom");
+            const reasonCell = row.querySelector(".reason");
+            const qtyCell = row.querySelector(".requestedQty");
 
             const uom = uomCell ? uomCell.textContent.trim() : '';
             const reason = reasonCell ? reasonCell.textContent.trim() : '';
@@ -52,7 +71,7 @@ document.addEventListener("DOMContentLoaded", function () {
         });
 
         submitButton.disabled = !hasValidItems;
-    }
+    }*/
 
     function getFormattedDate(date) {
         let year = date.getFullYear();
@@ -99,14 +118,19 @@ document.addEventListener("DOMContentLoaded", function () {
             })
             .then((response) => {
                 if (response.data.status === "success" && response.data.data) {
+                    row.querySelector('.itemCategory').contentEditable = true;
+                    row.querySelector('.uom').contentEditable = true;
+                    row.querySelector('.reason').contentEditable = true;
+                    row.querySelector('.requestedQty').contentEditable = true;
+                    row.querySelector('.releasedQty').contentEditable = true;
                     const item = response.data.data;
                     
-                    row.querySelector("#itemDescription").textContent =
+                    row.querySelector(".itemDescription").textContent =
                         item.item_description;
-                    row.querySelector("#itemCategory").textContent =
+                    row.querySelector(".itemCategory").textContent =
                         item.item_category;
-                    row.querySelector("#requestedQty").textContent = item.qty;
-                    const qtyCell = row.querySelector("#requestedQty");
+                    row.querySelector(".requestedQty").textContent = item.qty;
+                    const qtyCell = row.querySelector(".requestedQty");
                     const maxQty = parseFloat(item.qty);
                     qtyCell.contentEditable = "true";
                     qtyCell.addEventListener("input", function () {
@@ -126,12 +150,8 @@ document.addEventListener("DOMContentLoaded", function () {
                 }
             })
             .catch((error) => {
-                row.querySelector("#itemDescription").textContent = '';
-                row.querySelector("#itemCategory").textContent = '';
-                row.querySelector("#uom").textContent = '';
-                row.querySelector("#releasedQty").textContent = '';
                 console.error("Error fetching item details:", error);
-                alert("Failed to fetch item details. Please try again.");
+                alert("No item found with this item code.");
             });
     }
     const newItemCodeInput = document.querySelector('#itemTableBody tr:last-child .itemCodeInput');
@@ -170,14 +190,22 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
-    document.getElementById('reason').addEventListener('input', async (e) => {
-        e.preventDefault();
-        validateItems();
+    const reasonInputs = document.getElementsByClassName('reason');
+
+    Array.from(reasonInputs).forEach(input => {
+        input.addEventListener('input', async (e) => {
+            e.preventDefault();
+            validateItems(); 
+        });
     });
 
-    document.getElementById('uom').addEventListener('input', async (e) => {
-        e.preventDefault();
-        validateItems();
+    const uomInputs = document.getElementsByClassName('uom');
+
+    Array.from(uomInputs).forEach(input => {
+        input.addEventListener('input', async (e) => {
+            e.preventDefault();
+            validateItems(); 
+        });
     });
 
     async function fetchWithdrawal(page, search) {
@@ -195,9 +223,7 @@ document.addEventListener("DOMContentLoaded", function () {
         })
         .then((response) => response.json())
         .then((data) => {
-            console.log(data.data)
             if (data.data === "No records found") {
-
                 initializeDynamicTable(data.data, data.pagination.total_items);
                 updatePagination(data.pagination);
             } else {
@@ -390,7 +416,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
     document.getElementById('addRowBtn').addEventListener('click', function(e) {
         e.preventDefault();
-        
+        const submitButton = document.getElementById('submitRequestWithdraw');
+        submitButton.disabled = true;
         const rowCount = document.querySelectorAll('#itemTableBody tr').length; // Get current row count for unique datalist ID
         const newRow = `
             <tr>
@@ -409,11 +436,12 @@ document.addEventListener("DOMContentLoaded", function () {
             </tr>
         `;
 
-        // Add the new row to the table
         document.getElementById('itemTableBody').insertAdjacentHTML('beforeend', newRow);
 
-        // Attach the input event listener to the new item code input
         const newItemCodeInput = document.querySelector('#itemTableBody tr:last-child .itemCodeInput');
+        const newReasonInput = document.querySelector('#itemTableBody tr:last-child .reason');
+        const newUomInput = document.querySelector('#itemTableBody tr:last-child .uom');
+        
         newItemCodeInput.addEventListener('input', async (e) => {
             const searchTerm = e.target.value.trim();
             if (searchTerm.length > 1) {
@@ -435,7 +463,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     }
 
                     const data = await response.json();
-                    const suggestions = newItemCodeInput.nextElementSibling; // Access the datalist next to the input
+                    const suggestions = newItemCodeInput.nextElementSibling;
                     suggestions.innerHTML = '';
 
                     data.data.forEach(item => {
@@ -448,7 +476,27 @@ document.addEventListener("DOMContentLoaded", function () {
                 }
             }
         });
+
+        newItemCodeInput.addEventListener("blur", function(e) {
+            e.preventDefault();
+            
+            const itemCode = e.target.value;
+            if (itemCode) {
+                fetchItemDetails(itemCode, subsidiary_id, e.target);
+            }
+        });
+
+        newReasonInput.addEventListener("input", function(e) {
+            e.preventDefault();
+            validateItems();
+        });
+
+        newUomInput.addEventListener("input", function(e) {
+            e.preventDefault();
+            validateItems();
+        });
     });
+
     submitButton.addEventListener("click", function () {
         const requestorName = document.getElementById('userName').value;
         const requestorNumber = document.getElementById('requestNumber').value; 
@@ -465,19 +513,19 @@ document.addEventListener("DOMContentLoaded", function () {
                         .querySelector(".itemCodeInput")
                         .value,
                     qty: parseFloat(
-                        row.querySelector("#requestedQty").textContent.trim()
+                        row.querySelector(".requestedQty").textContent.trim()
                     ),
                     item_description: 
-                        row.querySelector("#itemDescription").textContent.trim()
+                        row.querySelector(".itemDescription").textContent.trim()
                     ,
                     item_category:
-                        row.querySelector("#itemCategory").textContent.trim()
+                        row.querySelector(".itemCategory").textContent.trim()
                     ,
                     uom:
-                        row.querySelector("#uom").textContent.trim()
+                        row.querySelector(".uom").textContent.trim()
                     ,
                     reason:
-                        row.querySelector("#reason").textContent.trim()
+                        row.querySelector(".reason").textContent.trim()
                     ,
                 };
             })
@@ -500,18 +548,16 @@ document.addEventListener("DOMContentLoaded", function () {
             })
             .then((response) => {
                 alert(response.data.message || "Withdraw request submitted.");
-
                 const requestTransferModal = bootstrap.Modal.getInstance(document.getElementById("inventoryWithdrawalModal"));
-                requestTransferModal.hide();
-                fetchWithdrawal();
-                clearTransferModal();
-                document
-                    .querySelectorAll(".modal-backdrop")
-                    .forEach((el) => el.remove());
-                document.body.classList.remove("modal-open");
-                document.body.style = "";
+                 if (requestTransferModal) {
+                     requestTransferModal.hide();
+                 }
+                 fetchWithdrawal();
+                 clearTransferModal();
+
             })
             .catch((error) => {
+                console.log(error)
                 alert(
                     "Failed to submit the transfer request. Please try again."
                 );
@@ -527,12 +573,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
         Array.from(rows).forEach((row) => {
             row.querySelector(".itemCodeInput").value = "";
-            row.querySelector("#itemDescription").textContent = "";
-            row.querySelector("#itemCategory").textContent = "";
-            row.querySelector("#uom").textContent = "";
-            row.querySelector("#reason").textContent = "";
-            row.querySelector("#requestedQty").textContent = "";
-            row.querySelector("#releasedQty").textContent = "";
+            row.querySelector(".itemDescription").textContent = "";
+            row.querySelector(".itemCategory").textContent = "";
+            row.querySelector(".uom").textContent = "";
+            row.querySelector(".reason").textContent = "";
+            row.querySelector(".requestedQty").textContent = "";
+            row.querySelector(".releasedQty").textContent = "";
         });
 
         document.getElementById("remarks").value = "";

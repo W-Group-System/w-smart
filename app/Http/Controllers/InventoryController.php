@@ -575,7 +575,6 @@ class InventoryController extends Controller
             $withdrawal->requestor_id = $requestorId;
             $withdrawal->remarks = $remarks;
             $withdrawal->subsidiaryid = $subsidiaryid;
-            $withdrawal->status = 0;
 
             $withdrawal->save();
             $savedWithdrawal = $withdrawal->fresh();
@@ -608,6 +607,7 @@ class InventoryController extends Controller
                     $newWithdrawalLog->requested_qty = $qty;
                     $newWithdrawalLog->uom = $uom;
                     $newWithdrawalLog->reason = $reason;
+                    $newWithdrawalLog->status = 0;
                     $newWithdrawalLog->save();
                     $withdrawalLog[] = $newWithdrawalLog;    
                 }  
