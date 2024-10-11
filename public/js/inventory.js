@@ -219,7 +219,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 }</td>
                 <td style="text-align: center; padding: 8px 10px;">
                 <span class="badge bg-${
-                    item.status === "Active" ? "success" : "danger"
+                    item.status === "Approved" ? "success" : "danger"
                 }">${item.status}</span>
             </td>
             `;
