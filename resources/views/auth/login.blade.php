@@ -6,8 +6,7 @@
         <div class="content-wrapper d-flex align-items-center justify-content-center auth auth-img-bg">
             <div class="row flex-grow d-flex align-items-center justify-content-center">
                 <div class="col-lg-6 d-none d-lg-flex align-items-center justify-content-center">
-                    <img src="{{ asset('images/login_illustration.png') }}" alt="Login Illustration" class="img-fluid"
-                        style="max-width: 80%;">
+                    <img src="{{ asset('images/p37RCvd.png') }}" alt="Login Illustration" class="img-fluid" style="max-width: 80%;">
                 </div>
 
                 <div class="col-lg-6 d-flex align-items-center justify-content-center">

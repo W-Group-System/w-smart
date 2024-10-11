@@ -37,7 +37,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const submitButton = document.getElementById("submitRequestWithdraw");
 
         Array.from(rows).forEach((row) => {
-            const itemCode = row.querySelector("#itemCodeInput").value;
+            const itemCode = row.querySelector(".itemCodeInput").value;
             const uomCell = row.querySelector("#uom");
             const reasonCell = row.querySelector("#reason");
             const qtyCell = row.querySelector("#requestedQty");
@@ -75,9 +75,10 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 
-    document
-        .getElementById("itemCodeInput")
-        .addEventListener("blur", function (e) {
+    const itemCodeInputs = document.getElementsByClassName("itemCodeInput");
+
+    Array.from(itemCodeInputs).forEach((input) => {
+        input.addEventListener("blur", function (e) {
             e.preventDefault();
             const itemCode = e.target.value;
             if (itemCode) {
@@ -85,6 +86,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 validateItems();
             }
         });
+    });
 
     function fetchItemDetails(itemCode, subsidiaryId, targetCell) {
         const row = targetCell.closest("tr");
@@ -132,9 +134,8 @@ document.addEventListener("DOMContentLoaded", function () {
                 alert("Failed to fetch item details. Please try again.");
             });
     }
-
-    document.getElementById('itemCodeInput').addEventListener('input', async (e) => {
-        
+    const newItemCodeInput = document.querySelector('#itemTableBody tr:last-child .itemCodeInput');
+    newItemCodeInput.addEventListener('input', async (e) => {
         const searchTerm = e.target.value.trim();
         if (searchTerm.length > 1) {
             const url = `/api/inventory/suggestions`;
@@ -388,27 +389,66 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     document.getElementById('addRowBtn').addEventListener('click', function(e) {
-    	e.preventDefault();
+        e.preventDefault();
+        
+        const rowCount = document.querySelectorAll('#itemTableBody tr').length; // Get current row count for unique datalist ID
         const newRow = `
             <tr>
                 <td contenteditable="true">
                     <div style="position: relative;">
-                        <input type="text" id="itemCodeInput" list="itemSuggestions" class="form-control form-control-sm" placeholder="Enter Item Code" style="width: 100%; max-width: 200px; padding: 6px; border-radius: 5px; border: 1px solid #ced4da;">
-                        <datalist id="itemSuggestions"></datalist>
+                        <input type="text" class="form-control form-control-sm itemCodeInput" placeholder="Enter Item Code" style="width: 100%; max-width: 200px; padding: 6px; border-radius: 5px; border: 1px solid #ced4da;" list="itemSuggestions${rowCount}">
+                        <datalist id="itemSuggestions${rowCount}"></datalist>
                     </div>
                 </td>
-                <td contenteditable="false" id="itemDescription" style="background-color: #E9ECEF; color: #999; pointer-events: none;"></td>
-                <td contenteditable="false" id="itemCategory" style="background-color: #E9ECEF; color: #999; pointer-events: none;"></td>
-                <td contenteditable="true" id="uom"></td>
-                <td contenteditable="true" id="reason"></td>
-                <td contenteditable="true" id="requestedQty"></td>
-                <td contenteditable="true" id="releasedQty"></td>
+                <td contenteditable="false" class="itemDescription" style="background-color: #E9ECEF; color: #999; pointer-events: none;"></td>
+                <td contenteditable="false" class="itemCategory" style="background-color: #E9ECEF; color: #999; pointer-events: none;"></td>
+                <td contenteditable="true" class="uom"></td>
+                <td contenteditable="true" class="reason"></td>
+                <td contenteditable="true" class="requestedQty"></td>
+                <td contenteditable="true" class="releasedQty"></td>
             </tr>
         `;
-        
-        document.getElementById('itemTableBody').insertAdjacentHTML('beforeend', newRow);
-    });
 
+        // Add the new row to the table
+        document.getElementById('itemTableBody').insertAdjacentHTML('beforeend', newRow);
+
+        // Attach the input event listener to the new item code input
+        const newItemCodeInput = document.querySelector('#itemTableBody tr:last-child .itemCodeInput');
+        newItemCodeInput.addEventListener('input', async (e) => {
+            const searchTerm = e.target.value.trim();
+            if (searchTerm.length > 1) {
+                const url = `/api/inventory/suggestions`;
+                try {
+                    const response = await fetch(url, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                        },
+                        body: JSON.stringify({
+                            subsidiaryId: subsidiary_id,
+                            searchTerm: searchTerm 
+                        }),
+                    });
+                    if (!response.ok) {
+                        throw new Error('Failed to fetch data');
+                    }
+
+                    const data = await response.json();
+                    const suggestions = newItemCodeInput.nextElementSibling; // Access the datalist next to the input
+                    suggestions.innerHTML = '';
+
+                    data.data.forEach(item => {
+                        const option = document.createElement('option');
+                        option.value = item.item_code;
+                        suggestions.appendChild(option);
+                    });
+                } catch (error) {
+                    console.error('Error fetching items:', error);
+                }
+            }
+        });
+    });
     submitButton.addEventListener("click", function () {
         const requestorName = document.getElementById('userName').value;
         const requestorNumber = document.getElementById('requestNumber').value; 
@@ -422,7 +462,7 @@ document.addEventListener("DOMContentLoaded", function () {
             .map((row) => {
                 return {
                     item_code: row
-                        .querySelector("#itemCodeInput")
+                        .querySelector(".itemCodeInput")
                         .value,
                     qty: parseFloat(
                         row.querySelector("#requestedQty").textContent.trim()
@@ -486,7 +526,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const rows = tableBody.getElementsByTagName("tr");
 
         Array.from(rows).forEach((row) => {
-            row.querySelector("#itemCodeInput").value = "";
+            row.querySelector(".itemCodeInput").value = "";
             row.querySelector("#itemDescription").textContent = "";
             row.querySelector("#itemCategory").textContent = "";
             row.querySelector("#uom").textContent = "";
