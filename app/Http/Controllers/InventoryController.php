@@ -226,6 +226,7 @@ class InventoryController extends Controller
                 'bindings' => $query->getBindings(),
             ]);
 
+            
             $transfers = $query->paginate($perPage);
 
             return response()->json([

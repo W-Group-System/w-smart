@@ -9,6 +9,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const form = document.getElementById("filter-submit");
     const downloadButton = document.getElementById("downloadButton");
     const searchInput = document.getElementById("searchInput");
+    const searchInputTransfer = document.getElementById("searchInputTransfer");
     let currentPage = 1;
     let rowsPerPage = parseInt(rowsPerPageSelect.value, 10) || 10;
     let selectedText = subsidiary.selectedOptions[0].text;
@@ -36,12 +37,13 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 
-    function fetchTransfer(page) {
+    function fetchTransfer(page, search) {
         const url = `/api/inventory/transfer?page=${page}&per_page=${rowsPerPage}`;
         const requestBody = {
            start_date: startDateInput.value,
            end_date: endDateInput.value,
-           subsidiaryid: subsidiary.value
+           subsidiaryid: subsidiary.value,
+           search: search
         };
         axios
             .post(url, requestBody)
@@ -89,7 +91,7 @@ document.addEventListener("DOMContentLoaded", function () {
             });
     }
 
-    function determineFetchFunction() {
+    function determineFetchFunction(search) {
         const isTransferRoute = window.location.pathname.includes(
             "/inventory/transfer"
         );
@@ -97,7 +99,7 @@ document.addEventListener("DOMContentLoaded", function () {
         if (isTransferRoute) {
             fetchTransfer(currentPage);
         } else {
-            fetchInventory(currentPage);
+            fetchInventory(currentPage, search);
         }
     }
 
@@ -389,11 +391,12 @@ document.addEventListener("DOMContentLoaded", function () {
             });
         });
     }
-
-    searchInput.addEventListener("input", function () {
-        const searchTerm = this.value;
-        determineFetchFunction();
-    });
+    if(searchInput) {
+        searchInput.addEventListener("input", function () {
+            const searchTerm = this.value;
+            determineFetchFunction(searchTerm);
+        });   
+    }
 
     document
         .getElementById("filter-submit")
