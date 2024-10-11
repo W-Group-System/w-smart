@@ -120,7 +120,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 <td style="text-align: center; padding: 2px 10px;">${
                     item.inventory_id
                 }
-                    <input type="checkbox" style="margin-left: 10px;">
                 </td>
                 <td style="text-align: center; padding: 2px 10px;">${
                     item.date
@@ -188,6 +187,9 @@ document.addEventListener("DOMContentLoaded", function () {
             row.dataset.transactId = item.transfer_id;
             row.dataset.status = item.status;
             row.innerHTML = `
+                <td style="text-align: center; padding: 8px 10px;">${
+                    item.transfer_id
+                }</td>
                 <td style="text-align: center; padding: 8px 10px;">${
                     item.transfer_from
                 }</td>
