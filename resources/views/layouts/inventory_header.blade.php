@@ -1,4 +1,6 @@
 <div class="container-fluid py-3">
+    <input type="hidden" id="userRole" value="{{ auth()->user()->role }}">
+    <input type="hidden" id="userName" value="{{ auth()->user()->name }}">
     <div class="row">
         <div class="col-md-6">
             <h5 class="fw-bold">Inventory Management</h5>
@@ -68,7 +70,7 @@
                     <div class="text-center">
                         <h6 class="card-title mb-3">
                             @if (Request::is('inventory/transfer') || Request::is('inventory/withdrawal') || Request::is('inventory/returned'))
-                                Active
+                                Approved
                             @else
                                 Withdrawal
                             @endif

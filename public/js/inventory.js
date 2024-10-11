@@ -186,6 +186,7 @@ document.addEventListener("DOMContentLoaded", function () {
             row.classList.add("clickable-row");
             row.dataset.transactId = item.transfer_id;
             row.dataset.status = item.status;
+            row.dataset.approverRoles = item.approver_roles || "";
             row.innerHTML = `
                 <td style="text-align: center; padding: 8px 10px;">${
                     item.transfer_id
@@ -229,27 +230,26 @@ document.addEventListener("DOMContentLoaded", function () {
         document.querySelectorAll(".clickable-row").forEach((row) => {
             row.addEventListener("click", function () {
                 const transactionNumber = this.dataset.transactId;
+                const approverRoles = this.dataset.approverRoles ? this.dataset.approverRoles.split(",") : [];
+                const userRole = document.getElementById("userRole").value;
+                const userName = document.getElementById("userName").value;
                 const status = this.dataset.status;
-
-                if (status === "Pending") {
-                    console.log(
-                        "Clicked transaction number:",
-                        transactionNumber
-                    );
-
-                    document.getElementById(
-                        "approveTransferButton"
-                    ).dataset.transactionNumber = transactionNumber;
-
-                    const approveTransferModal = new bootstrap.Modal(
-                        document.getElementById("approveTransferModal")
-                    );
-                    approveTransferModal.show();
-                } else {
-                    alert(
-                        `Transfer already '${status}'.`
-                    );
+        
+                if (status === "Pending" && approverRoles.length > 0 && !approverRoles.includes(userRole)) {
+                    console.warn("User is unauthorized to approve this transfer.");
+                    alert("You are unauthorized to approve this transfer.");
+                    return;
                 }
+        
+                document.getElementById("approveTransferButton").dataset.transactionNumber = transactionNumber;
+        
+                const approvedByText = document.getElementById("approvedByText");
+                approvedByText.textContent = `Approved By: ${userName}`;
+        
+                const approveTransferModal = new bootstrap.Modal(
+                    document.getElementById("approveTransferModal")
+                );
+                approveTransferModal.show();
             });
         });
 

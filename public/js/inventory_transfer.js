@@ -20,45 +20,57 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         });
 
-        submitButton.disabled = !hasValidItems;
+        const hasSelectedApprovers =
+            Array.from(
+                document.querySelectorAll(
+                    "#approverDropdownMenu .form-check-input:checked"
+                )
+            ).length > 0;
+
+        submitButton.disabled = !hasValidItems || !hasSelectedApprovers;
     }
 
     function initializeItemCodeSearch(inputField) {
         inputField.addEventListener("blur", function (e) {
             e.preventDefault();
             const itemCode = inputField.value.trim();
-            const transferFromValue = document.getElementById("transferFrom").value;
-    
+            const transferFromValue =
+                document.getElementById("transferFrom").value;
+
             if (itemCode && transferFromValue) {
                 fetchItemDetails(itemCode, transferFromValue, inputField);
             }
         });
     }
 
-    document.getElementById("addMoreItems").addEventListener("click", function () {
-        var table = document.getElementById("itemsTable").getElementsByTagName("tbody")[0];
-        var newRow = table.rows[0].cloneNode(true);
-    
-        newRow.querySelectorAll("td").forEach(function (cell, index) {
-            if (index === 0) {
-                cell.contentEditable = "true";
-                const inputField = cell.querySelector("input");
-                if (inputField) {
-                    inputField.value = ""; 
-                    initializeItemCodeSearch(inputField);
+    document
+        .getElementById("addMoreItems")
+        .addEventListener("click", function () {
+            var table = document
+                .getElementById("itemsTable")
+                .getElementsByTagName("tbody")[0];
+            var newRow = table.rows[0].cloneNode(true);
+
+            newRow.querySelectorAll("td").forEach(function (cell, index) {
+                if (index === 0) {
+                    cell.contentEditable = "true";
+                    const inputField = cell.querySelector("input");
+                    if (inputField) {
+                        inputField.value = "";
+                        initializeItemCodeSearch(inputField);
+                    }
+                } else if (index === 6) {
+                    cell.contentEditable = "true";
+                    cell.innerText = "";
+                } else {
+                    cell.innerText = "";
+                    cell.contentEditable = "false";
                 }
-            } else if (index === 6) {
-                cell.contentEditable = "true";
-                cell.innerText = "";
-            } else {
-                cell.innerText = "";
-                cell.contentEditable = "false";
-            }
+            });
+
+            table.appendChild(newRow);
+            validateItems();
         });
-    
-        table.appendChild(newRow);
-        validateItems(); 
-    });
 
     // Subsidiary Dropdown
     const transferFrom = document.getElementById("transferFrom");
@@ -165,21 +177,27 @@ document.addEventListener("DOMContentLoaded", function () {
         const transferFrom = document.getElementById("transferFrom").value;
         const transferTo = document.getElementById("transferTo").value;
         const remarks = document.getElementById("remarks").value;
-        console.log(transferFrom)
+
         const items = Array.from(
             document.querySelectorAll("#itemsTable tbody tr")
         )
             .map((row) => {
                 return {
-                    item_code: row
-                        .querySelector("#itemCodeInput")
-                        .value,
+                    item_code: row.querySelector("#itemCodeInput").value,
                     qty: parseFloat(
                         row.querySelector("#qty").textContent.trim()
                     ),
                 };
             })
             .filter((item) => item.item_code && item.qty > 0);
+
+        const selectedRoleIds = Array.from(
+            document.querySelectorAll(
+                "#approverDropdownMenu .form-check-input:checked"
+            )
+        )
+            .map((input) => input.value)
+            .filter((value) => value);
 
         if (items.length === 0) {
             alert("Please add at least one valid item before submitting.");
@@ -193,6 +211,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 transfer_to: transferTo,
                 items: items,
                 remarks: remarks,
+                approver_roles: selectedRoleIds,
                 status: "Pending",
             })
             .then((response) => {
@@ -224,12 +243,18 @@ document.addEventListener("DOMContentLoaded", function () {
 
     document.querySelectorAll(".clickable-row").forEach((row) => {
         row.addEventListener("click", function () {
-            const transactionNumber =
-                this.querySelector("td:nth-child(3)").textContent.trim();
-            document.getElementById(
-                "approveTransferButton"
-            ).dataset.transactionNumber = transactionNumber;
-
+            const transactionNumber = this.querySelector("td:nth-child(3)").textContent.trim();
+            const approverRoles = this.dataset.approverRoles ? this.dataset.approverRoles.split(",") : [];
+            const userRole = document.getElementById("userRole").value;
+    
+            if (approverRoles.length > 0 && !approverRoles.includes(userRole)) {
+                console.warn("User is unauthorized to approve this transfer.");
+                alert("You are unauthorized to approve this transfer.");
+                return;
+            }
+    
+            document.getElementById("approveTransferButton").dataset.transactionNumber = transactionNumber;
+    
             const approveTransferModal = new bootstrap.Modal(
                 document.getElementById("approveTransferModal")
             );
@@ -240,13 +265,11 @@ document.addEventListener("DOMContentLoaded", function () {
     approveTransferButton.addEventListener("click", function () {
         const transactionNumber =
             approveTransferButton.dataset.transactionNumber;
-        const approveRemarks = document
-            .getElementById("approveRemarks")
-            .value.trim();
+        const approvedBy = document.getElementById("userName").value;
 
         axios
             .post(`/api/inventory/transfer/approve/${transactionNumber}`, {
-                remarks: approveRemarks,
+                approved_by: approvedBy,
             })
             .then((response) => {
                 alert(response.data.message || "Transfer approved.");
@@ -290,50 +313,150 @@ document.addEventListener("DOMContentLoaded", function () {
             localStorage.getItem("transactionIncrement") || "00001";
         document.getElementById(
             "transactionNumber"
-        ).value = `TRANSFER-${today}-${incrementNumber}`; 
+        ).value = `TRANSFER-${today}-${incrementNumber}`;
 
         localStorage.setItem(
             "transactionIncrement",
-            (parseInt(incrementNumber) + 1).toString().padStart(5, "0") 
+            (parseInt(incrementNumber) + 1).toString().padStart(5, "0")
         );
     }
 
-    document.getElementById('itemCodeInput').addEventListener('input', async (e) => {
-        
-        const searchTerm = e.target.value.trim();
-        if (searchTerm.length > 1) {
-            const subsidiaryId = 2;
-            const url = `/api/inventory/suggestions`;
-            try {
-                const response = await fetch(url, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                    },
-                    body: JSON.stringify({
-                        subsidiaryId: 1,
-                        searchTerm: searchTerm 
-                    }),
-                });
-                if (!response.ok) {
-                   throw new Error('Failed to fetch data');
+    document
+        .getElementById("itemCodeInput")
+        .addEventListener("input", async (e) => {
+            const searchTerm = e.target.value.trim();
+            if (searchTerm.length > 1) {
+                const subsidiaryId = 2;
+                const url = `/api/inventory/suggestions`;
+                try {
+                    const response = await fetch(url, {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "X-CSRF-TOKEN": document
+                                .querySelector('meta[name="csrf-token"]')
+                                .getAttribute("content"),
+                        },
+                        body: JSON.stringify({
+                            subsidiaryId: 1,
+                            searchTerm: searchTerm,
+                        }),
+                    });
+                    if (!response.ok) {
+                        throw new Error("Failed to fetch data");
+                    }
+
+                    const data = await response.json();
+                    const suggestions =
+                        document.getElementById("itemSuggestions");
+                    suggestions.innerHTML = "";
+
+                    data.data.forEach((item) => {
+                        const option = document.createElement("option");
+                        option.value = item.item_code;
+                        suggestions.appendChild(option);
+                    });
+                } catch (error) {
+                    console.error("Error fetching items:", error);
                 }
-
-                const data = await response.json();
-                const suggestions = document.getElementById('itemSuggestions');
-                suggestions.innerHTML = '';
-
-                data.data.forEach(item => {
-                   const option = document.createElement('option');
-                   option.value = item.item_code;
-                   suggestions.appendChild(option);
-                });
-            } catch (error) {
-                console.error('Error fetching items:', error);
             }
+        });
+
+    validateItems();
+
+    let selectedApprovers = new Set();
+    let fetchedRoles = [];
+
+    document.getElementById("approverDropdown").addEventListener("click", function () {
+        const dropdownMenu = document.getElementById("approverDropdownMenu");
+    
+        if (dropdownMenu.style.display === "none") {
+            if (fetchedRoles.length === 0) {
+                axios
+                    .get("/api/roles")
+                    .then((response) => {
+                        if (response.data.status === "success") {
+                            fetchedRoles = response.data.data;
+                            populateDropdownMenu(fetchedRoles);
+                        } else {
+                            alert("Failed to fetch roles.");
+                        }
+                    })
+                    .catch((error) => {
+                        console.error("Error fetching roles:", error);
+                        alert("An error occurred while fetching roles.");
+                    });
+            } else {
+                populateDropdownMenu(fetchedRoles);
+            }
+            dropdownMenu.style.display = "block";
+        } else {
+            dropdownMenu.style.display = "none";
         }
     });
 
-    validateItems();
+    function populateDropdownMenu(roles) {
+        const dropdownMenu = document.getElementById("approverDropdownMenu");
+        dropdownMenu.innerHTML = "";
+    
+        roles.forEach((role) => {
+            const roleElement = document.createElement("div");
+            roleElement.className = "form-check";
+            roleElement.style.marginLeft = "30px";
+    
+            const checkbox = document.createElement("input");
+            checkbox.className = "form-check-input";
+            checkbox.type = "checkbox";
+            checkbox.value = role.id.toString(); // Ensure role ID is stored as a string
+            checkbox.id = `approver${role.id}`;
+    
+            // Restore checked state if previously selected
+            checkbox.checked = selectedApprovers.has(role.id.toString());
+    
+            const label = document.createElement("label");
+            label.className = "form-check-label";
+            label.htmlFor = `approver${role.id}`;
+            label.textContent = role.role;
+    
+            roleElement.appendChild(checkbox);
+            roleElement.appendChild(label);
+            dropdownMenu.appendChild(roleElement);
+        });
+    
+        document
+            .querySelectorAll("#approverDropdownMenu .form-check-input")
+            .forEach((checkbox) => {
+                checkbox.addEventListener("change", function () {
+                    if (checkbox.checked) {
+                        selectedApprovers.add(checkbox.value);
+                    } else {
+                        selectedApprovers.delete(checkbox.value);
+                    }
+    
+                    const selectedApproversText = Array.from(selectedApprovers).map(
+                        (id) =>
+                            document.querySelector(`label[for="approver${id}"]`)
+                                .textContent
+                    );
+                    const approversList = document.getElementById("selectedApprovers");
+                    approversList.textContent =
+                        selectedApproversText.length > 0
+                            ? selectedApproversText.join(", ")
+                            : "No approver selected";
+    
+                    validateItems();
+                });
+            });
+    }
+
+    document.addEventListener("click", function (event) {
+        const dropdownButton = document.getElementById("approverDropdown");
+        const dropdownMenu = document.getElementById("approverDropdownMenu");
+        if (
+            !dropdownButton.contains(event.target) &&
+            !dropdownMenu.contains(event.target)
+        ) {
+            dropdownMenu.style.display = "none";
+        }
+    });
 });

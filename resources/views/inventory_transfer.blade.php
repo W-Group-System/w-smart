@@ -264,6 +264,51 @@
                         <textarea class="form-control form-control-sm" id="remarks"></textarea>
                     </div>
 
+                    <!-- Approver Section -->
+                    <div class="mb-3">
+                        <label class="form-label">Select Approver</label>
+                        <div class="dropdown" style="position: relative;">
+                            <button class="btn btn-secondary dropdown-toggle" type="button" id="approverDropdown"
+                                aria-expanded="false">
+                                Select Approvers
+                            </button>
+                            <div class="dropdown-menu" id="approverDropdownMenu"
+                                style="display: none; position: absolute; z-index: 1000; width: 100%; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);">
+                                <div class="form-check"
+                                    style="margin-left: 30px; display: flex; align-items: center; gap: 5px;">
+                                    <input class="form-check-input" type="checkbox" value="manager"
+                                        id="approverManager">
+                                    <label class="form-check-label" for="approverManager"
+                                        style="margin: 0;">Manager</label>
+                                </div>
+                                <div class="form-check"
+                                    style="margin-left: 30px; display: flex; align-items: center; gap: 5px;">
+                                    <input class="form-check-input" type="checkbox" value="supervisor"
+                                        id="approverSupervisor">
+                                    <label class="form-check-label" for="approverSupervisor"
+                                        style="margin: 0;">Supervisor</label>
+                                </div>
+                                <div class="form-check"
+                                    style="margin-left: 30px; display: flex; align-items: center; gap: 5px;">
+                                    <input class="form-check-input" type="checkbox" value="admin" id="approverAdmin">
+                                    <label class="form-check-label" for="approverAdmin" style="margin: 0;">Admin</label>
+                                </div>
+                                <div class="form-check"
+                                    style="margin-left: 30px; display: flex; align-items: center; gap: 5px;">
+                                    <input class="form-check-input" type="checkbox" value="director"
+                                        id="approverDirector">
+                                    <label class="form-check-label" for="approverDirector"
+                                        style="margin: 0;">Director</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <div id="selectedApprovers" style="margin-top: 10px;">
+                            <!-- Selected approvers will be displayed here -->
+                        </div>
+                    </div>
+
                     <!-- Action Section -->
                     <div class="row g-2 align-items-end mb-3">
                         <div class="col-md-12 d-flex justify-content-end">
@@ -290,7 +335,7 @@
             </div>
             <div class="modal-body">
                 <p>Are you sure you want to approve this transfer request?</p>
-                <textarea class="form-control" id="approveRemarks" placeholder="Enter remarks (optional)"></textarea>
+                <p id="approvedByText" class="fw-bold" style="margin-top: 10px;"></p>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
@@ -299,6 +344,8 @@
         </div>
     </div>
 </div>
+
+<input type="hidden" id="userName" value="{{ auth()->user()->name }}">
 
 @endsection
 
