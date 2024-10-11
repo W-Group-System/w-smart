@@ -226,7 +226,7 @@ class InventoryController extends Controller
                 'bindings' => $query->getBindings(),
             ]);
 
-            
+
             $transfers = $query->paginate($perPage);
 
             return response()->json([
@@ -630,23 +630,19 @@ class InventoryController extends Controller
     public function approveWithdraw(Request $request, $id)
     {
         try {
-            $withdraw = WithdrawalItems::where('withdrawal_id', $id)->firstOrFail();
+            $withdraw = WithdrawalItems::where('id', $id)->firstOrFail();
 
             if ($withdraw->status !== 0) {
                 return response()->json([
                     'status' => 'error',
-                    'message' => 'This transfer is not pending and cannot be approved.',
+                    'message' => 'This withdraw is not pending and cannot be approved.',
                 ], 400);
             }
 
-            $itemCode = $id->item_code;
-            $transferCode = $id->transfer_code;
-            $qty = $id->qty;
-            $transferFromId = Subsidiary::where('subsidiary_name', $id->transfer_from)->value('subsidiary_id');
-            $transferToId = Subsidiary::where('subsidiary_name', $id->transfer_to)->value('subsidiary_id');
+            $itemCode = $withdraw->item_code;
+            $qty = $withdraw->requested_qty;
 
             $inventory = Inventory::where('item_code', $itemCode)
-                ->where('subsidiaryid', $transferFromId)
                 ->first();
 
             if (!$inventory) {
@@ -659,57 +655,27 @@ class InventoryController extends Controller
             if ($inventory->qty < $qty) {
                 return response()->json([
                     'status' => 'error',
-                    'message' => "Insufficient quantity for item '{$itemCode}' in subsidiary '{$id->transfer_from}'.",
+                    'message' => "Insufficient quantity for item '{$itemCode}'.",
                     'available_qty' => $inventory->qty,
                 ], 400);
             }
 
             $inventory->qty -= $qty;
+            $inventory->usage += $qty;
             $inventory->save();
 
-            $targetInventory = Inventory::where('item_code', $itemCode)
-                ->where('subsidiaryid', $transferToId)
-                ->first();
-
-            if (!$targetInventory) {
-                $targetInventory = Inventory::where('item_code', $transferCode)
-                    ->where('subsidiaryid', $transferToId)
-                    ->first();
-            }
-
-            if ($targetInventory) {
-                $targetInventory->qty += $qty;
-                $targetInventory->save();
-            } else {
-                Inventory::create([
-                    'item_code' => $transferCode,
-                    'item_description' => $inventory->item_description,
-                    'item_category' => $inventory->item_category,
-                    'uomp' => $inventory->uomp,
-                    'uoms' => $inventory->uoms,
-                    'uomt' => $inventory->uomt,
-                    'qty' => $qty,
-                    'cost' => $inventory->cost,
-                    'usage' => $inventory->usage,
-                    'subsidiaryid' => $transferToId,
-                    'subsidiary' => $id->transfer_to,
-                    'date' => now(),
-                ]);
-            }
-
-            $id->status = 'Active';
-            $id->updated_at = now();
-            $id->save();
+            $withdraw->status = 1;
+            $withdraw->updated_at = now();
+            $withdraw->save();
 
             return response()->json([
                 'status' => 'success',
-                'message' => 'Transfer has been approved and completed.',
-                'data' => $id,
+                'message' => 'Withdraw has been approved and completed.',
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'Failed to approve transfer.',
+                'message' => 'Failed to approve withdraw.',
                 'error' => $e->getMessage(),
             ], 500);
         }
