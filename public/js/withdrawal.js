@@ -552,8 +552,14 @@ document.addEventListener("DOMContentLoaded", function () {
                  if (requestTransferModal) {
                      requestTransferModal.hide();
                  }
-                 fetchWithdrawal();
-                 clearTransferModal();
+                setTimeout(() => {
+                    fetchWithdrawal();
+                    clearTransferModal();
+                    // Optionally remove backdrop and reset body styles
+                    document.querySelectorAll(".modal-backdrop").forEach((el) => el.remove());
+                    document.body.classList.remove("modal-open");
+                    document.body.style.overflow = ""; // Resets body overflow style if needed
+                }, 300); // Adjust delay as needed
 
             })
             .catch((error) => {
