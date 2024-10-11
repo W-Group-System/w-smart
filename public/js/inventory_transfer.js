@@ -23,44 +23,42 @@ document.addEventListener("DOMContentLoaded", function () {
         submitButton.disabled = !hasValidItems;
     }
 
-    function initializeItemCodeSearch(cell) {
-        cell.addEventListener("keypress", function (e) {
-            if (e.key === "Enter") {
-                e.preventDefault();
-                const itemCode = cell.textContent.trim();
-                const transferFromValue =
-                    document.getElementById("transferFrom").value;
-                if (itemCode && transferFromValue) {
-                    fetchItemDetails(itemCode, transferFromValue, cell);
-                }
+    function initializeItemCodeSearch(inputField) {
+        inputField.addEventListener("blur", function (e) {
+            e.preventDefault();
+            const itemCode = inputField.value.trim();
+            const transferFromValue = document.getElementById("transferFrom").value;
+    
+            if (itemCode && transferFromValue) {
+                fetchItemDetails(itemCode, transferFromValue, inputField);
             }
         });
     }
 
-    document
-        .getElementById("addMoreItems")
-        .addEventListener("click", function () {
-            var table = document
-                .getElementById("itemsTable")
-                .getElementsByTagName("tbody")[0];
-            var newRow = table.rows[0].cloneNode(true);
-
-            newRow.querySelectorAll("td").forEach(function (cell, index) {
-                if (index === 0) {
-                    cell.contentEditable = "true";
-                    cell.innerText = "";
-                    initializeItemCodeSearch(cell);
-                } else if (index === 6) {
-                    cell.contentEditable = "true";
-                    cell.innerText = "";
-                } else {
-                    cell.innerText = "";
+    document.getElementById("addMoreItems").addEventListener("click", function () {
+        var table = document.getElementById("itemsTable").getElementsByTagName("tbody")[0];
+        var newRow = table.rows[0].cloneNode(true);
+    
+        newRow.querySelectorAll("td").forEach(function (cell, index) {
+            if (index === 0) {
+                cell.contentEditable = "true";
+                const inputField = cell.querySelector("input");
+                if (inputField) {
+                    inputField.value = ""; 
+                    initializeItemCodeSearch(inputField);
                 }
-            });
-
-            table.appendChild(newRow);
-            validateItems();
+            } else if (index === 6) {
+                cell.contentEditable = "true";
+                cell.innerText = "";
+            } else {
+                cell.innerText = "";
+                cell.contentEditable = "false";
+            }
         });
+    
+        table.appendChild(newRow);
+        validateItems(); 
+    });
 
     // Subsidiary Dropdown
     const transferFrom = document.getElementById("transferFrom");

@@ -71,6 +71,9 @@
                     <tr>
                         <th
                             style="text-align: center; padding: 8px 10px; border: none; font-weight: 400; color: #637281;">
+                            ID <i class="bi bi-three-dots-vertical"></i></th>
+                        <th
+                            style="text-align: center; padding: 8px 10px; border: none; font-weight: 400; color: #637281;">
                             Transfer From <i class="bi bi-three-dots-vertical"></i></th>
                         <th
                             style="text-align: center; padding: 8px 10px; border: none; font-weight: 400; color: #637281;">
@@ -103,6 +106,7 @@
                 </thead>
                 <tbody>
                     <tr class="clickable-row" data-bs-toggle="modal" data-bs-target="#approveTransferModal">
+                        <td style="text-align: center; padding: 8px 10px;">ID</td>
                         <td style="text-align: center; padding: 8px 10px;">Transfer From</td>
                         <td style="text-align: center; padding: 8px 10px;">Transfer To</td>
                         <td style="text-align: center; padding: 8px 10px;">000000</td>
@@ -228,7 +232,9 @@
                                 <tr>
                                     <td contenteditable="true">
                                         <div style="position: relative;">
-                                            <input type="text" id="itemCodeInput" list="itemSuggestions" class="form-control form-control-sm" placeholder="Enter Item Code" style="width: 100%; max-width: 200px; padding: 6px; border-radius: 5px; border: 1px solid #ced4da;">
+                                            <input type="text" id="itemCodeInput" list="itemSuggestions"
+                                                class="form-control form-control-sm" placeholder="Enter Item Code"
+                                                style="width: 100%; max-width: 200px; padding: 6px; border-radius: 5px; border: 1px solid #ced4da;">
                                             <datalist id="itemSuggestions"></datalist>
                                         </div>
                                     </td>

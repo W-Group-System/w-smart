@@ -423,7 +423,7 @@ class InventoryController extends Controller
                 ]);
             }
 
-            $transfer->status = 'Active';
+            $transfer->status = 'Approved';
             $transfer->updated_at = now();
             $transfer->save();
 
