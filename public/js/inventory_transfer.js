@@ -31,46 +31,84 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function initializeItemCodeSearch(inputField) {
+        const dataList = document.getElementById("itemSuggestions");
+
+        inputField.setAttribute("list", "itemSuggestions"); // Use the shared datalist
+
+        inputField.addEventListener("input", async function (e) {
+            const searchTerm = e.target.value.trim();
+            if (searchTerm.length > 1) {
+                const transferFromValue = document.getElementById("transferFrom").value;
+                try {
+                    const response = await fetch('/api/inventory/suggestions', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                        },
+                        body: JSON.stringify({
+                            subsidiaryId: transferFromValue,
+                            searchTerm: searchTerm,
+                        }),
+                    });
+
+                    if (!response.ok) {
+                        throw new Error('Failed to fetch data');
+                    }
+
+                    const data = await response.json();
+                    dataList.innerHTML = '';
+
+                    data.data.forEach((item) => {
+                        const option = document.createElement('option');
+                        option.value = item.item_code;
+                        dataList.appendChild(option);
+                    });
+                } catch (error) {
+                    console.error('Error fetching items:', error);
+                }
+            }
+        });
+
         inputField.addEventListener("blur", function (e) {
             e.preventDefault();
             const itemCode = inputField.value.trim();
-            const transferFromValue =
-                document.getElementById("transferFrom").value;
-
+            const transferFromValue = document.getElementById("transferFrom").value;
             if (itemCode && transferFromValue) {
                 fetchItemDetails(itemCode, transferFromValue, inputField);
             }
         });
     }
 
-    document
-        .getElementById("addMoreItems")
-        .addEventListener("click", function () {
-            var table = document
-                .getElementById("itemsTable")
-                .getElementsByTagName("tbody")[0];
-            var newRow = table.rows[0].cloneNode(true);
+    document.getElementById("addMoreItems").addEventListener("click", function () {
+        const table = document.getElementById("itemsTable").getElementsByTagName("tbody")[0];
+        const newRow = table.rows[0].cloneNode(true);
 
-            newRow.querySelectorAll("td").forEach(function (cell, index) {
-                if (index === 0) {
-                    cell.contentEditable = "true";
-                    const inputField = cell.querySelector("input");
-                    if (inputField) {
-                        inputField.value = "";
-                        initializeItemCodeSearch(inputField);
-                    }
-                } else if (index === 6) {
-                    cell.contentEditable = "true";
-                    cell.innerText = "";
-                } else {
-                    cell.innerText = "";
-                    cell.contentEditable = "false";
+        newRow.querySelectorAll("td").forEach(function (cell, index) {
+            if (index === 0) {
+                cell.contentEditable = "true";
+                const inputField = cell.querySelector("input");
+                if (inputField) {
+                    inputField.value = "";
+                    initializeItemCodeSearch(inputField); // Reinitialize for new input
                 }
-            });
-
-            table.appendChild(newRow);
-            validateItems();
+            } else if (index === 6) {
+                cell.contentEditable = "true";
+                cell.innerText = "";
+            } else {
+                cell.innerText = "";
+                cell.contentEditable = "false";
+            }
         });
+
+        table.appendChild(newRow);
+        validateItems();
+    });
+
+    const initialInputField = document.getElementById("itemCodeInput");
+    if (initialInputField) {
+        initializeItemCodeSearch(initialInputField);
+    }
 
     // Subsidiary Dropdown
     const transferFrom = document.getElementById("transferFrom");
@@ -321,46 +359,41 @@ document.addEventListener("DOMContentLoaded", function () {
         );
     }
 
-    document
-        .getElementById("itemCodeInput")
-        .addEventListener("input", async (e) => {
-            const searchTerm = e.target.value.trim();
-            if (searchTerm.length > 1) {
-                const subsidiaryId = 2;
-                const url = `/api/inventory/suggestions`;
-                try {
-                    const response = await fetch(url, {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json",
-                            "X-CSRF-TOKEN": document
-                                .querySelector('meta[name="csrf-token"]')
-                                .getAttribute("content"),
-                        },
-                        body: JSON.stringify({
-                            subsidiaryId: 1,
-                            searchTerm: searchTerm,
-                        }),
-                    });
-                    if (!response.ok) {
-                        throw new Error("Failed to fetch data");
-                    }
-
-                    const data = await response.json();
-                    const suggestions =
-                        document.getElementById("itemSuggestions");
-                    suggestions.innerHTML = "";
-
-                    data.data.forEach((item) => {
-                        const option = document.createElement("option");
-                        option.value = item.item_code;
-                        suggestions.appendChild(option);
-                    });
-                } catch (error) {
-                    console.error("Error fetching items:", error);
+    document.getElementById("itemCodeInput").addEventListener("input", async (e) => {
+        const searchTerm = e.target.value.trim();
+        if (searchTerm.length > 1) {
+            const transferFromValue = document.getElementById("transferFrom").value;
+            try {
+                const response = await fetch('/api/inventory/suggestions', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                    },
+                    body: JSON.stringify({
+                        subsidiaryId: transferFromValue,
+                        searchTerm: searchTerm,
+                    }),
+                });
+    
+                if (!response.ok) {
+                    throw new Error('Failed to fetch data');
                 }
+    
+                const data = await response.json();
+                const suggestions = document.getElementById('itemSuggestions');
+                suggestions.innerHTML = '';
+    
+                data.data.forEach((item) => {
+                    const option = document.createElement('option');
+                    option.value = item.item_code;
+                    suggestions.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Error fetching items:', error);
             }
-        });
+        }
+    });
 
     validateItems();
 
