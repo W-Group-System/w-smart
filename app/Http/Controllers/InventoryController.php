@@ -713,4 +713,51 @@ class InventoryController extends Controller
             ], 500);
         }
     }
+    public function searchWithdrawal(Request $request)
+    {
+        $searchTerm = $request->search;
+        $id = $request->id;
+        $perPage = $request->get('per_page', 10);
+        $subsidiaryId = $request->subsidiaryid;
+
+        try {
+            if (!$id) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Requestor ID is required.',
+                ], 400);
+            }
+
+            $withdrawQueryResult = Withdrawal::query()
+                ->join('withdrawal_items', 'withdrawals.id', '=', 'withdrawal_items.withdrawal_id')
+                ->select('withdrawals.*', 'withdrawal_items.*')
+                ->where('requestor_id', $id)
+                ->where(function ($query) use ($searchTerm) {
+                    if ($searchTerm) {
+                        $query->where('item_description', 'LIKE', '%' . $searchTerm . '%')
+                              ->orWhere('item_code', 'LIKE', '%' . $searchTerm . '%')
+                              ->orWhere('request_number', 'LIKE', '%' . $searchTerm . '%')
+                              ->orWhere('requestor_name', 'LIKE', '%' . $searchTerm . '%');
+                    }
+                })
+                ->paginate($perPage);
+
+            return response()->json([
+                'status' => 'success',
+                'data' => $withdrawQueryResult->items(),
+                'pagination' => [
+                    'current_page' => $withdrawQueryResult->currentPage(),
+                    'total_pages' => $withdrawQueryResult->lastPage(),
+                    'total_items' => $withdrawQueryResult->total(),
+                    'per_page' => $withdrawQueryResult->perPage(),
+                ]
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to fetch withdrawals.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
 }

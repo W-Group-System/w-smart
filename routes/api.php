@@ -25,6 +25,7 @@ Route::patch('update-role/{id}', 'UserController@update')->name('update-role');
 Route::get('users', 'UserController@index')->name('users');
 Route::post('delete-role', 'PermissionController@delete')->name('delete-role');
 Route::post('search-inventory', 'InventoryController@search')->name('search-inventory');
+Route::post('search-withdrawal', 'InventoryController@searchWithdrawal')->name('search-withdrawal');
 Route::post('inventory/transfer/request', 'InventoryController@requestTransfer')->name('inventory.transfer.request');
 Route::post('inventory/transfer/approve/{transferId}', 'InventoryController@approveTransfer')->name('inventory.transfer.approve');
 Route::post('inventory/transfer', 'InventoryController@fetchTransfers')->name('inventory.transfer.fetch');

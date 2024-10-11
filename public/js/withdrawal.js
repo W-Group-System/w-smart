@@ -10,7 +10,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const pagination = document.querySelector("ul.pagination");
     const form = document.getElementById("filter-submit");
     const downloadButton = document.getElementById("downloadButton");
-    const searchInput = document.getElementById("searchInput");   
+    const searchInput = document.getElementById("searchInput");
     let currentPage = 1;
     let rowsPerPage = parseInt(rowsPerPageSelect.value, 10) || 10;
 /*    let selectedText = subsidiary.selectedOptions[0].text;
@@ -391,12 +391,6 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    searchInput.addEventListener("input", function () {
-        const searchTerm = this.value;  
-        fetchInventory(currentPage, searchTerm);
-    });
-
-
     document.getElementById('addWithdraw').addEventListener('click', (e) => {
         e.preventDefault();
 
@@ -589,6 +583,33 @@ document.addEventListener("DOMContentLoaded", function () {
 
         document.getElementById("remarks").value = "";
     }
+
+    searchInput.addEventListener("input", function (e) {
+        const searchTerm = this.value;
+        const url = `/api/search-withdrawal?page=${currentPage}&per_page=${rowsPerPage}`;
+
+        // Ensure you get the actual value of userId
+        const requestBody = {
+            id: userId.value,
+            search: searchTerm, 
+            subsidiaryid: subsidiary_id
+        };
+
+        axios
+            .post(url, requestBody)
+            .then((response) => {
+                console.log(response.data.data);
+                if (response.data.status === "success") {
+                    renderTable(response.data.data, response.data.pagination.total_items);
+                    updatePagination(response.data.pagination);
+                } else {
+                    console.error("Failed to fetch withdraws:", response.data.message);
+                }
+            })
+            .catch((error) => {
+                console.error("Error fetching withdraws:", error);
+            });
+    });
 
     validateItems()
 });
