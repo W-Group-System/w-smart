@@ -254,18 +254,11 @@ document.addEventListener("DOMContentLoaded", function () {
             })
             .then((response) => {
                 alert(response.data.message || "Transfer request submitted.");
-
-                const requestTransferModal = new bootstrap.Modal(
-                    document.getElementById("requestTransferModal")
-                );
-                requestTransferModal.hide();
-
+                const requestTransferModal = bootstrap.Modal.getInstance(document.getElementById("requestTransferModal"));
+                if (requestTransferModal) {
+                    requestTransferModal.hide();
+                }
                 clearTransferModal();
-                document
-                    .querySelectorAll(".modal-backdrop")
-                    .forEach((el) => el.remove());
-                document.body.classList.remove("modal-open");
-                document.body.style = "";
             })
             .catch((error) => {
                 alert(

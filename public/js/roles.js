@@ -134,6 +134,12 @@ document.addEventListener("DOMContentLoaded", function () {
                                 confirmButtonText: "OK",
                             });
 
+                            const requestTransferModal = bootstrap.Modal.getInstance(document.getElementById("createRoleModal"));
+
+                            if (requestTransferModal) {
+                                requestTransferModal.hide();
+                            }
+                            
                             loadPermissions();
 
                             document.getElementById("createRoleForm").reset();
@@ -255,6 +261,10 @@ document.addEventListener("DOMContentLoaded", function () {
                 alert("Please assign role.");
             } else {
                 submitAssignRole(employeeId, roleId);
+                const requestTransferModal = bootstrap.Modal.getInstance(document.getElementById("assignRoleModal"));
+                if (requestTransferModal) {
+                    requestTransferModal.hide();
+                }
             }
         });
 
@@ -264,6 +274,7 @@ document.addEventListener("DOMContentLoaded", function () {
             .then((response) => {
                 alert("Role assigned successfully!");
                 loadUsers();
+                window.location.reload();
             })
             .catch((error) => {
                 console.error("Error assigning role:", error);
@@ -326,6 +337,7 @@ document.addEventListener("DOMContentLoaded", function () {
             .then(() => {
                 Swal.fire("Deleted!", "Role has been deleted.", "success");
                 loadPermissions();
+                window.location.reload();
             })
             .catch((error) => {
                 console.error("Error deleting role:", error);
@@ -394,7 +406,13 @@ document.addEventListener("DOMContentLoaded", function () {
                             "All users have been transferred.",
                             "success"
                         );
+                        const requestTransferModal = bootstrap.Modal.getInstance(document.getElementById("transferRoleModal"));
+                            if (requestTransferModal) {
+                            requestTransferModal.hide();
+                        }
                         deleteRole(roleId);
+                        loadUsers();
+                        window.location.reload();
                     })
                     .catch((error) => {
                         console.error("Error updating user roles:", error);

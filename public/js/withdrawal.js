@@ -37,7 +37,6 @@ document.addEventListener("DOMContentLoaded", function () {
             const itemCode = row.querySelector(".itemCodeInput").value.trim();
             const uom = row.querySelector('.uom').textContent.trim();
             const reason = row.querySelector('.reason').textContent.trim();
-            console.log(itemCode)
             if (itemCode === '' || uom === '' || reason === '') {
                 allFieldsFilled = false;
             }
@@ -547,7 +546,7 @@ document.addEventListener("DOMContentLoaded", function () {
                      requestTransferModal.hide();
                  }
                 setTimeout(() => {
-                    fetchWithdrawal();
+                    fetchWithdrawal(currentPage);
                     clearTransferModal();
                     // Optionally remove backdrop and reset body styles
                     document.querySelectorAll(".modal-backdrop").forEach((el) => el.remove());
