@@ -1,6 +1,7 @@
 <div class="container-fluid py-3">
     <input type="hidden" id="userRole" value="{{ auth()->user()->role }}">
     <input type="hidden" id="userName" value="{{ auth()->user()->name }}">
+    <input type="hidden" id="userSubsidiary" value="{{ auth()->user()->subsidiary }}">
     <div class="row">
         <div class="col-md-6">
             <h5 class="fw-bold">Inventory Management</h5>

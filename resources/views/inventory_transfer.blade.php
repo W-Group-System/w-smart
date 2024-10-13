@@ -185,25 +185,41 @@
                         <div class="col-md-6">
                             <label for="transferFrom" class="form-label">Transfer From</label>
                             <select class="form-select form-select-sm" id="transferFrom">
-                                <option value="1" selected>HO</option>
-                                <option value="2">WTCC</option>
-                                <option value="3">CITI</option>
-                                <option value="4">WCC</option>
-                                <option value="5">WFA</option>
-                                <option value="6">WOI</option>
-                                <option value="7">WGC</option>
+                                @if(auth()->user()->subsidiary != 'HO')
+                                    <option value="1">HO</option>
+                                @endif
+                                @if(auth()->user()->subsidiary != 'WTCC')
+                                    <option value="2">WTCC</option>
+                                @endif
+                                @if(auth()->user()->subsidiary != 'CITI')
+                                    <option value="3">CITI</option>
+                                @endif
+                                @if(auth()->user()->subsidiary != 'WCC')
+                                    <option value="4">WCC</option>
+                                @endif
+                                @if(auth()->user()->subsidiary != 'WFA')
+                                    <option value="5">WFA</option>
+                                @endif
+                                @if(auth()->user()->subsidiary != 'WOI')
+                                    <option value="6">WOI</option>
+                                @endif
+                                @if(auth()->user()->subsidiary != 'WGC')
+                                    <option value="7">WGC</option>
+                                @endif
                             </select>
                         </div>
                         <div class="col-md-6">
                             <label for="transferTo" class="form-label">Transfer To</label>
-                            <select class="form-select form-select-sm" id="transferTo">
-                                <option value="1">HO</option>
-                                <option value="2" selected>WTCC</option>
-                                <option value="3">CITI</option>
-                                <option value="4">WCC</option>
-                                <option value="5">WFA</option>
-                                <option value="6">WOI</option>
-                                <option value="7">WGC</option>
+                            <select class="form-select form-select-sm" id="transferTo" disabled>
+                                <option value="1" {{ auth()->user()->subsidiary == 'HO' ? 'selected' : '' }}>HO</option>
+                                <option value="2" {{ auth()->user()->subsidiary == 'WTCC' ? 'selected' : '' }}>WTCC
+                                </option>
+                                <option value="3" {{ auth()->user()->subsidiary == 'CITI' ? 'selected' : '' }}>CITI
+                                </option>
+                                <option value="4" {{ auth()->user()->subsidiary == 'WCC' ? 'selected' : '' }}>WCC</option>
+                                <option value="5" {{ auth()->user()->subsidiary == 'WFA' ? 'selected' : '' }}>WFA</option>
+                                <option value="6" {{ auth()->user()->subsidiary == 'WOI' ? 'selected' : '' }}>WOI</option>
+                                <option value="7" {{ auth()->user()->subsidiary == 'WGC' ? 'selected' : '' }}>WGC</option>
                             </select>
                         </div>
                     </div>
