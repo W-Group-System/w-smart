@@ -296,7 +296,7 @@ class InventoryController extends Controller
 
                 $transferCode = $existingTargetInventory ? $itemCode : null;
 
-                if (!$existingTargetInventory) {
+                if (!$existingTargetInventory || $existingTargetInventory->uomp !== $item['uomp']) {
                     $existingTransfer = Transfer::where('transfer_code', $itemCode)
                         ->where('transfer_from', $transferToName)
                         ->first();
@@ -306,16 +306,16 @@ class InventoryController extends Controller
                     } else {
                         $existingInventoryCodes = Inventory::where('item_code', 'LIKE', 'ITEM-' . now()->format('Ymd') . '%')
                             ->pluck('item_code');
-
+                    
                         $existingTransferCodes = Transfer::where('transfer_code', 'LIKE', 'ITEM-' . now()->format('Ymd') . '%')
                             ->pluck('transfer_code');
-
+                    
                         $combinedCodes = $existingInventoryCodes->merge($existingTransferCodes);
-
+                    
                         $maxSequence = $combinedCodes->map(function ($code) {
                             return (int) substr($code, strrpos($code, '-') + 1);
                         })->max();
-
+                    
                         $nextSequence = str_pad($maxSequence + 1, 5, '0', STR_PAD_LEFT);
                         $transferCode = 'ITEM-' . now()->format('Ymd') . '-' . $nextSequence;
                     }
@@ -331,9 +331,9 @@ class InventoryController extends Controller
                 $newTransferLog->item_description = $inventory->item_description;
                 $newTransferLog->item_category = $inventory->item_category;
                 $newTransferLog->qty = $qty;
-                $newTransferLog->uomp = $inventory->uomp;
-                $newTransferLog->uoms = $inventory->uoms;
-                $newTransferLog->uomt = $inventory->uomt;
+                $newTransferLog->uomp = $item['uomp']; 
+                $newTransferLog->uoms = $item['uoms']; 
+                $newTransferLog->uomt = $item['uomt']; 
                 $newTransferLog->cost = $inventory->cost;
                 $newTransferLog->usage = $inventory->usage;
                 $newTransferLog->status = 'Pending';

@@ -33,7 +33,7 @@ document.addEventListener("DOMContentLoaded", function () {
     function initializeItemCodeSearch(inputField) {
         const dataList = document.getElementById("itemSuggestions");
 
-        inputField.setAttribute("list", "itemSuggestions"); // Use the shared datalist
+        inputField.setAttribute("list", "itemSuggestions"); 
 
         inputField.addEventListener("input", async function (e) {
             const searchTerm = e.target.value.trim();
@@ -83,15 +83,18 @@ document.addEventListener("DOMContentLoaded", function () {
     document.getElementById("addMoreItems").addEventListener("click", function () {
         const table = document.getElementById("itemsTable").getElementsByTagName("tbody")[0];
         const newRow = table.rows[0].cloneNode(true);
-
+    
         newRow.querySelectorAll("td").forEach(function (cell, index) {
             if (index === 0) {
                 cell.contentEditable = "true";
                 const inputField = cell.querySelector("input");
                 if (inputField) {
                     inputField.value = "";
-                    initializeItemCodeSearch(inputField); // Reinitialize for new input
+                    initializeItemCodeSearch(inputField); 
                 }
+            } else if (index === 3) {
+                const uomDropdown = cell.querySelector('.uom-dropdown');
+                populateUOMOptions("", "", "", uomDropdown);
             } else if (index === 6) {
                 cell.contentEditable = "true";
                 cell.innerText = "";
@@ -100,7 +103,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 cell.contentEditable = "false";
             }
         });
-
+    
         table.appendChild(newRow);
         validateItems();
     });
@@ -149,17 +152,14 @@ document.addEventListener("DOMContentLoaded", function () {
     );
 
     // Item Code Search
-    document
-        .getElementById("itemCodeInput")
-        .addEventListener("blur", function (e) {
-            e.preventDefault();
-            const itemCode = e.target.value;
-            const transferFromValue =
-                document.getElementById("transferFrom").value;
-            if (itemCode && transferFromValue) {
-                fetchItemDetails(itemCode, transferFromValue, e.target);
-            }
-        });
+    document.getElementById("itemCodeInput").addEventListener("blur", function (e) {
+        e.preventDefault();
+        const itemCode = e.target.value;
+        const transferFromValue = document.getElementById("transferFrom").value;
+        if (itemCode && transferFromValue) {
+            fetchItemDetails(itemCode, transferFromValue, e.target);
+        }
+    });
 
     function fetchItemDetails(itemCode, subsidiaryId, targetCell) {
         axios
@@ -173,17 +173,16 @@ document.addEventListener("DOMContentLoaded", function () {
                 if (response.data.status === "success" && response.data.data) {
                     const item = response.data.data;
                     const row = targetCell.closest("tr");
-                    row.querySelector("#itemDescription").textContent =
-                        item.item_description;
-                    row.querySelector("#itemCategory").textContent =
-                        item.item_category;
-                    row.querySelector("#primaryUOM").textContent = item.uomp;
-                    row.querySelector("#secondaryUOM").textContent = item.uoms;
-                    row.querySelector("#tertiaryUOM").textContent = item.uomt;
+    
+                    row.querySelector("#itemDescription").textContent = item.item_description;
+                    row.querySelector("#itemCategory").textContent = item.item_category;
                     row.querySelector("#qty").textContent = item.qty;
                     row.querySelector("#cost").textContent = item.cost;
                     row.querySelector("#usage").textContent = item.usage;
-
+    
+                    const uomDropdown = row.querySelector(".uom-dropdown");
+                    populateUOMOptions(item.uomp, item.uoms, item.uomt, uomDropdown);
+    
                     const qtyCell = row.querySelector("#qty");
                     const maxQty = parseFloat(item.qty);
                     qtyCell.contentEditable = "true";
@@ -196,9 +195,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     });
                     validateItems();
                 } else if (response.data.status === "warning") {
-                    alert(
-                        `${response.data.message} Please check the correct subsidiary.`
-                    );
+                    alert(`${response.data.message} Please check the correct subsidiary.`);
                 } else {
                     alert("Item not found in the inventory.");
                 }
@@ -210,40 +207,72 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     submitButton.addEventListener("click", function () {
-        const transactionNumber =
-            document.getElementById("transactionNumber").value;
+        const transactionNumber = document.getElementById("transactionNumber").value;
         const transferFrom = document.getElementById("transferFrom").value;
         const transferTo = document.getElementById("transferTo").value;
         const remarks = document.getElementById("remarks").value;
+    
+        const items = Array.from(document.querySelectorAll("#itemsTable tbody tr")).map((row) => {
+            const itemCode = row.querySelector("#itemCodeInput").value;
+            const qty = parseFloat(row.querySelector("#qty").textContent.trim());
+    
+            const uomDropdown = row.querySelector(".uom-dropdown");
+            const selectedUOM = uomDropdown ? uomDropdown.value : '';
 
-        const items = Array.from(
-            document.querySelectorAll("#itemsTable tbody tr")
-        )
-            .map((row) => {
-                return {
-                    item_code: row.querySelector("#itemCodeInput").value,
-                    qty: parseFloat(
-                        row.querySelector("#qty").textContent.trim()
-                    ),
-                };
-            })
-            .filter((item) => item.item_code && item.qty > 0);
+            let uomp, uoms, uomt;
 
+            switch (selectedUOM) {
+                case 'primary':
+                    uomp = selectedUOM;
+                    uoms = uomDropdown.options[1].text;  
+                    uomt = uomDropdown.options[2].text;  
+                    break;
+                case 'secondary':
+                    uomp = uomDropdown.options[1].text;  
+                    uoms = uomDropdown.options[0].text;  
+                    uomt = uomDropdown.options[2].text;  
+                    break;
+                case 'tertiary':
+                    uomp = uomDropdown.options[2].text;  
+                    uoms = uomDropdown.options[0].text; 
+                    uomt = uomDropdown.options[1].text; 
+                    break;
+                default:
+                    uomp = selectedUOM;
+                    uoms = '';
+                    uomt = '';
+            }
+
+            // Log the UOM values to ensure they are being swapped correctly
+            console.log("UOM Values for Item:", {
+                itemCode: itemCode,
+                uomp: uomp,
+                uoms: uoms,
+                uomt: uomt,
+                qty: qty
+            });
+
+            return {
+                item_code: itemCode,
+                qty: qty,
+                uomp: uomp, 
+                uoms: uoms,  
+                uomt: uomt  
+            };
+        }).filter((item) => item.item_code && item.qty > 0 && item.uomp && item.uoms && item.uomt); 
+    
         const selectedRoleIds = Array.from(
             document.querySelectorAll(
                 "#approverDropdownMenu .form-check-input:checked"
             )
-        )
-            .map((input) => input.value)
-            .filter((value) => value);
-
+        ).map((input) => input.value).filter((value) => value);
+    
         if (items.length === 0) {
             alert("Please add at least one valid item before submitting.");
             return;
         }
-
-        axios
-            .post("/api/inventory/transfer/request", {
+    
+        axios.post("/api/inventory/transfer/request", {
                 transact_id: transactionNumber,
                 transfer_from: transferFrom,
                 transfer_to: transferTo,
@@ -261,9 +290,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 clearTransferModal();
             })
             .catch((error) => {
-                alert(
-                    "Failed to submit the transfer request. Please try again."
-                );
+                alert("Failed to submit the transfer request. Please try again.");
                 console.error(error);
             });
     });
@@ -484,5 +511,64 @@ document.addEventListener("DOMContentLoaded", function () {
         ) {
             dropdownMenu.style.display = "none";
         }
+    });
+
+    function populateUOMOptions(primaryUOM, secondaryUOM, tertiaryUOM, dropdown) {
+        dropdown.innerHTML = '';
+    
+        const uomOptions = [
+            { label: primaryUOM, value: 'primary' },
+            { label: secondaryUOM, value: 'secondary' },
+            { label: tertiaryUOM, value: 'tertiary' }
+        ];
+    
+        uomOptions.forEach((uom, index) => {
+            const option = document.createElement('option');
+            option.value = uom.value;
+            option.textContent = uom.label;
+            dropdown.appendChild(option);
+            if (index === 0) {
+                option.selected = true;
+            }
+        });
+    }
+    
+    document.querySelectorAll('.uom-dropdown').forEach(function (dropdown) {
+        dropdown.addEventListener('change', function () {
+            const row = dropdown.closest('tr');
+    
+            // Make sure the UOM elements exist before accessing them
+            const primaryUOMElement = row.querySelector("#primaryUOM");
+            const secondaryUOMElement = row.querySelector("#secondaryUOM");
+            const tertiaryUOMElement = row.querySelector("#tertiaryUOM");
+    
+            if (primaryUOMElement && secondaryUOMElement && tertiaryUOMElement) {
+                let primaryUOM = primaryUOMElement.textContent.trim();
+                let secondaryUOM = secondaryUOMElement.textContent.trim();
+                let tertiaryUOM = tertiaryUOMElement.textContent.trim();
+    
+                const selectedUOM = dropdown.value;
+    
+                // Swap logic based on the selected UOM
+                switch (selectedUOM) {
+                    case 'primary':
+                        break;
+                    case 'secondary':
+                        [primaryUOM, secondaryUOM] = [secondaryUOM, primaryUOM];
+                        break;
+                    case 'tertiary':
+                        [primaryUOM, tertiaryUOM] = [tertiaryUOM, primaryUOM];
+                        break;
+                }
+    
+                // Update the UOM display in the table row
+                primaryUOMElement.textContent = primaryUOM;
+                secondaryUOMElement.textContent = secondaryUOM;
+                tertiaryUOMElement.textContent = tertiaryUOM;
+    
+                // Repopulate the dropdown with updated UOMs
+                populateUOMOptions(primaryUOM, secondaryUOM, tertiaryUOM, dropdown);
+            }
+        });
     });
 });

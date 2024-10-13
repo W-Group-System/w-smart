@@ -236,9 +236,7 @@
                                     <th>Item Code</th>
                                     <th>Item Description</th>
                                     <th>Category</th>
-                                    <th>Primary UOM</th>
-                                    <th>Secondary UOM</th>
-                                    <th>Tertiary UOM</th>
+                                    <th>UOM</th>
                                     <th>QTY</th>
                                     <th>Cost</th>
                                     <th>Usage</th>
@@ -258,12 +256,10 @@
                                         style="background-color: #E9ECEF; color: #999; pointer-events: none;"></td>
                                     <td contenteditable="false" id="itemCategory"
                                         style="background-color: #E9ECEF; color: #999; pointer-events: none;"></td>
-                                    <td contenteditable="false" id="primaryUOM"
-                                        style="background-color: #E9ECEF; color: #999; pointer-events: none;"></td>
-                                    <td contenteditable="false" id="secondaryUOM"
-                                        style="background-color: #E9ECEF; color: #999; pointer-events: none;"></td>
-                                    <td contenteditable="false" id="tertiaryUOM"
-                                        style="background-color: #E9ECEF; color: #999; pointer-events: none;"></td>
+                                    <td>
+                                        <select class="form-select form-select-sm uom-dropdown">
+                                        </select>
+                                    </td>
                                     <td contenteditable="true" id="qty"
                                         style="background-color: #FFFFFF; color: #000; pointer-events: auto;"></td>
                                     <td contenteditable="false" id="cost"
