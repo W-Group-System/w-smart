@@ -475,10 +475,17 @@ document.addEventListener("DOMContentLoaded", function () {
                     .post(`/api/create-inventory`, data)
                     .then((response) => {
                         fetchInventory(currentPage);
-                        const modalElement =
-                            document.getElementById("addInventoryModal");
-                        const modal = bootstrap.Modal.getInstance(modalElement);
-                        modal.hide();
+                        const requestTransferModal = bootstrap.Modal.getInstance(document.getElementById("addInventoryModal"));
+                        if (requestTransferModal) {
+                            requestTransferModal.hide();
+                        }
+                        setTimeout(() => {
+                            fetchInventory(currentPage);
+                            // Optionally remove backdrop and reset body styles
+                            document.querySelectorAll(".modal-backdrop").forEach((el) => el.remove());
+                            document.body.classList.remove("modal-open");
+                            document.body.style.overflow = ""; // Resets body overflow style if needed
+                        }, 300);
                         alert("Item save successfully!");
                     })
                     .catch((error) => {

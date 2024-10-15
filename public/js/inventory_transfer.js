@@ -266,7 +266,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 "#approverDropdownMenu .form-check-input:checked"
             )
         ).map((input) => input.value).filter((value) => value);
-    
+        console.log(items)
         if (items.length === 0) {
             alert("Please add at least one valid item before submitting.");
             return;
@@ -288,6 +288,11 @@ document.addEventListener("DOMContentLoaded", function () {
                     requestTransferModal.hide();
                 }
                 clearTransferModal();
+                setTimeout(() => {
+                    document.querySelectorAll(".modal-backdrop").forEach((el) => el.remove());
+                    document.body.classList.remove("modal-open");
+                    document.body.style.overflow = "";
+                }, 300);
             })
             .catch((error) => {
                 alert("Failed to submit the transfer request. Please try again.");
@@ -354,9 +359,7 @@ document.addEventListener("DOMContentLoaded", function () {
             row.querySelector("#itemCodeInput").value = "";
             row.querySelector("#itemDescription").textContent = "";
             row.querySelector("#itemCategory").textContent = "";
-            row.querySelector("#primaryUOM").textContent = "";
-            row.querySelector("#secondaryUOM").textContent = "";
-            row.querySelector("#tertiaryUOM").textContent = "";
+            row.querySelector("#uom").textContent = "";
             row.querySelector("#qty").textContent = "";
             row.querySelector("#cost").textContent = "";
             row.querySelector("#usage").textContent = "";

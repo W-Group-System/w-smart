@@ -257,7 +257,7 @@
                                     <td contenteditable="false" id="itemCategory"
                                         style="background-color: #E9ECEF; color: #999; pointer-events: none;"></td>
                                     <td>
-                                        <select class="form-select form-select-sm uom-dropdown">
+                                        <select class="form-select form-select-sm uom-dropdown" id="uom">
                                         </select>
                                     </td>
                                     <td contenteditable="true" id="qty"
