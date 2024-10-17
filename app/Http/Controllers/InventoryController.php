@@ -774,4 +774,54 @@ class InventoryController extends Controller
             ], 500); 
         }
     }
+
+    public function postCategory(Request $request)
+    {
+        try {
+            $request->validate([
+                'name' => 'required|string|max:255',
+            ]);
+
+            $new_category = new Categories();
+            $new_category->name = $request->name; 
+            $new_category->save();
+            return response()->json([
+               'status' => 'success',
+            ], 201);
+        } catch (\Exception $e) {
+            Log::error('Failed to create inventory: ' . $e->getMessage());
+            return response()->json([
+               'status' => 'error',
+               'message' => 'Failed to create inventory.',
+               'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function postSubCategory(Request $request)
+    {
+        try {
+
+            $request->validate([
+                'categoryid' => 'required|integer'
+                'name' => 'required|string|max:255',
+            ]);
+
+            $new_subcategory = new Subcategories();
+            $new_subcategory->name = $request->name; 
+            $new_subcategory->categoryid = $request->categoryid; 
+            $new_subcategory->save();
+            
+            return response()->json([
+               'status' => 'success',
+            ], 201);
+        } catch (\Exception $e) {
+            Log::error('Failed to create inventory: ' . $e->getMessage());
+            return response()->json([
+               'status' => 'error',
+               'message' => 'Failed to create inventory.',
+               'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
 }

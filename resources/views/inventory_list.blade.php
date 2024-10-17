@@ -266,57 +266,51 @@
                             </select>
                         </div>
 
-                        <div class="col-md-6">
+                        <div class="col-md-12">
                             <div class="row g-3">
-                                <div class="col-md-6">
+                                <div class="col-md-4">
                                     <label for="newPrimaryUOM" class="form-label">Primary UOM</label>
-                                    <select class="form-select" id="newPrimaryUOM" required>
+                                    <select class="form-select" id="newPrimaryUOM" required style="height: 65%;">
                                         <option value="test1">Test1</option>
                                         <option value="test2">Test2</option>
                                         <option value="test3">Test3</option>
                                     </select>
                                 </div>
-                                <div class="col-md-6">
+                                <div class="col-md-4">
                                     <label for="newSecondaryUOM" class="form-label">Secondary UOM</label>
-                                    <select class="form-select" id="newSecondaryUOM" required>
+                                    <select class="form-select" id="newSecondaryUOM" required style="height: 68%;">
                                         <option value="test1">Test1</option>
                                         <option value="test2">Test2</option>
                                         <option value="test3">Test3</option>
                                     </select>
                                 </div>
-                            </div>
-                        </div>
-
-                        <div class="col-md-6">
-                            <label for="newCost" class="form-label">Cost</label>
-                            <input type="number" class="form-control" id="newCost" required>
-                        </div>
-
-                        <div class="col-md-6">
-                            <div class="row g-3">
-                                <div class="col-md-6">
+                                <div class="col-md-4">
                                     <label for="newTertiaryUOM" class="form-label">Tertiary UOM</label>
-                                    <select class="form-select" id="newTertiaryUOM" required>
+                                    <select class="form-select" id="newTertiaryUOM" required style="height: 68%;">
                                         <option value="test1">Test1</option>
                                         <option value="test2">Test2</option>
                                         <option value="test3">Test3</option>    
                                     </select>
                                 </div>
-                                <div class="col-md-6">
-                                    <label for="newQuantity" class="form-label">Quantity</label>
-                                    <input type="number" class="form-control" id="newQuantity" required>
-                                </div>
                             </div>
                         </div>
-                        <div class="row g-3">
-                            <div class="col-md-7">
-                                <label for="remarks" class="form-label">Remarks</label>
-                                <textarea class="form-control" id="remarks" rows="3"></textarea>
-                            </div>
-                            <div class="col-md-5">
-                                <label for="newUsage" class="form-label">Usage</label>
-                                <input type="number" class="form-control" id="newUsage" value=0 required>
-                            </div>
+
+                        <div class="col-md-6">
+                            <label for="newCost" class="form-label" >Cost</label>
+                            <input type="number" class="form-control" id="newCost" required style="height: 50%;">
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="newQuantity" class="form-label">Quantity</label>
+                            <input type="number" class="form-control" id="newQuantity" required style="height: 50%;">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="remarks" class="form-label">Remarks</label>
+                            <textarea class="form-control" id="remarks" style="height: 50%" rows="3"></textarea>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="newUsage" class="form-label">Usage</label>
+                            <input type="number" class="form-control" id="newUsage" value=0 required style="height: 50%">
                         </div>
                     </div>
                     <div class="modal-footer d-flex justify-content-end">
