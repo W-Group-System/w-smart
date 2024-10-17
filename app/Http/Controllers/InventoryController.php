@@ -44,6 +44,7 @@ class InventoryController extends Controller
                 });
             }
 
+            $query->orderBy('date', 'desc');
             $inventory = $query->paginate($perPage);
 
             return response()->json([
