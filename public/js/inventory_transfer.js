@@ -1,34 +1,96 @@
 document.addEventListener("DOMContentLoaded", function () {
     const submitButton = document.getElementById("submitRequestTransfer");
+    let currentPage = 1;
+
+    window.fetchTransfer = function (page, search) {
+        const rowsPerPage = parseInt(document.querySelector("select.form-select-sm").value, 10) || 10;
+        const url = `/api/inventory/transfer?page=${page}&per_page=${rowsPerPage}`;
+        const startDateInput = document.getElementById("start-date");
+        const endDateInput = document.getElementById("end-date");
+        const subsidiary = document.getElementById("subsidiary");
+
+        const requestBody = {
+            start_date: startDateInput.value,
+            end_date: endDateInput.value,
+            subsidiaryid: subsidiary.value,
+            search: search,
+            sort: 'desc'
+        };
+
+        axios
+            .post(url, requestBody)
+            .then((response) => {
+                if (response.data.status === "success") {
+                    window.renderTransferTable(response.data.data, response.data.pagination.total_items);
+                    updatePagination(response.data.pagination);
+                } else {
+                    console.error("Failed to fetch transfers:", response.data.message);
+                }
+            })
+            .catch((error) => {
+                console.error("Error fetching transfers:", error);
+            });
+    };
+
+    window.renderTransferTable = function (transferData, totalPages) {
+        const tableBody = document.querySelector("tbody");
+        tableBody.innerHTML = "";
+        const rowsPerPage = parseInt(document.querySelector("select.form-select-sm").value, 10) || 10;
+        const startIndex = (currentPage - 1) * rowsPerPage;
+        const endIndex = startIndex + rowsPerPage;
+        const currentItems = transferData.slice(startIndex, endIndex);
+
+        currentItems.forEach((item) => {
+            const row = document.createElement("tr");
+            row.classList.add("clickable-row");
+            row.dataset.transactId = item.transfer_id;
+            row.dataset.status = item.status;
+            row.dataset.approverRoles = item.approver_roles || "";
+            row.innerHTML = `
+                <td style="text-align: center; padding: 8px 10px;">${item.transfer_id}</td>
+                <td style="text-align: center; padding: 8px 10px;">${item.transfer_from}</td>
+                <td style="text-align: center; padding: 8px 10px;">${item.transfer_to}</td>
+                <td style="text-align: center; padding: 8px 10px;">${item.item_code}</td>
+                <td style="text-align: center; padding: 8px 10px;">${item.item_description || "N/A"}</td>
+                <td style="text-align: center; padding: 8px 10px;">${item.item_category}</td>
+                <td style="text-align: center; padding: 8px 10px;">${item.qty}</td>
+                <td style="text-align: center; padding: 8px 10px;">${item.uomp}</td>
+                <td style="text-align: center; padding: 8px 10px;">${item.cost}</td>
+                <td style="text-align: center; padding: 8px 10px;">
+                    <span class="badge bg-${item.status === "Approved" ? "success" : "danger"}">${item.status}</span>
+                </td>
+            `;
+            tableBody.appendChild(row);
+        });
+
+        const totalItemsText = document.querySelector(".dynamic-rows-info");
+        totalItemsText.textContent = `${startIndex + 1}-${Math.min(endIndex, transferData.length)} of ${totalPages}`;
+    };
 
     function validateItems() {
         const table = document.getElementById("itemsTable");
         const rows = table.getElementsByTagName("tbody")[0].rows;
         let hasValidItems = false;
-
+    
         Array.from(rows).forEach((row) => {
             const itemCode = row.querySelector("#itemCodeInput").value;
-            const itemDescription = row
-                .querySelector("#itemDescription")
-                .textContent.trim();
-            const qty = parseFloat(
-                row.querySelector("#qty").textContent.trim()
-            );
-
+            const itemDescription = row.querySelector("#itemDescription").textContent.trim();
+            const qty = parseFloat(row.querySelector("#qty").textContent.trim());
+    
             if (itemCode && itemDescription && qty > 0) {
                 hasValidItems = true;
             }
         });
-
-        const hasSelectedApprovers =
-            Array.from(
-                document.querySelectorAll(
-                    "#approverDropdownMenu .form-check-input:checked"
-                )
-            ).length > 0;
-
-        submitButton.disabled = !hasValidItems || !hasSelectedApprovers;
+    
+        const hasSelectedApprovers = Array.from(
+            document.querySelectorAll("#approverDropdownMenu .form-check-input:checked")
+        ).length > 0;
+    
+        const remarks = document.getElementById("remarks").value;
+        submitButton.disabled = !hasValidItems || !hasSelectedApprovers || remarks.length === 0;
     }
+
+    document.getElementById("remarks").addEventListener("input", validateItems);
 
     function initializeItemCodeSearch(inputField) {
         const dataList = document.getElementById("itemSuggestions");
@@ -243,15 +305,6 @@ document.addEventListener("DOMContentLoaded", function () {
                     uomt = '';
             }
 
-            // Log the UOM values to ensure they are being swapped correctly
-            console.log("UOM Values for Item:", {
-                itemCode: itemCode,
-                uomp: uomp,
-                uoms: uoms,
-                uomt: uomt,
-                qty: qty
-            });
-
             return {
                 item_code: itemCode,
                 qty: qty,
@@ -267,6 +320,7 @@ document.addEventListener("DOMContentLoaded", function () {
             )
         ).map((input) => input.value).filter((value) => value);
         console.log(items)
+
         if (items.length === 0) {
             alert("Please add at least one valid item before submitting.");
             return;
@@ -288,6 +342,8 @@ document.addEventListener("DOMContentLoaded", function () {
                     requestTransferModal.hide();
                 }
                 clearTransferModal();
+                fetchTransfer(currentPage);
+
                 setTimeout(() => {
                     document.querySelectorAll(".modal-backdrop").forEach((el) => el.remove());
                     document.body.classList.remove("modal-open");

@@ -98,9 +98,6 @@
                             Cost <i class="bi bi-three-dots-vertical"></i></th>
                         <th
                             style="text-align: center; padding: 8px 10px; border: none; font-weight: 400; color: #637281;">
-                            Usage <i class="bi bi-three-dots-vertical"></i></th>
-                        <th
-                            style="text-align: center; padding: 8px 10px; border: none; font-weight: 400; color: #637281;">
                             Status <i class="bi "></i></th>
                     </tr>
                 </thead>
@@ -115,7 +112,6 @@
                         <td style="text-align: center; padding: 8px 10px;">00.00</td>
                         <td style="text-align: center; padding: 8px 10px;">PCS</td>
                         <td style="text-align: center; padding: 8px 10px;">00.00</td>
-                        <td style="text-align: center; padding: 8px 10px;">Usage</td>
                         <td style="text-align: center; padding: 8px 10px;">
                             <span class="badge bg-danger cursor-pointer" data-bs-toggle="modal"
                                 data-bs-target="#approveTransferModal">
@@ -362,6 +358,6 @@
 @endsection
 
 @push('scripts')
-    <script src="{{ asset('js/inventory.js') }}"></script>
     <script src="{{ asset('js/inventory_transfer.js') }}"></script>
+    <script src="{{ asset('js/inventory.js') }}"></script>
 @endpush

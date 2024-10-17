@@ -230,6 +230,8 @@ class InventoryController extends Controller
                 Log::warning("No subsidiary found for ID: {$subsidiaryid}");
             }
 
+            $query->orderBy('created_at', 'desc');
+
             Log::info('Executing Transfer Query:', [
                 'query' => $query->toSql(),
                 'bindings' => $query->getBindings(),

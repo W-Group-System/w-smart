@@ -43,32 +43,6 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 
-    function fetchTransfer(page, search) {
-        const url = `/api/inventory/transfer?page=${page}&per_page=${rowsPerPage}`;
-        const requestBody = {
-           start_date: startDateInput.value,
-           end_date: endDateInput.value,
-           subsidiaryid: subsidiary.value,
-           search: search
-        };
-        axios
-            .post(url, requestBody)
-            .then((response) => {
-                if (response.data.status === "success") {
-                    renderTransferTable(response.data.data, response.data.pagination.total_items);
-                    updatePagination(response.data.pagination);
-                } else {
-                    console.error(
-                        "Failed to fetch transfers:",
-                        response.data.message
-                    );
-                }
-            })
-            .catch((error) => {
-                console.error("Error fetching transfers:", error);
-            });
-    }
-
     function fetchInventory(page, search) {
         fetch(`/api/inventory?page=${page}&per_page=${rowsPerPage}`, {
             method: "POST",
@@ -199,90 +173,6 @@ document.addEventListener("DOMContentLoaded", function () {
         totalItemsText.textContent = `${startIndex + 1}-${Math.min(
             endIndex,
             inventoryData.length
-        )} of ${totalPages}`;
-    }
-
-    function renderTransferTable(transferData, totalPages) {
-        tableBody.innerHTML = "";
-        const startIndex = (currentPage - 1) * rowsPerPage;
-        const endIndex = startIndex + rowsPerPage;
-        const currentItems = transferData.slice(startIndex, endIndex);
-
-        currentItems.forEach((item) => {
-            const row = document.createElement("tr");
-            row.classList.add("clickable-row");
-            row.dataset.transactId = item.transfer_id;
-            row.dataset.status = item.status;
-            row.dataset.approverRoles = item.approver_roles || "";
-            row.innerHTML = `
-                <td style="text-align: center; padding: 8px 10px;">${
-                    item.transfer_id
-                }</td>
-                <td style="text-align: center; padding: 8px 10px;">${
-                    item.transfer_from
-                }</td>
-                <td style="text-align: center; padding: 8px 10px;">${
-                    item.transfer_to
-                }</td>
-                <td style="text-align: center; padding: 8px 10px;">${
-                    item.item_code
-                }</td>
-                <td style="text-align: center; padding: 8px 10px;">${
-                    item.item_description || "N/A"
-                }</td>
-                <td style="text-align: center; padding: 8px 10px;">${
-                    item.item_category
-                }</td>
-                <td style="text-align: center; padding: 8px 10px;">${
-                    item.qty
-                }</td>
-                <td style="text-align: center; padding: 8px 10px;">${
-                    item.uomp
-                }</td>
-                <td style="text-align: center; padding: 8px 10px;">${
-                    item.cost
-                }</td>
-                <td style="text-align: center; padding: 8px 10px;">${
-                    item.usage
-                }</td>
-                <td style="text-align: center; padding: 8px 10px;">
-                <span class="badge bg-${
-                    item.status === "Approved" ? "success" : "danger"
-                }">${item.status}</span>
-            </td>
-            `;
-            tableBody.appendChild(row);
-        });
-
-        document.querySelectorAll(".clickable-row").forEach((row) => {
-            row.addEventListener("click", function () {
-                const transactionNumber = this.dataset.transactId;
-                const approverRoles = this.dataset.approverRoles ? this.dataset.approverRoles.split(",") : [];
-                const userRole = document.getElementById("userRole").value;
-                const userName = document.getElementById("userName").value;
-                const status = this.dataset.status;
-        
-                if (status === "Pending" && approverRoles.length > 0 && !approverRoles.includes(userRole)) {
-                    console.warn("User is unauthorized to approve this transfer.");
-                    alert("You are unauthorized to approve this transfer.");
-                    return;
-                }
-        
-                document.getElementById("approveTransferButton").dataset.transactionNumber = transactionNumber;
-        
-                const approvedByText = document.getElementById("approvedByText");
-                approvedByText.textContent = `Approved By: ${userName}`;
-        
-                const approveTransferModal = new bootstrap.Modal(
-                    document.getElementById("approveTransferModal")
-                );
-                approveTransferModal.show();
-            });
-        });
-
-        totalItemsText.textContent = `${startIndex + 1}-${Math.min(
-            endIndex,
-            transferData.length
         )} of ${totalPages}`;
     }
 
