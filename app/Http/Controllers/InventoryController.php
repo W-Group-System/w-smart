@@ -8,6 +8,8 @@ use App\Transfer;
 use App\Subsidiary;
 use App\Withdrawal;
 use App\WithdrawalItems;
+use App\Categories;
+use App\Subcategories;
 use RealRashid\SweetAlert\Facades\Alert;
 
 class InventoryController extends Controller
@@ -25,10 +27,14 @@ class InventoryController extends Controller
 
             $query = Inventory::query();
 
-            // Apply date range filter if provided
             if ($startDate && $endDate) {
+                // Format the start and end dates
+                $startDateTime = date('Y-m-d 00:00:00', strtotime($startDate)); // Start of the day
+                $endDateTime = date('Y-m-d 23:59:59', strtotime($endDate)); // End of the day
+
                 $query->where('subsidiaryid', $subsidiaryid)
-                      ->whereBetween('date', [$startDate, $endDate]);
+                      ->where('date', '>=', $startDateTime)
+                      ->where('date', '<=', $endDateTime);
             }
 
             if ($searchTerm) {
@@ -83,6 +89,7 @@ class InventoryController extends Controller
                'date' => 'required|date',
                'item_code' => 'required|string|max:100',
                'item_description' => 'required|string|max:255',
+               'category_id' => 'required|integer',
                'item_category' => 'required|string|max:100',
                'primaryUOM' => 'required|string|max:10',
                'secondaryUOM' => 'required|string|max:10',
@@ -98,7 +105,10 @@ class InventoryController extends Controller
            	$new_inventory->date = $request->date; 
            	$new_inventory->item_code = $request->item_code; 
            	$new_inventory->item_description = $request->item_description; 
-           	$new_inventory->item_category = $request->item_category; 
+           	$new_inventory->category_id = $request->category_id; 
+            $new_inventory->item_category = $request->item_category; 
+            $new_inventory->subcategory_id = $request->subcategory_id; 
+            $new_inventory->subcategory_name = $request->subcategory_name; 
            	$new_inventory->uomp = $request->primaryUOM; 
             $new_inventory->uoms = $request->secondaryUOM; 
             $new_inventory->uomt = $request->tertiaryUOM; 
@@ -111,7 +121,6 @@ class InventoryController extends Controller
            	$new_inventory->save();
            	return response()->json([
                'status' => 'success',
-               'data' => $new_inventory,
            	], 201);
        	} catch (\Exception $e) {
            	Log::error('Failed to create inventory: ' . $e->getMessage());
@@ -725,6 +734,44 @@ class InventoryController extends Controller
                 'message' => 'Failed to fetch withdrawals.',
                 'error' => $e->getMessage(),
             ], 500);
+        }
+    }
+
+    public function getCategory(Request $request)
+    {
+        try {
+            $categories = Categories::select('id', 'name', 'description')->get();
+
+            return response()->json([
+                'status' => 'success',
+                'data' => $categories,
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to fetch permissions.',
+                'error' => $e->getMessage(),
+            ], 500); 
+        }
+    }
+
+    public function getSubCategory(Request $request, $id)
+    {
+        try {
+            $categories = Subcategories::select('id', 'name')
+                ->where('category_id', $id)
+                ->get();
+
+            return response()->json([
+                'status' => 'success',
+                'data' => $categories,
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to fetch permissions.',
+                'error' => $e->getMessage(),
+            ], 500); 
         }
     }
 }

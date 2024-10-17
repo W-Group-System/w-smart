@@ -11,11 +11,17 @@ document.addEventListener("DOMContentLoaded", function () {
     const searchInput = document.getElementById("searchInput");
     const searchInputTransfer = document.getElementById("searchInputTransfer");
     let currentPage = 1;
+    let selectedCategoryId = 1;
+    let selectedCategoryName;
+    let selectedSubCategoryId = 0;
+    let selectedSubCategoryName;
     let rowsPerPage = parseInt(rowsPerPageSelect.value, 10) || 10;
     let selectedText = subsidiary.selectedOptions[0].text;
     subsidiary.addEventListener("change", function () {
         selectedText = subsidiary.selectedOptions[0].text;
     });
+    let formattedItemCode;
+
     function getFormattedDate(date) {
         let year = date.getFullYear();
         let month = ("0" + (date.getMonth() + 1)).slice(-2);
@@ -80,6 +86,25 @@ document.addEventListener("DOMContentLoaded", function () {
             .then((response) => response.json())
             .then((data) => {
                 if (data.status === "success") {
+                    if (data.data.length <= 0) {
+                        let maxItemCode = 0;
+
+                        let newItemCode = maxItemCode + 1;
+
+                        formattedItemCode = newItemCode.toString().padStart(4, '0');
+                        generateItemCode();
+                    }
+                    else
+                    {
+                        let parts = data.data[data.data.length - 1].item_code.split('-');
+
+                        let itemNumber = parts[2];
+
+                        let incrementedItemNumber = parseInt(itemNumber) + 1;
+
+                        formattedItemCode = incrementedItemNumber.toString().padStart(4, '0')
+                        generateItemCode();
+                    }
                     initializeDynamicTable(data.data, data.pagination.total_items);
                     updatePagination(data.pagination);
                 } else {
@@ -89,6 +114,11 @@ document.addEventListener("DOMContentLoaded", function () {
             .catch((error) => {
                 console.error("Error fetching inventory:", error);
             });
+    }
+    function generateItemCode() {
+        const categoryCode = selectedCategoryId.toString().padStart(2, '0') || "00";
+        const subcategoryCode = selectedSubCategoryId.toString().padStart(3, '0') || "000";
+        document.getElementById("newItemCode").value = `${categoryCode}-${subcategoryCode}-${formattedItemCode}`;
     }
 
     function determineFetchFunction(search) {
@@ -153,11 +183,6 @@ document.addEventListener("DOMContentLoaded", function () {
                                 data-bs-html="true" aria-expanded="false" data-bs-trigger="focus" 
                                 data-bs-content='
                                 <div style="font-family: Inter, sans-serif; color: #79747E; text-align: center;">
-                                    <button type="button" class="btn btn-sm btn-light mt-1 modify-button" 
-                                            style="display: flex; justify-content: center; width: 100%; align-items: center; border-radius: 8px; color: #79747E;"
-                                            data-bs-toggle="modal" data-bs-target="#modifyModal">
-                                        Modify
-                                    </button>
                                     <button class="btn btn-sm btn-light mt-1" 
                                             style="display: flex; justify-content: center; width: 100%; align-items: center; border-radius: 8px; color: #79747E;">
                                         Inactive 
@@ -405,30 +430,135 @@ document.addEventListener("DOMContentLoaded", function () {
             determineFetchFunction();
         });
 
-    function generateItemCode() {
-        const prefix = "ITEM";
-        const datePart = new Date()
-            .toISOString()
-            .split("T")[0]
-            .replace(/-/g, ""); // YYYYMMDD
-        const randomPart = Math.floor(Math.random() * 90000) + 10000; // Random 5-digit number
-        return `${prefix}-${datePart}-${randomPart}`;
-    }
 
     const addInventoryButton = document.getElementById("addInventory");
+
+    function updateDateTime() {
+        const now = new Date();
+        const utcTime = now.getTime() + (now.getTimezoneOffset() * 60000);
+        const philippineTime = new Date(utcTime + (8 * 60 * 60 * 1000));
+        const formattedDateTime = `${philippineTime.toISOString().split("T")[0]} ${philippineTime.toTimeString().split(' ')[0]}`;
+        
+        // Update the dateCreated input field
+        document.getElementById("dateCreated").value = formattedDateTime;
+    }
+
 
     if (addInventoryButton) {
         addInventoryButton.addEventListener("click", async (e) => {
             e.preventDefault();
-            const today = new Date().toISOString().split("T")[0];
-            document.getElementById("dateCreated").value = today;
-
-            const itemCode = generateItemCode();
-            document.getElementById("newItemCode").value = itemCode;
+            getSelectedCategory();
+            getSelectedSubCategory();
+            const now = new Date();
+            const utcTime = now.getTime() + (now.getTimezoneOffset() * 60000);
+            const philippineTime = new Date(utcTime + (8 * 60 * 60 * 1000));
+            updateDateTime();
+            setInterval(updateDateTime, 100);
+            const formattedDateTime = `${philippineTime.toISOString().split("T")[0]} ${philippineTime.toTimeString().split(' ')[0]}`;
+            document.getElementById("dateCreated").value = updateDateTime;
         });
     } else {
         console.warn("Element with ID 'addInventory' not found.");
     }
+
+    async function populateCategories() {
+        try {
+
+            const response = await axios.get('/api/inventory/categories');
+
+            const categories = await response.data.data;
+            
+            const categorySelect = document.getElementById('newCategory');
+            
+            categorySelect.innerHTML = '';
+            
+            categories.forEach(category => {
+                const option = document.createElement('option');
+                option.value = category.id;
+                option.text = category.name;
+                categorySelect.appendChild(option);
+            });
+        } catch (error) {
+            console.error('Error fetching categories:', error);
+        }
+    }
+
+    async function getSelectedCategory() {
+        const selectElement = document.getElementById('newCategory');
+        const selectedOption = selectElement.options[selectElement.selectedIndex];
+        selectedCategoryId = selectedOption.value;
+        selectedCategoryName = selectedOption.text;
+        try {
+            if(selectedCategoryId) {
+                const response = await axios.get(`/api/inventory/subcategories/${selectedCategoryId}`);
+
+                const categories = await response.data.data;
+                
+                const categorySelect = document.getElementById('subCategory');
+                
+                categorySelect.innerHTML = '';
+                
+                categories.forEach(category => {
+                    const option = document.createElement('option');
+                    option.value = category.id;
+                    option.text = category.name;
+                    categorySelect.appendChild(option);
+                });    
+
+                generateItemCode();
+
+            }
+            else {
+                const response = await axios.get(`/api/inventory/subcategories/1`);
+
+                const categories = await response.data.data;
+                
+                const categorySelect = document.getElementById('subCategory');
+                
+                categorySelect.innerHTML = '';
+                
+                categories.forEach(category => {
+                    const option = document.createElement('option');
+                    option.value = category.id;
+                    option.text = category.name;
+                    categorySelect.appendChild(option);
+                });
+
+                selectElementSubCategory = document.getElementById('subCategory');
+                selectedOptionSubCategory = selectElementSubCategory.options[selectElementSubCategory.selectedIndex];
+                selectedSubCategoryId = selectedOptionSubCategory.value;
+                selectedSubCategoryName = selectedOptionSubCategory.text;
+                generateItemCode();
+            }
+            
+        } catch (error) {
+            console.error('Error fetching categories:', error);
+        }
+    }
+
+    async function getSelectedSubCategory() {
+
+        const selectElementSubCategory = document.getElementById('subCategory');
+        const selectedOptionSubCategory = selectElementSubCategory.options[selectElementSubCategory.selectedIndex];
+        selectedSubCategoryId = selectedOptionSubCategory.value;
+        selectedSubCategoryName = selectedOptionSubCategory.text;
+
+        try {
+
+            generateItemCode();
+            
+        } catch (error) {
+            console.error('Error fetching categories:', error);
+        }
+    }
+
+    document.getElementById('newCategory').addEventListener('change', getSelectedCategory);
+
+    document.getElementById('subCategory').addEventListener('change', getSelectedSubCategory);
+
+    generateItemCode();
+
+    populateCategories();
 
     const addInventoryButtonForm = document.getElementById("addInventoryForm");
     if (addInventoryButton) {
@@ -448,7 +578,10 @@ document.addEventListener("DOMContentLoaded", function () {
                     date: document.getElementById("dateCreated").value,
                     item_code: document.getElementById("newItemCode").value,
                     item_description: descriptionInput.value,
-                    item_category: document.getElementById("newCategory").value,
+                    category_id: selectedCategoryId,
+                    item_category: selectedCategoryName,
+                    subcategory_id: selectedSubCategoryId,
+                    subcategory_name: selectedSubCategoryName,
                     subsidiaryid: document.getElementById("modalSubsidiary").value,
                     subsidiary:
                         document.getElementById("modalSubsidiary").options[

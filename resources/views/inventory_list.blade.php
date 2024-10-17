@@ -113,26 +113,7 @@
                         <td style="text-align: center; padding: 2px 10px;">PCS</td>
                         <td style="text-align: center; padding: 2px 10px;">00.00</td>
                         <td style="text-align: center; padding: 2px 10px;">Usage</td>
-                        <td style="text-align: center; padding: 2px 10px;">
-                            <div style="position: relative;">
-                                <button type="button" class="btn btn-link actionButton" data-bs-toggle="popover"
-                                    data-bs-html="true" aria-expanded="false" data-bs-trigger="focus" data-bs-content='
-                                <div style="font-family: Inter, sans-serif; color: #79747E; text-align: center;">
-                                    <button type="button" 
-                                            class="btn btn-sm btn-light mt-1 modify-button" 
-                                            style="display: flex; justify-content: center; width: 100%; align-items: center; border-radius: 8px; color: #79747E;"
-                                            data-bs-toggle="modal" 
-                                            data-bs-target="#modifyModal">
-                                        Modify
-                                    </button>
-                                    <button class="btn btn-sm btn-light mt-1" style="display: flex; justify-content: center; width: 100%; align-items: center; border-radius: 8px; color: #79747E;">
-                                        Inactive 
-                                    </button>
-                                </div>'>
-                                    <i class="bi bi-three-dots-vertical" style="color: black;"></i>
-                                </button>
-                            </div>
-                        </td>
+                        
                     </tr>
                 </tbody>
             </table>
@@ -194,10 +175,6 @@
                         <div class="col-md-6">
                             <label for="category" class="form-label">Category</label>
                             <select class="form-select" id="category">
-                                <option value="">Select Category</option>
-                                <option value="test1">Test1</option>
-                                <option value="test2">Test2</option>
-                                <option value="test3">Test3</option>
                             </select>
                         </div>
                         <div class="col-md-6">
@@ -253,19 +230,19 @@
                     <div class="row g-3">
                         <div class="col-md-6">
                             <label for="dateCreated" class="form-label">Date Created</label>
-                            <input type="text" class="form-control" id="dateCreated" value="Auto Generate" readonly>
+                            <input type="text" class="form-control" id="dateCreated" value="Auto Generate" readonly style="height: 50%;">
                         </div>
                         <div class="col-md-6">
                             <label for="newItemCode" class="form-label">Item Code</label>
-                            <input type="text" class="form-control" id="newItemCode" readonly>
+                            <input type="text" class="form-control" id="newItemCode" readonly style="height: 50%;">
                         </div>
                         <div class="col-md-6">
                             <label for="newItemDescription" class="form-label" >Item Description</label>
-                            <input type="text" class="form-control" id="newItemDescription" required>
+                            <input type="text" class="form-control" id="newItemDescription" required style="height: 50%;">
                         </div>
                         <div class="col-md-6">
                             <label for="newSubsidiary" class="form-label">Subsidiary</label>
-                            <select class="form-select me-3" id="modalSubsidiary" required>
+                            <select class="form-select me-3" id="modalSubsidiary" required style="height: 50%;">
                                 <option selected value="1">HO</option>
                                 <option value="2">WTCC</option>
                                 <option value="3">CITI</option>
@@ -278,10 +255,14 @@
 
                         <div class="col-md-6">
                             <label for="newCategory" class="form-label">Category</label>
-                            <select class="form-select" id="newCategory" required>
-                                <option value="test1">Test1</option>
-                                <option value="test2">Test2</option>
-                                <option value="test3">Test3</option>
+                            <select class="form-select" id="newCategory" required >
+                                <option value="" disabled selected>Select a category</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="newCategory" class="form-label">Sub-Category</label>
+                            <select class="form-select" id="subCategory" required>
+                                <option value="" disabled selected>Select a sub-category</option>
                             </select>
                         </div>
 
