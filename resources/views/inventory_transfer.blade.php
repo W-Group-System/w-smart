@@ -48,17 +48,18 @@
                 </div>
             </div>
 
+            <input type="hidden" id="userSubsidiary" value="{{ auth()->user()->subsidiary }}">
             <div class="d-flex align-items-center">
-                <select class="form-select me-3" id="subsidiary"
-                    style="width: 150px; height: 35px; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); color: #6c757d; border-radius: 25px; font-size: 14px;">
-                    <option selected value="1">HO</option>
-                    <option value="2">WTCC</option>
-                    <option value="3">CITI</option>
-                    <option value="4">WCC</option>
-                    <option value="5">WFA</option>
-                    <option value="6">WOI</option>
-                    <option value="7">WGC</option>
-                </select>
+            <select class="form-select me-3" id="subsidiary"
+                style="width: 150px; height: 35px; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); color: #6c757d; border-radius: 25px; font-size: 14px;">
+                <option value="1" {{ auth()->user()->subsidiary == 'HO' ? 'selected' : '' }}>HO</option>
+                <option value="2" {{ auth()->user()->subsidiary == 'WTCC' ? 'selected' : '' }}>WTCC</option>
+                <option value="3" {{ auth()->user()->subsidiary == 'CITI' ? 'selected' : '' }}>CITI</option>
+                <option value="4" {{ auth()->user()->subsidiary == 'WCC' ? 'selected' : '' }}>WCC</option>
+                <option value="5" {{ auth()->user()->subsidiary == 'WFA' ? 'selected' : '' }}>WFA</option>
+                <option value="6" {{ auth()->user()->subsidiary == 'WOI' ? 'selected' : '' }}>WOI</option>
+                <option value="7" {{ auth()->user()->subsidiary == 'WGC' ? 'selected' : '' }}>WGC</option>
+            </select>
                 <a href="#" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#requestTransferModal"
                     style="height: 35px; padding: 0 15px; display: flex; align-items: center; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); font-size: 14px;">
                     Request Transfer
