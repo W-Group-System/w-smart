@@ -1,5 +1,6 @@
 document.addEventListener("DOMContentLoaded", function () {
     const submitButton = document.getElementById("submitRequestTransfer");
+    const pagination = document.querySelector("ul.pagination");
     let currentPage = 1;
 
     window.fetchTransfer = function (page, search) {
@@ -21,7 +22,7 @@ document.addEventListener("DOMContentLoaded", function () {
             .post(url, requestBody)
             .then((response) => {
                 if (response.data.status === "success") {
-                    window.renderTransferTable(response.data.data, response.data.pagination.total_items);
+                    initializeDynamicTable(response.data.data, response.data.pagination.total_items);
                     updatePagination(response.data.pagination);
                 } else {
                     console.error("Failed to fetch transfers:", response.data.message);
@@ -32,15 +33,20 @@ document.addEventListener("DOMContentLoaded", function () {
             });
     };
 
-    window.renderTransferTable = function (transferData, totalPages) {
+    function initializeDynamicTable(transferData, totalItems) {
+        document.renderTransferTable(transferData, totalItems);
+        initializePopovers();
+    }
+
+    document.renderTransferTable = function (transferData, totalItems) {
         const tableBody = document.querySelector("tbody");
         tableBody.innerHTML = "";
         const rowsPerPage = parseInt(document.querySelector("select.form-select-sm").value, 10) || 10;
+        const currentPage = parseInt(document.querySelector(".pagination .active")?.textContent || 1, 10);
         const startIndex = (currentPage - 1) * rowsPerPage;
-        const endIndex = startIndex + rowsPerPage;
-        const currentItems = transferData.slice(startIndex, endIndex);
-
-        currentItems.forEach((item) => {
+        const endIndex = Math.min(startIndex + rowsPerPage, transferData.length);
+    
+        transferData.slice(startIndex, endIndex).forEach((item) => {
             const row = document.createElement("tr");
             row.classList.add("clickable-row");
             row.dataset.transactId = item.transfer_id;
@@ -48,6 +54,7 @@ document.addEventListener("DOMContentLoaded", function () {
             row.dataset.approverRoles = item.approver_roles || "";
             row.innerHTML = `
                 <td style="text-align: center; padding: 8px 10px;">${item.transfer_id}</td>
+                <td style="text-align: center; padding: 8px 10px;">${item.transact_id}</td>
                 <td style="text-align: center; padding: 8px 10px;">${item.transfer_from}</td>
                 <td style="text-align: center; padding: 8px 10px;">${item.transfer_to}</td>
                 <td style="text-align: center; padding: 8px 10px;">${item.item_code}</td>
@@ -55,17 +62,121 @@ document.addEventListener("DOMContentLoaded", function () {
                 <td style="text-align: center; padding: 8px 10px;">${item.item_category}</td>
                 <td style="text-align: center; padding: 8px 10px;">${item.qty}</td>
                 <td style="text-align: center; padding: 8px 10px;">${item.uomp}</td>
-                <td style="text-align: center; padding: 8px 10px;">${item.cost}</td>
                 <td style="text-align: center; padding: 8px 10px;">
                     <span class="badge bg-${item.status === "Approved" ? "success" : "danger"}">${item.status}</span>
                 </td>
             `;
             tableBody.appendChild(row);
         });
-
+    
         const totalItemsText = document.querySelector(".dynamic-rows-info");
-        totalItemsText.textContent = `${startIndex + 1}-${Math.min(endIndex, transferData.length)} of ${totalPages}`;
-    };
+        totalItemsText.textContent = `${startIndex + 1}-${Math.min(endIndex, transferData.length)} of ${totalItems}`;
+    }
+
+    function initializePopovers() {
+        const popoverElements = document.querySelectorAll(".actionButton");
+        popoverElements.forEach(function (popoverElement) {
+            let popoverInstance = new bootstrap.Popover(popoverElement, {
+                html: true,
+                sanitize: false,
+                trigger: "focus",
+            });
+
+            document.addEventListener("click", function (event) {
+                if (
+                    !popoverElement.contains(event.target) &&
+                    !popoverInstance._isWithActiveTrigger()
+                ) {
+                    popoverInstance.hide();
+                }
+            });
+        });
+    }
+
+    function updatePagination(paginationData) {
+        pagination.innerHTML = "";
+
+        if (!paginationData) {
+            console.error("Pagination data is undefined.");
+            return;
+        }
+
+        const totalPages = paginationData.total_pages || 1;
+        const currentPage = paginationData.current_page || 1;
+
+        // Create Previous button
+        const prevPage = document.createElement("li");
+        prevPage.classList.add("page-item");
+        if (currentPage === totalPages) {
+            prevPage.classList.add("disabled");
+        }
+        prevPage.innerHTML = `
+            <a class="page-link" href="#" aria-label="Previous">
+                <span aria-hidden="true">&laquo;</span>
+            </a>
+        `;
+        prevPage.addEventListener("click", function (event) {
+            event.preventDefault();
+            if (currentPage > 1) {
+                const isTransferRoute = window.location.pathname.includes(
+                    "/inventory/transfer"
+                );
+                if (isTransferRoute) {
+                    fetchTransfer(currentPage - 1);
+                } else {
+                    fetchInventory(currentPage - 1);
+                }
+            }
+        });
+        pagination.appendChild(prevPage);
+
+        for (let i = 1; i <= totalPages; i++) {
+            const pageItem = document.createElement("li");
+            pageItem.classList.add("page-item");
+            if (i === currentPage) {
+                pageItem.classList.add("active");
+            }
+            pageItem.innerHTML = `<a class="page-link" href="#">${i}</a>`;
+            pageItem.addEventListener("click", function (event) {
+                event.preventDefault();
+                const isTransferRoute = window.location.pathname.includes(
+                    "/inventory/transfer"
+                );
+                if (isTransferRoute) {
+                    fetchTransfer(i);
+                } else {
+                    fetchInventory(i);
+                }
+            });
+            pagination.appendChild(pageItem);
+        }
+
+        // Create Next button
+        const nextPage = document.createElement("li");
+        nextPage.classList.add("page-item");
+        if (currentPage === totalPages) {
+            nextPage.classList.add("disabled");
+        }
+        nextPage.innerHTML = `
+            <a class="page-link" href="#" aria-label="Next">
+                <span aria-hidden="true">&raquo;</span>
+            </a>
+        `;
+        nextPage.addEventListener("click", function (event) {
+            event.preventDefault();
+            if (currentPage < totalPages) {
+                const isTransferRoute = window.location.pathname.includes(
+                    "/inventory/transfer"
+                );
+                if (isTransferRoute) {
+                    fetchTransfer(currentPage + 1);
+                } else {
+                    fetchInventory(currentPage + 1);
+                }
+            }
+        });
+        pagination.appendChild(nextPage);
+    }
 
     function validateItems() {
         const table = document.getElementById("itemsTable");
@@ -202,16 +313,26 @@ document.addEventListener("DOMContentLoaded", function () {
     const transactionNumberInput = document.getElementById("transactionNumber");
     const today = new Date().toISOString().split("T")[0].replace(/-/g, "");
 
-    transactionDateInput.value = new Date().toISOString().split("T")[0];
+    const now = new Date();
+    const formattedDateTime = now.toISOString().split("T")[0] + ' ' + now.toTimeString().split(' ')[0];
+    transactionDateInput.value = formattedDateTime;
 
-    let incrementNumber =
-        localStorage.getItem("transactionIncrement") || "00001";
-    transactionNumberInput.value = `TRANSFER-${today}-${incrementNumber}`;
+    const timePart = now.toTimeString().split(' ')[0].replace(/:/g, '').substring(0, 6);
 
-    localStorage.setItem(
-        "transactionIncrement",
-        (parseInt(incrementNumber) + 1).toString().padStart(5, "0")
-    );
+    // Get or initialize the transaction counter for the current second
+    const currentTransactionTime = localStorage.getItem("transactionTime");
+    let transactionCounter = parseInt(localStorage.getItem("transactionCounter"), 10) || 1;
+
+    if (currentTransactionTime === timePart) {
+        transactionCounter += 1; 
+    } else {
+        transactionCounter = 1;  
+    }
+
+    transactionNumberInput.value = `TRANSFER-${today}-${timePart}${transactionCounter}`;
+
+    localStorage.setItem("transactionTime", timePart);
+    localStorage.setItem("transactionCounter", transactionCounter.toString());
 
     // Item Code Search
     document.getElementById("itemCodeInput").addEventListener("blur", function (e) {
@@ -239,8 +360,6 @@ document.addEventListener("DOMContentLoaded", function () {
                     row.querySelector("#itemDescription").textContent = item.item_description;
                     row.querySelector("#itemCategory").textContent = item.item_category;
                     row.querySelector("#qty").textContent = item.qty;
-                    row.querySelector("#cost").textContent = item.cost;
-                    row.querySelector("#usage").textContent = item.usage;
     
                     const uomDropdown = row.querySelector(".uom-dropdown");
                     populateUOMOptions(item.uomp, item.uoms, item.uomt, uomDropdown);
