@@ -55,6 +55,7 @@ document.addEventListener("DOMContentLoaded", function () {
             row.classList.add("clickable-row");
             row.dataset.transactId = item.transfer_id;
             row.dataset.status = item.status;
+            row.dataset.approverId = item.approver_id;
 
             let statusBadge = item.status;
             if (item.status === "Pending" && item.approver_name) {
@@ -626,25 +627,23 @@ document.addEventListener("DOMContentLoaded", function () {
         "approveTransferButton"
     );
 
-    document.querySelectorAll(".clickable-row").forEach((row) => {
-        row.addEventListener("click", function () {
-            const transactionNumber = this.querySelector("td:nth-child(3)").textContent.trim();
-            const approverRoles = this.dataset.approverRoles ? this.dataset.approverRoles.split(",") : [];
-            const userRole = document.getElementById("userRole").value;
+    document.addEventListener("click", function(event) {
+        const target = event.target.closest(".clickable-row"); 
+        if (target) {
+            const approverId = target.dataset.approverId;
+            const userId = document.getElementById("userId").value;
     
-            if (approverRoles.length > 0 && !approverRoles.includes(userRole)) {
-                console.warn("User is unauthorized to approve this transfer.");
+            if (approverId !== userId) {
                 alert("You are unauthorized to approve this transfer.");
                 return;
             }
     
+            const transactionNumber = target.querySelector("td:nth-child(2)").textContent.trim();
             document.getElementById("approveTransferButton").dataset.transactionNumber = transactionNumber;
     
-            const approveTransferModal = new bootstrap.Modal(
-                document.getElementById("approveTransferModal")
-            );
+            const approveTransferModal = new bootstrap.Modal(document.getElementById("approveTransferModal"));
             approveTransferModal.show();
-        });
+        }
     });
 
     approveTransferButton.addEventListener("click", function () {
