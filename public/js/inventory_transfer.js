@@ -49,17 +49,22 @@ document.addEventListener("DOMContentLoaded", function () {
 
         totalItemsText.textContent = `${startIndex + 1}-${endIndex} of ${totalItems}`;
         const pageData = transferData.slice(0, rowsPerPage); 
-        
+
         pageData.forEach((item) => {
             const row = document.createElement("tr");
             row.classList.add("clickable-row");
             row.dataset.transactId = item.transfer_id;
             row.dataset.status = item.status;
             row.dataset.approverId = item.approver_id;
+            row.dataset.requesterId = item.requester_id;
+            row.dataset.releasedQty = item.released_qty;
 
             let statusBadge = item.status;
             if (item.status === "Pending" && item.approver_name) {
                 statusBadge = `For Approval: ${item.approver_name}`;
+            }
+            if (item.status === "Receiving" && item.requester_name) {
+                statusBadge = `For Receiving: ${item.requester_name}`;
             }
 
             row.innerHTML = `
@@ -73,7 +78,9 @@ document.addEventListener("DOMContentLoaded", function () {
                 <td style="text-align: center; padding: 8px 10px;">${item.qty}</td>
                 <td style="text-align: center; padding: 8px 10px;">${item.uomp}</td>
                 <td style="text-align: center; padding: 8px 10px;">
-                    <span class="badge bg-${item.status === "Approved" ? "success" : "danger"}">${statusBadge}</span>
+                    <span class="badge bg-${item.status === "Received" ? "success" : item.status === "Receiving" ? "primary" : "danger"}">
+                        ${statusBadge}
+                    </span>
                 </td>
             `;
             tableBody.appendChild(row);
@@ -287,8 +294,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 const approverIdField = e.target.closest("tr").querySelector("input[id^='userIdInput']");
                 approverIdField.value = selectedOption.dataset.userId;
     
-                console.log(`Assigned approver_id: ${approverIdField.value} for approver: ${e.target.value}`);
-            
                 document.getElementById('userEmailInput').value = selectedOption.dataset.email;
                 document.getElementById(e.target.id.replace("userSearchInput", "userRoleInput")).textContent = selectedOption.dataset.roleName; 
             } else {
@@ -562,8 +567,6 @@ document.addEventListener("DOMContentLoaded", function () {
             const approverName = row.querySelector("input[id^='userSearchInput']").value;
             const hierarchy = row.querySelector(".hierarchy-input").textContent.trim();
     
-            console.log(`Approver: ${approverName}, ID: ${approverId}, Hierarchy: ${hierarchy}`);
-    
             return {
                 approver_id: approverId,  
                 approver_name: approverName,
@@ -633,45 +636,158 @@ document.addEventListener("DOMContentLoaded", function () {
     );
 
     document.addEventListener("click", function(event) {
-        const target = event.target.closest(".clickable-row"); 
+        const target = event.target.closest(".clickable-row");
         if (target) {
             const approverId = target.dataset.approverId;
+            const requesterId = target.dataset.requesterId;
             const userId = document.getElementById("userId").value;
     
-            if (approverId !== userId) {
-                alert("You are unauthorized to approve this transfer.");
-                return;
+            if (target.dataset.status === "Receiving") {
+                if (requesterId !== userId) {
+                    Swal.fire({
+                        title: 'Unauthorized!',
+                        text: "You are unauthorized to receive this transfer.",
+                        icon: 'error',
+                        confirmButtonText: 'Ok'
+                    });
+                    return;
+                }
+                
+                const transactionNumber = target.dataset.transactId;
+                const requestedQty = parseFloat(target.querySelector("td:nth-child(8)").textContent.trim());
+                const releasedQty = parseFloat(target.dataset.releasedQty);
+    
+                document.getElementById("requestedQtyReceive").value = requestedQty;
+                document.getElementById("releasedQtyReceive").value = releasedQty;
+    
+                const receiveTransferModal = new bootstrap.Modal(document.getElementById("receiveTransferModal"));
+                receiveTransferModal.show();
+            } else {
+                if (approverId !== userId) {
+                    Swal.fire({
+                        title: 'Unauthorized!',
+                        text: "You are unauthorized to approve this transfer.",
+                        icon: 'error',
+                        confirmButtonText: 'Ok'
+                    });
+                    return;
+                }
+    
+                const transactionNumber = target.dataset.transactId;
+                const approveTransferButton = document.getElementById("approveTransferButton");
+    
+                approveTransferButton.dataset.transactionNumber = transactionNumber;
+    
+                const approvedBy = document.getElementById("userName").value;
+                document.getElementById("approvedByText").textContent = `Approver: ${approvedBy}`;
+    
+                const requestedQty = parseFloat(target.querySelector("td:nth-child(8)").textContent.trim());
+                const releasedQtyInput = document.getElementById("releasedQty");
+    
+                const currentReleasedQty = target.dataset.releasedQty || "";
+                releasedQtyInput.value = currentReleasedQty !== "" ? currentReleasedQty : "";
+    
+                releasedQtyInput.setAttribute("max", requestedQty);
+                document.getElementById("requestedQty").value = requestedQty;
+    
+                document.getElementById("approveTransferButton").disabled = true;
+    
+                releasedQtyInput.addEventListener("input", function() {
+                    const releasedQty = parseFloat(releasedQtyInput.value);
+                    const warningMessage = document.getElementById("releasedQtyWarning");
+    
+                    if (releasedQty && releasedQty > 0 && releasedQty <= requestedQty) {
+                        approveTransferButton.disabled = false;
+                        if (warningMessage) {
+                            warningMessage.textContent = "";
+                        }
+                    } else {
+                        approveTransferButton.disabled = true;
+                        if (!warningMessage) {
+                            const messageElement = document.createElement("p");
+                            messageElement.id = "releasedQtyWarning";
+                            messageElement.textContent = "Released quantity exceeds the requested quantity!";
+                            messageElement.style.color = "red";
+                            releasedQtyInput.parentNode.appendChild(messageElement);
+                        } else {
+                            warningMessage.textContent = "Released quantity exceeds the requested quantity!";
+                        }
+                    }
+                });
+    
+                const approveTransferModal = new bootstrap.Modal(document.getElementById("approveTransferModal"));
+                approveTransferModal.show();
             }
-    
-            const transactionNumber = target.querySelector("td:nth-child(2)").textContent.trim();
-            document.getElementById("approveTransferButton").dataset.transactionNumber = transactionNumber;
-    
-            const approveTransferModal = new bootstrap.Modal(document.getElementById("approveTransferModal"));
-            approveTransferModal.show();
         }
     });
 
     approveTransferButton.addEventListener("click", function () {
-        const transactionNumber =
-            approveTransferButton.dataset.transactionNumber;
+        const transactionNumber = approveTransferButton.dataset.transactionNumber;
         const approvedBy = document.getElementById("userName").value;
-
+        const releasedQty = document.getElementById("releasedQty").value;
+    
+        const approverId = document.querySelector(`.clickable-row[data-transact-id='${transactionNumber}']`).dataset.approverId;
+    
         axios
             .post(`/api/inventory/transfer/approve/${transactionNumber}`, {
                 approved_by: approvedBy,
+                released_qty: releasedQty,
+                approver_id: approverId,
             })
             .then((response) => {
-                alert(response.data.message || "Transfer approved.");
-                const approveTransferModal = new bootstrap.Modal(
-                    document.getElementById("approveTransferModal")
-                );
-                approveTransferModal.hide();
-
-                location.reload();
+                Swal.fire({
+                    title: "Success!",
+                    text: response.data.message || "Transfer approved.",
+                    icon: "success",
+                    confirmButtonText: "Ok"
+                }).then(() => {
+                    fetchTransfer(currentPage); 
+                    const approveTransferModalInstance = bootstrap.Modal.getInstance(document.getElementById("approveTransferModal"));
+                    approveTransferModalInstance.hide();
+                });
             })
             .catch((error) => {
-                alert("Failed to approve the transfer. Please try again.");
+                Swal.fire({
+                    title: "Error!",
+                    text: "Failed to approve the transfer. Please try again.",
+                    icon: "error",
+                    confirmButtonText: "Ok"
+                });
                 console.error(error);
+            });
+    });
+
+    document.getElementById("receiveTransferButton").addEventListener("click", function () {
+        const transactionNumber = document.querySelector('.clickable-row[data-status="Receiving"]').dataset.transactId;
+        const releasedQty = document.getElementById("releasedQtyReceive").value;
+        const requesterId = document.getElementById("userId").value;
+    
+        axios
+            .post(`/api/inventory/transfer/approve/${transactionNumber}`, {
+                released_qty: releasedQty,
+                requester_id: requesterId,
+                status: "Received",
+            })
+            .then((response) => {
+                Swal.fire({
+                    title: "Success!",
+                    text: response.data.message || "Transfer received successfully.",
+                    icon: "success",
+                    confirmButtonText: "Ok",
+                }).then(() => {
+                    fetchTransfer(currentPage); 
+                    const receiveTransferModal = bootstrap.Modal.getInstance(document.getElementById("receiveTransferModal"));
+                    receiveTransferModal.hide(); 
+                });
+            })
+            .catch((error) => {
+                Swal.fire({
+                    title: "Error!",
+                    text: "Failed to receive the transfer. Please try again.",
+                    icon: "error",
+                    confirmButtonText: "Ok",
+                });
+                console.error("Receive transfer error:", error);
             });
     });
 

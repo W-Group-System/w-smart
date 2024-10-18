@@ -88,13 +88,13 @@
                             Item Code <i class="bi bi-three-dots-vertical"></i></th>
                         <th
                             style="text-align: center; padding: 8px 10px; border: none; font-weight: 400; color: #637281;">
-                            Item Description <i class="bi bi-three-dots-vertical"></i></th>
+                            Description <i class="bi bi-three-dots-vertical"></i></th>
                         <th
                             style="text-align: center; padding: 8px 10px; border: none; font-weight: 400; color: #637281;">
-                            Item Category <i class="bi bi-three-dots-vertical"></i></th>
+                            Category <i class="bi bi-three-dots-vertical"></i></th>
                         <th
                             style="text-align: center; padding: 8px 10px; border: none; font-weight: 400; color: #637281;">
-                            QTY <i class="bi bi-three-dots-vertical"></i></th>
+                            Requested QTY <i class="bi bi-three-dots-vertical"></i></th>
                         <th
                             style="text-align: center; padding: 8px 10px; border: none; font-weight: 400; color: #637281;">
                             UOM <i class="bi bi-three-dots-vertical"></i></th>
@@ -342,10 +342,50 @@
             <div class="modal-body">
                 <p>Are you sure you want to approve this transfer request?</p>
                 <p id="approvedByText" class="fw-bold" style="margin-top: 10px;"></p>
+                <div class="mb-3">
+                    <label for="requestedQty" class="form-label">Requested QTY</label>
+                    <input type="text" id="requestedQty" class="form-control" disabled>
+                </div>
+                <div class="mb-3">
+                    <label for="releasedQty" class="form-label">Released QTY</label>
+                    <input type="number" id="releasedQty" placeholder="Released Qty" class="form-control" min="0" />
+                </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                 <button type="button" class="btn btn-primary" id="approveTransferButton">Approve</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Receive Transfer Modal -->
+<div class="modal fade" id="receiveTransferModal" tabindex="-1" aria-labelledby="receiveTransferModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="receiveTransferModalLabel">Receive Transfer</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Have you received the correct released qty for this transfer?</p>
+                <div class="mb-3">
+                    <label for="requestedQtyReceive" class="form-label">Requested QTY</label>
+                    <input type="text" id="requestedQtyReceive" class="form-control" disabled>
+                </div>
+                <div class="mb-3">
+                    <label for="releasedQtyReceive" class="form-label">Released QTY</label>
+                    <input type="number" id="releasedQtyReceive" placeholder="Released Qty" class="form-control" min="0" disabled/>
+                </div>
+                <div class="mb-3">
+                    <label for="photoUploadInput" class="form-label">Upload Photo (Optional)</label>
+                    <input type="file" id="photoUploadInput" class="form-control" />
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="receiveTransferButton">Submit</button>
             </div>
         </div>
     </div>
