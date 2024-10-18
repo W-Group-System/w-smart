@@ -513,6 +513,9 @@ document.addEventListener("DOMContentLoaded", function () {
         const transferTo = document.getElementById("transferTo").value;
         const remarks = document.getElementById("remarks").value;
     
+        const requesterId = document.querySelector('meta[name="requester-id"]').getAttribute('content');
+        const requesterName = document.querySelector('meta[name="requester-name"]').getAttribute('content');
+
         const items = Array.from(document.querySelectorAll("#itemsTable tbody tr")).map((row) => {
             const itemCode = row.querySelector("#itemCodeInput").value;
             const qty = parseFloat(row.querySelector("#qty").textContent.trim());
@@ -586,6 +589,8 @@ document.addEventListener("DOMContentLoaded", function () {
                 approvals: approvals,
                 remarks: remarks,
                 status: "Pending",
+                requester_id: requesterId,
+                requester_name: requesterName,
             })
             .then((response) => {
                 if (response.data.status === "success") {

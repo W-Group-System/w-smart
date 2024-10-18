@@ -332,8 +332,8 @@ class InventoryController extends Controller
                 $newTransferLog->uoms = $item['uoms']; 
                 $newTransferLog->uomt = $item['uomt']; 
                 $newTransferLog->status = 'Pending';
-                $newTransferLog->requester_id = auth()->id() ?? 0;
-                $newTransferLog->requester_name = auth()->user()->name ?? 'N/A';
+                $newTransferLog->requester_id = $request->input('requester_id', auth()->id() ?? 0);
+                $newTransferLog->requester_name = $request->input('requester_name', auth()->user()->name ?? 'N/A');
                 $newTransferLog->remarks = $remarks;
                 $newTransferLog->hierarchy = 1;
                 $newTransferLog->save(); 

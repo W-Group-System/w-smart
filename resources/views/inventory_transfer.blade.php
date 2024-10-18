@@ -1,6 +1,9 @@
 @extends('layouts.dashboard_layout')
 
 @section('dashboard_content')
+<meta name="requester-id" content="{{ auth()->user()->id }}">
+<meta name="requester-name" content="{{ auth()->user()->name }}">
+
 <div class="container-fluid">
     @include('layouts.inventory_header')
 
