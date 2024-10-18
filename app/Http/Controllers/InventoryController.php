@@ -271,8 +271,6 @@ class InventoryController extends Controller
                 'transfer_from' => 'required|integer|exists:subsidiaries,subsidiary_id',
                 'transfer_to' => 'required|integer|exists:subsidiaries,subsidiary_id|different:transfer_from',
                 'remarks' => 'nullable|string|max:255',
-                'approver_roles' => 'required|array|min:1',
-                'approver_roles.*' => 'integer',
             ]);
 
             $transactId = $request->transact_id;
@@ -281,9 +279,6 @@ class InventoryController extends Controller
             $transferFromName = Subsidiary::where('subsidiary_id', $transferFromId)->value('subsidiary_name');
             $transferToName = Subsidiary::where('subsidiary_id', $transferToId)->value('subsidiary_name');
             $remarks = $request->remarks;
-            $approverRoles = $request->approver_roles;
-
-            $approverRolesString = implode(',', $approverRoles);
 
             $transferLogs = [];
 
@@ -346,13 +341,10 @@ class InventoryController extends Controller
                 $newTransferLog->uomp = $item['uomp']; 
                 $newTransferLog->uoms = $item['uoms']; 
                 $newTransferLog->uomt = $item['uomt']; 
-                $newTransferLog->cost = $inventory->cost;
-                $newTransferLog->usage = $inventory->usage;
                 $newTransferLog->status = 'Pending';
                 $newTransferLog->requester_id = auth()->id() ?? 0;
                 $newTransferLog->requester_name = auth()->user()->name ?? 'N/A';
                 $newTransferLog->remarks = $remarks;
-                $newTransferLog->approver_roles = $approverRolesString;
                 $newTransferLog->save();
 
                 $transferLogs[] = $newTransferLog;
@@ -806,7 +798,7 @@ class InventoryController extends Controller
         try {
 
             $request->validate([
-                'categoryid' => 'required|integer'
+                'categoryid' => 'required|integer',
                 'name' => 'required|string|max:255',
             ]);
 

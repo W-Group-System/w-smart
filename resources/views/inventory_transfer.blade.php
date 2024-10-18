@@ -95,9 +95,6 @@
                             UOM <i class="bi bi-three-dots-vertical"></i></th>
                         <th
                             style="text-align: center; padding: 8px 10px; border: none; font-weight: 400; color: #637281;">
-                            Cost <i class="bi bi-three-dots-vertical"></i></th>
-                        <th
-                            style="text-align: center; padding: 8px 10px; border: none; font-weight: 400; color: #637281;">
                             Status <i class="bi "></i></th>
                     </tr>
                 </thead>
@@ -234,8 +231,6 @@
                                     <th>Category</th>
                                     <th>UOM</th>
                                     <th>QTY</th>
-                                    <th>Cost</th>
-                                    <th>Usage</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -258,10 +253,6 @@
                                     </td>
                                     <td contenteditable="true" id="qty"
                                         style="background-color: #FFFFFF; color: #000; pointer-events: auto;"></td>
-                                    <td contenteditable="false" id="cost"
-                                        style="background-color: #E9ECEF; color: #999; pointer-events: none;"></td>
-                                    <td contenteditable="false" id="usage"
-                                        style="background-color: #E9ECEF; color: #999; pointer-events: none;"></td>
                                 </tr>
                             </tbody>
                         </table>

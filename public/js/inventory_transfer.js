@@ -1,6 +1,18 @@
 document.addEventListener("DOMContentLoaded", function () {
     const submitButton = document.getElementById("submitRequestTransfer");
+    const startDateInput = document.getElementById("start-date");
+    const endDateInput = document.getElementById("end-date");
+    const subsidiary = document.getElementById("subsidiary");
+    const subsidiary_id = document.getElementById("usersubsidiaryid").value;
+    const rowsPerPageSelect = document.querySelector("select.form-select-sm");
+    const tableBody = document.querySelector("tbody");
+    const totalItemsText = document.querySelector(".dynamic-rows-info");
+    const pagination = document.querySelector("ul.pagination");
+    const form = document.getElementById("filter-submit");
+    const downloadButton = document.getElementById("downloadButton");
+    const searchInput = document.getElementById("searchInput");
     let currentPage = 1;
+    let rowsPerPage = parseInt(rowsPerPageSelect.value, 10) || 10;
 
     window.fetchTransfer = function (page, search) {
         const rowsPerPage = parseInt(document.querySelector("select.form-select-sm").value, 10) || 10;
@@ -21,7 +33,8 @@ document.addEventListener("DOMContentLoaded", function () {
             .post(url, requestBody)
             .then((response) => {
                 if (response.data.status === "success") {
-                    window.renderTransferTable(response.data.data, response.data.pagination.total_items);
+                    document.renderTransferTable(response.data.data, response.data.pagination.total_items);
+                    initializeDynamicTable(data.data, data.pagination.total_items);
                     updatePagination(response.data.pagination);
                 } else {
                     console.error("Failed to fetch transfers:", response.data.message);
@@ -32,7 +45,7 @@ document.addEventListener("DOMContentLoaded", function () {
             });
     };
 
-    window.renderTransferTable = function (transferData, totalPages) {
+    document.renderTransferTable = function (transferData, totalPages) {
         const tableBody = document.querySelector("tbody");
         tableBody.innerHTML = "";
         const rowsPerPage = parseInt(document.querySelector("select.form-select-sm").value, 10) || 10;
@@ -55,7 +68,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 <td style="text-align: center; padding: 8px 10px;">${item.item_category}</td>
                 <td style="text-align: center; padding: 8px 10px;">${item.qty}</td>
                 <td style="text-align: center; padding: 8px 10px;">${item.uomp}</td>
-                <td style="text-align: center; padding: 8px 10px;">${item.cost}</td>
                 <td style="text-align: center; padding: 8px 10px;">
                     <span class="badge bg-${item.status === "Approved" ? "success" : "danger"}">${item.status}</span>
                 </td>
@@ -239,8 +251,6 @@ document.addEventListener("DOMContentLoaded", function () {
                     row.querySelector("#itemDescription").textContent = item.item_description;
                     row.querySelector("#itemCategory").textContent = item.item_category;
                     row.querySelector("#qty").textContent = item.qty;
-                    row.querySelector("#cost").textContent = item.cost;
-                    row.querySelector("#usage").textContent = item.usage;
     
                     const uomDropdown = row.querySelector(".uom-dropdown");
                     populateUOMOptions(item.uomp, item.uoms, item.uomt, uomDropdown);
