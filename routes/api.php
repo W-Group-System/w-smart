@@ -21,6 +21,7 @@ Route::post('create-role', 'PermissionController@createRole')->name('create-role
 Route::post('create-permission', 'PermissionController@createPermission')->name('create-permission');
 Route::patch('update-role/{id}', 'UserController@update')->name('update-role');
 Route::get('users', 'UserController@index')->name('users');
+Route::post('users/suggestions', 'UserController@getUserSuggestions')->name('user-role');
 Route::post('delete-role', 'PermissionController@delete')->name('delete-role');
 
 //inventory

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\User;
+use App\Role;
 use Illuminate\Http\Request;
 
 class UserController extends Controller
@@ -53,5 +54,36 @@ class UserController extends Controller
             'message' => 'User role updated successfully.',
             'data' => $user
         ]);
+    }
+    public function getUserSuggestions(Request $request)
+    {
+        try {
+            $searchTerm = $request->input('searchTerm');
+
+            $users = User::where('name', 'LIKE', '%' . $searchTerm . '%')
+                ->orWhere('email', 'LIKE', '%' . $searchTerm . '%')
+                ->leftJoin('roles', 'users.role', '=', 'roles.id')  
+                ->select('users.id', 'users.name', 'users.email', 'users.role as role_id', 'roles.role as role_name') 
+                ->limit(10)
+                ->get();
+
+            if ($users->isEmpty()) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'No users found.'
+                ], 404);
+            }
+
+            return response()->json([
+                'status' => 'success',
+                'data' => $users
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to fetch users.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
     }
 }
