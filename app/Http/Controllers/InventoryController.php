@@ -215,12 +215,12 @@ class InventoryController extends Controller
             $subsidiary = Subsidiary::where('subsidiary_id', $subsidiaryid)->first();
             $query = Transfer::query();
 
-            $query->join('approvals', function($join) {
+            $query->leftJoin('approvals', function($join) {
                 $join->on('transfers.transfer_id', '=', 'approvals.process_id')
                     ->where('approvals.process', '=', 'transfer')
-                    ->whereColumn('transfers.hierarchy', '=', 'approvals.hierarchy');  // Ensure hierarchies match
+                    ->whereColumn('transfers.hierarchy', '=', 'approvals.hierarchy');
             })
-            ->select('transfers.*', 'approvals.approver_id', 'approvals.approver_name');  // Select the relevant approval details
+            ->select('transfers.*', 'approvals.approver_id', 'approvals.approver_name');
             
             if ($startDate && $endDate) {
                 $query->whereBetween('transfers.created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59']);
@@ -312,7 +312,7 @@ class InventoryController extends Controller
                         ->first();
 
                     if ($existingTransfer) {
-                        $transferCode = $existingTransfer->item_code; // Keep the same item_code
+                        $transferCode = $existingTransfer->item_code;
                     } else {
                         $transferCode = $itemCode;
                     }
@@ -328,6 +328,7 @@ class InventoryController extends Controller
                 $newTransferLog->item_description = $inventory->item_description;
                 $newTransferLog->item_category = $inventory->item_category;
                 $newTransferLog->qty = $qty;
+                $newTransferLog->released_qty = 0;
                 $newTransferLog->uomp = $item['uomp']; 
                 $newTransferLog->uoms = $item['uoms']; 
                 $newTransferLog->uomt = $item['uomt']; 
@@ -394,16 +395,76 @@ class InventoryController extends Controller
         try {
             $transfer = Transfer::where('transfer_id', $transactId)->firstOrFail();
 
-            if ($transfer->status !== 'Pending') {
+            if ($transfer->status === 'Receiving') {
+                return $this->processReceiving($request, $transfer);
+            } elseif ($transfer->status !== 'Pending') {
                 return response()->json([
                     'status' => 'error',
                     'message' => 'This transfer is not pending and cannot be approved.',
                 ], 400);
             }
 
+            $currentHierarchy = Approval::where('process_id', $transactId)
+                ->where('process', 'transfer')
+                ->where('approver_id', $request->input('approver_id'))
+                ->value('hierarchy');
+
+            if (!$currentHierarchy) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'You are not authorized to approve this transfer at this stage.',
+                ], 403);
+            }
+
+            $releasedQty = $request->input('released_qty');
+            if ($releasedQty && $releasedQty > 0) {
+                $transfer->released_qty = $releasedQty; 
+            } else {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Invalid released quantity provided.',
+                ], 400);
+            }
+
+            $newTransferHierarchy = $transfer->hierarchy + 1;
+            $transfer->hierarchy = $newTransferHierarchy; 
+            $transfer->save();
+
+            $nextApprovalExists = Approval::where('process_id', $transactId)
+            ->where('process', 'transfer')
+            ->where('hierarchy', $newTransferHierarchy)
+            ->exists();
+
+            if ($nextApprovalExists) {
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'Transfer approved at this level. Waiting for next approver.',
+                ], 200);
+            }
+
+            $transfer->status = 'Receiving';
+            $transfer->save();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Transfer is now marked as "Receiving". Requester will handle final approval.',
+            ], 200);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to approve transfer.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function processReceiving(Request $request, $transfer)
+    {
+        try {
             $itemCode = $transfer->item_code;
             $transferCode = $transfer->transfer_code;
-            $qty = $transfer->qty;
+            $releasedQty = $transfer->released_qty;
             $transferFromId = Subsidiary::where('subsidiary_name', $transfer->transfer_from)->value('subsidiary_id');
             $transferToId = Subsidiary::where('subsidiary_name', $transfer->transfer_to)->value('subsidiary_id');
 
@@ -418,7 +479,13 @@ class InventoryController extends Controller
                 ], 404);
             }
 
-            if ($inventory->qty < $qty) {
+            Log::info('Item found in subsidiary', [
+                'item_code' => $itemCode,
+                'item_category' => $inventory->item_category,
+                'category_id' => $inventory->category_id
+            ]);
+
+            if ($inventory->qty < $releasedQty) {
                 return response()->json([
                     'status' => 'error',
                     'message' => "Insufficient quantity for item '{$itemCode}' in subsidiary '{$transfer->transfer_from}'.",
@@ -426,57 +493,59 @@ class InventoryController extends Controller
                 ], 400);
             }
 
-            $inventory->qty -= $qty;
+            $inventory->qty -= $releasedQty;
             $inventory->save();
 
             $targetInventory = Inventory::where('item_code', $itemCode)
                 ->where('subsidiaryid', $transferToId)
                 ->first();
 
-            if (!$targetInventory) {
-                $targetInventory = Inventory::where('item_code', $transferCode)
-                    ->where('subsidiaryid', $transferToId)
-                    ->first();
-            }
-
             if ($targetInventory) {
-                $targetInventory->qty += $qty;
+                $targetInventory->qty += $releasedQty;
                 $targetInventory->save();
             } else {
-                Inventory::create([
+                $inventoryData = [
                     'item_code' => $transferCode,
                     'item_description' => $inventory->item_description,
                     'item_category' => $inventory->item_category,
+                    'category_id' => $inventory->category_id,
+                    'subcategory_name' => $inventory->subcategory_name ?? '',
+                    'subcategory_id' => $inventory->subcategory_id ?? 0,
                     'uomp' => $inventory->uomp,
                     'uoms' => $inventory->uoms,
                     'uomt' => $inventory->uomt,
-                    'qty' => $qty,
+                    'qty' => $releasedQty,
                     'cost' => $inventory->cost,
                     'usage' => $inventory->usage,
                     'subsidiaryid' => $transferToId,
                     'subsidiary' => $transfer->transfer_to,
+                    'remarks' => 'Transferred',
                     'date' => now(),
-                ]);
+                ];
+                
+                Log::info('Attempting to insert into Inventory', $inventoryData);
+                
+                Inventory::create($inventoryData);
             }
 
-            $transfer->status = 'Approved';
-            $transfer->approved_by = $request->input('approved_by');
+            $transfer->status = 'Received';
             $transfer->updated_at = now();
             $transfer->save();
 
             return response()->json([
                 'status' => 'success',
-                'message' => 'Transfer has been approved and completed.',
+                'message' => 'Transfer has been received and completed.',
                 'data' => $transfer,
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'Failed to approve transfer.',
+                'message' => 'Failed to process receiving step.',
                 'error' => $e->getMessage(),
             ], 500);
         }
     }
+
     public function getInventorySuggestions(Request $request)
     {
         try {
