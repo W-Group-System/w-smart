@@ -141,6 +141,7 @@ document.addEventListener("DOMContentLoaded", function () {
                             }
                             
                             loadPermissions();
+                            loadRoles();
 
                             document.getElementById("createRoleForm").reset();
                             createRoleButton.disabled = true;
