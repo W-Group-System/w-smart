@@ -638,6 +638,18 @@ document.addEventListener("DOMContentLoaded", function () {
     document.addEventListener("click", function(event) {
         const target = event.target.closest(".clickable-row");
         if (target) {
+            const status = target.dataset.status;
+
+            if (status === "Received") {
+                Swal.fire({
+                    title: "Transfer already received",
+                    text: "This transfer has already been marked as received.",
+                    icon: "info",
+                    confirmButtonText: "Ok"
+                });
+                return;
+            }
+
             const approverId = target.dataset.approverId;
             const requesterId = target.dataset.requesterId;
             const userId = document.getElementById("userId").value;
