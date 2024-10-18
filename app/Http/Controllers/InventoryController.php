@@ -804,7 +804,21 @@ class InventoryController extends Controller
 
             $new_category = new Categories();
             $new_category->name = $request->name; 
+            $new_category->description = $request->description; 
             $new_category->save();
+            $newCategoryId = $new_category->id;
+            if($request->subcategories) {
+                foreach ($request->subcategories as $items) {
+                    foreach($items as $item) {
+                        $new_subCategory = new Subcategories();
+                        $new_subCategory->name = $item; 
+                        $new_subCategory->category_id = $newCategoryId; 
+                        $new_subCategory->save();
+                    }
+                    
+                }
+            }
+
             return response()->json([
                'status' => 'success',
             ], 201);
@@ -821,25 +835,31 @@ class InventoryController extends Controller
     public function postSubCategory(Request $request)
     {
         try {
-
             $request->validate([
                 'categoryid' => 'required|integer',
-                'name' => 'required|string|max:255',
+                'subcategories' => 'required|array|min:1',
+                'subcategories.*' => 'string|max:255',
             ]);
 
-            $new_subcategory = new Subcategories();
-            $new_subcategory->name = $request->name; 
-            $new_subcategory->categoryid = $request->categoryid; 
-            $new_subcategory->save();
-            
+            // Get the category ID from the request
+            $categoryId = $request->categoryid;
+
+            // Loop through each subcategory name
+            foreach ($request->subcategories as $item) {
+                $new_subCategory = new Subcategories();
+                $new_subCategory->name = $item; 
+                $new_subCategory->category_id = $categoryId; // Use the category ID from the request
+                $new_subCategory->save();
+            }
+
             return response()->json([
                'status' => 'success',
             ], 201);
         } catch (\Exception $e) {
-            Log::error('Failed to create inventory: ' . $e->getMessage());
+            Log::error('Failed to create subcategory: ' . $e->getMessage());
             return response()->json([
                'status' => 'error',
-               'message' => 'Failed to create inventory.',
+               'message' => 'Failed to create subcategory.',
                'error' => $e->getMessage(),
             ], 500);
         }

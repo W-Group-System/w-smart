@@ -123,6 +123,10 @@
                     <a class="nav-link {{ request()->is('settings/roles') ? 'submenu-active' : '' }}"
                         href="{{ route('settings.roles') }}">Role</a>
                 </li>
+                <li class="nav-item dashboard-list">
+                    <a class="nav-link {{ request()->is('category') ? 'submenu-active' : '' }}"
+                        href="{{ route('category') }}">Category</a>
+                </li>
             </ul>
         </li>
 

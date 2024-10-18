@@ -217,7 +217,7 @@
 
 <!-- Inventory Modal -->
 <div class="modal fade" id="addInventoryModal" tabindex="-1" aria-labelledby="addInventoryModalLabel"
-    aria-hidden="true">
+    aria-hidden="true" style="z-index: 1400;">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
@@ -255,17 +255,21 @@
 
                         <div class="col-md-6">
                             <label for="newCategory" class="form-label">Category</label>
-                            <select class="form-select" id="newCategory" required >
-                                <option value="" disabled selected>Select a category</option>
-                            </select>
+                            <div class="input-group">
+                                <select class="form-select" id="newCategory" required>
+                                    <option value="" disabled selected>Select a category</option>
+                                    <!-- Options dynamically added here -->
+                                </select>
+                            </div>
                         </div>
                         <div class="col-md-6">
-                            <label for="newCategory" class="form-label">Sub-Category</label>
-                            <select class="form-select" id="subCategory" required>
-                                <option value="" disabled selected>Select a sub-category</option>
-                            </select>
+                            <label for="subCategory" class="form-label">Sub-Category</label>
+                            <div class="input-group">
+                                <select class="form-select" id="subCategory" required>
+                                    <option value="" disabled selected>Select a sub-category</option>
+                                </select>
+                            </div>
                         </div>
-
                         <div class="col-md-12">
                             <div class="row g-3">
                                 <div class="col-md-4">

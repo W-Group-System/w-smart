@@ -64,7 +64,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     let maxItemCode = 0;
 
                     let newItemCode = maxItemCode + 1;
-                    
+
                     formattedItemCode = newItemCode.toString().padStart(4, '0');
                     getSelectedCategory();
                     generateItemCode();
@@ -503,6 +503,7 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
+   
     document.getElementById('newCategory').addEventListener('change', getSelectedCategory);
 
     document.getElementById('subCategory').addEventListener('change', getSelectedSubCategory);

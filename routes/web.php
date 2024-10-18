@@ -27,6 +27,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/inventory/withdrawal', 'RoutesController@inventoryWithdrawal')->name('inventory.withdrawal');
     Route::get('/inventory/returned', 'RoutesController@inventoryReturned')->name('inventory.returned');
     Route::get('/settings/roles', 'RoutesController@settingsRoles')->name('settings.roles');
+    Route::get('/settings/category', 'RoutesController@category')->name('category');
 
     Route::get('sample', 'AttendanceController@sample');
     Route::get('/get-history', 'AttendanceController@get')->name('scum');

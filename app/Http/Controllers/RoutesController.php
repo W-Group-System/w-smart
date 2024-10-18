@@ -30,4 +30,8 @@ class RoutesController extends Controller
     {
         return view('inventory_returned');
     }
+    public function category()
+    {
+        return view('category');
+    }
 }
