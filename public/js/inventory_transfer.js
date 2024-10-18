@@ -312,7 +312,9 @@ document.addEventListener("DOMContentLoaded", function () {
     const transactionNumberInput = document.getElementById("transactionNumber");
     const today = new Date().toISOString().split("T")[0].replace(/-/g, "");
 
-    transactionDateInput.value = new Date().toISOString().split("T")[0];
+    const now = new Date();
+    const formattedDateTime = now.toISOString().split("T")[0] + ' ' + now.toTimeString().split(' ')[0];
+    transactionDateInput.value = formattedDateTime;
 
     let incrementNumber =
         localStorage.getItem("transactionIncrement") || "00001";

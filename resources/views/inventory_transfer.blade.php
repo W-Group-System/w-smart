@@ -169,7 +169,7 @@
                     <div class="row g-2 mb-3">
                         <div class="col-md-6">
                             <label for="transactionDate" class="form-label">Transaction Date</label>
-                            <input type="date" class="form-control form-control-sm" id="transactionDate" disabled>
+                            <input type="text" class="form-control form-control-sm" id="transactionDate" readonly>
                         </div>
                         <div class="col-md-6">
                             <label for="transactionNumber" class="form-label">Transaction Number</label>
