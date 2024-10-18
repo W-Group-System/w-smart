@@ -275,7 +275,7 @@ document.addEventListener("DOMContentLoaded", function () {
             .then((response) => {
                 alert("Role assigned successfully!");
                 loadUsers();
-                window.location.reload();
+                loadRoles();
             })
             .catch((error) => {
                 console.error("Error assigning role:", error);
@@ -338,7 +338,7 @@ document.addEventListener("DOMContentLoaded", function () {
             .then(() => {
                 Swal.fire("Deleted!", "Role has been deleted.", "success");
                 loadPermissions();
-                window.location.reload();
+                loadRoles();
             })
             .catch((error) => {
                 console.error("Error deleting role:", error);
@@ -413,7 +413,7 @@ document.addEventListener("DOMContentLoaded", function () {
                         }
                         deleteRole(roleId);
                         loadUsers();
-                        window.location.reload();
+                        loadRoles();
                     })
                     .catch((error) => {
                         console.error("Error updating user roles:", error);
