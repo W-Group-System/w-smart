@@ -233,7 +233,7 @@
                                     <th>Item Description</th>
                                     <th>Category</th>
                                     <th>UOM</th>
-                                    <th>QTY</th>
+                                    <th>Requested QTY</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -268,10 +268,13 @@
 
                     <!-- Approver Section -->
                     <div class="table-responsive mb-3">
-                        <table class="table table-bordered table-sm">
+                        <button type="button" class="btn btn-link text-secondary fw-bold" id="addMoreApprover" style="font-size: 14px;">
+                            + Add More Approver
+                        </button>
+                        <table class="table table-bordered table-sm" id="approversTable">
                             <thead class="table-light">
                                 <tr>
-                                    <th>Name</th>
+                                    <th>Approver Name</th>
                                     <th>Role</th>
                                     <th>Hierarchy</th>
                                     <th>Remarks</th>
@@ -279,14 +282,35 @@
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td contenteditable="false">Auto Generate</td>
-                                    <td contenteditable="false">Auto Generate</td>
+                                    <td contenteditable="true">
+                                        <div style="position: relative;">
+                                            <input type="text" id="userSearchInput1" list="userSuggestions" class="form-control form-control-sm" placeholder="Enter User Name" style="width: 100%; max-width: 200px; padding: 6px; border-radius: 5px; border: 1px solid #ced4da;">
+                                            <datalist id="userSuggestions"></datalist>
+                                            <input type="hidden" id="userIdInput1">
+                                        </div>
+                                    </td>
+                                    <td contenteditable="false" id="userRoleInput1" style="background-color: #E9ECEF; color: #999; pointer-events: none;">Auto Generate</td>
+                                    <td contenteditable="true" class="hierarchy-input">1</td>
                                     <td contenteditable="true"></td>
+                                </tr>
+                                <tr>
+                                    <td contenteditable="true">
+                                        <div style="position: relative;">
+                                            <input type="text" id="userSearchInput2" list="userSuggestions" class="form-control form-control-sm" placeholder="Enter User Name" style="width: 100%; max-width: 200px; padding: 6px; border-radius: 5px; border: 1px solid #ced4da;">
+                                            <datalist id="userSuggestions"></datalist>
+                                            <input type="hidden" id="userIdInput2">
+                                        </div>
+                                    </td>
+                                    <td contenteditable="false" id="userRoleInput2" style="background-color: #E9ECEF; color: #999; pointer-events: none;">Auto Generate</td>
+                                    <td contenteditable="true" class="hierarchy-input">2</td>
                                     <td contenteditable="true"></td>
                                 </tr>
                             </tbody>
                         </table>
                     </div>
+
+                    <input type="hidden" id="userIdInput">
+                    <input type="hidden" id="userEmailInput">
 
                     <!-- Action Section -->
                     <div class="row g-2 align-items-end mb-3">

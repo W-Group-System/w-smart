@@ -5,6 +5,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use App\Inventory;
 use App\Transfer;
+use App\Approval;
 use App\Subsidiary;
 use App\Withdrawal;
 use App\WithdrawalItems;
@@ -214,30 +215,29 @@ class InventoryController extends Controller
             $subsidiary = Subsidiary::where('subsidiary_id', $subsidiaryid)->first();
             $query = Transfer::query();
 
-            Log::info('Fetching transfers with parameters:', [
-                'start_date' => $startDate,
-                'end_date' => $endDate,
-                'subsidiary_id' => $subsidiaryid,
-                'subsidiary_name' => $subsidiary ? $subsidiary->subsidiary_name : null,
-            ]);
-
+            $query->join('approvals', function($join) {
+                $join->on('transfers.transfer_id', '=', 'approvals.process_id')
+                    ->where('approvals.process', '=', 'transfer')
+                    ->whereColumn('transfers.hierarchy', '=', 'approvals.hierarchy');  // Ensure hierarchies match
+            })
+            ->select('transfers.*', 'approvals.approver_id', 'approvals.approver_name');  // Select the relevant approval details
+            
             if ($startDate && $endDate) {
-                $query->whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59']);
+                $query->whereBetween('transfers.created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59']);
             }
-
+            
             if ($subsidiary) {
-                $query->where('transfer_to', $subsidiary->subsidiary_name);
+                $query->where('transfers.transfer_to', $subsidiary->subsidiary_name);
             } else {
                 Log::warning("No subsidiary found for ID: {$subsidiaryid}");
             }
-
-            $query->orderBy('created_at', 'desc');
+            
+            $query->orderBy('transfers.created_at', 'desc');
 
             Log::info('Executing Transfer Query:', [
                 'query' => $query->toSql(),
                 'bindings' => $query->getBindings(),
             ]);
-
 
             $transfers = $query->paginate($perPage);
 
@@ -271,6 +271,9 @@ class InventoryController extends Controller
                 'transfer_from' => 'required|integer|exists:subsidiaries,subsidiary_id',
                 'transfer_to' => 'required|integer|exists:subsidiaries,subsidiary_id|different:transfer_from',
                 'remarks' => 'nullable|string|max:255',
+                'approvals' => 'required|array|min:2',
+                'approvals.*.approver_id' => 'required|integer|exists:users,id',
+                'approvals.*.approver_name' => 'required|string|max:255',
             ]);
 
             $transactId = $request->transact_id;
@@ -301,7 +304,7 @@ class InventoryController extends Controller
                     ->where('subsidiaryid', $transferToId)
                     ->first();
 
-                $transferCode = $existingTargetInventory ? $itemCode : null;
+                $transferCode = $itemCode; 
 
                 if (!$existingTargetInventory || $existingTargetInventory->uomp !== $item['uomp']) {
                     $existingTransfer = Transfer::where('transfer_code', $itemCode)
@@ -309,22 +312,9 @@ class InventoryController extends Controller
                         ->first();
 
                     if ($existingTransfer) {
-                        $transferCode = $existingTransfer->item_code;
+                        $transferCode = $existingTransfer->item_code; // Keep the same item_code
                     } else {
-                        $existingInventoryCodes = Inventory::where('item_code', 'LIKE', 'ITEM-' . now()->format('Ymd') . '%')
-                            ->pluck('item_code');
-                    
-                        $existingTransferCodes = Transfer::where('transfer_code', 'LIKE', 'ITEM-' . now()->format('Ymd') . '%')
-                            ->pluck('transfer_code');
-                    
-                        $combinedCodes = $existingInventoryCodes->merge($existingTransferCodes);
-                    
-                        $maxSequence = $combinedCodes->map(function ($code) {
-                            return (int) substr($code, strrpos($code, '-') + 1);
-                        })->max();
-                    
-                        $nextSequence = str_pad($maxSequence + 1, 5, '0', STR_PAD_LEFT);
-                        $transferCode = 'ITEM-' . now()->format('Ymd') . '-' . $nextSequence;
+                        $transferCode = $itemCode;
                     }
                 }
 
@@ -345,9 +335,44 @@ class InventoryController extends Controller
                 $newTransferLog->requester_id = auth()->id() ?? 0;
                 $newTransferLog->requester_name = auth()->user()->name ?? 'N/A';
                 $newTransferLog->remarks = $remarks;
-                $newTransferLog->save();
+                $newTransferLog->hierarchy = 1;
+                $newTransferLog->save(); 
 
                 $transferLogs[] = $newTransferLog;
+
+                \Log::info('Transfer log after save:', [
+                    'transfer_log_id' => $newTransferLog->transfer_id,  
+                    'transact_id' => $newTransferLog->transact_id,
+                    'transfer_from' => $newTransferLog->transfer_from,
+                    'transfer_to' => $newTransferLog->transfer_to,
+                    'status' => $newTransferLog->status,
+                ]);
+
+                if ($newTransferLog->transfer_id) {
+                    \Log::info("New transfer log ID: " . $newTransferLog->transfer_id);
+
+                    foreach ($request->approvals as $index => $approval) {
+                        $newApproval = new Approval(); 
+                        $newApproval->process = 'transfer'; 
+                        $newApproval->process_id = $newTransferLog->transfer_id; 
+                        $newApproval->approver_id = $approval['approver_id'];
+                        $newApproval->approver_name = $approval['approver_name'];
+                        $newApproval->hierarchy = $approval['hierarchy'];
+
+                        try {
+                            $newApproval->save(); 
+                            \Log::info("Approval saved for approver: " . $approval['approver_name']);
+                        } catch (\Exception $e) {
+                            \Log::error("Failed to save approval for approver: " . $approval['approver_name'] . ". Error: " . $e->getMessage());
+                        }
+                    }
+                } else {
+                    \Log::error("Failed to retrieve the transfer log ID after saving.");
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'Failed to retrieve transfer log ID.',
+                    ], 500);
+                }
             }
 
             return response()->json([

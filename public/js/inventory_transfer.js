@@ -41,17 +41,26 @@ document.addEventListener("DOMContentLoaded", function () {
     document.renderTransferTable = function (transferData, totalItems) {
         const tableBody = document.querySelector("tbody");
         tableBody.innerHTML = "";
+        
         const rowsPerPage = parseInt(document.querySelector("select.form-select-sm").value, 10) || 10;
-        const currentPage = parseInt(document.querySelector(".pagination .active")?.textContent || 1, 10);
-        const startIndex = (currentPage - 1) * rowsPerPage;
-        const endIndex = Math.min(startIndex + rowsPerPage, transferData.length);
-    
-        transferData.slice(startIndex, endIndex).forEach((item) => {
+        const startIndex = Math.max((currentPage - 1) * rowsPerPage, 0);
+        const endIndex = Math.min(startIndex + rowsPerPage, totalItems); 
+        const totalItemsText = document.querySelector(".dynamic-rows-info");
+
+        totalItemsText.textContent = `${startIndex + 1}-${endIndex} of ${totalItems}`;
+        const pageData = transferData.slice(0, rowsPerPage); 
+        
+        pageData.forEach((item) => {
             const row = document.createElement("tr");
             row.classList.add("clickable-row");
             row.dataset.transactId = item.transfer_id;
             row.dataset.status = item.status;
-            row.dataset.approverRoles = item.approver_roles || "";
+
+            let statusBadge = item.status;
+            if (item.status === "Pending" && item.approver_name) {
+                statusBadge = `For Approval: ${item.approver_name}`;
+            }
+
             row.innerHTML = `
                 <td style="text-align: center; padding: 8px 10px;">${item.transfer_id}</td>
                 <td style="text-align: center; padding: 8px 10px;">${item.transact_id}</td>
@@ -63,15 +72,13 @@ document.addEventListener("DOMContentLoaded", function () {
                 <td style="text-align: center; padding: 8px 10px;">${item.qty}</td>
                 <td style="text-align: center; padding: 8px 10px;">${item.uomp}</td>
                 <td style="text-align: center; padding: 8px 10px;">
-                    <span class="badge bg-${item.status === "Approved" ? "success" : "danger"}">${item.status}</span>
+                    <span class="badge bg-${item.status === "Approved" ? "success" : "danger"}">${statusBadge}</span>
                 </td>
             `;
             tableBody.appendChild(row);
         });
-    
-        const totalItemsText = document.querySelector(".dynamic-rows-info");
-        totalItemsText.textContent = `${startIndex + 1}-${Math.min(endIndex, transferData.length)} of ${totalItems}`;
     }
+    
 
     function initializePopovers() {
         const popoverElements = document.querySelectorAll(".actionButton");
@@ -102,12 +109,12 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         const totalPages = paginationData.total_pages || 1;
-        const currentPage = paginationData.current_page || 1;
+        currentPage = paginationData.current_page || 1;
 
         // Create Previous button
         const prevPage = document.createElement("li");
         prevPage.classList.add("page-item");
-        if (currentPage === totalPages) {
+        if (currentPage === 1) {
             prevPage.classList.add("disabled");
         }
         prevPage.innerHTML = `
@@ -118,14 +125,8 @@ document.addEventListener("DOMContentLoaded", function () {
         prevPage.addEventListener("click", function (event) {
             event.preventDefault();
             if (currentPage > 1) {
-                const isTransferRoute = window.location.pathname.includes(
-                    "/inventory/transfer"
-                );
-                if (isTransferRoute) {
-                    fetchTransfer(currentPage - 1);
-                } else {
-                    fetchInventory(currentPage - 1);
-                }
+                currentPage -= 1; 
+                fetchTransfer(currentPage);
             }
         });
         pagination.appendChild(prevPage);
@@ -139,14 +140,8 @@ document.addEventListener("DOMContentLoaded", function () {
             pageItem.innerHTML = `<a class="page-link" href="#">${i}</a>`;
             pageItem.addEventListener("click", function (event) {
                 event.preventDefault();
-                const isTransferRoute = window.location.pathname.includes(
-                    "/inventory/transfer"
-                );
-                if (isTransferRoute) {
-                    fetchTransfer(i);
-                } else {
-                    fetchInventory(i);
-                }
+                currentPage = i;
+                fetchTransfer(currentPage);
             });
             pagination.appendChild(pageItem);
         }
@@ -165,14 +160,8 @@ document.addEventListener("DOMContentLoaded", function () {
         nextPage.addEventListener("click", function (event) {
             event.preventDefault();
             if (currentPage < totalPages) {
-                const isTransferRoute = window.location.pathname.includes(
-                    "/inventory/transfer"
-                );
-                if (isTransferRoute) {
-                    fetchTransfer(currentPage + 1);
-                } else {
-                    fetchInventory(currentPage + 1);
-                }
+                currentPage += 1; 
+                fetchTransfer(currentPage);
             }
         });
         pagination.appendChild(nextPage);
@@ -193,15 +182,14 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         });
     
-        const hasSelectedApprovers = Array.from(
-            document.querySelectorAll("#approverDropdownMenu .form-check-input:checked")
-        ).length > 0;
-    
+        const approverCount = document.querySelectorAll("#approversTable tbody tr").length;
         const remarks = document.getElementById("remarks").value;
-        submitButton.disabled = !hasValidItems || !hasSelectedApprovers || remarks.length === 0;
+    
+        submitButton.disabled = !hasValidItems || approverCount < 2 || remarks.length === 0;
     }
-
+    
     document.getElementById("remarks").addEventListener("input", validateItems);
+    document.getElementById("addMoreApprover").addEventListener("click", validateItems);
 
     function initializeItemCodeSearch(inputField) {
         const dataList = document.getElementById("itemSuggestions");
@@ -251,6 +239,137 @@ document.addEventListener("DOMContentLoaded", function () {
                 fetchItemDetails(itemCode, transferFromValue, inputField);
             }
         });
+    }
+
+    function initializeUserSearch(inputField) {
+        const dataList = document.getElementById("userSuggestions");
+    
+        inputField.setAttribute("list", "userSuggestions");
+    
+        let lastRoleSearchTerm = '';
+        inputField.addEventListener("input", async function (e) {
+            const searchTerm = e.target.value.trim();
+        
+            if (searchTerm.length > 1 && searchTerm !== lastRoleSearchTerm) {
+                lastRoleSearchTerm = searchTerm; 
+        
+                try {
+                    const response = await axios.post('/api/users/suggestions', {
+                        searchTerm: searchTerm,
+                    });
+    
+                    console.log("response: ", response.data)
+        
+                    if (response.data.status === "success") {
+                        dataList.innerHTML = '';
+        
+                        response.data.data.forEach(user => {
+                            const option = document.createElement('option');
+                            option.value = user.name;
+                            option.dataset.userId = user.id;
+                            option.dataset.email = user.email;
+                            option.dataset.roleName = user.role_name;
+                            dataList.appendChild(option);
+                        });
+                    } else {
+                        console.error('Failed to fetch user suggestions:', response.data.message);
+                    }
+                } catch (error) {
+                    console.error('Error fetching user suggestions:', error);
+                }
+            }
+        });
+    
+        inputField.addEventListener("blur", function (e) {
+            const selectedOption = document.querySelector(`#userSuggestions option[value='${e.target.value}']`);
+            if (selectedOption) {
+                const approverIdField = e.target.closest("tr").querySelector("input[id^='userIdInput']");
+                approverIdField.value = selectedOption.dataset.userId;
+    
+                console.log(`Assigned approver_id: ${approverIdField.value} for approver: ${e.target.value}`);
+            
+                document.getElementById('userEmailInput').value = selectedOption.dataset.email;
+                document.getElementById(e.target.id.replace("userSearchInput", "userRoleInput")).textContent = selectedOption.dataset.roleName; 
+            } else {
+                console.warn("No matching option found for user.");
+            }
+        });
+    }
+
+    initializeUserSearch(document.getElementById("userSearchInput1"));
+    initializeUserSearch(document.getElementById("userSearchInput2"));
+
+    function enforceNumericInput(element) {
+        element.addEventListener("input", function () {
+            this.textContent = this.textContent.replace(/\D/g, ''); 
+        });
+
+        element.addEventListener("blur", function () {
+            if (this.textContent.trim() === "") {
+                this.textContent = "1"; 
+            }
+        });
+    }
+
+    document.querySelectorAll(".hierarchy-input").forEach(function (input) {
+        enforceNumericInput(input);
+    });
+
+    document.getElementById("addMoreApprover").addEventListener("click", function () {
+        const approversTable = document.getElementById("approversTable").getElementsByTagName("tbody")[0];
+        const newRow = approversTable.rows[0].cloneNode(true);
+        
+        const currentRows = approversTable.rows.length;
+        const newHierarchyValue = currentRows + 1;
+
+        newRow.querySelectorAll("td").forEach(function (cell, index) {
+            if (index === 0) {
+                const inputField = cell.querySelector("input");
+                inputField.value = "";
+                inputField.id = `userSearchInput${newHierarchyValue}`;
+                
+                const approverIdField = cell.querySelector("input[id^='userIdInput']");
+                approverIdField.id = `userIdInput${newHierarchyValue}`;
+                approverIdField.value = "";
+                
+                initializeUserSearch(inputField);
+            } else if (index === 1) {
+                const roleField = cell.querySelector(`#userRoleInput${newHierarchyValue}`);
+                if (roleField) {
+                    roleField.textContent = "Auto Generate";
+                }
+            } else if (index === 2) {
+                cell.textContent = newHierarchyValue;
+                enforceNumericInput(cell); 
+            } else {
+                cell.contentEditable = "true";
+                cell.innerText = "";
+            }
+        });
+
+        approversTable.appendChild(newRow);
+        validateApprovers();
+    });
+    
+    function validateApprovers() {
+        const approversTable = document.getElementById("approversTable");
+        const rows = approversTable.getElementsByTagName("tbody")[0].rows;
+
+        let maxHierarchy = rows.length;
+        Array.from(rows).forEach((row, index) => {
+            const hierarchyCell = row.querySelector(".hierarchy-input");
+            let hierarchyValue = parseInt(hierarchyCell.textContent.trim());
+
+            if (hierarchyValue < 1 || hierarchyValue > maxHierarchy) {
+                alert(`Hierarchy must be between 1 and ${maxHierarchy}`);
+                hierarchyCell.textContent = index + 1;
+            }
+        });
+    }
+    
+    const userSearchInputField = document.getElementById("userSearchInput");
+    if (userSearchInputField) {
+        initializeUserSearch(userSearchInputField);
     }
 
     document.getElementById("addMoreItems").addEventListener("click", function () {
@@ -433,15 +552,28 @@ document.addEventListener("DOMContentLoaded", function () {
             };
         }).filter((item) => item.item_code && item.qty > 0 && item.uomp && item.uoms && item.uomt); 
     
-        const selectedRoleIds = Array.from(
-            document.querySelectorAll(
-                "#approverDropdownMenu .form-check-input:checked"
-            )
-        ).map((input) => input.value).filter((value) => value);
-        console.log(items)
+        const approvals = Array.from(document.querySelectorAll("#approversTable tbody tr")).map((row) => {
+            const approverIdField = row.querySelector("input[id^='userIdInput']");
+            const approverId = approverIdField ? approverIdField.value : null;
+            const approverName = row.querySelector("input[id^='userSearchInput']").value;
+            const hierarchy = row.querySelector(".hierarchy-input").textContent.trim();
+    
+            console.log(`Approver: ${approverName}, ID: ${approverId}, Hierarchy: ${hierarchy}`);
+    
+            return {
+                approver_id: approverId,  
+                approver_name: approverName,
+                hierarchy: parseInt(hierarchy)
+            };
+        });
 
         if (items.length === 0) {
             alert("Please add at least one valid item before submitting.");
+            return;
+        }
+
+        if (approvals.some((approval) => !approval.approver_id)) {
+            alert("Please ensure all approvers have valid IDs.");
             return;
         }
     
@@ -450,28 +582,43 @@ document.addEventListener("DOMContentLoaded", function () {
                 transfer_from: transferFrom,
                 transfer_to: transferTo,
                 items: items,
+                approvals: approvals,
                 remarks: remarks,
-                approver_roles: selectedRoleIds,
                 status: "Pending",
             })
             .then((response) => {
-                alert(response.data.message || "Transfer request submitted.");
-                const requestTransferModal = bootstrap.Modal.getInstance(document.getElementById("requestTransferModal"));
-                if (requestTransferModal) {
-                    requestTransferModal.hide();
+                if (response.data.status === "success") {
+                    Swal.fire({
+                        title: 'Success!',
+                        text: response.data.message || "Transfer request submitted successfully.",
+                        icon: 'success',
+                        confirmButtonText: 'Ok'
+                    });
+    
+                    const requestTransferModal = bootstrap.Modal.getInstance(document.getElementById("requestTransferModal"));
+                    if (requestTransferModal) {
+                        requestTransferModal.hide();
+                    }
+                    clearTransferModal();
+                    fetchTransfer(currentPage);
+    
+                } else {
+                    Swal.fire({
+                        title: 'Failed!',
+                        text: response.data.message || "Failed to submit the transfer request.",
+                        icon: 'error',
+                        confirmButtonText: 'Ok'
+                    });
                 }
-                clearTransferModal();
-                fetchTransfer(currentPage);
-
-                setTimeout(() => {
-                    document.querySelectorAll(".modal-backdrop").forEach((el) => el.remove());
-                    document.body.classList.remove("modal-open");
-                    document.body.style.overflow = "";
-                }, 300);
             })
             .catch((error) => {
-                alert("Failed to submit the transfer request. Please try again.");
-                console.error(error);
+                Swal.fire({
+                    title: 'Error!',
+                    text: "An error occurred while submitting the transfer request. Please try again.",
+                    icon: 'error',
+                    confirmButtonText: 'Ok'
+                });
+                console.error("Transfer submission error:", error);
             });
     });
 
@@ -527,40 +674,69 @@ document.addEventListener("DOMContentLoaded", function () {
     function clearTransferModal() {
         const tableBody = document
             .getElementById("itemsTable")
-            .getElementsByTagName("tbody")[0];
+            ?.getElementsByTagName("tbody")[0];
+        
+        if (!tableBody) {
+            console.error("itemsTable or tbody not found!");
+            return;
+        }
+    
         const rows = tableBody.getElementsByTagName("tr");
-
+    
         Array.from(rows).forEach((row) => {
-            row.querySelector("#itemCodeInput").value = "";
-            row.querySelector("#itemDescription").textContent = "";
-            row.querySelector("#itemCategory").textContent = "";
-            row.querySelector("#uom").textContent = "";
-            row.querySelector("#qty").textContent = "";
-            row.querySelector("#cost").textContent = "";
-            row.querySelector("#usage").textContent = "";
+            const itemCodeInput = row.querySelector("#itemCodeInput");
+            const itemDescription = row.querySelector("#itemDescription");
+            const itemCategory = row.querySelector("#itemCategory");
+            const uom = row.querySelector("#uom");
+            const qty = row.querySelector("#qty");
+    
+            if (itemCodeInput) itemCodeInput.value = "";
+            if (itemDescription) itemDescription.textContent = "";
+            if (itemCategory) itemCategory.textContent = "";
+            if (uom) uom.textContent = "";
+            if (qty) qty.textContent = "";
         });
-
-        document.getElementById("remarks").value = "";
-        document.getElementById("transferFrom").value = "1";
-        document.getElementById("transferTo").value = "2";
-
+    
+        const remarks = document.getElementById("remarks");
+        if (remarks) remarks.value = "";
+    
+        const transferFrom = document.getElementById("transferFrom");
+        const transferTo = document.getElementById("transferTo");
+        
+        if (transferFrom) transferFrom.value = "1";
+        if (transferTo) transferTo.value = "2";
+    
         const today = new Date().toISOString().split("T")[0].replace(/-/g, "");
-        let incrementNumber =
-            localStorage.getItem("transactionIncrement") || "00001";
-        document.getElementById(
-            "transactionNumber"
-        ).value = `TRANSFER-${today}-${incrementNumber}`;
-
+        let incrementNumber = localStorage.getItem("transactionIncrement") || "00001";
+        const transactionNumberInput = document.getElementById("transactionNumber");
+    
+        if (transactionNumberInput) {
+            transactionNumberInput.value = `TRANSFER-${today}-${incrementNumber}`;
+        }
+    
         localStorage.setItem(
             "transactionIncrement",
             (parseInt(incrementNumber) + 1).toString().padStart(5, "0")
         );
+
+        const requestTransferModal = bootstrap.Modal.getInstance(document.getElementById("requestTransferModal"));
+        if (requestTransferModal) {
+            requestTransferModal.hide();
+        }
+
+        const modalBackdrops = document.querySelectorAll('.modal-backdrop');
+        modalBackdrops.forEach(backdrop => backdrop.remove());
     }
+
+    let lastItemSearchTerm = '';
 
     document.getElementById("itemCodeInput").addEventListener("input", async (e) => {
         const searchTerm = e.target.value.trim();
-        if (searchTerm.length > 1) {
+        
+        if (searchTerm.length > 1 && searchTerm !== lastItemSearchTerm) {
+            lastItemSearchTerm = searchTerm;  
             const transferFromValue = document.getElementById("transferFrom").value;
+    
             try {
                 const response = await fetch('/api/inventory/suggestions', {
                     method: 'POST',
