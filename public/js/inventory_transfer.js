@@ -54,6 +54,7 @@ document.addEventListener("DOMContentLoaded", function () {
             row.dataset.approverRoles = item.approver_roles || "";
             row.innerHTML = `
                 <td style="text-align: center; padding: 8px 10px;">${item.transfer_id}</td>
+                <td style="text-align: center; padding: 8px 10px;">${item.transact_id}</td>
                 <td style="text-align: center; padding: 8px 10px;">${item.transfer_from}</td>
                 <td style="text-align: center; padding: 8px 10px;">${item.transfer_to}</td>
                 <td style="text-align: center; padding: 8px 10px;">${item.item_code}</td>
@@ -316,14 +317,22 @@ document.addEventListener("DOMContentLoaded", function () {
     const formattedDateTime = now.toISOString().split("T")[0] + ' ' + now.toTimeString().split(' ')[0];
     transactionDateInput.value = formattedDateTime;
 
-    let incrementNumber =
-        localStorage.getItem("transactionIncrement") || "00001";
-    transactionNumberInput.value = `TRANSFER-${today}-${incrementNumber}`;
+    const timePart = now.toTimeString().split(' ')[0].replace(/:/g, '').substring(0, 6);
 
-    localStorage.setItem(
-        "transactionIncrement",
-        (parseInt(incrementNumber) + 1).toString().padStart(5, "0")
-    );
+    // Get or initialize the transaction counter for the current second
+    const currentTransactionTime = localStorage.getItem("transactionTime");
+    let transactionCounter = parseInt(localStorage.getItem("transactionCounter"), 10) || 1;
+
+    if (currentTransactionTime === timePart) {
+        transactionCounter += 1; 
+    } else {
+        transactionCounter = 1;  
+    }
+
+    transactionNumberInput.value = `TRANSFER-${today}-${timePart}${transactionCounter}`;
+
+    localStorage.setItem("transactionTime", timePart);
+    localStorage.setItem("transactionCounter", transactionCounter.toString());
 
     // Item Code Search
     document.getElementById("itemCodeInput").addEventListener("blur", function (e) {

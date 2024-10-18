@@ -72,6 +72,8 @@
                         <th
                             style="text-align: center; padding: 8px 10px; border: none; font-weight: 400; color: #637281;">
                             ID <i class="bi bi-three-dots-vertical"></i></th>
+                        <th style="text-align: center; padding: 8px 10px; border: none; font-weight: 400; color: #637281;">
+                            Transfer ID <i class="bi bi-three-dots-vertical"></i></th>
                         <th
                             style="text-align: center; padding: 8px 10px; border: none; font-weight: 400; color: #637281;">
                             Transfer From <i class="bi bi-three-dots-vertical"></i></th>
@@ -101,6 +103,7 @@
                 <tbody>
                     <tr class="clickable-row" data-bs-toggle="modal" data-bs-target="#approveTransferModal">
                         <td style="text-align: center; padding: 8px 10px;">ID</td>
+                        <td style="text-align: center; padding: 8px 10px;">Transfer ID</td>
                         <td style="text-align: center; padding: 8px 10px;">Transfer From</td>
                         <td style="text-align: center; padding: 8px 10px;">Transfer To</td>
                         <td style="text-align: center; padding: 8px 10px;">000000</td>
@@ -264,48 +267,25 @@
                     </div>
 
                     <!-- Approver Section -->
-                    <div class="mb-3">
-                        <label class="form-label">Select Approver</label>
-                        <div class="dropdown" style="position: relative;">
-                            <button class="btn btn-secondary dropdown-toggle" type="button" id="approverDropdown"
-                                aria-expanded="false">
-                                Select Approvers
-                            </button>
-                            <div class="dropdown-menu" id="approverDropdownMenu"
-                                style="display: none; position: absolute; z-index: 1000; width: 100%; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);">
-                                <div class="form-check"
-                                    style="margin-left: 30px; display: flex; align-items: center; gap: 5px;">
-                                    <input class="form-check-input" type="checkbox" value="manager"
-                                        id="approverManager">
-                                    <label class="form-check-label" for="approverManager"
-                                        style="margin: 0;">Manager</label>
-                                </div>
-                                <div class="form-check"
-                                    style="margin-left: 30px; display: flex; align-items: center; gap: 5px;">
-                                    <input class="form-check-input" type="checkbox" value="supervisor"
-                                        id="approverSupervisor">
-                                    <label class="form-check-label" for="approverSupervisor"
-                                        style="margin: 0;">Supervisor</label>
-                                </div>
-                                <div class="form-check"
-                                    style="margin-left: 30px; display: flex; align-items: center; gap: 5px;">
-                                    <input class="form-check-input" type="checkbox" value="admin" id="approverAdmin">
-                                    <label class="form-check-label" for="approverAdmin" style="margin: 0;">Admin</label>
-                                </div>
-                                <div class="form-check"
-                                    style="margin-left: 30px; display: flex; align-items: center; gap: 5px;">
-                                    <input class="form-check-input" type="checkbox" value="director"
-                                        id="approverDirector">
-                                    <label class="form-check-label" for="approverDirector"
-                                        style="margin: 0;">Director</label>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="mb-3">
-                        <div id="selectedApprovers" style="margin-top: 10px;">
-                            <!-- Selected approvers will be displayed here -->
-                        </div>
+                    <div class="table-responsive mb-3">
+                        <table class="table table-bordered table-sm">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Role</th>
+                                    <th>Hierarchy</th>
+                                    <th>Remarks</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td contenteditable="false">Auto Generate</td>
+                                    <td contenteditable="false">Auto Generate</td>
+                                    <td contenteditable="true"></td>
+                                    <td contenteditable="true"></td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
 
                     <!-- Action Section -->
