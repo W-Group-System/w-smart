@@ -44,6 +44,7 @@ class InventoryController extends Controller
                 });
             }
 
+            $query->orderBy('date', 'desc');
             $inventory = $query->paginate($perPage);
 
             return response()->json([
@@ -229,6 +230,8 @@ class InventoryController extends Controller
             } else {
                 Log::warning("No subsidiary found for ID: {$subsidiaryid}");
             }
+
+            $query->orderBy('created_at', 'desc');
 
             Log::info('Executing Transfer Query:', [
                 'query' => $query->toSql(),
