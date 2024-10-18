@@ -103,7 +103,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
+<!--                     <tr>
                         <td style="text-align: center; padding: 2px 10px;"></td>
                         <td style="text-align: center; padding: 2px 10px;">00/00/0000</td>
                         <td style="text-align: center; padding: 2px 10px;">000000</td>
@@ -114,7 +114,7 @@
                         <td style="text-align: center; padding: 2px 10px;">00.00</td>
                         <td style="text-align: center; padding: 2px 10px;">Usage</td>
                         
-                    </tr>
+                    </tr> -->
                 </tbody>
             </table>
         </div>
@@ -201,7 +201,7 @@
                             <input type="number" class="form-control" id="cost">
                         </div>
                         <div class="col-md-12">
-                            <label for="usage" class="form-label">Usage</label>
+                            <label for="usage" class="form-label">Qty</label>
                             <input type="text" class="form-control" id="usage" value="Auto Generate" readonly>
                         </div>
                     </div>

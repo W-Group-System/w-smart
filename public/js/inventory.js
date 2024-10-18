@@ -57,37 +57,40 @@ document.addEventListener("DOMContentLoaded", function () {
                 search: search,
             }),
         })
-            .then((response) => response.json())
-            .then((data) => {
-                if (data.status === "success") {
-                    if (data.data.length <= 0) {
-                        let maxItemCode = 0;
+        .then((response) => response.json())
+        .then((data) => {
+            if (data.status === "success") {
+                if (data.data.length <= 0) {
+                    let maxItemCode = 0;
 
-                        let newItemCode = maxItemCode + 1;
+                    let newItemCode = maxItemCode + 1;
+                    
+                    formattedItemCode = newItemCode.toString().padStart(4, '0');
+                    getSelectedCategory();
+                    generateItemCode();
 
-                        formattedItemCode = newItemCode.toString().padStart(4, '0');
-                        generateItemCode();
-                    }
-                    else
-                    {
-                        let parts = data.data[data.data.length - 1].item_code.split('-');
-
-                        let itemNumber = parts[2];
-
-                        let incrementedItemNumber = parseInt(itemNumber) + 1;
-
-                        formattedItemCode = incrementedItemNumber.toString().padStart(4, '0')
-                        generateItemCode();
-                    }
-                    initializeDynamicTable(data.data, data.pagination.total_items);
-                    updatePagination(data.pagination);
-                } else {
-                    console.error("Failed to fetch inventory:", data.message);
                 }
-            })
-            .catch((error) => {
-                console.error("Error fetching inventory:", error);
-            });
+                else
+                {
+                    let parts = data.data[data.data.length - 1].item_code.split('-');
+
+                    let itemNumber = parts[2];
+
+                    let incrementedItemNumber = parseInt(itemNumber) + 1;
+
+                    formattedItemCode = incrementedItemNumber.toString().padStart(4, '0')
+                    getSelectedCategory();
+                    generateItemCode();
+                }
+                initializeDynamicTable(data.data, data.pagination.total_items);
+                updatePagination(data.pagination);
+            } else {
+                console.error("Failed to fetch inventory:", data.message);
+            }
+        })
+        .catch((error) => {
+            console.error("Error fetching inventory:", error);
+        });
     }
     function generateItemCode() {
         const categoryCode = selectedCategoryId.toString().padStart(2, '0') || "00";
@@ -375,20 +378,25 @@ document.addEventListener("DOMContentLoaded", function () {
 
     async function getSelectedCategory() {
         const selectElement = document.getElementById('newCategory');
-        const selectedOption = selectElement.options[selectElement.selectedIndex];
+        const selectedOption = selectElement.options[selectElement.
+            selectedIndex];
+        let subCategories;
         selectedCategoryId = selectedOption.value;
         selectedCategoryName = selectedOption.text;
+        selectedSubCategoryId = '001'    
         try {
             if(selectedCategoryId) {
                 const response = await axios.get(`/api/inventory/subcategories/${selectedCategoryId}`);
 
-                const categories = await response.data.data;
-                
+                subCategories = await response.data.data;
+                if(subCategories.length <= 0) {
+                    selectedSubCategoryId = '000'
+                }
                 const categorySelect = document.getElementById('subCategory');
                 
                 categorySelect.innerHTML = '';
                 
-                categories.forEach(category => {
+                subCategories.forEach(category => {
                     const option = document.createElement('option');
                     option.value = category.id;
                     option.text = category.name;
@@ -399,15 +407,18 @@ document.addEventListener("DOMContentLoaded", function () {
 
             }
             else {
+
                 const response = await axios.get(`/api/inventory/subcategories/1`);
 
-                const categories = await response.data.data;
-                
+                subCategories = await response.data.data;
+                if(subCategories.length <= 0) {
+                    selectedSubCategoryId = '000'
+                }
                 const categorySelect = document.getElementById('subCategory');
                 
                 categorySelect.innerHTML = '';
                 
-                categories.forEach(category => {
+                subCategories.forEach(category => {
                     const option = document.createElement('option');
                     option.value = category.id;
                     option.text = category.name;
@@ -416,7 +427,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
                 selectElementSubCategory = document.getElementById('subCategory');
                 selectedOptionSubCategory = selectElementSubCategory.options[selectElementSubCategory.selectedIndex];
-                selectedSubCategoryId = selectedOptionSubCategory.value;
+                selectedSubCategoryId = selectElementSubCategory.selectedIndex + 1;
                 selectedSubCategoryName = selectedOptionSubCategory.text;
                 generateItemCode();
             }
@@ -430,7 +441,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         const selectElementSubCategory = document.getElementById('subCategory');
         const selectedOptionSubCategory = selectElementSubCategory.options[selectElementSubCategory.selectedIndex];
-        selectedSubCategoryId = selectedOptionSubCategory.value;
+        selectedSubCategoryId = selectElementSubCategory.selectedIndex + 1;
         selectedSubCategoryName = selectedOptionSubCategory.text;
 
         try {
@@ -442,9 +453,61 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
+    function handleChangeSubsidiary() {
+        const modalSubsidiary = document.getElementById('modalSubsidiary');
+        selectedSubsidiaryId = modalSubsidiary.options[modalSubsidiary.selectedIndex].value;
+        fetch(`/api/inventory?page=${currentPage}&per_page=${rowsPerPage}`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                start_date: startDateInput.value,
+                end_date: endDateInput.value,
+                subsidiaryid: selectedSubsidiaryId,
+                per_page: rowsPerPage,
+            }),
+        })
+        .then((response) => response.json())
+        .then((data) => {
+            if (data.status === "success") {
+                if (data.data.length <= 0) {
+                    let maxItemCode = 0;
+
+                    let newItemCode = maxItemCode + 1;
+                    
+                    formattedItemCode = newItemCode.toString().padStart(4, '0');
+                    getSelectedCategory();
+                    generateItemCode();
+
+                }
+                else
+                {
+                    let parts = data.data[0].item_code.split('-');
+
+                    let itemNumber = parts[2];
+                    let incrementedItemNumber = parseInt(itemNumber) + 1;
+
+                    formattedItemCode = incrementedItemNumber.toString().padStart(4, '0')
+                    getSelectedCategory();
+                    generateItemCode();
+                }
+                initializeDynamicTable(data.data, data.pagination.total_items);
+                updatePagination(data.pagination);
+            } else {
+                console.error("Failed to fetch inventory:", data.message);
+            }
+        })
+        .catch((error) => {
+            console.error("Error fetching inventory:", error);
+        });
+    }
+
     document.getElementById('newCategory').addEventListener('change', getSelectedCategory);
 
     document.getElementById('subCategory').addEventListener('change', getSelectedSubCategory);
+
+    document.getElementById('modalSubsidiary').addEventListener('change', handleChangeSubsidiary);
 
     generateItemCode();
 
@@ -504,7 +567,6 @@ document.addEventListener("DOMContentLoaded", function () {
                         }
                         setTimeout(() => {
                             fetchInventory(currentPage);
-                            // Optionally remove backdrop and reset body styles
                             document.querySelectorAll(".modal-backdrop").forEach((el) => el.remove());
                             document.body.classList.remove("modal-open");
                             document.body.style.overflow = ""; // Resets body overflow style if needed

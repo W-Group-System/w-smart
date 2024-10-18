@@ -27,7 +27,7 @@ class InventoryController extends Controller
 
             $query = Inventory::query();
 
-            if ($startDate && $endDate) {
+/*            if ($startDate && $endDate) {
                 // Format the start and end dates
                 $startDateTime = date('Y-m-d 00:00:00', strtotime($startDate)); // Start of the day
                 $endDateTime = date('Y-m-d 23:59:59', strtotime($endDate)); // End of the day
@@ -35,7 +35,7 @@ class InventoryController extends Controller
                 $query->where('subsidiaryid', $subsidiaryid)
                       ->where('date', '>=', $startDateTime)
                       ->where('date', '<=', $endDateTime);
-            }
+            }*/
 
             if ($searchTerm) {
                 $query->where(function ($q) use ($searchTerm) {
@@ -43,7 +43,7 @@ class InventoryController extends Controller
                       ->orWhere('item_code', 'LIKE', '%' . $searchTerm . '%');
                 });
             }
-
+            $query->where('subsidiaryid', $subsidiaryid);
             $query->orderBy('date', 'desc');
             $inventory = $query->paginate($perPage);
 
@@ -806,7 +806,7 @@ class InventoryController extends Controller
         try {
 
             $request->validate([
-                'categoryid' => 'required|integer'
+                'categoryid' => 'required|integer',
                 'name' => 'required|string|max:255',
             ]);
 

@@ -254,7 +254,6 @@ document.addEventListener("DOMContentLoaded", function () {
             const row = document.createElement("tr");
             row.innerHTML = `
                 <td style="text-align: center; padding: 2px 10px;">${item.id}
-                    <input type="checkbox" style="margin-left: 10px;">
                 </td>
                 <td style="text-align: center; padding: 2px 10px;">${item.created_at}</td>
                 <td style="text-align: center; padding: 2px 10px;">${item.requestor_name}</td>
