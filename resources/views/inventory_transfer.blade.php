@@ -69,8 +69,8 @@
         </div>
 
         <!-- Table Section -->
-        <div class="table-responsive " style="overflow: visible;">
-            <table class="table table-hover table-bordered" style="border-collapse: collapse;">
+        <div class="table-responsive">
+            <table class="table table-hover table-bordered" style="border-collapse: collapse; min-width: 1000px;">
                 <thead class="table-light">
                     <tr>
                         <th
