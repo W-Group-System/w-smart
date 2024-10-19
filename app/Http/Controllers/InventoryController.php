@@ -608,10 +608,31 @@ class InventoryController extends Controller
             $withdrawQueryResult = $withdrawQuery->first();
             if ($withdrawQueryResult) {
                 $withdrawItemsQuery->where('withdrawal_id', $withdrawQueryResult->id);
+
+                // Join with approvals and select fields from both tables
+                $withdrawItemsQuery->leftJoin('approvals', function ($join) {
+                    $join->on('withdrawal_items.id', '=', 'approvals.process_id')
+                         ->where('approvals.process', '=', 'withdraw')
+                         ->whereColumn('withdrawal_items.hierarchy', '=', 'approvals.hierarchy');
+                });
+
+                // Join withdrawal_items with withdrawals and select data from all tables
                 $withdrawQueryResult = Withdrawal::query()
                     ->join('withdrawal_items', 'withdrawals.id', '=', 'withdrawal_items.withdrawal_id')
-                    ->select('withdrawals.*', 'withdrawal_items.*')
+                    ->leftJoin('approvals', function ($join) {
+                        $join->on('withdrawal_items.id', '=', 'approvals.process_id')
+                             ->where('approvals.process', '=', 'withdraw')
+                             ->whereColumn('withdrawal_items.hierarchy', '=', 'approvals.hierarchy');
+                    })
+                    ->select(
+                        'withdrawals.*', 
+                        'withdrawal_items.*', 
+                        'approvals.approver_id', 
+                        'approvals.approver_name'
+                    )
+                    ->orderBy('withdrawals.updated_at', 'desc')
                     ->paginate($perPage);
+
                 return response()->json([
                     'status' => 'success',
                     'data' => $withdrawQueryResult->items(),
@@ -660,6 +681,9 @@ class InventoryController extends Controller
                 'items.*.uom' => 'required|string|max:50',
                 'items.*.reason' => 'required|string|max:50',
                 'items.*.qty' => 'required|numeric|min:0.01',
+                'approvals' => 'required|array|min:2',
+                'approvals.*.approver_id' => 'required|integer|exists:users,id',
+                'approvals.*.approver_name' => 'required|string|max:255',
             ]);
 
             $requestId = $request->requestor_number;
@@ -707,9 +731,38 @@ class InventoryController extends Controller
                     $newWithdrawalLog->uom = $uom;
                     $newWithdrawalLog->reason = $reason;
                     $newWithdrawalLog->status = 0;
+                    $newWithdrawalLog->hierarchy = 1;
                     $newWithdrawalLog->save();
-                    $withdrawalLog[] = $newWithdrawalLog;    
-                }  
+                    $withdrawalLog[] = $newWithdrawalLog;
+
+                    if ($newWithdrawalLog->withdrawal_id) {
+                        \Log::info("New withdrawal log ID: " . $newWithdrawalLog->id);
+
+                        foreach ($request->approvals as $index => $approval) {
+                            $newApproval = new Approval(); 
+                            $newApproval->process = 'withdraw'; 
+                            $newApproval->process_id = $newWithdrawalLog->id; 
+                            $newApproval->approver_id = $approval['approver_id'];
+                            $newApproval->approver_name = $approval['approver_name'];
+                            $newApproval->hierarchy = $approval['hierarchy'];
+
+                            try {
+                                $newApproval->save(); 
+                                \Log::info("Approval saved for approver: " . $approval['approver_name']);
+                            } catch (\Exception $e) {
+                                \Log::error("Failed to save approval for approver: " . $approval['approver_name'] . ". Error: " . $e->getMessage());
+                            }
+                        }
+                    } else {
+                        \Log::error("Failed to retrieve the transfer log ID after saving.");
+                        return response()->json([
+                            'status' => 'error',
+                            'message' => 'Failed to retrieve transfer log ID.',
+                        ], 500);
+                    }   
+                } 
+
+
             }
 
             return response()->json([
@@ -725,21 +778,20 @@ class InventoryController extends Controller
         }
     }
 
-    public function approveWithdraw(Request $request, $id)
+    public function processWithdraw(Request $request, $id)
     {
         try {
             $withdraw = WithdrawalItems::where('id', $id)->firstOrFail();
 
-            if ($withdraw->status !== 0) {
+            if ($withdraw->status !== 1) {
                 return response()->json([
                     'status' => 'error',
-                    'message' => 'This withdraw is not pending and cannot be approved.',
+                    'message' => 'This withdraw request is not approve by the approvers yet!',
                 ], 400);
             }
 
             $itemCode = $withdraw->item_code;
-            $qty = $withdraw->requested_qty;
-
+            $qty = $request->released_qty;
             $inventory = Inventory::where('item_code', $itemCode)
                 ->first();
 
@@ -755,14 +807,14 @@ class InventoryController extends Controller
                     'status' => 'error',
                     'message' => "Insufficient quantity for item '{$itemCode}'.",
                     'available_qty' => $inventory->qty,
-                ], 400);
+                ], 200);
             }
 
             $inventory->qty -= $qty;
             $inventory->usage += $qty;
             $inventory->save();
 
-            $withdraw->status = 1;
+            $withdraw->status = 2;
             $withdraw->updated_at = now();
             $withdraw->save();
 
@@ -778,6 +830,76 @@ class InventoryController extends Controller
             ], 500);
         }
     }
+
+    public function approveWithdraw(Request $request, $transactId)
+    {
+        try {
+            $withdraw = WithdrawalItems::where('id', $transactId)->firstOrFail();
+
+            if ($withdraw->status === 1) {
+                return $this->processWithdraw($request, $transactId);
+            } elseif ($withdraw->status !== 0) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'This withdraw request is not pending and cannot be approved.',
+                ], 400);
+            }
+
+            $currentHierarchy = Approval::where('process_id', $transactId)
+                ->where('process', 'withdraw')
+                ->where('approver_id', $request->input('approver_id'))
+                ->value('hierarchy');
+
+            if (!$currentHierarchy) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'You are not authorized to approve this transfer at this stage.',
+                ], 403);
+            }
+
+            $releasedQty = $request->input('released_qty');
+            if ($releasedQty && $releasedQty > 0) {
+                $withdraw->released_qty = $releasedQty; 
+            } else {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Invalid released quantity provided.',
+                ], 400);
+            }
+
+            $newWithdrawHierarchy = $withdraw->hierarchy + 1;
+            $withdraw->hierarchy = $newWithdrawHierarchy; 
+            $withdraw->save();
+
+            $nextApprovalExists = Approval::where('process_id', $transactId)
+            ->where('process', 'withdraw')
+            ->where('hierarchy', $newWithdrawHierarchy)
+            ->exists();
+
+            if ($nextApprovalExists) {
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'Withdraw request approved at this level. Waiting for next approver.',
+                ], 200);
+            }
+
+            $withdraw->status = 1;
+            $withdraw->save();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Withdraw request is now marked as "Receiving". Requester will handle final approval.',
+            ], 200);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to approve withdraw.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
     public function searchWithdrawal(Request $request)
     {
         $searchTerm = $request->search;

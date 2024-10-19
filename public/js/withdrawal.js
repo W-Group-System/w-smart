@@ -121,7 +121,6 @@ document.addEventListener("DOMContentLoaded", function () {
                     row.querySelector('.uom').contentEditable = true;
                     row.querySelector('.reason').contentEditable = true;
                     row.querySelector('.requestedQty').contentEditable = true;
-                    row.querySelector('.releasedQty').contentEditable = true;
                     const item = response.data.data;
                     
                     row.querySelector(".itemDescription").textContent =
@@ -248,10 +247,27 @@ document.addEventListener("DOMContentLoaded", function () {
         tableBody.innerHTML = "";
         const startIndex = (currentPage - 1) * rowsPerPage;
         const endIndex = startIndex + rowsPerPage;
-        const currentItems = inventoryData.slice(startIndex, endIndex);
+        const currentItems = inventoryData.slice(0, rowsPerPage);
 
         currentItems.forEach((item, index) => {
+            let statusBadge;
+            if (item.status === 0 && item.approver_name) {
+                statusBadge = `For Approval: ${item.approver_name}`;
+            }
+            if (item.status === 1 && item.requestor_name) {
+                statusBadge = `For Receiving: ${item.requestor_name}`;
+            }
+            if (item.status === 2) {
+                statusBadge = `Transaction Close`;
+            }
+            const updatedAt = item.status === 2 ? item.updated_at : 'Pending';
             const row = document.createElement("tr");
+            row.classList.add("clickable-row");
+            row.dataset.transactId = item.id;
+            row.dataset.status = item.status;
+            row.dataset.requesterId = item.requestor_id;
+            row.dataset.approverId = item.approver_id;
+            row.dataset.releasedQty = item.released_qty;
             row.innerHTML = `
                 <td style="text-align: center; padding: 2px 10px;">${item.id}
                 </td>
@@ -261,12 +277,13 @@ document.addEventListener("DOMContentLoaded", function () {
                 <td style="text-align: center; padding: 2px 10px;">${item.item_code}</td>
                 <td style="text-align: center; padding: 2px 10px;">${item.item_description}</td>
                 <td style="text-align: center; padding: 2px 10px;">${item.requested_qty}</td>
+                <td style="text-align: center; padding: 2px 10px;">${item.released_qty}</td>
                 <td style="text-align: center; padding: 2px 10px;">${item.uom}</td>
-                <td style="text-align: center; padding: 2px 10px;">Pending</td>
+                <td style="text-align: center; padding: 2px 10px;">${updatedAt}</td>
                 <td style="text-align: center; padding: 2px 10px;">${item.reason}</td>
                 <td style="text-align: center; padding: 2px 10px;">
-                    <span class="badge bg-${Number(item.status) === 0 ? 'danger' : 'success'}">
-                        ${Number(item.status) === 0 ? 'Pending' : 'Approved'}
+                    <span class="badge bg-${item.status === 2 ? "success" : item.status === 1 ? "primary" : "danger"}">
+                        ${statusBadge}
                     </span>
                 </td>
             `;
@@ -424,7 +441,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 <td contenteditable="true" class="uom"></td>
                 <td contenteditable="true" class="reason"></td>
                 <td contenteditable="true" class="requestedQty"></td>
-                <td contenteditable="true" class="releasedQty"></td>
             </tr>
         `;
 
@@ -523,6 +539,25 @@ document.addEventListener("DOMContentLoaded", function () {
             })
             .filter((item) => item.item_code && item.qty > 0);
 
+
+        const approvals = Array.from(document.querySelectorAll("#approversTable tbody tr")).map((row) => {
+            const approverIdField = row.querySelector("input[id^='userIdInput']");
+            const approverId = approverIdField ? approverIdField.value : null;
+            const approverName = row.querySelector("input[id^='userSearchInput']").value;
+            const hierarchy = row.querySelector(".hierarchy-input").textContent.trim();
+        
+            return {
+                approver_id: approverId,  
+                approver_name: approverName,
+                hierarchy: parseInt(hierarchy)
+            };
+        });
+
+        if (approvals.some((approval) => !approval.approver_id)) {
+            alert("Please ensure all approvers have valid IDs.");
+            return;
+        }
+
         if (items.length === 0) {
             alert("Please add at least one valid item before submitting.");
             return;
@@ -537,13 +572,20 @@ document.addEventListener("DOMContentLoaded", function () {
                 remarks: remarks,
                 subsidiaryid: subsidiaryId,
                 subsidiaryname: subsidiary,
+                approvals: approvals,
             })
             .then((response) => {
-                alert(response.data.message || "Withdraw request submitted.");
+                Swal.fire({
+                    title: "Success!",
+                    html: response.data.message,
+                    icon: "success",
+                    confirmButtonText: "Ok"
+                });
+/*                alert(response.data.message || "Withdraw request submitted.");*/
                 const requestTransferModal = bootstrap.Modal.getInstance(document.getElementById("inventoryWithdrawalModal"));
-                 if (requestTransferModal) {
-                     requestTransferModal.hide();
-                 }
+                if (requestTransferModal) {
+                    requestTransferModal.hide();
+                }
                 setTimeout(() => {
                     fetchWithdrawal(currentPage);
                     clearTransferModal();
@@ -555,7 +597,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
             })
             .catch((error) => {
-                console.log(error)
                 alert(
                     "Failed to submit the transfer request. Please try again."
                 );
@@ -596,7 +637,6 @@ document.addEventListener("DOMContentLoaded", function () {
         axios
             .post(url, requestBody)
             .then((response) => {
-                console.log(response.data.data);
                 if (response.data.status === "success") {
                     renderTable(response.data.data, response.data.pagination.total_items);
                     updatePagination(response.data.pagination);
@@ -608,6 +648,290 @@ document.addEventListener("DOMContentLoaded", function () {
                 console.error("Error fetching withdraws:", error);
             });
     });
+
+    const userSearchInputField = document.getElementById("userSearchInput");
+    if (userSearchInputField) {
+        initializeUserSearch(userSearchInputField);
+    }
+
+    function initializeUserSearch(inputField) {
+        const dataList = document.getElementById("userSuggestions");
+        inputField.setAttribute("list", "userSuggestions");
+    
+        let lastRoleSearchTerm = '';
+        inputField.addEventListener("input", async function (e) {
+            const searchTerm = e.target.value.trim();
+        
+            if (searchTerm.length > 1 && searchTerm !== lastRoleSearchTerm) {
+                lastRoleSearchTerm = searchTerm; 
+        
+                try {
+                    const response = await axios.post('/api/users/suggestions', {
+                        searchTerm: searchTerm,
+                    });
+        
+                    if (response.data.status === "success") {
+                        dataList.innerHTML = '';
+        
+                        response.data.data.forEach(user => {
+                            const option = document.createElement('option');
+                            option.value = user.name;
+                            option.dataset.userId = user.id;
+                            option.dataset.email = user.email;
+                            option.dataset.roleName = user.role_name;
+                            dataList.appendChild(option);
+                        });
+                    } else {
+                        console.error('Failed to fetch user suggestions:', response.data.message);
+                    }
+                } catch (error) {
+                    console.error('Error fetching user suggestions:', error);
+                }
+            }
+        });
+        inputField.addEventListener("blur", function (e) {
+            const selectedOption = document.querySelector(`#userSuggestions option[value='${e.target.value}']`);
+            if (selectedOption) {
+                const approverIdField = e.target.closest("tr").querySelector("input[id^='userIdInput']");
+                approverIdField.value = selectedOption.dataset.userId;
+                document.getElementById('userEmailInput').value = selectedOption.dataset.email;
+                if(selectedOption.dataset.roleName === null) {
+                    document.getElementById(e.target.id.replace("userSearchInput", "userRoleInput")).textContent = selectedOption.dataset.roleName;     
+                }
+                else {
+                    document.getElementById(e.target.id.replace("userSearchInput", "userRoleInput")).textContent = "Super Admin"; 
+                }
+                
+            } else {
+                console.warn("No matching option found for user.");
+            }
+        });
+    }
+
+    document.addEventListener("click", function(event) {
+        const target = event.target.closest(".clickable-row");
+        if (target) {
+
+            const status = target.dataset.status;
+            if (status === "2") {
+                Swal.fire({
+                    title: "Item withdraw request done",
+                    text: "This withdraw transaction has already been marked as closed.",
+                    icon: "info",
+                    confirmButtonText: "Ok"
+                });
+                return;
+            }
+
+            else {
+                const approverId = target.dataset.approverId;
+                const requesterId = target.dataset.requesterId;
+                const userId = document.getElementById("userId").value;
+                if (target.dataset.status === "1") {
+                    if (requesterId !== userId) {
+                        Swal.fire({
+                            title: 'Unauthorized!',
+                            text: "You are unauthorized to receive this withdraw.",
+                            icon: 'error',
+                            confirmButtonText: 'Ok'
+                        });
+                        return;
+                    }
+                    
+                    const transactionNumber = target.dataset.transactId;
+                    const requestedQty = parseFloat(target.querySelector("td:nth-child(7)").textContent.trim());
+                    const releasedQty = parseFloat(target.dataset.releasedQty);
+                
+                    document.getElementById("requestedQtyReceive").value = requestedQty;
+                    document.getElementById("releasedQtyReceive").value = releasedQty;
+                
+                    const receiveWithdrawModal = new bootstrap.Modal(document.getElementById("receiveWithdrawModal"));
+                    receiveWithdrawModal.show();
+                } else {
+                    if (approverId !== userId) {
+                        Swal.fire({
+                            title: 'Unauthorized!',
+                            text: "You are unauthorized to approve this withdraw.",
+                            icon: 'error',
+                            confirmButtonText: 'Ok'
+                        });
+                        return;
+                    }
+                    const transactionNumber = target.dataset.transactId;
+                    const approveWithdawButton = document.getElementById("approveWithdrawButton");
+                
+                    approveWithdawButton.dataset.transactionNumber = transactionNumber;
+                
+                    const approvedBy = document.getElementById("userName").value;
+                    document.getElementById("approvedByText").textContent = `Approver: ${approvedBy}`;
+                
+                    const requestedQty = parseFloat(target.querySelector("td:nth-child(7)").textContent.trim());
+                    const releasedQtyInput = document.getElementById("releasedQty");
+                
+                    const currentReleasedQty = target.dataset.releasedQty || "";
+                    releasedQtyInput.value = currentReleasedQty !== "" ? currentReleasedQty : "";
+                
+                    releasedQtyInput.setAttribute("max", requestedQty);
+                    document.getElementById("requestedQty").value = requestedQty;
+                
+                    document.getElementById("approveWithdrawButton").disabled = true;
+                
+                    releasedQtyInput.addEventListener("input", function() {
+                        const releasedQty = parseFloat(releasedQtyInput.value);
+                        const warningMessage = document.getElementById("releasedQtyWarning");
+                
+                        if (releasedQty && releasedQty > 0 && releasedQty <= requestedQty) {
+                            approveWithdrawButton.disabled = false;
+                            if (warningMessage) {
+                                warningMessage.textContent = "";
+                            }
+                        } else {
+                            approveWithdrawButton.disabled = true;
+                            if (!warningMessage) {
+                                const messageElement = document.createElement("p");
+                                messageElement.id = "releasedQtyWarning";
+                                messageElement.textContent = "Released quantity exceeds the requested quantity!";
+                                messageElement.style.color = "red";
+                                releasedQtyInput.parentNode.appendChild(messageElement);
+                            } else {
+                                warningMessage.textContent = "Released quantity exceeds the requested quantity!";
+                            }
+                        }
+                    });
+                
+                    const approveWithdrawModal = new bootstrap.Modal(document.getElementById("approveWithdrawModal"));
+                    approveWithdrawModal.show();
+                }
+            }
+        }
+    });
+    approveWithdrawButton.addEventListener("click", function () {
+        const transactionNumber = approveWithdrawButton.dataset.transactionNumber;
+        const approvedBy = document.getElementById("userName").value;
+        const releasedQty = document.getElementById("releasedQty").value;
+    
+        const approverId = document.querySelector(`.clickable-row[data-transact-id='${transactionNumber}']`).dataset.approverId;
+    
+        axios
+            .post(`/api/inventory/withdraw/approve/${transactionNumber}`, {
+                approved_by: approvedBy,
+                released_qty: releasedQty,
+                approver_id: approverId,
+            })
+            .then((response) => {
+                Swal.fire({
+                    title: "Success!",
+                    text: response.data.message || "Withdraw approved.",
+                    icon: "success",
+                    confirmButtonText: "Ok"
+                }).then(() => {
+                    fetchWithdrawal(currentPage); 
+                    const requestTransferModal = bootstrap.Modal.getInstance(document.getElementById("approveWithdrawModal"));
+                    if (requestTransferModal) {
+                        requestTransferModal.hide();
+                    }
+                    setTimeout(() => {
+                        clearTransferModal();
+                        document.querySelectorAll(".modal-backdrop").forEach((el) => el.remove());
+                        document.body.classList.remove("modal-open");
+                        document.body.style.overflow = ""; // Resets body overflow style if needed
+                    }, 300);
+                });
+            })
+            .catch((error) => {
+                Swal.fire({
+                    title: "Error!",
+                    text: "Failed to approve the withdraw. Please try again.",
+                    icon: "error",
+                    confirmButtonText: "Ok"
+                });
+                console.error(error);
+            });
+    });
+
+    document.getElementById("receiveWithdrawButton").addEventListener("click", function () {
+        const transactionNumber = document.querySelector('.clickable-row[data-status="1"]').dataset.transactId;
+        const releasedQty = document.getElementById("releasedQtyReceive").value;
+        const requesterId = document.getElementById("userId").value;
+        
+        axios
+            .post(`/api/inventory/withdraw/approve/${transactionNumber}`, {
+                released_qty: releasedQty,
+                requester_id: requesterId,
+                status: 2,
+            })
+            .then((response) => {
+                if(response.data.status !== "error") {
+                    Swal.fire({
+                        title: "Success!",
+                        text: response.data.message || "Withdraw release successfully.",
+                        icon: "success",
+                        confirmButtonText: "Ok",
+                    }).then(() => {
+                        fetchWithdrawal(currentPage); 
+                        const requestTransferModal = bootstrap.Modal.getInstance(document.getElementById("receiveWithdrawModal"));
+                        if (requestTransferModal) {
+                            requestTransferModal.hide();
+                        }
+                        setTimeout(() => {
+                            fetchWithdrawal(currentPage);
+                            clearTransferModal();
+                            document.querySelectorAll(".modal-backdrop").forEach((el) => el.remove());
+                            document.body.classList.remove("modal-open");
+                            document.body.style.overflow = ""; // Resets body overflow style if needed
+                        }, 300);
+                    });   
+                }
+                else {
+                    const message = `${response.data.message} <br> available qty: ${response.data.available_qty}`;
+                    Swal.fire({
+                        title: "Failed!",
+                        html: message  || "Withdraw release failed.",
+                        icon: "error",
+                        confirmButtonText: "Ok",
+                    }).then(() => {
+                        fetchWithdrawal(currentPage); 
+                        const requestTransferModal = bootstrap.Modal.getInstance(document.getElementById("receiveWithdrawModal"));
+                        if (requestTransferModal) {
+                            requestTransferModal.hide();
+                        }
+                        setTimeout(() => {
+                            fetchWithdrawal(currentPage);
+                            clearTransferModal();
+                            // Optionally remove backdrop and reset body styles
+                            document.querySelectorAll(".modal-backdrop").forEach((el) => el.remove());
+                            document.body.classList.remove("modal-open");
+                            document.body.style.overflow = ""; // Resets body overflow style if needed
+                        }, 300);
+                    });
+                }
+                
+            })
+            .catch((error) => {
+                Swal.fire({
+                    title: "Failed!",
+                    text: error,
+                    icon: "error",
+                    confirmButtonText: "Ok",
+                });
+                const requestTransferModal = bootstrap.Modal.getInstance(document.getElementById("receiveWithdrawModal"));
+                if (requestTransferModal) {
+                    requestTransferModal.hide();
+                }
+                setTimeout(() => {
+                    fetchWithdrawal(currentPage);
+                    clearTransferModal();
+                    // Optionally remove backdrop and reset body styles
+                    document.querySelectorAll(".modal-backdrop").forEach((el) => el.remove());
+                    document.body.classList.remove("modal-open");
+                    document.body.style.overflow = ""; // Resets body overflow style if needed
+                }, 300);
+                console.error("Withdraw error:", error);
+            });
+    });
+
+    initializeUserSearch(document.getElementById("userSearchInput1"));
+    initializeUserSearch(document.getElementById("userSearchInput2"));
 
     validateItems()
 });

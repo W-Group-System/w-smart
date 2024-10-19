@@ -265,8 +265,6 @@ document.addEventListener("DOMContentLoaded", function () {
                     const response = await axios.post('/api/users/suggestions', {
                         searchTerm: searchTerm,
                     });
-    
-                    console.log("response: ", response.data)
         
                     if (response.data.status === "success") {
                         dataList.innerHTML = '';

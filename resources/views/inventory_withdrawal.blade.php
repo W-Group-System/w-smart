@@ -65,54 +65,52 @@
         </div>
 
         <!-- Table Section -->
-        <div class="table-responsive " style="overflow: visible;">
-            <table class="table table-hover table-bordered" style="border-collapse: collapse;">
-                <thead class="table-light">
-                    <tr>
-                        <th
-                            style="text-align: center; padding: 8px 10px; border: none; font-weight: 400; color: #637281;">
-                        </th>
-                        <th
-                            style="text-align: center; padding: 8px 10px; border: none; font-weight: 400; color: #637281;">
-                            Date of Request <i class="bi bi-three-dots-vertical"></i>
-                        </th>
-                        <th
-                            style="text-align: center; padding: 8px 10px; border: none; font-weight: 400; color: #637281;">
-                            Requestor Name <i class="bi bi-three-dots-vertical"></i>
-                        </th>
-                        <th
-                            style="text-align: center; padding: 8px 10px; border: none; font-weight: 400; color: #637281;">
-                            Request Number <i class="bi bi-three-dots-vertical"></i>
-                        </th>
-                        <th
-                            style="text-align: center; padding: 8px 10px; border: none; font-weight: 400; color: #637281;">
-                            Item Code <i class="bi bi-three-dots-vertical"></i></th>
-                        <th
-                            style="text-align: center; padding: 8px 10px; border: none; font-weight: 400; color: #637281;">
-                            Item Description <i class="bi bi-three-dots-vertical"></i></th>
-                        <th
-                            style="text-align: center; padding: 8px 10px; border: none; font-weight: 400; color: #637281;">
-                            QTY <i class="bi bi-three-dots-vertical"></i></th>
-                        <th
-                            style="text-align: center; padding: 8px 10px; border: none; font-weight: 400; color: #637281;">
-                            UOM <i class="bi bi-three-dots-vertical"></i></th>
-                        <th
-                            style="text-align: center; padding: 8px 10px; border: none; font-weight: 400; color: #637281;">
-                            Date Released <i class="bi bi-three-dots-vertical"></i></th>
-                        <th
-                            style="text-align: center; padding: 8px 10px; border: none; font-weight: 400; color: #637281;">
-                            Reason <i class="bi bi-three-dots-vertical"></i></th>
-                        <th
-                            style="text-align: center; padding: 8px 10px; border: none; font-weight: 400; color: #637281;">
-                            Status <i class="bi bi-three-dots-vertical"></i>
-                        </th>
-                    </tr>
-                </thead>
-                <tbody>
-                    
-                </tbody>
-            </table>
-        </div>
+       <div class="table-responsive">
+           <table class="table table-hover table-bordered" style="border-collapse: collapse;">
+               <thead class="table-light">
+                   <tr>
+                       <th class="text-center" style="padding: 8px 10px; border: none; font-weight: 400; color: #637281;">
+                       </th>
+                       <th class="text-center" style="padding: 8px 10px; border: none; font-weight: 400; color: #637281;">
+                           Date of Request <i class="bi bi-three-dots-vertical"></i>
+                       </th>
+                       <th class="text-center" style="padding: 8px 10px; border: none; font-weight: 400; color: #637281;">
+                           Requestor Name <i class="bi bi-three-dots-vertical"></i>
+                       </th>
+                       <th class="text-center" style="padding: 8px 10px; border: none; font-weight: 400; color: #637281;">
+                           Request Number <i class="bi bi-three-dots-vertical"></i>
+                       </th>
+                       <th class="text-center" style="padding: 8px 10px; border: none; font-weight: 400; color: #637281;">
+                           Item Code <i class="bi bi-three-dots-vertical"></i>
+                       </th>
+                       <th class="text-center" style="padding: 8px 10px; border: none; font-weight: 400; color: #637281;">
+                           Item Description <i class="bi bi-three-dots-vertical"></i>
+                       </th>
+                       <th class="text-center" style="padding: 8px 10px; border: none; font-weight: 400; color: #637281;">
+                           Requested QTY <i class="bi bi-three-dots-vertical"></i>
+                       </th>
+                       <th class="text-center" style="padding: 8px 10px; border: none; font-weight: 400; color: #637281;">
+                           Released QTY <i class="bi bi-three-dots-vertical"></i>
+                       </th>
+                       <th class="text-center" style="padding: 8px 10px; border: none; font-weight: 400; color: #637281;">
+                           UOM <i class="bi bi-three-dots-vertical"></i>
+                       </th>
+                       <th class="text-center" style="padding: 8px 10px; border: none; font-weight: 400; color: #637281;">
+                           Date Released <i class="bi bi-three-dots-vertical"></i>
+                       </th>
+                       <th class="text-center" style="padding: 8px 10px; border: none; font-weight: 400; color: #637281;">
+                           Reason <i class="bi bi-three-dots-vertical"></i>
+                       </th>
+                       <th class="text-center" style="padding: 8px 10px; border: none; font-weight: 400; color: #637281;">
+                           Status <i class="bi bi-three-dots-vertical"></i>
+                       </th>
+                   </tr>
+               </thead>
+               <tbody>
+                   <!-- Add your table rows here -->
+               </tbody>
+           </table>
+       </div>
 
         <!-- Pagination Section -->
         <hr style="border-top: 1px solid #ddd; margin-top: 10px; margin-bottom: 10px;">
@@ -200,7 +198,6 @@
                                     <th>UOM</th>
                                     <th>Reason of Withdrawal</th>
                                     <th>Requested QTY</th>
-                                    <th>Released QTY</th>
                                 </tr>
                             </thead>
                             <tbody id="itemTableBody">
@@ -217,7 +214,6 @@
                                     <td contenteditable="true" class="uom"></td>
                                     <td contenteditable="true" class="reason"></td>
                                     <td contenteditable="true" class="requestedQty"></td>
-                                    <td contenteditable="true" class="releasedQty"></td>
                                 </tr>
                             </tbody>
                         </table>
@@ -227,7 +223,50 @@
                         <label for="remarks" class="form-label">Remarks</label>
                         <textarea class="form-control form-control-sm" id="remarks"></textarea>
                     </div>
+                    <div class="table-responsive mb-3">
+                        <button type="button" class="btn btn-link text-secondary fw-bold" id="addMoreApprover" style="font-size: 14px;">
+                            + Add More Approver
+                        </button>
+                        <table class="table table-bordered table-sm" id="approversTable">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Approver Name</th>
+                                    <th>Role</th>
+                                    <th>Hierarchy</th>
+                                    <th>Remarks</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td contenteditable="true">
+                                        <div style="position: relative;">
+                                            <input type="text" id="userSearchInput1" list="userSuggestions" class="form-control form-control-sm" placeholder="Enter User Name" style="width: 100%; max-width: 200px; padding: 6px; border-radius: 5px; border: 1px solid #ced4da;">
+                                            <datalist id="userSuggestions"></datalist>
+                                            <input type="hidden" id="userIdInput1">
+                                        </div>
+                                    </td>
+                                    <td contenteditable="false" id="userRoleInput1" style="background-color: #E9ECEF; color: #999; pointer-events: none;">Auto Generate</td>
+                                    <td contenteditable="true" class="hierarchy-input">1</td>
+                                    <td contenteditable="true"></td>
+                                </tr>
+                                <tr>
+                                    <td contenteditable="true">
+                                        <div style="position: relative;">
+                                            <input type="text" id="userSearchInput2" list="userSuggestions" class="form-control form-control-sm" placeholder="Enter User Name" style="width: 100%; max-width: 200px; padding: 6px; border-radius: 5px; border: 1px solid #ced4da;">
+                                            <datalist id="userSuggestions"></datalist>
+                                            <input type="hidden" id="userIdInput2">
+                                        </div>
+                                    </td>
+                                    <td contenteditable="false" id="userRoleInput2" style="background-color: #E9ECEF; color: #999; pointer-events: none;">Auto Generate</td>
+                                    <td contenteditable="true" class="hierarchy-input">2</td>
+                                    <td contenteditable="true"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
 
+                    <input type="hidden" id="userIdInput">
+                    <input type="hidden" id="userEmailInput">
                     <!-- Action Section -->
                     <div class="row g-2 align-items-end mb-3">
                         <div class="col-md-12 d-flex justify-content-end">
@@ -237,31 +276,70 @@
                             </button>
                         </div>
                     </div>
-<!--                     <div class="row g-2 align-items-end mb-3">
-                        <div class="col-md-3">
-                            <label for="action" class="form-label">Action</label>
-                            <select class="form-select form-select-sm" id="action">
-                                <option>Select</option>
-                            </select>
-                        </div>
-                        <div class="col-md-6">
-                            <label for="actionRemarks" class="form-label">Remarks</label>
-                            <input type="text" class="form-control form-control-sm" id="actionRemarks"
-                                style="height: 50px;">
-                        </div>
-                        <div class="col-md-3 d-flex justify-content-end">
-                            <button type="button" class="btn btn-success btn-sm" id="submitinventoryWithdrawal"
-                                style="background-color: #28a745; color: white; border: 1px solid #28a745; padding: 6px 12px;">
-                                Submit
-                            </button>
-                        </div>
-                    </div> -->
                 </form>
             </div>
         </div>
     </div>
 </div>
 
+<div class="modal fade" id="approveWithdrawModal" tabindex="-1" aria-labelledby="approveWithdrawModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="approveWithdrawModalLabel">Approve Withdraw</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to approve this withdraw request?</p>
+                <p id="approvedByText" class="fw-bold" style="margin-top: 10px;"></p>
+                <div class="mb-3">
+                    <label for="requestedQty" class="form-label">Requested QTY</label>
+                    <input type="text" id="requestedQty" class="form-control" disabled>
+                </div>
+                <div class="mb-3">
+                    <label for="releasedQty" class="form-label">Released QTY</label>
+                    <input type="number" id="releasedQty" placeholder="Released Qty" class="form-control" min="0" />
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="approveWithdrawButton">Approve</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="receiveWithdrawModal" tabindex="-1" aria-labelledby="receiveWithdrawModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="receiveWithdrawModalLabel">Close Withdrawal</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Have you release the correct released qty for this withdrawal?</p>
+                <div class="mb-3">
+                    <label for="requestedQtyReceive" class="form-label">Requested QTY</label>
+                    <input type="text" id="requestedQtyReceive" class="form-control" disabled>
+                </div>
+                <div class="mb-3">
+                    <label for="releasedQtyReceive" class="form-label">Released QTY</label>
+                    <input type="number" id="releasedQtyReceive" placeholder="Released Qty" class="form-control" min="0" disabled/>
+                </div>
+                <div class="mb-3">
+                    <label for="photoUploadInput" class="form-label">Upload Photo (Optional)</label>
+                    <input type="file" id="photoUploadInput" class="form-control" />
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="receiveWithdrawButton">Submit</button>
+            </div>
+        </div>
+    </div>
+</div>
 @endsection
 
 @push('scripts')

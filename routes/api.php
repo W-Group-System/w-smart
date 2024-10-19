@@ -41,7 +41,7 @@ Route::post('inventory/suggestions', 'InventoryController@getInventorySuggestion
 Route::post('inventory/withdraw', 'InventoryController@fetchWithdraw')->name('inventory.withdraw.fetch');
 Route::post('search-withdrawal', 'InventoryController@searchWithdrawal')->name('search-withdrawal');
 Route::post('inventory/withdraw/request', 'InventoryController@requestWithdraw')->name('inventory.withdraw.request');
-Route::get('inventory/withdraw/approve/{id}', 'InventoryController@approveWithdraw')->name('inventory.withdraw.approve');
+Route::post('inventory/withdraw/approve/{id}', 'InventoryController@approveWithdraw')->name('inventory.withdraw.approve');
 
 //inventory-categories
 Route::get('inventory/categories', 'InventoryController@getCategory')->name('inventory.categories');
