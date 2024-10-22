@@ -149,26 +149,15 @@ document.addEventListener("DOMContentLoaded", function () {
             e.preventDefault();
     
             let roleName = document.getElementById("role").value;
-            let selectedFeatures = [];
             let selectedPermissions = [];
     
-            // Collect selected features and subfeatures
-            document.querySelectorAll('#features input:checked').forEach((checkbox) => {
-                const isSubfeature = checkbox.classList.contains('subfeature-checkbox');
-                if (isSubfeature) {
-                    selectedPermissions.push({
-                        featureId: checkbox.dataset.featureId,
-                        subfeatureId: checkbox.value,
-                        featureName: document.querySelector(`label[for="feature_${checkbox.dataset.featureId}"] span`).textContent.trim(),
-                        subfeatureName: checkbox.nextElementSibling.textContent.trim()
-                    });
-                } else {
-                    selectedPermissions.push({
-                        featureId: checkbox.value,
-                        subfeatureId: null,
-                        featureName: checkbox.nextElementSibling.querySelector('span').textContent.trim()
-                    });
-                }
+            document.querySelectorAll('#features input.subfeature-checkbox:checked').forEach((checkbox) => {
+                selectedPermissions.push({
+                    featureId: checkbox.dataset.featureId,
+                    subfeatureId: checkbox.value,
+                    featureName: document.querySelector(`label[for="feature_${checkbox.dataset.featureId}"] span`).textContent.trim(),
+                    subfeatureName: checkbox.nextElementSibling.textContent.trim()
+                });
             });
     
             axios
@@ -182,7 +171,7 @@ document.addEventListener("DOMContentLoaded", function () {
                             role: newRole.role,
                             featureid: permission.featureId,
                             feature: permission.featureName,
-                            subfeature_id: permission.subfeatureId, // Add subfeature_id if it's present
+                            subfeature_id: permission.subfeatureId, 
                         });
                     });
     
