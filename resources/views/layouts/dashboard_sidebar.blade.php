@@ -26,23 +26,23 @@
                 <i class="arrow-icon ms-auto"></i>
             </a>
             <ul id="inventorySubmenu" class="collapse submenu {{ request()->is('inventory*') ? 'show' : '' }}">
-                <li class="nav-item dashboard-list">
+                <li class="nav-item dashboard-list" id="inventory-list-item" style="display: none;">
                     <a class="nav-link {{ request()->is('inventory/list') ? 'submenu-active' : '' }}"
                         href="{{ route('inventory.list') }}">Inventory List</a>
                 </li>
-                <li class="nav-item dashboard-list">
+                <li class="nav-item dashboard-list" id="inventory-transfer-item" style="display: none;">
                     <a class="nav-link {{ request()->is('inventory/transfer') ? 'submenu-active' : '' }}"
                         href="{{ route('inventory.transfer') }}">
                         Inventory Transfer
                     </a>
                 </li>
-                <li class="nav-item dashboard-list">
+                <li class="nav-item dashboard-list" id="withdrawal-request-item" style="display: none;">
                     <a class="nav-link {{ request()->is('inventory/withdrawal') ? 'submenu-active' : '' }}"
                         href="{{ route('inventory.withdrawal') }}">
                         Withdrawal Request
                     </a>
                 </li>
-                <li class="nav-item dashboard-list">
+                <li class="nav-item dashboard-list" id="returned-inventory-item" style="display: none;">
                     <a class="nav-link {{ request()->is('inventory/returned') ? 'submenu-active' : '' }}"
                         href="{{ route('inventory.returned') }}">
                         Returned Inventory
@@ -61,17 +61,14 @@
                 <i class="arrow-icon ms-auto"></i>
             </a>
             <ul id="equipmentSubmenu" class="collapse submenu {{ request()->is('equipment*') ? 'show' : '' }}">
-                <li class="nav-item dashboard-list">
-                    <a class="nav-link {{ request()->is('equipment/new') ? 'submenu-active' : '' }}" href="#">New
-                        Asset</a>
+                <li class="nav-item dashboard-list" id="new-asset-item" style="display: none;">
+                    <a class="nav-link {{ request()->is('equipment/new') ? 'submenu-active' : '' }}" href="#">New Asset</a>
                 </li>
-                <li class="nav-item dashboard-list">
-                    <a class="nav-link {{ request()->is('equipment/transfer') ? 'submenu-active' : '' }}" href="#">
-                        Transfer Asset</a>
+                <li class="nav-item dashboard-list" id="transfer-asset-item" style="display: none;">
+                    <a class="nav-link {{ request()->is('equipment/transfer') ? 'submenu-active' : '' }}" href="#">Transfer Asset</a>
                 </li>
-                <li class="nav-item dashboard-list">
-                    <a class="nav-link {{ request()->is('equipment/disposal') ? 'submenu-active' : '' }}" href="#">
-                        Disposal Asset</a>
+                <li class="nav-item dashboard-list" id="disposal-asset-item" style="display: none;">
+                    <a class="nav-link {{ request()->is('equipment/disposal') ? 'submenu-active' : '' }}" href="#">Disposal Asset</a>
                 </li>
             </ul>
         </li>
@@ -86,17 +83,14 @@
                 <i class="arrow-icon ms-auto"></i>
             </a>
             <ul id="procurementSubmenu" class="collapse submenu {{ request()->is('procurement*') ? 'show' : '' }}">
-                <li class="nav-item dashboard-list">
-                    <a class="nav-link {{ request()->is('procurement/purchase-request') ? 'submenu-active' : '' }}"
-                        href="#">Purchased Request</a>
+                <li class="nav-item dashboard-list" id="purchase-request-item" style="display: none;">
+                    <a class="nav-link {{ request()->is('procurement/purchase-request') ? 'submenu-active' : '' }}" href="#">Purchased Request</a>
                 </li>
-                <li class="nav-item dashboard-list">
-                    <a class="nav-link {{ request()->is('procurement/canvassing') ? 'submenu-active' : '' }}" href="#">
-                        Canvassing</a>
+                <li class="nav-item dashboard-list" id="canvassing-item" style="display: none;">
+                    <a class="nav-link {{ request()->is('procurement/canvassing') ? 'submenu-active' : '' }}" href="#">Canvassing</a>
                 </li>
-                <li class="nav-item dashboard-list">
-                    <a class="nav-link {{ request()->is('procurement/order') ? 'submenu-active' : '' }}" href="#">
-                        Purchased Order</a>
+                <li class="nav-item dashboard-list" id="purchase-order-item" style="display: none;">
+                    <a class="nav-link {{ request()->is('procurement/order') ? 'submenu-active' : '' }}" href="#">Purchased Order</a>
                 </li>
             </ul>
         </li>
@@ -111,21 +105,17 @@
                 <i class="arrow-icon ms-auto"></i>
             </a>
             <ul id="settingsSubmenu" class="collapse submenu {{ request()->is('settings*') ? 'show' : '' }}">
-                <li class="nav-item dashboard-list">
-                    <a class="nav-link {{ request()->is('settings/company') ? 'submenu-active' : '' }}" href="#">
-                        Company</a>
+                <li class="nav-item dashboard-list" id="company-item" style="display: none;">
+                    <a class="nav-link {{ request()->is('settings/company') ? 'submenu-active' : '' }}" href="#">Company</a>
                 </li>
-                <li class="nav-item dashboard-list">
-                    <a class="nav-link {{ request()->is('settings/department') ? 'submenu-active' : '' }}" href="#">
-                        Department</a>
+                <li class="nav-item dashboard-list" id="department-item" style="display: none;">
+                    <a class="nav-link {{ request()->is('settings/department') ? 'submenu-active' : '' }}" href="#">Department</a>
                 </li>
-                <li class="nav-item dashboard-list">
-                    <a class="nav-link {{ request()->is('settings/roles') ? 'submenu-active' : '' }}"
-                        href="{{ route('settings.roles') }}">Role</a>
+                <li class="nav-item dashboard-list" id="role-item" style="display: none;">
+                    <a class="nav-link {{ request()->is('settings/roles') ? 'submenu-active' : '' }}" href="{{ route('settings.roles') }}">Role</a>
                 </li>
-                <li class="nav-item dashboard-list">
-                    <a class="nav-link {{ request()->is('category') ? 'submenu-active' : '' }}"
-                        href="{{ route('category') }}">Category</a>
+                <li class="nav-item dashboard-list" id="category-item" style="display: none;">
+                    <a class="nav-link {{ request()->is('category') ? 'submenu-active' : '' }}" href="{{ route('category') }}">Category</a>
                 </li>
             </ul>
         </li>
@@ -137,6 +127,14 @@
                     style="width: 20px; height: 20px; margin-right: 10px;">
                 <span class="menu-title">Report</span>
             </a>
+            <ul id="reportSubmenu" class="collapse submenu">
+                <li class="nav-item dashboard-list" id="summary-report-item" style="display: none;">
+                    <a class="nav-link" href="#">Summary Report</a>
+                </li>
+                <li class="nav-item dashboard-list" id="detailed-report-item" style="display: none;">
+                    <a class="nav-link" href="#">Detailed Report</a>
+                </li>
+            </ul>
         </li>
     </ul>
 </nav>
