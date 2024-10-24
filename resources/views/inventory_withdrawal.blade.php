@@ -65,8 +65,8 @@
         </div>
 
         <!-- Table Section -->
-       <div class="table-responsive">
-           <table class="table table-hover table-bordered" style="border-collapse: collapse;">
+        <div class="table-responsive">
+            <table class="table table-hover table-bordered" style="border-collapse: collapse; min-width: 1000px;">
                <thead class="table-light">
                    <tr>
                        <th class="text-center" style="padding: 8px 10px; border: none; font-weight: 400; color: #637281;">

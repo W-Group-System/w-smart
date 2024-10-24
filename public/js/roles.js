@@ -4,7 +4,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function toggleCreateRoleButton() {
         let roleName = document.getElementById("role").value.trim();
-        console.log(roleName);
         let selectedFeatures = Array.from(
             document.querySelectorAll(
                 '#features input[type="checkbox"]:checked'
@@ -40,31 +39,89 @@ document.addEventListener("DOMContentLoaded", function () {
             assignRoleModal.show();
         });
 
-    function toggleCreateRoleButton() {
-        let roleName = document.getElementById("role").value.trim();
-        let selectedFeatures = Array.from(
-            document.querySelectorAll(
-                '#features input[type="checkbox"]:checked'
-            )
-        );
-        createRoleButton.disabled =
-            roleName === "" || selectedFeatures.length === 0;
-    }
-
-    axios
+        axios
         .get("/api/features")
         .then((response) => {
             if (response.data.data.length > 0) {
                 let featureContainer = document.getElementById("features");
                 featureContainer.classList.add("ps-4");
+
                 response.data.data.forEach((feature) => {
-                    let checkboxDiv = document.createElement("div");
-                    checkboxDiv.className = "form-check mb-2";
-                    checkboxDiv.innerHTML = `
-                        <input class="form-check-input" type="checkbox" id="feature_${feature.id}" value="${feature.id}">
-                        <label class="form-check-label ms-1" for="feature_${feature.id}">${feature.feature}</label>
+                    let featureId = `feature_${feature.id}`;
+                    let featureItemDiv = document.createElement("div");
+                    featureItemDiv.className = "form-check mb-2";
+                    featureItemDiv.innerHTML = `
+                        <input class="form-check-input feature-checkbox" type="checkbox" id="${featureId}" value="${feature.id}">
+                        <label class="form-check-label ms-1" for="${featureId}">
+                            <span class="me-2">${feature.feature}</span>
+                            <button class="btn btn-sm btn-link text-decoration-none p-0" type="button" data-bs-toggle="collapse" data-bs-target="#collapse_${featureId}">
+                                <i id="icon_${featureId}" class="bi bi-chevron-down"></i>
+                            </button>
+                        </label>
                     `;
-                    featureContainer.appendChild(checkboxDiv);
+                    featureContainer.appendChild(featureItemDiv);
+
+                    if (feature.subfeatures && feature.subfeatures.length > 0) {
+                        let subfeatureContainer = document.createElement("div");
+                        subfeatureContainer.className = "collapse ps-4 mb-2";
+                        subfeatureContainer.id = `collapse_${featureId}`;
+
+                        feature.subfeatures.forEach((subfeature) => {
+                            let subfeatureCheckboxDiv = document.createElement("div");
+                            subfeatureCheckboxDiv.className = "form-check";
+                            subfeatureCheckboxDiv.innerHTML = `
+                                <input class="form-check-input subfeature-checkbox" type="checkbox" id="subfeature_${subfeature.id}" value="${subfeature.id}" data-feature-id="${feature.id}">
+                                <label class="form-check-label ms-1" for="subfeature_${subfeature.id}">${subfeature.subfeature_name}</label>
+                            `;
+                            subfeatureContainer.appendChild(subfeatureCheckboxDiv);
+                        });
+
+                        featureContainer.appendChild(subfeatureContainer);
+
+                        const collapseElement = document.getElementById(`collapse_${featureId}`);
+                        const bsCollapse = new bootstrap.Collapse(collapseElement, {
+                            toggle: false 
+                        });
+
+                        featureItemDiv.querySelector(`button[data-bs-toggle="collapse"]`)
+                            .removeAttribute('data-bs-toggle');
+
+                        featureItemDiv.querySelector(`button`)
+                            .addEventListener('click', function (event) {
+                                event.preventDefault();
+
+                                if (collapseElement.classList.contains('show')) {
+                                    bsCollapse.hide();
+                                } else {
+                                    bsCollapse.show();
+                                }
+                            });
+
+                        collapseElement.addEventListener('hidden.bs.collapse', () => {
+                            const iconElement = document.querySelector(`#icon_${featureId}`);
+                            if (iconElement) {
+                                iconElement.classList.replace('bi-chevron-up', 'bi-chevron-down');
+                            }
+                        });
+
+                        collapseElement.addEventListener('shown.bs.collapse', () => {
+                            const iconElement = document.querySelector(`#icon_${featureId}`);
+                            if (iconElement) {
+                                iconElement.classList.replace('bi-chevron-down', 'bi-chevron-up');
+                            }
+                        });
+                    }
+                });
+
+                document.querySelectorAll('.feature-checkbox').forEach((checkbox) => {
+                    checkbox.addEventListener('change', function () {
+                        let featureId = this.value;
+                        let subfeatureCheckboxes = document.querySelectorAll(`input[data-feature-id="${featureId}"]`);
+
+                        subfeatureCheckboxes.forEach((subCheckbox) => {
+                            subCheckbox.checked = this.checked;
+                        });
+                    });
                 });
 
                 toggleCreateRoleButton();
@@ -75,74 +132,72 @@ document.addEventListener("DOMContentLoaded", function () {
                 featureContainer.classList.add("ps-4");
 
                 let labelDiv = document.createElement("div");
-                labelDiv.className = "alert alert-warning mt-2"; // Added margin for better display
+                labelDiv.className = "alert alert-warning mt-2";
                 labelDiv.innerHTML = "No features available.";
 
                 featureContainer.appendChild(labelDiv);
             }
         })
         .catch((error) => {
-            console.error("Error fetching features:", error);
+            console.error("Error fetching features and subfeatures:", error);
         });
 
-    document
+
+        document
         .getElementById("createRoleForm")
         .addEventListener("submit", function (e) {
             e.preventDefault();
-
+    
             let roleName = document.getElementById("role").value;
-            let selectedFeatures = Array.from(
-                document.querySelectorAll(
-                    '#features input[type="checkbox"]:checked'
-                )
-            );
-
+            let selectedPermissions = [];
+    
+            document.querySelectorAll('#features input.subfeature-checkbox:checked').forEach((checkbox) => {
+                selectedPermissions.push({
+                    featureId: checkbox.dataset.featureId,
+                    subfeatureId: checkbox.value,
+                    featureName: document.querySelector(`label[for="feature_${checkbox.dataset.featureId}"] span`).textContent.trim(),
+                    subfeatureName: checkbox.nextElementSibling.textContent.trim()
+                });
+            });
+    
             axios
                 .post("/api/create-role", { role: roleName })
                 .then((response) => {
                     let newRole = response.data.data;
-
-                    let permissionPromises = selectedFeatures.map(
-                        (checkbox) => {
-                            let featureId = checkbox.value;
-                            let featureName = document
-                                .querySelector(
-                                    `label[for="feature_${featureId}"]`
-                                )
-                                .textContent.trim();
-
-                            return axios.post("/api/create-permission", {
-                                roleid: newRole.id,
-                                role: newRole.role,
-                                featureid: featureId,
-                                feature: featureName,
-                            });
-                        }
-                    );
-
+    
+                    let permissionPromises = selectedPermissions.map((permission) => {
+                        return axios.post("/api/create-permission", {
+                            roleid: newRole.id,
+                            role: newRole.role,
+                            featureid: permission.featureId,
+                            feature: permission.featureName,
+                            subfeature_id: permission.subfeatureId, 
+                        });
+                    });
+    
                     Promise.all(permissionPromises)
                         .then((results) => {
                             console.log(
-                                "Permissions created for all features:",
+                                "Permissions created for all features and subfeatures:",
                                 results
                             );
-
+    
                             Swal.fire({
                                 title: "Role Created!",
                                 text: "The role has been successfully created.",
                                 icon: "success",
                                 confirmButtonText: "OK",
                             });
-
+    
                             const requestTransferModal = bootstrap.Modal.getInstance(document.getElementById("createRoleModal"));
-
+    
                             if (requestTransferModal) {
                                 requestTransferModal.hide();
                             }
-                            
+    
                             loadPermissions();
                             loadRoles();
-
+    
                             document.getElementById("createRoleForm").reset();
                             createRoleButton.disabled = true;
                         })

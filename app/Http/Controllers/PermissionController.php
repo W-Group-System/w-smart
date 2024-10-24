@@ -7,6 +7,7 @@ use App\Permissions;
 use App\User;
 use App\Roles;
 use App\Features;
+use App\Subfeatures;
 use RealRashid\SweetAlert\Facades\Alert;
 
 class PermissionController extends Controller
@@ -31,19 +32,33 @@ class PermissionController extends Controller
     public function getFeatures(Request $request)
     {
         try {
-        $features = Features::all();
+            $subfeatures = Subfeatures::with('feature')->get();
 
-        return response()->json([
-            'status' => 'success',
-            'data' => $features,
-        ], 200);
-	    } catch (\Exception $e) {
-	        return response()->json([
-	            'status' => 'error',
-	            'message' => 'Failed to fetch permissions.',
-	            'error' => $e->getMessage(),
-	        ], 500); 
-	    }
+            $featuresGrouped = $subfeatures->groupBy('feature.id')->map(function ($subfeatureGroup) {
+                $feature = $subfeatureGroup->first()->feature;
+                return [
+                    'id' => $feature->id,
+                    'feature' => $feature->feature,
+                    'subfeatures' => $subfeatureGroup->map(function ($subfeature) {
+                        return [
+                            'id' => $subfeature->id,
+                            'subfeature_name' => $subfeature->subfeature_name,
+                        ];
+                    }),
+                ];
+            });
+
+            return response()->json([
+                'status' => 'success',
+                'data' => $featuresGrouped->values(),
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to fetch features and subfeatures.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
     }
     public function getRoles(Request $request)
     {
@@ -92,17 +107,28 @@ class PermissionController extends Controller
     {
         try {
             $request->validate([
-            	'roleid' => 'required|integer',
-               	'role' => 'required|string|max:100',    
-               	'featureid' => 'required|integer', 
-               	'feature' => 'required|string|max:100',  
-           	]);
+                'roleid' => 'required|integer',
+                'role' => 'required|string|max:100',
+                'featureid' => 'required|integer',
+                'feature' => 'required|string|max:100',
+                'subfeature_id' => 'nullable|integer',
+            ]);
+
+            $featureName = $request->feature;
+
+            if ($request->subfeature_id) {
+                $subfeature = Subfeatures::find($request->subfeature_id);
+                if ($subfeature) {
+                    $featureName = $subfeature->subfeature_name;
+                }
+            }
 
             $new_permission = new Permissions();
-            $new_permission->roleid = $request->roleid; 
-            $new_permission->role = $request->role; 
-            $new_permission->featureid = $request->featureid; 
-            $new_permission->feature = $request->feature; 
+            $new_permission->roleid = $request->roleid;
+            $new_permission->role = $request->role;
+            $new_permission->featureid = $request->featureid;
+            $new_permission->feature = $featureName;
+            $new_permission->subfeature_id = $request->subfeature_id;
             $new_permission->save();
 
             return response()->json([
