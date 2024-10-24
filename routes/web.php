@@ -21,11 +21,13 @@ Auth::routes();
 Route::post('rates', 'PayrollController@getRatesStore')->name('store-rates');
 
 Route::group(['middleware' => 'auth'], function () {
-
+    Route::get('/', 'HomeController@index')->name('home');
+    Route::get('/home', 'HomeController@index')->name('home');
     Route::get('/inventory/list', 'RoutesController@inventoryList')->name('inventory.list');
     Route::get('/inventory/transfer', 'RoutesController@inventoryTransfer')->name('inventory.transfer');
     Route::get('/inventory/withdrawal', 'RoutesController@inventoryWithdrawal')->name('inventory.withdrawal');
     Route::get('/inventory/returned', 'RoutesController@inventoryReturned')->name('inventory.returned');
     Route::get('/settings/roles', 'RoutesController@settingsRoles')->name('settings.roles');
     Route::get('/settings/category', 'RoutesController@category')->name('category');
+
 });
