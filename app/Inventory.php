@@ -15,6 +15,7 @@ class Inventory extends Model
         'category_id',
         'subcategory_name',
         'subcategory_id',
+        'uom_id',
         'uomp',
         'uoms',
         'uomt',

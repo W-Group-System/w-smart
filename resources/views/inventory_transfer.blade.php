@@ -242,7 +242,7 @@
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td contenteditable="true">
+                                    <td contenteditable="false">
                                         <div style="position: relative;">
                                             <input type="text" id="itemCodeInput" list="itemSuggestions"
                                                 class="form-control form-control-sm" placeholder="Enter Item Code"
@@ -258,7 +258,7 @@
                                         <select class="form-select form-select-sm uom-dropdown" id="uom">
                                         </select>
                                     </td>
-                                    <td contenteditable="true" id="qty"
+                                    <td contenteditable="true" class="qty"
                                         style="background-color: #FFFFFF; color: #000; pointer-events: auto;"></td>
                                 </tr>
                             </tbody>
@@ -286,7 +286,7 @@
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td contenteditable="true">
+                                    <td contenteditable="false">
                                         <div style="position: relative;">
                                             <input type="text" id="userSearchInput1" list="userSuggestions" class="form-control form-control-sm" placeholder="Enter User Name" style="width: 100%; max-width: 200px; padding: 6px; border-radius: 5px; border: 1px solid #ced4da;">
                                             <datalist id="userSuggestions"></datalist>
@@ -298,7 +298,7 @@
                                     <td contenteditable="true"></td>
                                 </tr>
                                 <tr>
-                                    <td contenteditable="true">
+                                    <td contenteditable="false">
                                         <div style="position: relative;">
                                             <input type="text" id="userSearchInput2" list="userSuggestions" class="form-control form-control-sm" placeholder="Enter User Name" style="width: 100%; max-width: 200px; padding: 6px; border-radius: 5px; border: 1px solid #ced4da;">
                                             <datalist id="userSuggestions"></datalist>
@@ -345,7 +345,7 @@
                 <p id="approvedByText" class="fw-bold" style="margin-top: 10px;"></p>
                 <div class="mb-3">
                     <label for="requestedQty" class="form-label">Requested QTY</label>
-                    <input type="text" id="requestedQty" class="form-control" disabled>
+                    <div id="requestedQty" class="form-control" style="pointer-events: none; background-color: #e9ecef;"></div>
                 </div>
                 <div class="mb-3">
                     <label for="releasedQty" class="form-label">Released QTY</label>
@@ -373,7 +373,7 @@
                 <p>Have you received the correct released qty for this transfer?</p>
                 <div class="mb-3">
                     <label for="requestedQtyReceive" class="form-label">Requested QTY</label>
-                    <input type="text" id="requestedQtyReceive" class="form-control" disabled>
+                    <div id="requestedQtyReceive" class="form-control" style="pointer-events: none; background-color: #e9ecef;"></div>
                 </div>
                 <div class="mb-3">
                     <label for="releasedQtyReceive" class="form-label">Released QTY</label>

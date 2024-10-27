@@ -183,7 +183,7 @@ document.addEventListener("DOMContentLoaded", function () {
         Array.from(rows).forEach((row) => {
             const itemCode = row.querySelector("#itemCodeInput").value;
             const itemDescription = row.querySelector("#itemDescription").textContent.trim();
-            const qty = parseFloat(row.querySelector("#qty").textContent.trim());
+            const qty = parseFloat(row.querySelector(".qty").textContent.trim());
     
             if (itemCode && itemDescription && qty > 0) {
                 hasValidItems = true;
@@ -382,7 +382,7 @@ document.addEventListener("DOMContentLoaded", function () {
     
         newRow.querySelectorAll("td").forEach(function (cell, index) {
             if (index === 0) {
-                cell.contentEditable = "true";
+                cell.contentEditable = "false";
                 const inputField = cell.querySelector("input");
                 if (inputField) {
                     inputField.value = "";
@@ -396,7 +396,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 cell.innerText = "";
             } else {
                 cell.innerText = "";
-                cell.contentEditable = "false";
+                cell.contentEditable = "true";
             }
         });
     
@@ -482,19 +482,27 @@ document.addEventListener("DOMContentLoaded", function () {
     
                     row.querySelector("#itemDescription").textContent = item.item_description;
                     row.querySelector("#itemCategory").textContent = item.item_category;
-                    row.querySelector("#qty").textContent = item.qty;
+                    row.querySelector(".qty").textContent = item.qty;
     
                     const uomDropdown = row.querySelector(".uom-dropdown");
+                    row.dataset.relationId = item.relation_id;
+
+                    row.dataset.primaryValue = item.primaryUOMValue || 1; 
+                    row.dataset.secondaryValue = item.secondaryUOMValue || 1; 
+                    row.dataset.tertiaryValue = item.tertiaryUOMValue || 1; 
                     populateUOMOptions(item.uomp, item.uoms, item.uomt, uomDropdown);
     
-                    const qtyCell = row.querySelector("#qty");
-                    const maxQty = parseFloat(item.qty);
+                    const qtyCell = row.querySelector(".qty");
+                    let maxQty = parseFloat(qtyCell.dataset.maxQty) || parseFloat(item.qty);
                     qtyCell.contentEditable = "true";
+
                     qtyCell.addEventListener("input", function () {
                         const currentQty = parseFloat(qtyCell.textContent);
-                        if (currentQty > maxQty) {
-                            qtyCell.textContent = maxQty;
-                            alert(`Maximum allowed quantity is ${maxQty}`);
+                        const allowedMaxQty = parseFloat(qtyCell.getAttribute('data-max-qty')); // Use updated maxQty
+
+                        if (currentQty > allowedMaxQty) {
+                            qtyCell.textContent = allowedMaxQty.toFixed(2); // Adjust to max if exceeded
+                            alert(`Maximum allowed quantity is ${allowedMaxQty}`);
                         }
                     });
                     validateItems();
@@ -521,8 +529,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
         const items = Array.from(document.querySelectorAll("#itemsTable tbody tr")).map((row) => {
             const itemCode = row.querySelector("#itemCodeInput").value;
-            const qty = parseFloat(row.querySelector("#qty").textContent.trim());
-    
+            const qty = parseFloat(row.querySelector(".qty").textContent.trim());
+            const relationId = row.dataset.relationId;
+
             const uomDropdown = row.querySelector(".uom-dropdown");
             const selectedUOM = uomDropdown ? uomDropdown.value : '';
 
@@ -555,7 +564,8 @@ document.addEventListener("DOMContentLoaded", function () {
                 qty: qty,
                 uomp: uomp, 
                 uoms: uoms,  
-                uomt: uomt  
+                uomt: uomt,
+                relation_id: relationId
             };
         }).filter((item) => item.item_code && item.qty > 0 && item.uomp && item.uoms && item.uomt); 
     
@@ -665,9 +675,10 @@ document.addEventListener("DOMContentLoaded", function () {
                 
                 const transactionNumber = target.dataset.transactId;
                 const requestedQty = parseFloat(target.querySelector("td:nth-child(8)").textContent.trim());
+                const selectedUOM = target.querySelector("td:nth-child(9)").textContent.trim();
                 const releasedQty = parseFloat(target.dataset.releasedQty);
     
-                document.getElementById("requestedQtyReceive").value = requestedQty;
+                document.getElementById("requestedQtyReceive").textContent = `${requestedQty} (${selectedUOM})`;
                 document.getElementById("releasedQtyReceive").value = releasedQty;
     
                 const receiveTransferModal = new bootstrap.Modal(document.getElementById("receiveTransferModal"));
@@ -692,8 +703,13 @@ document.addEventListener("DOMContentLoaded", function () {
                 document.getElementById("approvedByText").textContent = `Approver: ${approvedBy}`;
     
                 const requestedQty = parseFloat(target.querySelector("td:nth-child(8)").textContent.trim());
-                const releasedQtyInput = document.getElementById("releasedQty");
+                const selectedUOM = target.querySelector("td:nth-child(9)").textContent.trim();
     
+                const requestedQtyElement = document.getElementById("requestedQty");
+                requestedQtyElement.textContent = `${requestedQty} (${selectedUOM})`;
+    
+                const releasedQtyInput = document.getElementById("releasedQty");
+
                 const currentReleasedQty = target.dataset.releasedQty || "";
                 releasedQtyInput.value = currentReleasedQty !== "" ? currentReleasedQty : "";
     
@@ -818,7 +834,7 @@ document.addEventListener("DOMContentLoaded", function () {
             const itemDescription = row.querySelector("#itemDescription");
             const itemCategory = row.querySelector("#itemCategory");
             const uom = row.querySelector("#uom");
-            const qty = row.querySelector("#qty");
+            const qty = row.querySelector(".qty");
     
             if (itemCodeInput) itemCodeInput.value = "";
             if (itemDescription) itemDescription.textContent = "";
@@ -998,61 +1014,61 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     function populateUOMOptions(primaryUOM, secondaryUOM, tertiaryUOM, dropdown) {
+        console.log("populating");
         dropdown.innerHTML = '';
     
         const uomOptions = [
-            { label: primaryUOM, value: 'primary' },
-            { label: secondaryUOM, value: 'secondary' },
-            { label: tertiaryUOM, value: 'tertiary' }
+            { label: primaryUOM || 'Primary', value: 'primary' },
+            { label: secondaryUOM || 'Secondary', value: 'secondary' },
+            { label: tertiaryUOM || 'Tertiary', value: 'tertiary' }
         ];
     
         uomOptions.forEach((uom, index) => {
-            const option = document.createElement('option');
-            option.value = uom.value;
-            option.textContent = uom.label;
-            dropdown.appendChild(option);
-            if (index === 0) {
-                option.selected = true;
+            if (uom.label) {
+                const option = document.createElement('option');
+                option.value = uom.value;
+                option.textContent = uom.label;
+                dropdown.appendChild(option);
+                if (index === 0) {
+                    option.selected = true;
+                }
             }
+        });
+    
+        dropdown.addEventListener('change', function(event) {
+            console.log("UOM dropdown changed");
+            const row = dropdown.closest('tr');
+            const qtyElement = row.querySelector(".qty");
+    
+            let baseQty = parseFloat(row.dataset.baseQty) || parseFloat(qtyElement.textContent);
+            if (!row.dataset.baseQty) {
+                row.dataset.baseQty = baseQty;
+            }
+
+            const primaryValue = parseFloat(row.dataset.primaryValue) || 1;
+            const secondaryValue = parseFloat(row.dataset.secondaryValue) || 1;
+            const tertiaryValue = parseFloat(row.dataset.tertiaryValue) || 1;
+
+            let selectedUOM = dropdown.value;
+            let convertedQty;
+
+            switch (selectedUOM) {
+                case 'primary':
+                    convertedQty = baseQty * primaryValue; 
+                    break;
+                case 'secondary':
+                    convertedQty = baseQty * secondaryValue; 
+                    break;
+                case 'tertiary':
+                    convertedQty = baseQty * tertiaryValue; 
+                    break;
+                default:
+                    convertedQty = baseQty;
+            }
+    
+            qtyElement.textContent = convertedQty.toFixed(2);
+            qtyElement.setAttribute('data-max-qty', convertedQty);
+            row.dataset.maxQty = convertedQty;
         });
     }
-    
-    document.querySelectorAll('.uom-dropdown').forEach(function (dropdown) {
-        dropdown.addEventListener('change', function () {
-            const row = dropdown.closest('tr');
-    
-            // Make sure the UOM elements exist before accessing them
-            const primaryUOMElement = row.querySelector("#primaryUOM");
-            const secondaryUOMElement = row.querySelector("#secondaryUOM");
-            const tertiaryUOMElement = row.querySelector("#tertiaryUOM");
-    
-            if (primaryUOMElement && secondaryUOMElement && tertiaryUOMElement) {
-                let primaryUOM = primaryUOMElement.textContent.trim();
-                let secondaryUOM = secondaryUOMElement.textContent.trim();
-                let tertiaryUOM = tertiaryUOMElement.textContent.trim();
-    
-                const selectedUOM = dropdown.value;
-    
-                // Swap logic based on the selected UOM
-                switch (selectedUOM) {
-                    case 'primary':
-                        break;
-                    case 'secondary':
-                        [primaryUOM, secondaryUOM] = [secondaryUOM, primaryUOM];
-                        break;
-                    case 'tertiary':
-                        [primaryUOM, tertiaryUOM] = [tertiaryUOM, primaryUOM];
-                        break;
-                }
-    
-                // Update the UOM display in the table row
-                primaryUOMElement.textContent = primaryUOM;
-                secondaryUOMElement.textContent = secondaryUOM;
-                tertiaryUOMElement.textContent = tertiaryUOM;
-    
-                // Repopulate the dropdown with updated UOMs
-                populateUOMOptions(primaryUOM, secondaryUOM, tertiaryUOM, dropdown);
-            }
-        });
-    });
 });

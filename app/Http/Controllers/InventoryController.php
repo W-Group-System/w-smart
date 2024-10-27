@@ -217,6 +217,19 @@ class InventoryController extends Controller
                 ->first();
 
             if ($item) {
+                if ($item->uom_id) {
+                    $uom = Uoms::find($item->uom_id);
+                    if ($uom) {
+                        $item->primaryUOM = $uom->uomp;
+                        $item->primaryUOMValue = $uom->uomp_value;
+                        $item->secondaryUOM = $uom->uoms;
+                        $item->secondaryUOMValue = $uom->uoms_value;
+                        $item->tertiaryUOM = $uom->uomt;
+                        $item->tertiaryUOMValue = $uom->uomt_value;
+                        $item->relation_id = $uom->relation_id;
+                    }
+                }
+
                 return response()->json([
                     'status' => 'success',
                     'data' => $item,
@@ -310,6 +323,10 @@ class InventoryController extends Controller
                 'items' => 'required|array|min:1',
                 'items.*.item_code' => 'required|string|max:50',
                 'items.*.qty' => 'required|numeric|min:0.01',
+                'items.*.relation_id' => 'required|integer|exists:uoms,relation_id',
+                'items.*.uomp' => 'required|string|max:255',
+                'items.*.uoms' => 'required|string|max:255',
+                'items.*.uomt' => 'required|string|max:255',
                 'transfer_from' => 'required|integer|exists:subsidiaries,subsidiary_id',
                 'transfer_to' => 'required|integer|exists:subsidiaries,subsidiary_id|different:transfer_from',
                 'remarks' => 'nullable|string|max:255',
@@ -330,6 +347,20 @@ class InventoryController extends Controller
             foreach ($request->items as $item) {
                 $itemCode = $item['item_code'];
                 $qty = $item['qty'];
+                $relationId = $item['relation_id'];
+
+                $uom = Uoms::where('relation_id', $relationId)
+                    ->where('uomp', $item['uomp'])
+                    ->where('uoms', $item['uoms'])
+                    ->where('uomt', $item['uomt'])
+                    ->first();
+
+                if (!$uom) {
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => "No matching UOM found for item '{$itemCode}' with the specified relation.",
+                    ], 404);
+                }
 
                 $inventory = Inventory::where('item_code', $itemCode)
                     ->where('subsidiaryid', $transferFromId)
@@ -374,6 +405,7 @@ class InventoryController extends Controller
                 $newTransferLog->uomp = $item['uomp']; 
                 $newTransferLog->uoms = $item['uoms']; 
                 $newTransferLog->uomt = $item['uomt']; 
+                $newTransferLog->uom_id = $uom->id;
                 $newTransferLog->status = 'Pending';
                 $newTransferLog->requester_id = $request->input('requester_id', auth()->id() ?? 0);
                 $newTransferLog->requester_name = $request->input('requester_name', auth()->user()->name ?? 'N/A');
@@ -510,66 +542,80 @@ class InventoryController extends Controller
             $transferFromId = Subsidiary::where('subsidiary_name', $transfer->transfer_from)->value('subsidiary_id');
             $transferToId = Subsidiary::where('subsidiary_name', $transfer->transfer_to)->value('subsidiary_id');
 
-            $inventory = Inventory::where('item_code', $itemCode)
+            $sourceInventory = Inventory::where('item_code', $itemCode)
                 ->where('subsidiaryid', $transferFromId)
                 ->first();
 
-            if (!$inventory) {
+            if (!$sourceInventory) {
                 return response()->json([
                     'status' => 'error',
                     'message' => "Item '{$itemCode}' not found in the specified subsidiary.",
                 ], 404);
             }
 
-            Log::info('Item found in subsidiary', [
-                'item_code' => $itemCode,
-                'item_category' => $inventory->item_category,
-                'category_id' => $inventory->category_id
-            ]);
+            $uom = Uoms::find($sourceInventory->uom_id);
+            if (!$uom) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'UOM configuration for source inventory not found.',
+                ], 404);
+            }
 
-            if ($inventory->qty < $releasedQty) {
+            $convertedSourceQty = $this->convertToTargetUOM($sourceInventory, $releasedQty, $transfer);
+            
+            if ($convertedSourceQty < $releasedQty) {
                 return response()->json([
                     'status' => 'error',
                     'message' => "Insufficient quantity for item '{$itemCode}' in subsidiary '{$transfer->transfer_from}'.",
-                    'available_qty' => $inventory->qty,
+                    'available_qty' => $convertedSourceQty,
                 ], 400);
             }
 
-            $inventory->qty -= $releasedQty;
-            $inventory->save();
+            $sourceInventory->qty -= $this->revertToPrimaryUOM($sourceInventory, $releasedQty, $transfer);
+            $sourceInventory->save();
 
             $targetInventory = Inventory::where('item_code', $itemCode)
                 ->where('subsidiaryid', $transferToId)
                 ->first();
 
             if ($targetInventory) {
-                $targetInventory->qty += $releasedQty;
+                $targetInventory->qty += $releasedQty; 
                 $targetInventory->save();
             } else {
+                $targetUom = Uoms::find($transfer->uom_id);
+                if (!$targetUom) {
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'UOM configuration for target inventory not found.',
+                    ], 404);
+                }
+
                 $inventoryData = [
                     'item_code' => $transferCode,
-                    'item_description' => $inventory->item_description,
-                    'item_category' => $inventory->item_category,
-                    'category_id' => $inventory->category_id,
-                    'subcategory_name' => $inventory->subcategory_name ?? '',
-                    'subcategory_id' => $inventory->subcategory_id ?? 0,
-                    'uomp' => $inventory->uomp,
-                    'uoms' => $inventory->uoms,
-                    'uomt' => $inventory->uomt,
+                    'item_description' => $sourceInventory->item_description,
+                    'item_category' => $sourceInventory->item_category,
+                    'category_id' => $sourceInventory->category_id,
+                    'subcategory_name' => $sourceInventory->subcategory_name ?? '',
+                    'subcategory_id' => $sourceInventory->subcategory_id ?? 0,
+                    'uomp' => $targetUom->uomp,
+                    'uoms' => $targetUom->uoms,
+                    'uomt' => $targetUom->uomt,
+                    'uom_id' => $transfer->uom_id,
                     'qty' => $releasedQty,
-                    'cost' => $inventory->cost,
-                    'usage' => $inventory->usage,
+                    'cost' => $sourceInventory->cost,
+                    'usage' => $sourceInventory->usage,
                     'subsidiaryid' => $transferToId,
                     'subsidiary' => $transfer->transfer_to,
                     'remarks' => 'Transferred',
                     'date' => now(),
                 ];
-                
-                Log::info('Attempting to insert into Inventory', $inventoryData);
-                
+
+                \Log::info('Creating new inventory entry', $inventoryData);
+
                 Inventory::create($inventoryData);
             }
 
+            // Mark the transfer as completed
             $transfer->status = 'Received';
             $transfer->updated_at = now();
             $transfer->save();
@@ -586,6 +632,80 @@ class InventoryController extends Controller
                 'error' => $e->getMessage(),
             ], 500);
         }
+    }
+
+    private function convertToTargetUOM($sourceInventory, $releasedQty, $transfer)
+    {
+        $uom = Uoms::find($sourceInventory->uom_id);
+        if (!$uom) {
+            return $releasedQty;
+        }
+
+        $primaryValue = $uom->uomp_value;
+        $secondaryValue = $uom->uoms_value;
+        $tertiaryValue = $uom->uomt_value;
+
+        $sourceUOM = $sourceInventory->uomp;
+        $targetUOM = $transfer->uomp;
+
+        // Convert based on UOM values
+        if ($sourceUOM === $targetUOM) {
+            return $releasedQty;
+        }
+
+        // Adjust conversion logic to convert to target UOM
+        if ($sourceUOM === $uom->uomp && $targetUOM === $uom->uoms) {
+            return $releasedQty * ($secondaryValue / $primaryValue);
+        } elseif ($sourceUOM === $uom->uomp && $targetUOM === $uom->uomt) {
+            return $releasedQty * ($tertiaryValue / $primaryValue);
+        } elseif ($sourceUOM === $uom->uoms && $targetUOM === $uom->uomp) {
+            return $releasedQty * ($primaryValue / $secondaryValue);
+        } elseif ($sourceUOM === $uom->uoms && $targetUOM === $uom->uomt) {
+            return $releasedQty * ($tertiaryValue / $secondaryValue);
+        } elseif ($sourceUOM === $uom->uomt && $targetUOM === $uom->uomp) {
+            return $releasedQty * ($primaryValue / $tertiaryValue);
+        } elseif ($sourceUOM === $uom->uomt && $targetUOM === $uom->uoms) {
+            return $releasedQty * ($secondaryValue / $tertiaryValue);
+        }
+
+        // If no match, return original value
+        return $releasedQty;
+    }
+
+    private function revertToPrimaryUOM($sourceInventory, $releasedQty, $transfer)
+    {
+        $uom = Uoms::find($sourceInventory->uom_id);
+        if (!$uom) {
+            return $releasedQty;
+        }
+
+        $primaryValue = $uom->uomp_value;
+        $secondaryValue = $uom->uoms_value;
+        $tertiaryValue = $uom->uomt_value;
+
+        $sourceUOM = $sourceInventory->uomp;
+        $targetUOM = $transfer->uomp;
+
+        // Revert back to source UOM before saving
+        if ($sourceUOM === $targetUOM) {
+            return $releasedQty;
+        }
+
+        if ($sourceUOM === $uom->uomp && $targetUOM === $uom->uoms) {
+            return $releasedQty * ($primaryValue / $secondaryValue);
+        } elseif ($sourceUOM === $uom->uomp && $targetUOM === $uom->uomt) {
+            return $releasedQty * ($primaryValue / $tertiaryValue);
+        } elseif ($sourceUOM === $uom->uoms && $targetUOM === $uom->uomp) {
+            return $releasedQty * ($secondaryValue / $primaryValue);
+        } elseif ($sourceUOM === $uom->uoms && $targetUOM === $uom->uomt) {
+            return $releasedQty * ($secondaryValue / $tertiaryValue);
+        } elseif ($sourceUOM === $uom->uomt && $targetUOM === $uom->uomp) {
+            return $releasedQty * ($tertiaryValue / $primaryValue);
+        } elseif ($sourceUOM === $uom->uomt && $targetUOM === $uom->uoms) {
+            return $releasedQty * ($tertiaryValue / $secondaryValue);
+        }
+
+        return $releasedQty;
     }
 
     public function getInventorySuggestions(Request $request)
