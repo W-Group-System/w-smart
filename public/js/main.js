@@ -82,6 +82,7 @@ function displayFeatures(features, subfeatures) {
         if (subfeatures.includes(12)) document.getElementById("department-item").style.display = "block";
         if (subfeatures.includes(13)) document.getElementById("role-item").style.display = "block";
         if (subfeatures.includes(14)) document.getElementById("category-item").style.display = "block";
+        if (subfeatures.includes(14)) document.getElementById("uom-item").style.display = "block";
     }
 
     if (features.includes(5) || subfeatures.some((sf) => [15, 16].includes(sf))) {

@@ -258,7 +258,6 @@
                             <div class="input-group">
                                 <select class="form-select" id="newCategory" required>
                                     <option value="" disabled selected>Select a category</option>
-                                    <!-- Options dynamically added here -->
                                 </select>
                             </div>
                         </div>
@@ -270,33 +269,22 @@
                                 </select>
                             </div>
                         </div>
-                        <div class="col-md-12">
-                            <div class="row g-3">
-                                <div class="col-md-4">
-                                    <label for="newPrimaryUOM" class="form-label">Primary UOM</label>
-                                    <select class="form-select" id="newPrimaryUOM" required style="height: 65%;">
-                                        <option value="test1">Test1</option>
-                                        <option value="test2">Test2</option>
-                                        <option value="test3">Test3</option>
-                                    </select>
-                                </div>
-                                <div class="col-md-4">
-                                    <label for="newSecondaryUOM" class="form-label">Secondary UOM</label>
-                                    <select class="form-select" id="newSecondaryUOM" required style="height: 68%;">
-                                        <option value="test1">Test1</option>
-                                        <option value="test2">Test2</option>
-                                        <option value="test3">Test3</option>
-                                    </select>
-                                </div>
-                                <div class="col-md-4">
-                                    <label for="newTertiaryUOM" class="form-label">Tertiary UOM</label>
-                                    <select class="form-select" id="newTertiaryUOM" required style="height: 68%;">
-                                        <option value="test1">Test1</option>
-                                        <option value="test2">Test2</option>
-                                        <option value="test3">Test3</option>    
-                                    </select>
-                                </div>
-                            </div>
+                        <div class="col-md-4">
+                            <label for="newPrimaryUOM" class="form-label">Primary UOM</label>
+                            <input type="text" id="primaryUOMSearch" placeholder="Search Primary UOM" class="form-control">
+                            <select class="form-select" id="newPrimaryUOM" required></select>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label for="newSecondaryUOM" class="form-label">Secondary UOM</label>
+                            <input type="text" id="secondaryUOMSearch" placeholder="Search Secondary UOM" class="form-control">
+                            <select class="form-select" id="newSecondaryUOM" required></select>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label for="newTertiaryUOM" class="form-label">Tertiary UOM</label>
+                            <input type="text" id="tertiaryUOMSearch" placeholder="Search Tertiary UOM" class="form-control">
+                            <select class="form-select" id="newTertiaryUOM" required></select>
                         </div>
 
                         <div class="col-md-6">

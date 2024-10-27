@@ -30,4 +30,5 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/inventory/returned', 'RoutesController@inventoryReturned')->name('inventory.returned');
     Route::get('/settings/roles', 'RoutesController@settingsRoles')->name('settings.roles');
     Route::get('/settings/category', 'RoutesController@category')->name('category');
+    Route::get('/settings/uom', 'RoutesController@uom')->name('settings.uom');
 });

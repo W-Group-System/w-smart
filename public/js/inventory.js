@@ -542,18 +542,18 @@ document.addEventListener("DOMContentLoaded", function () {
                             document.getElementById("modalSubsidiary").selectedIndex
                         ].text,
                     cost: document.getElementById("newCost").value,
-                    primaryUOM:
-                        document.getElementById("newPrimaryUOM").options[
-                            document.getElementById("newPrimaryUOM").selectedIndex
-                        ].text,
-                    secondaryUOM:
-                        document.getElementById("newSecondaryUOM").options[
-                            document.getElementById("newSecondaryUOM").selectedIndex
-                        ].text,
-                    tertiaryUOM:
-                        document.getElementById("newTertiaryUOM").options[
-                            document.getElementById("newTertiaryUOM").selectedIndex
-                        ].text,
+                    primaryUOM: {
+                        name: document.getElementById("newPrimaryUOM").options[document.getElementById("newPrimaryUOM").selectedIndex].text.split(" (")[0], 
+                        value: document.getElementById("newPrimaryUOM").options[document.getElementById("newPrimaryUOM").selectedIndex].text.split(" (")[1].slice(0, -1) // Get the value part
+                    },
+                    secondaryUOM: {
+                        name: document.getElementById("newSecondaryUOM").options[document.getElementById("newSecondaryUOM").selectedIndex].text.split(" (")[0], 
+                        value: document.getElementById("newSecondaryUOM").options[document.getElementById("newSecondaryUOM").selectedIndex].text.split(" (")[1].slice(0, -1) // Get the value part
+                    },
+                    tertiaryUOM: {
+                        name: document.getElementById("newTertiaryUOM").options[document.getElementById("newTertiaryUOM").selectedIndex].text.split(" (")[0], 
+                        value: document.getElementById("newTertiaryUOM").options[document.getElementById("newTertiaryUOM").selectedIndex].text.split(" (")[1].slice(0, -1) // Get the value part
+                    },
                     qty: document.getElementById("newQuantity").value,
                     remarks: document.getElementById("remarks").value,
                     usage: document.getElementById("newUsage").value,
@@ -575,9 +575,150 @@ document.addEventListener("DOMContentLoaded", function () {
                         alert("Item save successfully!");
                     })
                     .catch((error) => {
-                        console.error("Error assigning role:", error);
+                        console.error("Error saving new Item:", error);
                         alert("Error saving new Item.", error);
                     });
             });
         }
 });
+
+document.addEventListener("DOMContentLoaded", async function () {
+    const primaryUOMSelect = document.getElementById("newPrimaryUOM");
+    const secondaryUOMSelect = document.getElementById("newSecondaryUOM");
+    const tertiaryUOMSelect = document.getElementById("newTertiaryUOM");
+
+    const primaryUOMSearch = document.getElementById("primaryUOMSearch");
+    const secondaryUOMSearch = document.getElementById("secondaryUOMSearch");
+    const tertiaryUOMSearch = document.getElementById("tertiaryUOMSearch");
+
+    secondaryUOMSearch.disabled = true;
+    tertiaryUOMSearch.disabled = true;
+
+    let selectedPrimaryUOM = null;
+    let selectedSecondaryUOM = null;
+
+    let primaryUOMsData = [];
+    let secondaryUOMsData = [];
+
+    async function fetchUOMs(type, searchTerm, primaryUOM = null, secondaryUOM = null) {
+        try {
+            const params = {
+                limit: 10
+            };
+
+            if (type === 'primary') {
+                params.searchPrimary = searchTerm;
+            } else if (type === 'secondary') {
+                params.searchSecondary = searchTerm;
+                if (primaryUOM) {
+                    params.primary = primaryUOM; 
+                }
+            } else if (type === 'tertiary') {
+                params.searchTertiary = searchTerm;
+                if (primaryUOM) {
+                    params.primary = primaryUOM; 
+                }
+                if (secondaryUOM) {
+                    params.secondary = secondaryUOM; 
+                }
+            }
+
+            const response = await axios.get('/api/uom/list', { params });
+            const combinedUOMs = combineDuplicateUOMs(response.data.data, type);
+            
+            if (type === 'primary') {
+                primaryUOMsData = response.data.data;
+            } else if (type === 'secondary') {
+                secondaryUOMsData = response.data.data; 
+            }
+
+            return combinedUOMs;
+        } catch (error) {
+            console.error("Error fetching UOMs:", error);
+            return [];
+        }
+    }
+
+    function combineDuplicateUOMs(uoms, type) {
+        const uomMap = new Map();
+        uoms.forEach(uom => {
+            const key = `${uom[`${type}UOM`]} (${uom[`${type}UOMValue`]})`;
+            if (!uomMap.has(key)) {
+                uomMap.set(key, uom);
+            }
+        });
+        return Array.from(uomMap.values());
+    }
+
+    function updateDropdownOptions(selectElement, options, type) {
+        selectElement.innerHTML = '<option value="" disabled selected>Select UOM</option>';
+        options.forEach(uom => {
+            const uomValue = uom[`${type}UOM`]; 
+            const uomText = `${uomValue} (${uom[`${type}UOMValue`]})`;
+            const option = document.createElement('option');
+            option.value = uomValue;
+            option.text = uomText;
+            selectElement.appendChild(option);
+        });
+    }
+
+    function clearSecondaryAndTertiary() {
+        secondaryUOMSelect.innerHTML = '<option value="" disabled selected>Select UOM</option>';
+        tertiaryUOMSelect.innerHTML = '<option value="" disabled selected>Select UOM</option>';
+        secondaryUOMSearch.value = "";
+        tertiaryUOMSearch.value = "";
+        tertiaryUOMSearch.disabled = true;
+        selectedSecondaryUOM = null;
+    }
+
+    function clearTertiary() {
+        tertiaryUOMSelect.innerHTML = '<option value="" disabled selected>Select UOM</option>';
+        tertiaryUOMSearch.value = "";
+    }
+
+    primaryUOMSearch.addEventListener("input", async function () {
+        const searchTerm = this.value.trim();
+        const primaryUOMs = await fetchUOMs('primary', searchTerm);
+        updateDropdownOptions(primaryUOMSelect, primaryUOMs, 'primary');
+    });
+
+    primaryUOMSelect.addEventListener("change", async function () {
+        selectedPrimaryUOM = this.value;
+        secondaryUOMSearch.disabled = false; 
+        clearSecondaryAndTertiary(); 
+
+        const secondaryUOMs = await fetchUOMs('secondary', '', selectedPrimaryUOM);
+        updateDropdownOptions(secondaryUOMSelect, secondaryUOMs, 'secondary');
+    });
+
+    secondaryUOMSearch.addEventListener("input", async function () {
+        const searchTerm = this.value.trim();
+        const secondaryUOMs = await fetchUOMs('secondary', searchTerm, selectedPrimaryUOM);
+        updateDropdownOptions(secondaryUOMSelect, secondaryUOMs, 'secondary');
+    });
+
+    secondaryUOMSelect.addEventListener("change", async function () {
+        selectedSecondaryUOM = this.value;
+        tertiaryUOMSearch.disabled = false; 
+        clearTertiary(); 
+
+        const tertiaryUOMs = await fetchUOMs('tertiary', '', selectedPrimaryUOM, selectedSecondaryUOM);
+        updateDropdownOptions(tertiaryUOMSelect, tertiaryUOMs, 'tertiary');
+    });
+
+    tertiaryUOMSearch.addEventListener("input", async function () {
+        const searchTerm = this.value.trim();
+        const tertiaryUOMs = await fetchUOMs('tertiary', searchTerm, selectedPrimaryUOM, selectedSecondaryUOM);
+        updateDropdownOptions(tertiaryUOMSelect, tertiaryUOMs, 'tertiary');
+    });
+
+    [primaryUOMSelect, secondaryUOMSelect, tertiaryUOMSelect].forEach(selectElement => {
+        selectElement.addEventListener("change", function () {
+            this.size = 1; 
+        });
+    });
+
+    const initialPrimaryUOMs = await fetchUOMs('primary', ''); // Fetch without search term
+    updateDropdownOptions(primaryUOMSelect, initialPrimaryUOMs, 'primary');
+});
+

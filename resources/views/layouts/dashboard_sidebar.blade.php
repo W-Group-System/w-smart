@@ -117,6 +117,9 @@
                 <li class="nav-item dashboard-list" id="category-item" style="display: none;">
                     <a class="nav-link {{ request()->is('category') ? 'submenu-active' : '' }}" href="{{ route('category') }}">Category</a>
                 </li>
+                <li class="nav-item dashboard-list" id="uom-item" style="display: none;">
+                    <a class="nav-link {{ request()->is('settings/uom') ? 'submenu-active' : '' }}" href="{{ route('settings.uom') }}">UOMs</a>
+                </li>
             </ul>
         </li>
 

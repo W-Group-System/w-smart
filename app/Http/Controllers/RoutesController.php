@@ -34,4 +34,8 @@ class RoutesController extends Controller
     {
         return view('category');
     }
+    public function uom()
+    {
+        return view('uom');
+    }
 }

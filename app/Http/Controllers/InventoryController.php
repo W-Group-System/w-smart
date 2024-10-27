@@ -11,6 +11,7 @@ use App\Withdrawal;
 use App\WithdrawalItems;
 use App\Categories;
 use App\Subcategories;
+use App\Uoms;
 use RealRashid\SweetAlert\Facades\Alert;
 
 class InventoryController extends Controller
@@ -93,15 +94,40 @@ class InventoryController extends Controller
                'item_description' => 'required|string|max:255',
                'category_id' => 'required|integer',
                'item_category' => 'required|string|max:100',
-               'primaryUOM' => 'required|string|max:10',
-               'secondaryUOM' => 'required|string|max:10',
-               'tertiaryUOM' => 'required|string|max:10',
+               'primaryUOM.name' => 'required|string|max:255',
+               'primaryUOM.value' => 'required|integer',
+               'secondaryUOM.name' => 'required|string|max:255',
+               'secondaryUOM.value' => 'required|integer',
+               'tertiaryUOM.name' => 'required|string|max:255',
+               'tertiaryUOM.value' => 'required|integer',
                'qty' => 'required|numeric|min:0',
                'cost' => 'required|numeric|min:0',
                'usage' => 'required|numeric|min:0',
                'subsidiary' => 'required|string|max:100',
                'subsidiaryid' => 'required|numeric|min:0',
            	]);
+
+            $primaryUOMName = $request->primaryUOM['name'];
+            $primaryUOMValue = $request->primaryUOM['value'];
+            $secondaryUOMName = $request->secondaryUOM['name'];
+            $secondaryUOMValue = $request->secondaryUOM['value'];
+            $tertiaryUOMName = $request->tertiaryUOM['name'];
+            $tertiaryUOMValue = $request->tertiaryUOM['value'];
+
+            $uom = Uoms::where('uomp', $primaryUOMName)
+                ->where('uomp_value', $primaryUOMValue)
+                ->where('uoms', $secondaryUOMName)
+                ->where('uoms_value', $secondaryUOMValue)
+                ->where('uomt', $tertiaryUOMName)
+                ->where('uomt_value', $tertiaryUOMValue)
+                ->first();
+
+            if (!$uom) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Invalid UOM combination provided.',
+                ], 400);
+            }
 
            	$new_inventory = new Inventory();
            	$new_inventory->date = $request->date; 
@@ -111,9 +137,10 @@ class InventoryController extends Controller
             $new_inventory->item_category = $request->item_category; 
             $new_inventory->subcategory_id = $request->subcategory_id; 
             $new_inventory->subcategory_name = $request->subcategory_name; 
-           	$new_inventory->uomp = $request->primaryUOM; 
-            $new_inventory->uoms = $request->secondaryUOM; 
-            $new_inventory->uomt = $request->tertiaryUOM; 
+            $new_inventory->uomp = $primaryUOMName;
+            $new_inventory->uoms = $secondaryUOMName;
+            $new_inventory->uomt = $tertiaryUOMName; 
+            $new_inventory->uom_id = $uom->id;
            	$new_inventory->qty = $request->qty; 
            	$new_inventory->cost = $request->cost; 
            	$new_inventory->usage = $request->usage; 
@@ -1053,6 +1080,235 @@ class InventoryController extends Controller
                'message' => 'Failed to create subcategory.',
                'error' => $e->getMessage(),
             ], 500);
+        }
+    }
+
+    public function getUOMs(Request $request)
+    {
+        try {
+            $query = Uoms::select(
+                'id',
+                'relation_id',
+                'uomp as primaryUOM',
+                'uomp_value as primaryUOMValue',
+                'uoms as secondaryUOM',
+                'uoms_value as secondaryUOMValue',
+                'uomt as tertiaryUOM',
+                'uomt_value as tertiaryUOMValue'
+            );
+    
+            if ($request->has('primary') && !empty($request->primary)) {
+                $query->where('uomp', $request->primary);
+            }
+    
+            if ($request->has('secondary') && !empty($request->secondary)) {
+                $query->where('uoms', $request->secondary); 
+            }
+    
+            if ($request->has('searchPrimary') && !empty($request->searchPrimary)) {
+                $search = $request->searchPrimary;
+                $query->where('uomp', 'LIKE', "%$search%");
+            }
+    
+            if ($request->has('searchSecondary') && !empty($request->searchSecondary)) {
+                $search = $request->searchSecondary;
+                $query->where('uoms', 'LIKE', "%$search%");
+            }
+    
+            if ($request->has('searchTertiary') && !empty($request->searchTertiary)) {
+                $search = $request->searchTertiary;
+                $query->where('uomt', 'LIKE', "%$search%");
+            }
+    
+            $uoms = $query->limit($request->input('limit', 10))->get();
+    
+            return response()->json([
+                'status' => 'success',
+                'data' => $uoms,
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to fetch UOMs.',
+                'error' => $e->getMessage(),
+            ], 500); 
+        }
+    }
+
+    public function postUOM(Request $request)
+    {
+        try {
+            $request->validate([
+                'primaryUOM' => 'required|string|max:255',
+                'primaryUOMValue' => 'required|numeric|min:0',
+                'secondaryUOM' => 'required|string|max:255',
+                'secondaryUOMValue' => 'required|numeric|min:0',
+                'tertiaryUOM' => 'required|string|max:255',
+                'tertiaryUOMValue' => 'required|numeric|min:0',
+            ]);
+
+            $uoms = [
+                [
+                    'uom' => strtolower($request->primaryUOM),
+                    'value' => 1
+                ],
+                [
+                    'uom' => strtolower($request->secondaryUOM),
+                    'value' => round($request->secondaryUOMValue / $request->primaryUOMValue, 6)
+                ],
+                [
+                    'uom' => strtolower($request->tertiaryUOM),
+                    'value' => round($request->tertiaryUOMValue / $request->primaryUOMValue, 6)
+                ]
+            ];
+
+            function adjustUOMValues($primaryIndex, $secondaryIndex, $tertiaryIndex, $uoms)
+            {
+                $primaryUOM = $uoms[$primaryIndex];
+                $primaryUOM['value'] = 1;
+
+                $secondaryValue = $uoms[$secondaryIndex]['value'] / $uoms[$primaryIndex]['value'];
+                $tertiaryValue = $uoms[$tertiaryIndex]['value'] / $uoms[$primaryIndex]['value'];
+
+                $uoms[$primaryIndex]['value'] = 1;
+                $uoms[$secondaryIndex]['value'] = round($secondaryValue, 6);
+                $uoms[$tertiaryIndex]['value'] = round($tertiaryValue, 6);
+
+                return [
+                    $uoms[$primaryIndex],
+                    $uoms[$secondaryIndex],
+                    $uoms[$tertiaryIndex]
+                ];
+            }
+
+            $combinations = [];
+            $indices = [
+                [0, 1, 2], 
+                [0, 2, 1], 
+                [1, 0, 2], 
+                [1, 2, 0], 
+                [2, 0, 1], 
+                [2, 1, 0]  
+            ];
+
+            foreach ($indices as $indexSet) {
+                $adjustedUOMs = adjustUOMValues($indexSet[0], $indexSet[1], $indexSet[2], $uoms);
+                $combinations[] = [
+                    'uomp' => $adjustedUOMs[0]['uom'],
+                    'uomp_value' => $adjustedUOMs[0]['value'],
+                    'uoms' => $adjustedUOMs[1]['uom'],
+                    'uoms_value' => $adjustedUOMs[1]['value'],
+                    'uomt' => $adjustedUOMs[2]['uom'],
+                    'uomt_value' => $adjustedUOMs[2]['value']
+                ];
+            }
+
+            $firstCombination = $combinations[0];
+            $firstUOM = new Uoms();
+            $firstUOM->uomp = ucfirst($firstCombination['uomp']);
+            $firstUOM->uomp_value = $firstCombination['uomp_value'];
+            $firstUOM->uoms = ucfirst($firstCombination['uoms']);
+            $firstUOM->uoms_value = $firstCombination['uoms_value'];
+            $firstUOM->uomt = ucfirst($firstCombination['uomt']);
+            $firstUOM->uomt_value = $firstCombination['uomt_value'];
+            $firstUOM->save();
+
+            $relationId = $firstUOM->id;
+            $firstUOM->relation_id = $relationId;
+            $firstUOM->save();
+
+            for ($i = 1; $i < count($combinations); $i++) {
+                $combination = $combinations[$i];
+                $new_uom = new Uoms();
+                $new_uom->uomp = ucfirst($combination['uomp']);
+                $new_uom->uomp_value = $combination['uomp_value'];
+                $new_uom->uoms = ucfirst($combination['uoms']);
+                $new_uom->uoms_value = $combination['uoms_value'];
+                $new_uom->uomt = ucfirst($combination['uomt']);
+                $new_uom->uomt_value = $combination['uomt_value'];
+                $new_uom->relation_id = $relationId; 
+                $new_uom->save();
+            }
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Unique UOM combinations have been saved.',
+            ], 201);
+        } catch (\Exception $e) {
+            Log::error('Failed to create UOM: ' . $e->getMessage());
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to create UOM.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function getUOMSettings(Request $request)
+    {
+        try {
+            $query = Uoms::select(
+                'id',
+                'relation_id',
+                'uomp as primaryUOM',
+                'uomp_value as primaryUOMValue',
+                'uoms as secondaryUOM',
+                'uoms_value as secondaryUOMValue',
+                'uomt as tertiaryUOM',
+                'uomt_value as tertiaryUOMValue'
+            );
+
+            if ($request->has('primary') && !empty($request->primary)) {
+                $query->where('uomp', $request->primary);
+            }
+
+            if ($request->has('secondary') && !empty($request->secondary)) {
+                $query->where('uoms', $request->secondary); 
+            }
+
+            if ($request->has('searchPrimary') && !empty($request->searchPrimary)) {
+                $search = $request->searchPrimary;
+                $query->where('uomp', 'LIKE', "%$search%");
+            }
+
+            if ($request->has('searchSecondary') && !empty($request->searchSecondary)) {
+                $search = $request->searchSecondary;
+                $query->where('uoms', 'LIKE', "%$search%");
+            }
+
+            if ($request->has('searchTertiary') && !empty($request->searchTertiary)) {
+                $search = $request->searchTertiary;
+                $query->where('uomt', 'LIKE', "%$search%");
+            }
+
+            $uoms = $query->get();
+            $groupedUOMs = $uoms->groupBy('relation_id')->map(function ($group) {
+                return [
+                    'relation_id' => $group->first()->relation_id,
+                    'uoms' => $group->map(function ($uom) {
+                        return [
+                            'id' => $uom->id,
+                            'primaryUOM' => $uom->primaryUOM,
+                            'primaryUOMValue' => $uom->primaryUOMValue,
+                            'secondaryUOM' => $uom->secondaryUOM,
+                            'secondaryUOMValue' => $uom->secondaryUOMValue,
+                            'tertiaryUOM' => $uom->tertiaryUOM,
+                            'tertiaryUOMValue' => $uom->tertiaryUOMValue,
+                        ];
+                    })->values()
+                ];
+            })->values();
+
+            return response()->json([
+                'status' => 'success',
+                'data' => $groupedUOMs,
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to fetch UOM settings.',
+                'error' => $e->getMessage(),
+            ], 500); 
         }
     }
 }

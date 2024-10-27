@@ -48,3 +48,8 @@ Route::get('inventory/categories', 'InventoryController@getCategory')->name('inv
 Route::get('inventory/subcategories/{id}', 'InventoryController@getSubCategory')->name('inventory.Subcategories');
 Route::post('inventory/categories', 'InventoryController@postCategory')->name('inventory.post.categories');
 Route::post('inventory/subcategories', 'InventoryController@postSubCategory')->name('inventory.post.subcategories');
+
+//uoms
+Route::get('/uom/list', 'InventoryController@getUOMs')->name('uom.list');
+Route::get('/uom/settings', 'InventoryController@getUOMSettings')->name('uom.settings');
+Route::post('/uom/create', 'InventoryController@postUOM')->name('uom.create');
