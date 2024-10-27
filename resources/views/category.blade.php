@@ -22,21 +22,6 @@
             </tbody>
         </table>
     </div>
-
-    <div class="mb-4">
-        <h5>List of Users</h5>
-        <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th>Employee</th>
-                    <th>Role</th>
-                </tr>
-            </thead>
-            <tbody id="userList">
-            </tbody>
-        </table>
-    </div>
-
 <div class="modal fade" id="addCategoryModal" aria-labelledby="addCategoryModalLabel" aria-hidden="true" style="z-index: 1600;">
     <div class="modal-dialog">
         <div class="modal-content">
