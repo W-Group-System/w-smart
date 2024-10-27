@@ -117,6 +117,19 @@ document.addEventListener("DOMContentLoaded", function () {
         initializePopovers();
     }
 
+    function convertUOMDisplay(quantity, selectedUOM, primaryValue, secondaryValue, tertiaryValue) {
+        switch (selectedUOM) {
+            case "primary":
+                return quantity; 
+            case "secondary":
+                return quantity * secondaryValue;
+            case "tertiary":
+                return quantity * tertiaryValue;
+            default:
+                return quantity;
+        }
+    }
+
     function renderTable(inventoryData, totalPages) {
         tableBody.innerHTML = "";
         const startIndex = (currentPage - 1) * rowsPerPage;
@@ -125,6 +138,21 @@ document.addEventListener("DOMContentLoaded", function () {
 
         currentItems.forEach((item, index) => {
             const row = document.createElement("tr");
+
+            const primaryValue = parseFloat(item.primaryUOMValue);
+            const secondaryValue = parseFloat(item.secondaryUOMValue);
+            const tertiaryValue = parseFloat(item.tertiaryUOMValue);
+    
+            let originalQuantity = parseFloat(item.qty);
+
+            const uomDropdown = `
+                <select class="form-select uom-select" data-index="${index}">
+                    <option value="primary" selected>${item.uomp}</option>
+                    <option value="secondary">${item.uoms}</option>
+                    <option value="tertiary">${item.uomt}</option>
+                </select>
+            `;
+
             row.innerHTML = `
                 <td style="text-align: center; padding: 2px 10px;">${
                     item.inventory_id
@@ -142,12 +170,10 @@ document.addEventListener("DOMContentLoaded", function () {
                 <td style="text-align: center; padding: 2px 10px;">${
                     item.item_category
                 }</td>
-                <td style="text-align: center; padding: 2px 10px;">${
-                    item.qty
-                }</td>
                 <td style="text-align: center; padding: 2px 10px;">
-                    ${item.uomp || item.uoms || item.uomt || "N/A"}
+                    <span class="quantity-display">${originalQuantity}</span>
                 </td>
+                <td style="text-align: center; padding: 2px 10px;">${uomDropdown}</td>
                 <td style="text-align: center; padding: 2px 10px;">${
                     item.cost
                 }</td>
@@ -171,6 +197,28 @@ document.addEventListener("DOMContentLoaded", function () {
                 </td>
             `;
             tableBody.appendChild(row);
+
+            const uomSelect = row.querySelector(".uom-select");
+            const quantityDisplay = row.querySelector(".quantity-display");
+
+            uomSelect.addEventListener("change", function () {
+                const selectedUOM = this.value;
+
+                let convertedQuantity;
+                switch (selectedUOM) {
+                    case "primary":
+                        convertedQuantity = originalQuantity; 
+                        break;
+                    case "secondary":
+                        convertedQuantity = originalQuantity * secondaryValue; 
+                        break;
+                    case "tertiary":
+                        convertedQuantity = originalQuantity * tertiaryValue; 
+                        break;
+                }
+
+                quantityDisplay.textContent = convertedQuantity.toFixed(2);
+            });
         });
 
         totalItemsText.textContent = `${startIndex + 1}-${Math.min(
