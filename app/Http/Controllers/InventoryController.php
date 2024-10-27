@@ -49,6 +49,21 @@ class InventoryController extends Controller
             $query->orderBy('date', 'desc');
             $inventory = $query->paginate($perPage);
 
+            $inventory->getCollection()->transform(function ($item) {
+                if ($item->uom_id) {
+                    $uom = Uoms::find($item->uom_id);
+                    if ($uom) {
+                        $item->primaryUOM = $uom->uomp;
+                        $item->primaryUOMValue = $uom->uomp_value;
+                        $item->secondaryUOM = $uom->uoms;
+                        $item->secondaryUOMValue = $uom->uoms_value;
+                        $item->tertiaryUOM = $uom->uomt;
+                        $item->tertiaryUOMValue = $uom->uomt_value;
+                    }
+                }
+                return $item;
+            });
+
             return response()->json([
                 'status' => 'success',
                 'data' => $inventory->items(),
@@ -95,11 +110,11 @@ class InventoryController extends Controller
                'category_id' => 'required|integer',
                'item_category' => 'required|string|max:100',
                'primaryUOM.name' => 'required|string|max:255',
-               'primaryUOM.value' => 'required|integer',
+               'primaryUOM.value' => 'required|numeric|min:0',
                'secondaryUOM.name' => 'required|string|max:255',
-               'secondaryUOM.value' => 'required|integer',
+               'secondaryUOM.value' => 'required|numeric|min:0',
                'tertiaryUOM.name' => 'required|string|max:255',
-               'tertiaryUOM.value' => 'required|integer',
+               'tertiaryUOM.value' => 'required|numeric|min:0',
                'qty' => 'required|numeric|min:0',
                'cost' => 'required|numeric|min:0',
                'usage' => 'required|numeric|min:0',
