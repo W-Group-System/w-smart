@@ -144,6 +144,7 @@ document.addEventListener("DOMContentLoaded", function () {
             const tertiaryValue = parseFloat(item.tertiaryUOMValue);
     
             let originalQuantity = parseFloat(item.qty);
+            let originalUsage = parseFloat(item.usage);
 
             const uomDropdown = `
                 <select class="form-select uom-select" data-index="${index}">
@@ -177,9 +178,9 @@ document.addEventListener("DOMContentLoaded", function () {
                 <td style="text-align: center; padding: 2px 10px;">${
                     item.cost
                 }</td>
-                <td style="text-align: center; padding: 2px 10px;">${
-                    item.usage
-                }</td>
+                <td style="text-align: center; padding: 2px 10px;">
+                    <span class="usage-display">${originalUsage > 0 ? originalUsage : '0'}</span>
+                </td>
                 <td style="text-align: center; padding: 2px 10px;">
                     <div style="position: relative;">
                         <button type="button" class="btn btn-link actionButton" data-bs-toggle="popover" 
@@ -200,24 +201,29 @@ document.addEventListener("DOMContentLoaded", function () {
 
             const uomSelect = row.querySelector(".uom-select");
             const quantityDisplay = row.querySelector(".quantity-display");
-
+            const usageDisplay = row.querySelector(".usage-display");
+            
             uomSelect.addEventListener("change", function () {
                 const selectedUOM = this.value;
-
-                let convertedQuantity;
+            
+                let convertedQuantity, convertedUsage;
                 switch (selectedUOM) {
                     case "primary":
-                        convertedQuantity = originalQuantity; 
+                        convertedQuantity = originalQuantity;
+                        convertedUsage = originalUsage || 0;
                         break;
                     case "secondary":
-                        convertedQuantity = originalQuantity * secondaryValue; 
+                        convertedQuantity = originalQuantity * secondaryValue;
+                        convertedUsage = originalUsage > 0 ? originalUsage * secondaryValue : 0; // Default to 0 if no usage
                         break;
                     case "tertiary":
-                        convertedQuantity = originalQuantity * tertiaryValue; 
+                        convertedQuantity = originalQuantity * tertiaryValue;
+                        convertedUsage = originalUsage > 0 ? originalUsage * tertiaryValue : 0; // Default to 0 if no usage
                         break;
                 }
-
+            
                 quantityDisplay.textContent = convertedQuantity.toFixed(2);
+                usageDisplay.textContent = convertedUsage.toFixed(2);
             });
         });
 
