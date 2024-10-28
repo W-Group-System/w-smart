@@ -211,7 +211,10 @@
                                     </td>
                                     <td contenteditable="false" class="itemDescription" style="background-color: #E9ECEF; color: #999; pointer-events: none;"></td>
                                     <td contenteditable="false" class="itemCategory" style="background-color: #E9ECEF; color: #999; pointer-events: none;"></td>
-                                    <td contenteditable="true" class="uom"></td>
+                                    <td>
+                                        <select class="form-select form-select-sm uom-dropdown">
+                                        </select>
+                                    </td>
                                     <td contenteditable="true" class="reason"></td>
                                     <td contenteditable="true" class="requestedQty"></td>
                                 </tr>

@@ -32,17 +32,17 @@ document.addEventListener("DOMContentLoaded", function () {
         const submitButton = document.getElementById('submitRequestWithdraw');
         const rows = document.querySelectorAll('#itemTableBody tr');
         let allFieldsFilled = true;
-
+    
         rows.forEach(row => {
-            const itemCode = row.querySelector(".itemCodeInput").value.trim();
-            const uom = row.querySelector('.uom').textContent.trim();
-            const reason = row.querySelector('.reason').textContent.trim();
-            if (itemCode === '' || uom === '' || reason === '') {
+            const itemCode = row.querySelector(".itemCodeInput")?.value.trim();
+            const uom = row.querySelector('.uom-dropdown')?.value;
+            const reason = row.querySelector('.reason')?.textContent.trim();
+    
+            if (!itemCode || !uom || !reason) {
                 allFieldsFilled = false;
             }
         });
-
-        
+    
         submitButton.disabled = !allFieldsFilled;
     }
 
@@ -117,39 +117,36 @@ document.addEventListener("DOMContentLoaded", function () {
             })
             .then((response) => {
                 if (response.data.status === "success" && response.data.data) {
-                    row.querySelector('.itemCategory').contentEditable = true;
-                    row.querySelector('.uom').contentEditable = true;
-                    row.querySelector('.reason').contentEditable = true;
-                    row.querySelector('.requestedQty').contentEditable = true;
                     const item = response.data.data;
-                    
-                    row.querySelector(".itemDescription").textContent =
-                        item.item_description;
-                    row.querySelector(".itemCategory").textContent =
-                        item.item_category;
-                    row.querySelector(".requestedQty").textContent = item.qty;
+    
+                    row.querySelector(".itemDescription").textContent = item.item_description;
+                    row.querySelector(".itemCategory").textContent = item.item_category;
+    
+                    const uomDropdown = row.querySelector(".uom-dropdown");
+                    populateUOMOptions(item.primaryUOM, item.secondaryUOM, item.tertiaryUOM, uomDropdown);
+    
                     const qtyCell = row.querySelector(".requestedQty");
                     const maxQty = parseFloat(item.qty);
+                    qtyCell.textContent = maxQty.toFixed(2);
+                    qtyCell.dataset.maxQty = maxQty;
+    
+                    row.dataset.uomId = item.uom_id;
+                    row.dataset.baseQty = maxQty;
+                    row.dataset.primaryValue = item.primaryUOMValue || 1;
+                    row.dataset.secondaryValue = item.secondaryUOMValue || 1;
+                    row.dataset.tertiaryValue = item.tertiaryUOMValue || 1;
+    
                     qtyCell.contentEditable = "true";
-                    qtyCell.addEventListener("input", function () {
-                        const currentQty = parseFloat(qtyCell.textContent);
-                        if (currentQty > maxQty) {
-                            qtyCell.textContent = maxQty;
-                            alert(`Maximum allowed quantity is ${maxQty}`);
-                        }
-                    });
                     validateItems();
                 } else if (response.data.status === "warning") {
-                    alert(
-                        `${response.data.message} Please check the correct subsidiary.`
-                    );
+                    alert(`${response.data.message} Please check the correct subsidiary.`);
                 } else {
                     alert("Item not found in the inventory.");
                 }
             })
             .catch((error) => {
                 console.error("Error fetching item details:", error);
-                alert("No item found with this item code.");
+                alert("An error occurred while fetching item details.");
             });
     }
     const newItemCodeInput = document.querySelector('#itemTableBody tr:last-child .itemCodeInput');
@@ -423,22 +420,100 @@ document.addEventListener("DOMContentLoaded", function () {
         
     });
 
+    function populateUOMOptions(primaryUOM, secondaryUOM, tertiaryUOM, dropdown) {
+        dropdown.innerHTML = '';
+    
+        const uomOptions = [
+            { label: primaryUOM || 'Primary', value: primaryUOM || 'Primary' }, 
+            { label: secondaryUOM || 'Secondary', value: secondaryUOM || 'Secondary' }, 
+            { label: tertiaryUOM || 'Tertiary', value: tertiaryUOM || 'Tertiary' } 
+        ];
+    
+        uomOptions.forEach((uom, index) => {
+            if (uom.label) {
+                const option = document.createElement('option');
+                option.value = uom.value; 
+                option.textContent = uom.label;
+                dropdown.appendChild(option);
+                if (index === 0) {
+                    option.selected = true;
+                }
+            }
+        });
+    
+        dropdown.addEventListener('change', function (event) {
+            const row = dropdown.closest('tr');
+            const qtyElement = row.querySelector(".requestedQty");
+    
+            let baseQty = parseFloat(row.dataset.baseQty) || parseFloat(qtyElement.textContent);
+            if (!row.dataset.baseQty) {
+                row.dataset.baseQty = baseQty;
+            }
+    
+            const primaryValue = parseFloat(row.dataset.primaryValue) || 1;
+            const secondaryValue = parseFloat(row.dataset.secondaryValue) || 1;
+            const tertiaryValue = parseFloat(row.dataset.tertiaryValue) || 1;
+    
+            let selectedUOM = dropdown.value;
+            let convertedQty;
+            let maxConvertedQty;
+    
+            switch (selectedUOM) {
+                case primaryUOM:
+                    convertedQty = baseQty * primaryValue;
+                    maxConvertedQty = baseQty * primaryValue;
+                    break;
+                case secondaryUOM:
+                    convertedQty = baseQty * secondaryValue;
+                    maxConvertedQty = baseQty * secondaryValue;
+                    break;
+                case tertiaryUOM:
+                    convertedQty = baseQty * tertiaryValue;
+                    maxConvertedQty = baseQty * tertiaryValue;
+                    break;
+                default:
+                    convertedQty = baseQty;
+                    maxConvertedQty = baseQty;
+            }
+    
+            qtyElement.textContent = convertedQty.toFixed(2);
+            qtyElement.setAttribute('data-max-qty', maxConvertedQty.toFixed(2));
+            row.dataset.maxQty = maxConvertedQty;
+    
+            qtyElement.removeEventListener("input", handleQuantityInput);
+            qtyElement.addEventListener("input", handleQuantityInput);
+        });
+    
+        function handleQuantityInput(event) {
+            const qtyElement = event.target;
+            const maxAllowedQty = parseFloat(qtyElement.getAttribute('data-max-qty'));
+            const currentQty = parseFloat(qtyElement.textContent) || 0;
+    
+            if (currentQty > maxAllowedQty) {
+                qtyElement.textContent = maxAllowedQty.toFixed(2);
+                alert(`Maximum allowed quantity is ${maxAllowedQty.toFixed(2)}`);
+            }
+        }
+    }
+
     document.getElementById('addRowBtn').addEventListener('click', function(e) {
         e.preventDefault();
         const submitButton = document.getElementById('submitRequestWithdraw');
         submitButton.disabled = true;
-        const rowCount = document.querySelectorAll('#itemTableBody tr').length; // Get current row count for unique datalist ID
+        
         const newRow = `
             <tr>
-                <td contenteditable="true">
+                <td>
                     <div style="position: relative;">
-                        <input type="text" class="form-control form-control-sm itemCodeInput" placeholder="Enter Item Code" style="width: 100%; max-width: 200px; padding: 6px; border-radius: 5px; border: 1px solid #ced4da;" list="itemSuggestions${rowCount}">
-                        <datalist id="itemSuggestions${rowCount}"></datalist>
+                        <input type="text" class="form-control form-control-sm itemCodeInput" placeholder="Enter Item Code" list="itemSuggestions">
+                        <datalist id="itemSuggestions"></datalist>
                     </div>
                 </td>
-                <td contenteditable="false" class="itemDescription" style="background-color: #E9ECEF; color: #999; pointer-events: none;"></td>
-                <td contenteditable="false" class="itemCategory" style="background-color: #E9ECEF; color: #999; pointer-events: none;"></td>
-                <td contenteditable="true" class="uom"></td>
+                <td class="itemDescription" style="background-color: #E9ECEF; pointer-events: none;"></td>
+                <td class="itemCategory" style="background-color: #E9ECEF; pointer-events: none;"></td>
+                <td>
+                    <select class="form-control uom-dropdown"></select>
+                </td>
                 <td contenteditable="true" class="reason"></td>
                 <td contenteditable="true" class="requestedQty"></td>
             </tr>
@@ -448,7 +523,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         const newItemCodeInput = document.querySelector('#itemTableBody tr:last-child .itemCodeInput');
         const newReasonInput = document.querySelector('#itemTableBody tr:last-child .reason');
-        const newUomInput = document.querySelector('#itemTableBody tr:last-child .uom');
+        const newUomDropdown = document.querySelector('#itemTableBody tr:last-child .uom-dropdown');
         
         newItemCodeInput.addEventListener('input', async (e) => {
             const searchTerm = e.target.value.trim();
@@ -487,19 +562,14 @@ document.addEventListener("DOMContentLoaded", function () {
 
         newItemCodeInput.addEventListener("blur", function(e) {
             e.preventDefault();
-            
             const itemCode = e.target.value;
+            const subsidiaryId = document.getElementById('usersubsidiaryid').value;
             if (itemCode) {
-                fetchItemDetails(itemCode, subsidiary_id, e.target);
+                fetchItemDetails(itemCode, subsidiaryId, e.target);
             }
         });
 
         newReasonInput.addEventListener("input", function(e) {
-            e.preventDefault();
-            validateItems();
-        });
-
-        newUomInput.addEventListener("input", function(e) {
             e.preventDefault();
             validateItems();
         });
@@ -529,9 +599,9 @@ document.addEventListener("DOMContentLoaded", function () {
                     item_category:
                         row.querySelector(".itemCategory").textContent.trim()
                     ,
-                    uom:
-                        row.querySelector(".uom").textContent.trim()
-                    ,
+                    uom: 
+                        row.querySelector(".uom-dropdown")?.value || '',
+                    uom_id: row.dataset.uomId,
                     reason:
                         row.querySelector(".reason").textContent.trim()
                     ,
@@ -589,11 +659,10 @@ document.addEventListener("DOMContentLoaded", function () {
                 setTimeout(() => {
                     fetchWithdrawal(currentPage);
                     clearTransferModal();
-                    // Optionally remove backdrop and reset body styles
                     document.querySelectorAll(".modal-backdrop").forEach((el) => el.remove());
                     document.body.classList.remove("modal-open");
-                    document.body.style.overflow = ""; // Resets body overflow style if needed
-                }, 300); // Adjust delay as needed
+                    document.body.style.overflow = "";
+                }, 300); 
 
             })
             .catch((error) => {
@@ -727,6 +796,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 const approverId = target.dataset.approverId;
                 const requesterId = target.dataset.requesterId;
                 const userId = document.getElementById("userId").value;
+                const uom = target.querySelector("td:nth-child(9)").textContent.trim();
                 if (target.dataset.status === "1") {
                     if (requesterId !== userId) {
                         Swal.fire({
@@ -771,8 +841,8 @@ document.addEventListener("DOMContentLoaded", function () {
                     const currentReleasedQty = target.dataset.releasedQty || "";
                     releasedQtyInput.value = currentReleasedQty !== "" ? currentReleasedQty : "";
                 
+                    document.getElementById("requestedQty").value = `${requestedQty} (${uom})`;
                     releasedQtyInput.setAttribute("max", requestedQty);
-                    document.getElementById("requestedQty").value = requestedQty;
                 
                     document.getElementById("approveWithdrawButton").disabled = true;
                 

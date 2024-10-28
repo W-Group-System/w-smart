@@ -841,6 +841,7 @@ class InventoryController extends Controller
                 'items.*.item_description' => 'required|string|max:255',
                 'items.*.item_category' => 'required|string|max:100',
                 'items.*.uom' => 'required|string|max:50',
+                'items.*.uom_id' => 'required|integer|exists:uoms,id',
                 'items.*.reason' => 'required|string|max:50',
                 'items.*.qty' => 'required|numeric|min:0.01',
                 'approvals' => 'required|array|min:2',
@@ -869,6 +870,7 @@ class InventoryController extends Controller
                 $itemCode = $item['item_code'];
                 $qty = $item['qty'];
                 $uom = $item['uom'];
+                $uomId = $item['uom_id'];
                 $reason = $item['reason'];
                 $item_description = $item['item_description'];
                 $item_category = $item['item_category'];
@@ -891,6 +893,7 @@ class InventoryController extends Controller
                     $newWithdrawalLog->category = $item_category;
                     $newWithdrawalLog->requested_qty = $qty;
                     $newWithdrawalLog->uom = $uom;
+                    $newWithdrawalLog->uom_id = $uomId;
                     $newWithdrawalLog->reason = $reason;
                     $newWithdrawalLog->status = 0;
                     $newWithdrawalLog->hierarchy = 1;
@@ -948,14 +951,25 @@ class InventoryController extends Controller
             if ($withdraw->status !== 1) {
                 return response()->json([
                     'status' => 'error',
-                    'message' => 'This withdraw request is not approve by the approvers yet!',
+                    'message' => 'This withdraw request is not approved by the approvers yet!',
                 ], 400);
             }
 
             $itemCode = $withdraw->item_code;
-            $qty = $request->released_qty;
+            $releasedQty = $request->released_qty;
+
+            $withdrawal = Withdrawal::find($withdraw->withdrawal_id);
+            if (!$withdrawal) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Associated withdrawal record not found.',
+                ], 404);
+            }
+            $subsidiaryId = $withdrawal->subsidiaryid;
+
             $inventory = Inventory::where('item_code', $itemCode)
-                ->first();
+                                ->where('subsidiaryid', $subsidiaryId)
+                                ->first();
 
             if (!$inventory) {
                 return response()->json([
@@ -964,7 +978,17 @@ class InventoryController extends Controller
                 ], 404);
             }
 
-            if ($inventory->qty < $qty) {
+            $uom = Uoms::find($withdraw->uom_id);
+            if (!$uom) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'UOM configuration not found for the inventory item.',
+                ], 404);
+            }
+
+            $convertedQty = $this->convertToPrimaryUOM($uom, $releasedQty, $withdraw->uom);
+
+            if ($inventory->qty < $convertedQty) {
                 return response()->json([
                     'status' => 'error',
                     'message' => "Insufficient quantity for item '{$itemCode}'.",
@@ -972,8 +996,8 @@ class InventoryController extends Controller
                 ], 200);
             }
 
-            $inventory->qty -= $qty;
-            $inventory->usage += $qty;
+            $inventory->qty -= $convertedQty;
+            $inventory->usage += $convertedQty;
             $inventory->save();
 
             $withdraw->status = 2;
@@ -991,6 +1015,22 @@ class InventoryController extends Controller
                 'error' => $e->getMessage(),
             ], 500);
         }
+    }
+
+    private function convertToPrimaryUOM($uom, $releasedQty, $currentUOM)
+    {
+        $secondaryValue = $uom->uoms_value; 
+        $tertiaryValue = $uom->uomt_value;
+
+        if ($currentUOM === $uom->uomp) {
+            return $releasedQty;
+        } elseif ($currentUOM === $uom->uoms) {
+            return $releasedQty / $secondaryValue;
+        } elseif ($currentUOM === $uom->uomt) {
+            return $releasedQty / $tertiaryValue;
+        }
+
+        return $releasedQty;
     }
 
     public function approveWithdraw(Request $request, $transactId)
