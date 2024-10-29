@@ -9,6 +9,10 @@
         <div class="d-flex justify-content-between align-items-center mb-3">
             <div class="d-flex align-items-center">
                 <h6 class="fw-bold me-3">Masterlist</h6>
+                <input type="hidden" id="userId" value="{{ auth()->user()->id }}">
+                <input type="hidden" id="userName" value="{{ auth()->user()->name }}">
+                <input type="hidden" id="usersubsidiary" value="{{ auth()->user()->subsidiary }}">
+                <input type="hidden" id="usersubsidiaryid" value="{{ auth()->user()->subsidiaryid }}">
                 <div class="input-group" style="max-width: 350px; position: relative;">
                     <input type="text" class="form-control" placeholder="Search here" aria-label="Search"
                         id="searchInput" style="padding-right: 100px; border-radius: 20px; height: 35px;">
@@ -42,7 +46,7 @@
             </div>
 
             <div class="d-flex align-items-center">
-                <select class="form-select me-3" id="subsidiary"
+<!--                 <select class="form-select me-3" id="subsidiary"
                     style="width: 150px; height: 35px; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); color: #6c757d; border-radius: 25px; font-size: 14px;">
                     <option selected value="1">HO</option>
                     <option value="2">WTCC</option>
@@ -51,10 +55,10 @@
                     <option value="5">WFA</option>
                     <option value="6">WOI</option>
                     <option value="7">WGC</option>
-                </select>
-                <a href="#" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#inventoryReturnedModal"
+                </select> -->
+                <a href="#" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#inventoryWithdrawalModal" id="addWithdraw"
                     style="height: 35px; padding: 0 15px; display: flex; align-items: center; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); font-size: 14px;">
-                    Return Inventory
+                    Inventory Return
                 </a>
             </div>
 
@@ -63,81 +67,47 @@
         <!-- Table Section -->
         <div class="table-responsive">
             <table class="table table-hover table-bordered" style="border-collapse: collapse; min-width: 1000px;">
-                <thead class="table-light">
-                    <tr>
-                        <th
-                            style="text-align: center; padding: 8px 10px; border: none; font-weight: 400; color: #637281;">
-                        </th>
-                        <th
-                            style="text-align: center; padding: 8px 10px; border: none; font-weight: 400; color: #637281;">
-                            Date of Request <i class="bi bi-three-dots-vertical"></i>
-                        </th>
-                        <th
-                            style="text-align: center; padding: 8px 10px; border: none; font-weight: 400; color: #637281;">
-                            Requestor Name <i class="bi bi-three-dots-vertical"></i>
-                        </th>
-                        <th
-                            style="text-align: center; padding: 8px 10px; border: none; font-weight: 400; color: #637281;">
-                            Request Number <i class="bi bi-three-dots-vertical"></i>
-                        </th>
-                        <th
-                            style="text-align: center; padding: 8px 10px; border: none; font-weight: 400; color: #637281;">
-                            Item Code <i class="bi bi-three-dots-vertical"></i></th>
-                        <th
-                            style="text-align: center; padding: 8px 10px; border: none; font-weight: 400; color: #637281;">
-                            Item Description <i class="bi bi-three-dots-vertical"></i></th>
-                        <th
-                            style="text-align: center; padding: 8px 10px; border: none; font-weight: 400; color: #637281;">
-                            QTY <i class="bi bi-three-dots-vertical"></i></th>
-                        <th
-                            style="text-align: center; padding: 8px 10px; border: none; font-weight: 400; color: #637281;">
-                            UOM <i class="bi bi-three-dots-vertical"></i></th>
-                        <th
-                            style="text-align: center; padding: 8px 10px; border: none; font-weight: 400; color: #637281;">
-                            Date Released <i class="bi bi-three-dots-vertical"></i></th>
-                        <th
-                            style="text-align: center; padding: 8px 10px; border: none; font-weight: 400; color: #637281;">
-                            Reason <i class="bi bi-three-dots-vertical"></i></th>
-                        <th
-                            style="text-align: center; padding: 8px 10px; border: none; font-weight: 400; color: #637281;">
-                            Status <i class="bi bi-three-dots-vertical"></i>
-                        </th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td style="text-align: center; padding: 2px 10px;"></td>
-                        <td style="text-align: center; padding: 2px 10px;">00/00/0000</td>
-                        <td style="text-align: center; padding: 2px 10px;">Requestor Name</td>
-                        <td style="text-align: center; padding: 2px 10px;">000000</td>
-                        <td style="text-align: center; padding: 2px 10px;">000000</td>
-                        <td style="text-align: center; padding: 2px 10px;">Item Description</td>
-                        <td style="text-align: center; padding: 2px 10px;">00.00</td>
-                        <td style="text-align: center; padding: 2px 10px;">PCS</td>
-                        <td style="text-align: center; padding: 2px 10px;">00/00/0000</td>
-                        <td style="text-align: center; padding: 2px 10px;">Reason</td>
-                        <td style="text-align: center; padding: 2px 10px;">
-                            <span class="badge bg-danger">Pending</span>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td style="text-align: center; padding: 2px 10px;"></td>
-                        <td style="text-align: center; padding: 2px 10px;">00/00/0000</td>
-                        <td style="text-align: center; padding: 2px 10px;">Requestor Name</td>
-                        <td style="text-align: center; padding: 2px 10px;">000000</td>
-                        <td style="text-align: center; padding: 2px 10px;">000000</td>
-                        <td style="text-align: center; padding: 2px 10px;">Item Description</td>
-                        <td style="text-align: center; padding: 2px 10px;">00.00</td>
-                        <td style="text-align: center; padding: 2px 10px;">PCS</td>
-                        <td style="text-align: center; padding: 2px 10px;">00/00/0000</td>
-                        <td style="text-align: center; padding: 2px 10px;">Reason</td>
-                        <td style="text-align: center; padding: 2px 10px;">
-                            <span class="badge bg-primary">Closed</span>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
+               <thead class="table-light">
+                   <tr>
+                       <th class="text-center" style="padding: 8px 10px; border: none; font-weight: 400; color: #637281;">
+                       </th>
+                       <th class="text-center" style="padding: 8px 10px; border: none; font-weight: 400; color: #637281;">
+                           Date of Request <i class="bi bi-three-dots-vertical"></i>
+                       </th>
+                       <th class="text-center" style="padding: 8px 10px; border: none; font-weight: 400; color: #637281;">
+                           Requestor Name <i class="bi bi-three-dots-vertical"></i>
+                       </th>
+                       <th class="text-center" style="padding: 8px 10px; border: none; font-weight: 400; color: #637281;">
+                           Request Number <i class="bi bi-three-dots-vertical"></i>
+                       </th>
+                       <th class="text-center" style="padding: 8px 10px; border: none; font-weight: 400; color: #637281;">
+                           Subsidiary <i class="bi bi-three-dots-vertical"></i>
+                       </th>
+                       <th class="text-center" style="padding: 8px 10px; border: none; font-weight: 400; color: #637281;">
+                           Item Code <i class="bi bi-three-dots-vertical"></i>
+                       </th>
+                       <th class="text-center" style="padding: 8px 10px; border: none; font-weight: 400; color: #637281;">
+                           Item Description <i class="bi bi-three-dots-vertical"></i>
+                       </th>
+                       <th class="text-center" style="padding: 8px 10px; border: none; font-weight: 400; color: #637281;">
+                           Withdrew QTY <i class="bi bi-three-dots-vertical"></i>
+                       </th>
+                       <th class="text-center" style="padding: 8px 10px; border: none; font-weight: 400; color: #637281;">
+                           Returned QTY <i class="bi bi-three-dots-vertical"></i>
+                       </th>
+                       <th class="text-center" style="padding: 8px 10px; border: none; font-weight: 400; color: #637281;">
+                           UOM <i class="bi bi-three-dots-vertical"></i>
+                       </th>
+                       <th class="text-center" style="padding: 8px 10px; border: none; font-weight: 400; color: #637281;">
+                           Status <i class="bi bi-three-dots-vertical"></i>
+                       </th>
+                   </tr>
+               </thead>
+               <tbody>
+                   <!-- Add your table rows here -->
+               </tbody>
+           </table>
+       </div>
 
         <!-- Pagination Section -->
         <hr style="border-top: 1px solid #ddd; margin-top: 10px; margin-bottom: 10px;">
@@ -173,108 +143,132 @@
     </div>
 </div>
 
-<!-- Returned Modal -->
-<div class="modal fade" id="inventoryReturnedModal" tabindex="-1" aria-labelledby="inventoryReturnedModalLabel"
+<!-- Withdrawal Modal -->
+<div class="modal fade" id="inventoryWithdrawalModal" tabindex="-1" aria-labelledby="inventoryWithdrawalModalLabel"
     aria-hidden="true">
     <div class="modal-dialog modal-xl">
         <div class="modal-content" style="padding: 20px;">
             <div class="modal-header">
-                <h5 class="modal-title" id="inventoryReturnedModalLabel">Returned Inventory</h5>
+                <h5 class="modal-title" id="inventoryWithdrawalModalLabel">Inventory Withdrawal</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body p-2">
-                <form id="inventoryReturnedForm">
+                <form id="inventoryWithdrawalForm">
                     <!-- Transaction Information -->
                     <div class="row g-2 mb-3">
                         <div class="col-md-6">
                             <label for="requestedDateTime" class="form-label">Requested Date/Time</label>
-                            <input type="text" class="form-control form-control-sm" value="Auto Generate" readonly>
+                            <input type="text" class="form-control form-control-sm" id="withdrawalDate" value="Auto Generate" readonly>
                         </div>
                         <div class="col-md-6">
                             <label for="requestNumber" class="form-label">Request Number</label>
-                            <input type="text" class="form-control form-control-sm" value="Auto Generate" readonly>
+                            <input type="text" class="form-control form-control-sm" id="requestNumber" readonly>
                         </div>
                         <div class="col-md-6">
                             <label for="requestorName" class="form-label">Requestor Name</label>
-                            <input type="text" class="form-control form-control-sm" value="Auto Generate" readonly>
+                            <input type="text" class="form-control form-control-sm" id="requestName" readonly>
                         </div>
+                        <div class="col-md-6">
+                            <label for="requestorName" class="form-label">Subsidiary</label>
+                            <input type="text" class="form-control form-control-sm" id="subsidiary" value="HO" readonly>
+                        </div>
+
                     </div>
 
                     <!-- Item Information Table -->
+
                     <div class="table-responsive mb-3">
-                        <table class="table table-bordered table-sm">
+                        <!-- Button to add a new row -->
+                        <button type="button" class="btn btn-link text-secondary fw-bold" id="addRowBtn"
+                            style="font-size: 14px;">
+                            + Add More Item
+                        </button>
+                        <table class="table table-bordered table-sm" id="itemsTable">
                             <thead class="table-light">
                                 <tr>
                                     <th>Item Code</th>
                                     <th>Item Description</th>
                                     <th>Category</th>
-                                    <th>Primary UOM</th>
-                                    <th>Secondary UOM</th>
-                                    <th>Tertiary UOM</th>
-                                    <th>Requested QTY</th>
-                                    <th>Released QTY</th>
+                                    <th>UOM</th>
+                                    <th>Withdrawal QTY</th>
+                                    <th>Returned QTY</th>
                                 </tr>
                             </thead>
-                            <tbody>
+                            <tbody id="itemTableBody">
                                 <tr>
-                                    <td contenteditable="false">Auto Generate</td>
-                                    <td contenteditable="true"></td>
-                                    <td contenteditable="true"></td>
-                                    <td contenteditable="true"></td>
-                                    <td contenteditable="true"></td>
-                                    <td contenteditable="true"></td>
-                                    <td contenteditable="true"></td>
-                                    <td contenteditable="true"></td>
+                                    <div style="position: relative;">
+                                    <td contenteditable="false">
+                                        <div style="position: relative;">
+                                            <input type="text" class="form-control form-control-sm itemCodeInput" placeholder="Enter Item Code" style="width: 100%; max-width: 200px; padding: 6px; border-radius: 5px; border: 1px solid #ced4da;" list="itemSuggestions">
+                                            <datalist id="itemSuggestions"></datalist>
+                                        </div>
+                                    </td>
+                                    <td contenteditable="false" class="itemDescription" style="background-color: #E9ECEF; color: #999; pointer-events: none;"></td>
+                                    <td contenteditable="false" class="itemCategory" style="background-color: #E9ECEF; color: #999; pointer-events: none;"></td>
+                                    <td>
+                                        <select class="form-select form-select-sm uom-dropdown">
+                                        </select>
+                                    </td>
+                                    <td contenteditable="true" class="reason"></td>
+                                    <td contenteditable="true" class="requestedQty"></td>
                                 </tr>
                             </tbody>
                         </table>
                     </div>
-
+                  
                     <div class="mb-3">
                         <label for="remarks" class="form-label">Remarks</label>
                         <textarea class="form-control form-control-sm" id="remarks"></textarea>
                     </div>
-
-                    <!-- Approver Section -->
                     <div class="table-responsive mb-3">
-                        <table class="table table-bordered table-sm">
+                        <button type="button" class="btn btn-link text-secondary fw-bold" id="addMoreApprover" style="font-size: 14px;">
+                            + Add More Approver
+                        </button>
+                        <table class="table table-bordered table-sm" id="approversTable">
                             <thead class="table-light">
                                 <tr>
-                                    <th>Name</th>
-                                    <th>Status</th>
-                                    <th>Start Date</th>
-                                    <th>Action Date</th>
+                                    <th>Approver Name</th>
+                                    <th>Role</th>
+                                    <th>Hierarchy</th>
                                     <th>Remarks</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td contenteditable="false">Auto Generate</td>
-                                    <td contenteditable="false">Auto Generate</td>
+                                    <td contenteditable="true">
+                                        <div style="position: relative;">
+                                            <input type="text" id="userSearchInput1" list="userSuggestions" class="form-control form-control-sm" placeholder="Enter User Name" style="width: 100%; max-width: 200px; padding: 6px; border-radius: 5px; border: 1px solid #ced4da;">
+                                            <datalist id="userSuggestions"></datalist>
+                                            <input type="hidden" id="userIdInput1">
+                                        </div>
+                                    </td>
+                                    <td contenteditable="false" id="userRoleInput1" style="background-color: #E9ECEF; color: #999; pointer-events: none;">Auto Generate</td>
+                                    <td contenteditable="true" class="hierarchy-input">1</td>
                                     <td contenteditable="true"></td>
-                                    <td contenteditable="true"></td>
+                                </tr>
+                                <tr>
+                                    <td contenteditable="true">
+                                        <div style="position: relative;">
+                                            <input type="text" id="userSearchInput2" list="userSuggestions" class="form-control form-control-sm" placeholder="Enter User Name" style="width: 100%; max-width: 200px; padding: 6px; border-radius: 5px; border: 1px solid #ced4da;">
+                                            <datalist id="userSuggestions"></datalist>
+                                            <input type="hidden" id="userIdInput2">
+                                        </div>
+                                    </td>
+                                    <td contenteditable="false" id="userRoleInput2" style="background-color: #E9ECEF; color: #999; pointer-events: none;">Auto Generate</td>
+                                    <td contenteditable="true" class="hierarchy-input">2</td>
                                     <td contenteditable="true"></td>
                                 </tr>
                             </tbody>
                         </table>
                     </div>
 
+                    <input type="hidden" id="userIdInput">
+                    <input type="hidden" id="userEmailInput">
                     <!-- Action Section -->
                     <div class="row g-2 align-items-end mb-3">
-                        <div class="col-md-3">
-                            <label for="action" class="form-label">Action</label>
-                            <select class="form-select form-select-sm" id="action">
-                                <option>Select</option>
-                            </select>
-                        </div>
-                        <div class="col-md-6">
-                            <label for="actionRemarks" class="form-label">Remarks</label>
-                            <input type="text" class="form-control form-control-sm" id="actionRemarks"
-                                style="height: 50px;">
-                        </div>
-                        <div class="col-md-3 d-flex justify-content-end">
-                            <button type="button" class="btn btn-success btn-sm" id="submitinventoryReturned"
-                                style="background-color: #28a745; color: white; border: 1px solid #28a745; padding: 6px 12px;">
+                        <div class="col-md-12 d-flex justify-content-end">
+                            <button type="button" class="btn btn-success btn-lg" id="submitRequestWithdraw" disabled
+                                style="background-color: #28a745; color: white; border: 1px solid #28a745; padding: 10px 20px;">
                                 Submit
                             </button>
                         </div>
@@ -285,8 +279,66 @@
     </div>
 </div>
 
+<div class="modal fade" id="approveWithdrawModal" tabindex="-1" aria-labelledby="approveWithdrawModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="approveWithdrawModalLabel">Approve Withdraw</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to approve this withdraw request?</p>
+                <p id="approvedByText" class="fw-bold" style="margin-top: 10px;"></p>
+                <div class="mb-3">
+                    <label for="requestedQty" class="form-label">Requested QTY</label>
+                    <input type="text" id="requestedQty" class="form-control" disabled>
+                </div>
+                <div class="mb-3">
+                    <label for="releasedQty" class="form-label">Released QTY</label>
+                    <input type="number" id="releasedQty" placeholder="Released Qty" class="form-control" min="0" />
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="approveWithdrawButton">Approve</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="receiveWithdrawModal" tabindex="-1" aria-labelledby="receiveWithdrawModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="receiveWithdrawModalLabel">Close Withdrawal</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Have you release the correct released qty for this withdrawal?</p>
+                <div class="mb-3">
+                    <label for="requestedQtyReceive" class="form-label">Requested QTY</label>
+                    <input type="text" id="requestedQtyReceive" class="form-control" disabled>
+                </div>
+                <div class="mb-3">
+                    <label for="releasedQtyReceive" class="form-label">Released QTY</label>
+                    <input type="number" id="releasedQtyReceive" placeholder="Released Qty" class="form-control" min="0" disabled/>
+                </div>
+                <div class="mb-3">
+                    <label for="photoUploadInput" class="form-label">Upload Photo (Optional)</label>
+                    <input type="file" id="photoUploadInput" class="form-control" />
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="receiveWithdrawButton">Submit</button>
+            </div>
+        </div>
+    </div>
+</div>
 @endsection
 
 @push('scripts')
-    <script src="{{ asset('js/inventory.js') }}"></script>
+    <script src="{{ asset('js/returns.js') }}"></script>
 @endpush

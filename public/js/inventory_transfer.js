@@ -458,14 +458,14 @@ document.addEventListener("DOMContentLoaded", function () {
     localStorage.setItem("transactionCounter", transactionCounter.toString());
 
     // Item Code Search
-    document.getElementById("itemCodeInput").addEventListener("blur", function (e) {
+/*    document.getElementById("itemCodeInput").addEventListener("blur", function (e) {
         e.preventDefault();
         const itemCode = e.target.value;
         const transferFromValue = document.getElementById("transferFrom").value;
         if (itemCode && transferFromValue) {
             fetchItemDetails(itemCode, transferFromValue, e.target);
         }
-    });
+    })*/;
 
     function fetchItemDetails(itemCode, subsidiaryId, targetCell) {
         axios
@@ -539,7 +539,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
             switch (selectedUOM) {
                 case 'primary':
-                    uomp = selectedUOM;
+                    uomp = uomDropdown.options[0].text;
                     uoms = uomDropdown.options[1].text;  
                     uomt = uomDropdown.options[2].text;  
                     break;
@@ -581,7 +581,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 hierarchy: parseInt(hierarchy)
             };
         });
-
+        console.log(items)
         if (items.length === 0) {
             alert("Please add at least one valid item before submitting.");
             return;
@@ -1014,7 +1014,6 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     function populateUOMOptions(primaryUOM, secondaryUOM, tertiaryUOM, dropdown) {
-        console.log("populating");
         dropdown.innerHTML = '';
     
         const uomOptions = [
@@ -1036,7 +1035,6 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     
         dropdown.addEventListener('change', function(event) {
-            console.log("UOM dropdown changed");
             const row = dropdown.closest('tr');
             const qtyElement = row.querySelector(".qty");
     

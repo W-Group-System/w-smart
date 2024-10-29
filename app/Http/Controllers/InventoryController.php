@@ -12,6 +12,7 @@ use App\WithdrawalItems;
 use App\Categories;
 use App\Subcategories;
 use App\Uoms;
+use App\Returns;
 use RealRashid\SweetAlert\Facades\Alert;
 
 class InventoryController extends Controller
@@ -1484,6 +1485,316 @@ class InventoryController extends Controller
                 'message' => 'Failed to fetch UOM settings.',
                 'error' => $e->getMessage(),
             ], 500); 
+        }
+    }
+
+    public function fetchReturns(Request $request)
+    {
+        try {
+            $startDate = $request->start_date;
+            $endDate = $request->end_date;
+            $subsidiaryid = $request->subsidiaryid;
+            $perPage = $request->get('per_page', 10);
+
+            $subsidiary = Subsidiary::where('subsidiary_id', $subsidiaryid)->first();
+            $query = Returns::query();
+
+            $query->leftJoin('approvals', function($join) {
+                $join->on('returns.id', '=', 'approvals.process_id')
+                    ->where('approvals.process', '=', 'return')
+                    ->whereColumn('returns.hierarchy', '=', 'approvals.hierarchy');
+            })
+            ->select('returns.*', 'approvals.approver_id', 'approvals.approver_name');
+            
+            if ($startDate && $endDate) {
+                $query->whereBetween('returns.created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59']);
+            }
+            
+            $query->orderBy('returns.created_at', 'desc');
+
+            Log::info('Executing Returns Query:', [
+                'query' => $query->toSql(),
+                'bindings' => $query->getBindings(),
+            ]);
+
+            $returns = $query->paginate($perPage);
+
+            return response()->json([
+                'status' => 'success',
+                'data' => $returns->items(),
+                'pagination' => [
+                    'current_page' => $returns->currentPage(),
+                    'total_pages' => $returns->lastPage(),
+                    'total_items' => $returns->total(),
+                    'per_page' => $returns->perPage(),
+                ]
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to fetch transfer records.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function requestReturn(Request $request)
+    {
+        try {
+/*            $request->validate([
+                'request_number' => 'required|string|max:100',
+                'requestor_name' => 'required|string|max:255',
+                'subsidiaryid' => 'required|integer',
+                'subsidiary_name' => 'required|string|max:255',
+                'items' => 'required|array|min:1',
+
+                'items.*.item_code' => 'required|string|max:50',
+                'items.*.item_description' => 'required|string|max:255',
+                'items.*.withdraw_qty' => 'required|numeric|min:0.01',
+                'items.*.returned_qty' => 'required|numeric|min:0.01',
+
+                'items.*.uomid' => 'required|integer',
+                'items.*.uom' => 'required|string|max:255',
+                'items.*.status' => 'required|string|max:50',
+                'items.*.hierarchy' => 'required|string|max:255',
+                'items.*.item_category' => 'required|string|max:255',
+                'items.*.return_date' => 'required|date',
+                'items.*.reason' => 'required|date',
+
+                'remarks' => 'required|string|max:255',
+                'approvals' => 'required|array|min:2',
+                'approvals.*.approver_id' => 'required|integer|exists:users,id',
+                'approvals.*.approver_name' => 'required|string|max:255',
+            ]);*/
+
+            $requestId = $request->request_number;
+            $requestorName = $request->requestor_name;
+            $requestorId = $request->requestor_id;
+            $remarks = $request->remarks;
+            $subsidiaryid = $request->subsidiaryid;
+            $subsidiary_name = $request->subsidiary_name;
+
+            $returnLogs = [];
+
+            foreach ($request->items as $item) {
+                $itemCode = $item['item_code'];
+                $returned_qty = $item['returned_qty'];
+                $withdraw_qty = $item['withdraw_qty'];
+                $uom = $item['uom'];
+                $uomId = $item['uomid'];
+                $item_description = $item['item_description'];
+                $item_category = $item['item_category'];
+                $return_date = $item['return_date'];
+                $reason = $item['reason'];
+
+                $inventory = Inventory::where('item_code', $itemCode)
+                    ->where('subsidiaryid', $subsidiaryid)
+                    ->first();
+
+                if (!$inventory) {
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => "Item '{$itemCode}' not found in the specified subsidiary.",
+                    ], 404);
+                }
+                else{
+                    $newReturnLog = new Returns();
+                    $newReturnLog->request_number = $requestId;
+                    $newReturnLog->requestor_name = $requestorName;
+                    $newReturnLog->requestor_id = $requestorId;
+                    $newReturnLog->remarks = $remarks;
+                    $newReturnLog->subsidiaryid = $subsidiaryid;
+                    $newReturnLog->subsidiary_name = $subsidiary_name;
+                    $newReturnLog->withdraw_qty = $withdraw_qty;
+                    $newReturnLog->item_code = $itemCode;
+                    $newReturnLog->item_description = $item_description;
+                    $newReturnLog->item_category = $item_category;
+                    $newReturnLog->returned_qty = $returned_qty;
+                    $newReturnLog->return_date = $return_date;
+                    $newReturnLog->uom = $uom;
+                    $newReturnLog->uomid = $uomId;
+                    $newReturnLog->status = 0;
+                    $newReturnLog->hierarchy = 1;
+                    $newReturnLog->reason = $reason;
+                    $newReturnLog->save();
+                    $returnLogs[] = $newReturnLog;
+
+                    if ($newReturnLog->id) {
+                        \Log::info("New Return log ID: " . $newReturnLog->id);
+
+                        foreach ($request->approvals as $index => $approval) {
+                            $newApproval = new Approval(); 
+                            $newApproval->process = 'return'; 
+                            $newApproval->process_id = $newReturnLog->id; 
+                            $newApproval->approver_id = $approval['approver_id'];
+                            $newApproval->approver_name = $approval['approver_name'];
+                            $newApproval->hierarchy = $newReturnLog->hierarchy;
+
+                            try {
+                                $newApproval->save(); 
+                                \Log::info("Approval saved for approver: " . $approval['approver_name']);
+                            } catch (\Exception $e) {
+                                dd($e);
+                                \Log::error("Failed to save approval for approver: " . $approval['approver_name'] . ". Error: " . $e->getMessage());
+                            }
+                        }
+                    } else {
+                        \Log::error("Failed to retrieve the return log ID after saving.");
+                        return response()->json([
+                            'status' => 'error',
+                            'message' => 'Failed to retrieve return log ID.',
+                        ], 500);
+                    }   
+                }
+            }
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Return request has been logged and is pending approval.',
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to create return request.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function searchReturn(Request $request)
+    {
+        $searchTerm = $request->search;
+        $id = $request->id;
+        $perPage = $request->get('per_page', 10);
+        $subsidiaryId = $request->subsidiaryid;
+
+        try {
+            if (!$id) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Requestor ID is required.',
+                ], 400);
+            }
+
+            $returnQueryResult = Returns::query()
+                ->where('requestor_id', $id)
+                ->where(function ($query) use ($searchTerm) {
+                    if ($searchTerm) {
+                        $query->where('item_description', 'LIKE', '%' . $searchTerm . '%')
+                              ->orWhere('item_code', 'LIKE', '%' . $searchTerm . '%')
+                              ->orWhere('request_number', 'LIKE', '%' . $searchTerm . '%')
+                              ->orWhere('requestor_name', 'LIKE', '%' . $searchTerm . '%');
+                    }
+                })
+                ->paginate($perPage);
+
+            return response()->json([
+                'status' => 'success',
+                'data' => $returnQueryResult->items(),
+                'pagination' => [
+                    'current_page' => $returnQueryResult->currentPage(),
+                    'total_pages' => $returnQueryResult->lastPage(),
+                    'total_items' => $returnQueryResult->total(),
+                    'per_page' => $returnQueryResult->perPage(),
+                ]
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to fetch withdrawals.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function getReturnSuggestions(Request $request)
+    {
+        try {
+            // Validate the inputs
+            $request->validate([
+                'subsidiaryId' => 'required|integer',
+                'searchTerm' => 'nullable|string|max:255',
+            ]);
+
+            $subsidiaryId = $request->input('subsidiaryId');
+            $searchTerm = $request->input('searchTerm');
+
+            $items = WithdrawalItems::join('withdrawals', 'withdrawal_items.withdrawal_id', '=', 'withdrawals.id')
+                ->where('withdrawal_items.item_code', 'LIKE', '%' . $searchTerm . '%')
+                ->where('withdrawal_items.status', 2)
+                ->where('withdrawals.subsidiaryid', $subsidiaryId)
+                ->select('withdrawal_items.item_code')
+                ->limit(10)
+                ->get();
+
+            return response()->json([
+                'status' => 'success',
+                'data' => $items,
+            ], 200);
+
+        } catch (\Exception $e) {
+            \Log::error('Failed to fetch return suggestions: ' . $e->getMessage());
+
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to fetch inventory.',
+                'error' => $e,
+            ], 500);
+        }
+    }
+
+    public function returnSearchItem(Request $request)
+    {
+        $itemCode = $request->query('item_code');
+        $subsidiaryId = $request->query('subsidiary_id');
+
+        try {
+            $items = WithdrawalItems::join('withdrawals', 'withdrawal_items.withdrawal_id', '=', 'withdrawals.id')
+                ->where('withdrawal_items.item_code', 'LIKE', '%' . $itemCode . '%')
+                ->where('withdrawal_items.status', 2)
+                ->where('withdrawals.subsidiaryid', $subsidiaryId)
+                ->select('withdrawal_items.*', 'withdrawals.*')
+                ->first();
+
+            if ($item) {
+                if ($item->uom_id) {
+                    $uom = Uoms::find($item->uom_id);
+                    if ($uom) {
+                        $item->primaryUOM = $uom->uomp;
+                        $item->primaryUOMValue = $uom->uomp_value;
+                        $item->secondaryUOM = $uom->uoms;
+                        $item->secondaryUOMValue = $uom->uoms_value;
+                        $item->tertiaryUOM = $uom->uomt;
+                        $item->tertiaryUOMValue = $uom->uomt_value;
+                        $item->relation_id = $uom->relation_id;
+                    }
+                }
+
+                return response()->json([
+                    'status' => 'success',
+                    'data' => $item,
+                ], 200);
+            } else {
+                $otherSubsidiaryItem = Inventory::where('item_code', $itemCode)->first();
+
+                if ($otherSubsidiaryItem) {
+                    return response()->json([
+                        'status' => 'warning',
+                        'message' => "ItemCode '{$itemCode}' is found in subsidiary '{$otherSubsidiaryItem->subsidiary}'.",
+                        'data' => $otherSubsidiaryItem,
+                    ], 200);
+                } else {
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'Item not found in any subsidiary.',
+                    ], 404);
+                }
+            }
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to fetch item details.',
+                'error' => $e->getMessage(),
+            ], 500);
         }
     }
 }

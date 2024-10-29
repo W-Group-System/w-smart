@@ -249,7 +249,7 @@
                                         </div>
                                     </td>
                                     <td contenteditable="false" id="userRoleInput1" style="background-color: #E9ECEF; color: #999; pointer-events: none;">Auto Generate</td>
-                                    <td contenteditable="true" class="hierarchy-input">1</td>
+                                    <td contenteditable="true" class="hierarchy-input" disabled>1</td>
                                     <td contenteditable="true"></td>
                                 </tr>
                                 <tr>

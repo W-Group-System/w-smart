@@ -53,3 +53,9 @@ Route::post('inventory/subcategories', 'InventoryController@postSubCategory')->n
 Route::get('/uom/list', 'InventoryController@getUOMs')->name('uom.list');
 Route::get('/uom/settings', 'InventoryController@getUOMSettings')->name('uom.settings');
 Route::post('/uom/create', 'InventoryController@postUOM')->name('uom.create');
+
+//inventory-return
+Route::post('inventory/return', 'InventoryController@fetchReturns')->name('inventory.return.fetch');
+Route::post('inventory/return/request', 'InventoryController@requestReturn')->name('inventory.return.request');
+Route::post('search-return', 'InventoryController@searchReturn')->name('search-return');
+Route::post('return/suggestions', 'InventoryController@getReturnSuggestions')->name('return.suggestions');

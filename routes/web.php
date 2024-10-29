@@ -11,15 +11,7 @@
 |
 */
 
-// Route::get('attendance','AttendanceController@create')->name('create-attendance');
-Route::get('payslip-api/{empid}/{id}', 'PayrollController@payslipAPI')->name('payslip-api');
-Route::get('sss-api/', 'PayrollController@sss_get')->name('sss-api');
-Route::get('sss-update/', 'PayrollController@sss_update')->name('sss-update');
-Route::post('api/sss-post', 'PayrollController@sss_post')->name('sss-post');
-
 Auth::routes();
-Route::post('rates', 'PayrollController@getRatesStore')->name('store-rates');
-
 Route::group(['middleware' => 'auth'], function () {
     Route::get('/', 'HomeController@index')->name('home');
     Route::get('/home', 'HomeController@index')->name('home');

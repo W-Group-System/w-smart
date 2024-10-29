@@ -17,9 +17,8 @@ document.addEventListener("DOMContentLoaded", function () {
     subsidiary.addEventListener("change", function () {
         selectedText = subsidiary.selectedOptions[0].text; 
     });*/
-
     function generateItemCode() {
-        const prefix = "WITHDRAW";
+        const prefix = "RETURN";
         const datePart = new Date()
             .toISOString()
             .split("T")[0]
@@ -37,13 +36,12 @@ document.addEventListener("DOMContentLoaded", function () {
             const itemCode = row.querySelector(".itemCodeInput")?.value.trim();
             const uom = row.querySelector('.uom-dropdown')?.value;
             const reason = row.querySelector('.reason')?.textContent.trim();
-            const qty = row.querySelector('.requestedQty')?.textContent.trim();
     
-            if (!itemCode || !uom || !reason || qty < 0) {
+            if (!itemCode || !uom || !reason) {
                 allFieldsFilled = false;
             }
         });
-        
+    
         submitButton.disabled = !allFieldsFilled;
     }
 
@@ -117,6 +115,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 },
             })
             .then((response) => {
+            	console.log(response)
                 if (response.data.status === "success" && response.data.data) {
                     const item = response.data.data;
     
@@ -128,6 +127,7 @@ document.addEventListener("DOMContentLoaded", function () {
     
                     const qtyCell = row.querySelector(".requestedQty");
                     const maxQty = parseFloat(item.qty);
+                    console.log(maxQty)
                     qtyCell.textContent = maxQty.toFixed(2);
                     qtyCell.dataset.maxQty = maxQty;
     
@@ -154,7 +154,7 @@ document.addEventListener("DOMContentLoaded", function () {
     newItemCodeInput.addEventListener('input', async (e) => {
         const searchTerm = e.target.value.trim();
         if (searchTerm.length > 1) {
-            const url = `/api/inventory/suggestions`;
+            const url = `/api/return/suggestions`;
             try {
                 const response = await fetch(url, {
                     method: 'POST',
@@ -172,6 +172,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 }
 
                 const data = await response.json();
+                console.log(data)
                 const suggestions = document.getElementById('itemSuggestions');
                 suggestions.innerHTML = '';
 
@@ -204,9 +205,9 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 
-    async function fetchWithdrawal(page, search) {
+    async function fetchReturn(page, search) {
 
-        await fetch(`/api/inventory/withdraw?page=${page}&per_page=${rowsPerPage}`, {
+        await fetch(`/api/inventory/return?page=${page}&per_page=${rowsPerPage}`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -219,6 +220,7 @@ document.addEventListener("DOMContentLoaded", function () {
         })
         .then((response) => response.json())
         .then((data) => {
+        	console.log("HERE" + data)
             if (data.data === "No records found") {
                 initializeDynamicTable(data.data, data.pagination.total_items);
                 updatePagination(data.pagination);
@@ -228,12 +230,12 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         })
         .catch((error) => {
-            console.error("Error fetching inventory:", error);
+            console.error("Error fetching returns:", error);
         });
     }
 
     
-    fetchWithdrawal(currentPage);
+    fetchReturn(currentPage);
 
     
     function initializeDynamicTable(inventoryData, totalPages) {
@@ -272,13 +274,12 @@ document.addEventListener("DOMContentLoaded", function () {
                 <td style="text-align: center; padding: 2px 10px;">${item.created_at}</td>
                 <td style="text-align: center; padding: 2px 10px;">${item.requestor_name}</td>
                 <td style="text-align: center; padding: 2px 10px;">${item.request_number}</td>
+                <td style="text-align: center; padding: 2px 10px;">${item.subsidiary_name}</td>
                 <td style="text-align: center; padding: 2px 10px;">${item.item_code}</td>
                 <td style="text-align: center; padding: 2px 10px;">${item.item_description}</td>
-                <td style="text-align: center; padding: 2px 10px;">${item.requested_qty}</td>
-                <td style="text-align: center; padding: 2px 10px;">${item.released_qty}</td>
+                <td style="text-align: center; padding: 2px 10px;">${item.withdraw_qty}</td>
+                <td style="text-align: center; padding: 2px 10px;">${item.returned_qty}</td>
                 <td style="text-align: center; padding: 2px 10px;">${item.uom}</td>
-                <td style="text-align: center; padding: 2px 10px;">${updatedAt}</td>
-                <td style="text-align: center; padding: 2px 10px;">${item.reason}</td>
                 <td style="text-align: center; padding: 2px 10px;">
                     <span class="badge bg-${item.status === 2 ? "success" : item.status === 1 ? "primary" : "danger"}">
                         ${statusBadge}
@@ -319,7 +320,7 @@ document.addEventListener("DOMContentLoaded", function () {
         prevPage.addEventListener("click", function (event) {
             event.preventDefault();
             if (currentPage > 1) {
-                fetchWithdrawal(currentPage - 1);
+                fetchReturn(currentPage - 1);
             }
         });
         pagination.appendChild(prevPage);
@@ -333,7 +334,7 @@ document.addEventListener("DOMContentLoaded", function () {
             pageItem.innerHTML = `<a class="page-link" href="#">${i}</a>`;
             pageItem.addEventListener("click", function (event) {
                 event.preventDefault();
-                fetchWithdrawal(i);
+                fetchReturn(i);
             });
             pagination.appendChild(pageItem);
         }
@@ -352,7 +353,7 @@ document.addEventListener("DOMContentLoaded", function () {
         nextPage.addEventListener("click", function (event) {
             event.preventDefault();
             if (currentPage < totalPages) {
-                fetchWithdrawal(currentPage + 1);
+                fetchReturn(currentPage + 1);
             }
         });
         pagination.appendChild(nextPage);
@@ -361,14 +362,14 @@ document.addEventListener("DOMContentLoaded", function () {
     
     form.addEventListener("submit", function(event) {
         event.preventDefault();
-        fetchWithdrawal(currentPage);
+        fetchReturn(currentPage);
     });
 
     
     rowsPerPageSelect.addEventListener("change", function () {
         rowsPerPage = parseInt(this.value, 10);
         currentPage = 1; 
-        fetchWithdrawal(currentPage);
+        fetchReturn(currentPage);
     });
 
    
@@ -416,7 +417,7 @@ document.addEventListener("DOMContentLoaded", function () {
         document.getElementById('requestNumber').value = generateItemCode();
         document.getElementById('requestName').value = userName;
         document.getElementById('subsidiary').value = subsidiary;
-        document.getElementById('subsidiaryid').value = subsidiaryid;
+       /* document.getElementById('subsidiaryid').value = subsidiaryid;*/
         validateItems();
         
     });
@@ -587,7 +588,6 @@ document.addEventListener("DOMContentLoaded", function () {
             document.querySelectorAll("#itemsTable tbody tr")
         )
             .map((row) => {
-                console.log(row.dataset)
                 return {
                     item_code: row
                         .querySelector(".itemCodeInput")
@@ -659,7 +659,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     requestTransferModal.hide();
                 }
                 setTimeout(() => {
-                    fetchWithdrawal(currentPage);
+                    fetchReturn(currentPage);
                     clearTransferModal();
                     document.querySelectorAll(".modal-backdrop").forEach((el) => el.remove());
                     document.body.classList.remove("modal-open");
@@ -696,28 +696,33 @@ document.addEventListener("DOMContentLoaded", function () {
 
     searchInput.addEventListener("input", function (e) {
         const searchTerm = this.value;
-        const url = `/api/search-withdrawal?page=${currentPage}&per_page=${rowsPerPage}`;
+        if (!searchTerm) {
+        	fetchReturn();
+        }
+        else {
+        	const url = `/api/search-return?page=${currentPage}&per_page=${rowsPerPage}`;
 
-        // Ensure you get the actual value of userId
-        const requestBody = {
-            id: userId.value,
-            search: searchTerm, 
-            subsidiaryid: subsidiary_id
-        };
+        	const requestBody = {
+        	    id: userId.value,
+        	    search: searchTerm, 
+        	    subsidiaryid: subsidiary_id
+        	};
 
-        axios
-            .post(url, requestBody)
-            .then((response) => {
-                if (response.data.status === "success") {
-                    renderTable(response.data.data, response.data.pagination.total_items);
-                    updatePagination(response.data.pagination);
-                } else {
-                    console.error("Failed to fetch withdraws:", response.data.message);
-                }
-            })
-            .catch((error) => {
-                console.error("Error fetching withdraws:", error);
-            });
+        	axios
+        	    .post(url, requestBody)
+        	    .then((response) => {
+        	        if (response.data.status === "success") {
+        	            renderTable(response.data.data, response.data.pagination.total_items);
+        	            updatePagination(response.data.pagination);
+        	        } else {
+        	            console.error("Failed to fetch withdraws:", response.data.message);
+        	        }
+        	    })
+        	    .catch((error) => {
+        	        console.error("Error fetching withdraws:", error);
+        	    });	
+        }
+        
     });
 
     const userSearchInputField = document.getElementById("userSearchInput");
@@ -773,8 +778,6 @@ document.addEventListener("DOMContentLoaded", function () {
                     document.getElementById(e.target.id.replace("userSearchInput", "userRoleInput")).textContent = "Super Admin"; 
                 }
                 
-
-
             } else {
                 console.warn("No matching option found for user.");
             }
@@ -899,7 +902,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     icon: "success",
                     confirmButtonText: "Ok"
                 }).then(() => {
-                    fetchWithdrawal(currentPage); 
+                    fetchReturn(currentPage); 
                     const requestTransferModal = bootstrap.Modal.getInstance(document.getElementById("approveWithdrawModal"));
                     if (requestTransferModal) {
                         requestTransferModal.hide();
@@ -942,13 +945,13 @@ document.addEventListener("DOMContentLoaded", function () {
                         icon: "success",
                         confirmButtonText: "Ok",
                     }).then(() => {
-                        fetchWithdrawal(currentPage); 
+                        fetchReturn(currentPage); 
                         const requestTransferModal = bootstrap.Modal.getInstance(document.getElementById("receiveWithdrawModal"));
                         if (requestTransferModal) {
                             requestTransferModal.hide();
                         }
                         setTimeout(() => {
-                            fetchWithdrawal(currentPage);
+                            fetchReturn(currentPage);
                             clearTransferModal();
                             document.querySelectorAll(".modal-backdrop").forEach((el) => el.remove());
                             document.body.classList.remove("modal-open");
@@ -964,13 +967,13 @@ document.addEventListener("DOMContentLoaded", function () {
                         icon: "error",
                         confirmButtonText: "Ok",
                     }).then(() => {
-                        fetchWithdrawal(currentPage); 
+                        fetchReturn(currentPage); 
                         const requestTransferModal = bootstrap.Modal.getInstance(document.getElementById("receiveWithdrawModal"));
                         if (requestTransferModal) {
                             requestTransferModal.hide();
                         }
                         setTimeout(() => {
-                            fetchWithdrawal(currentPage);
+                            fetchReturn(currentPage);
                             clearTransferModal();
                             // Optionally remove backdrop and reset body styles
                             document.querySelectorAll(".modal-backdrop").forEach((el) => el.remove());
@@ -993,7 +996,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     requestTransferModal.hide();
                 }
                 setTimeout(() => {
-                    fetchWithdrawal(currentPage);
+                    fetchReturn(currentPage);
                     clearTransferModal();
                     // Optionally remove backdrop and reset body styles
                     document.querySelectorAll(".modal-backdrop").forEach((el) => el.remove());

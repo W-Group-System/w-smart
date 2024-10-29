@@ -18,26 +18,30 @@
                         <h4 class="text-left" style="font-size: 24px; font-weight: bold;">Sign In to</h4>
                         <h6 class="font-weight-light text-left" style="font-size: 16px; color: #6c757d;">W Smart</h6>
 
-                        <form class="pt-3" method="POST" action="{{ route('login') }}" onsubmit="return show()">
+                        <!-- Display the error message if login fails -->
+                        @if ($errors->has('email'))
+                            <div class="alert alert-danger">
+                                {{ $errors->first('email') }}
+                            </div>
+                        @endif
+
+                        <form class="pt-3" method="POST" action="{{ route('login') }}">
                             @csrf <!-- Include CSRF token for security -->
                             <div class="form-group">
                                 <label for="email" class="form-label">Email</label>
                                 <input id="email" type="email" name="email" required
-                                    class="form-control form-control-lg">
-                                <small id="emailError" class="text-danger d-none">Please enter a valid email.</small>
+                                    class="form-control form-control-lg" value="{{ old('email') }}">
                             </div>
 
                             <div class="form-group">
                                 <label for="password" class="form-label">Password</label>
                                 <input type="password" id="password" name="password" required
                                     class="form-control form-control-lg">
-                                <small id="passwordError" class="text-danger d-none">Password cannot be empty.</small>
                             </div>
 
                             <div class="my-2 d-flex justify-content-between align-items-center">
                                 <div class="form-check ms-4">
-                                    <input type="checkbox" class="form-check-input" id="rememberMe"
-                                        style="accent-color: #007AFF;">
+                                    <input type="checkbox" name="remember" class="form-check-input" id="rememberMe" style="accent-color: #007AFF;">
                                     <label class="form-check-label ms-2" for="rememberMe" style="color: #6c757d ;">
                                         Remember me
                                     </label>
