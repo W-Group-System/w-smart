@@ -183,15 +183,16 @@
                             style="font-size: 14px;">
                             + Add More Item
                         </button>
-                        <table class="table table-bordered table-sm" id="itemsTable">
+                        <table  class="table table-hover table-bordered" style="border-collapse: collapse; min-width: 1000px;" id="itemsTable">
                             <thead class="table-light">
                                 <tr>
+                                    <th>Request ID</th>
                                     <th>Item Code</th>
                                     <th>Item Description</th>
-                                    <th>Category</th>
                                     <th>UOM</th>
-                                    <th>Withdrawal QTY</th>
+                                    <th>Withdrew QTY</th>
                                     <th>Returned QTY</th>
+                                    <th>Reason</th>
                                 </tr>
                             </thead>
                             <tbody id="itemTableBody">
@@ -199,18 +200,20 @@
                                     <div style="position: relative;">
                                     <td contenteditable="false">
                                         <div style="position: relative;">
-                                            <input type="text" class="form-control form-control-sm itemCodeInput" placeholder="Enter Item Code" style="width: 100%; max-width: 200px; padding: 6px; border-radius: 5px; border: 1px solid #ced4da;" list="itemSuggestions">
+                                            <input type="text" class="form-control form-control-sm itemCodeInput" placeholder="Enter request id" style="width: 100%; max-width: 200px; padding: 6px; border-radius: 5px; border: 1px solid #ced4da;" list="itemSuggestions">
                                             <datalist id="itemSuggestions"></datalist>
                                         </div>
                                     </td>
+                                    <td contenteditable="false" class="itemCode" style="background-color: #E9ECEF; color: #999; pointer-events: none;"></td>
                                     <td contenteditable="false" class="itemDescription" style="background-color: #E9ECEF; color: #999; pointer-events: none;"></td>
-                                    <td contenteditable="false" class="itemCategory" style="background-color: #E9ECEF; color: #999; pointer-events: none;"></td>
+                                    <td contenteditable="false" class="itemCategory" style="background-color: #E9ECEF; color: #999; pointer-events: none; display: none;"></td>
                                     <td>
                                         <select class="form-select form-select-sm uom-dropdown">
                                         </select>
                                     </td>
+                                    <td contenteditable="false" class="withdrewQty"></td>
+                                    <td contenteditable="true" class="returnQty"></td>
                                     <td contenteditable="true" class="reason"></td>
-                                    <td contenteditable="true" class="requestedQty"></td>
                                 </tr>
                             </tbody>
                         </table>
@@ -284,19 +287,19 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="approveWithdrawModalLabel">Approve Withdraw</h5>
+                <h5 class="modal-title" id="approveWithdrawModalLabel">Approve Return</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <p>Are you sure you want to approve this withdraw request?</p>
+                <p>Are you sure you want to approve this return request?</p>
                 <p id="approvedByText" class="fw-bold" style="margin-top: 10px;"></p>
                 <div class="mb-3">
                     <label for="requestedQty" class="form-label">Requested QTY</label>
                     <input type="text" id="requestedQty" class="form-control" disabled>
                 </div>
                 <div class="mb-3">
-                    <label for="releasedQty" class="form-label">Released QTY</label>
-                    <input type="number" id="releasedQty" placeholder="Released Qty" class="form-control" min="0" />
+                    <label for="releasedQty" class="form-label">Return QTY</label>
+                    <input type="number" id="returnQty" placeholder="Return Qty" class="form-control" min="0" />
                 </div>
             </div>
             <div class="modal-footer">
@@ -312,18 +315,18 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="receiveWithdrawModalLabel">Close Withdrawal</h5>
+                <h5 class="modal-title" id="receiveWithdrawModalLabel">Finalize Return Request</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <p>Have you release the correct released qty for this withdrawal?</p>
+                <p>Have you release the correct return qty for this return request?</p>
                 <div class="mb-3">
                     <label for="requestedQtyReceive" class="form-label">Requested QTY</label>
                     <input type="text" id="requestedQtyReceive" class="form-control" disabled>
                 </div>
                 <div class="mb-3">
-                    <label for="releasedQtyReceive" class="form-label">Released QTY</label>
-                    <input type="number" id="releasedQtyReceive" placeholder="Released Qty" class="form-control" min="0" disabled/>
+                    <label for="releasedQtyReceive" class="form-label">Return QTY</label>
+                    <input type="number" id="returnQtyReceive" placeholder="Released Qty" class="form-control" min="0" disabled/>
                 </div>
                 <div class="mb-3">
                     <label for="photoUploadInput" class="form-label">Upload Photo (Optional)</label>

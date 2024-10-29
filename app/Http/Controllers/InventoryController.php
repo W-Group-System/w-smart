@@ -1018,6 +1018,73 @@ class InventoryController extends Controller
         }
     }
 
+    public function processReturn(Request $request, $id)
+    {
+        try {
+            $return = Returns::where('id', $id)->firstOrFail();
+
+            if ($return->status !== 1) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'This return request is not approved by the approvers yet!',
+                ], 400);
+            }
+
+            $itemCode = $return->item_code;
+            $releasedQty = $request->released_qty;
+
+            $subsidiaryId = $return->subsidiaryid;
+
+            $inventory = Inventory::where('item_code', $itemCode)
+                                ->where('subsidiaryid', $subsidiaryId)
+                                ->first();
+
+            if (!$inventory) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => "Item '{$itemCode}' not found in the specified subsidiary.",
+                ], 404);
+            }
+
+            $uom = Uoms::find($return->uomid);
+            if (!$uom) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'UOM configuration not found for the inventory item.',
+                ], 404);
+            }
+
+            $convertedQty = $this->convertToPrimaryUOM($uom, $releasedQty, $return->uom);
+
+            if ($inventory->qty < $convertedQty) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => "Insufficient quantity for item '{$itemCode}'.",
+                    'available_qty' => $inventory->qty,
+                ], 200);
+            }
+
+            $inventory->qty += $convertedQty;
+            $inventory->usage -= $convertedQty;
+            $inventory->save();
+
+            $return->status = 2;
+            $return->updated_at = now();
+            $return->save();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Return request has been approved and completed.',
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to approve return request.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
     private function convertToPrimaryUOM($uom, $releasedQty, $currentUOM)
     {
         $secondaryValue = $uom->uoms_value; 
@@ -1541,12 +1608,13 @@ class InventoryController extends Controller
     public function requestReturn(Request $request)
     {
         try {
-/*            $request->validate([
+  /*          $request->validate([
                 'request_number' => 'required|string|max:100',
                 'requestor_name' => 'required|string|max:255',
+                'requestor_id' => 'required|string|max:255',
                 'subsidiaryid' => 'required|integer',
                 'subsidiary_name' => 'required|string|max:255',
-                'items' => 'required|array|min:1',
+                'items' => 'required|array|min:2',
 
                 'items.*.item_code' => 'required|string|max:50',
                 'items.*.item_description' => 'required|string|max:255',
@@ -1555,13 +1623,10 @@ class InventoryController extends Controller
 
                 'items.*.uomid' => 'required|integer',
                 'items.*.uom' => 'required|string|max:255',
-                'items.*.status' => 'required|string|max:50',
-                'items.*.hierarchy' => 'required|string|max:255',
                 'items.*.item_category' => 'required|string|max:255',
                 'items.*.return_date' => 'required|date',
                 'items.*.reason' => 'required|date',
 
-                'remarks' => 'required|string|max:255',
                 'approvals' => 'required|array|min:2',
                 'approvals.*.approver_id' => 'required|integer|exists:users,id',
                 'approvals.*.approver_name' => 'required|string|max:255',
@@ -1628,7 +1693,7 @@ class InventoryController extends Controller
                             $newApproval->process_id = $newReturnLog->id; 
                             $newApproval->approver_id = $approval['approver_id'];
                             $newApproval->approver_name = $approval['approver_name'];
-                            $newApproval->hierarchy = $newReturnLog->hierarchy;
+                            $newApproval->hierarchy = $approval['hierarchy'];
 
                             try {
                                 $newApproval->save(); 
@@ -1719,10 +1784,10 @@ class InventoryController extends Controller
             $searchTerm = $request->input('searchTerm');
 
             $items = WithdrawalItems::join('withdrawals', 'withdrawal_items.withdrawal_id', '=', 'withdrawals.id')
-                ->where('withdrawal_items.item_code', 'LIKE', '%' . $searchTerm . '%')
+                ->where('withdrawals.request_number', 'LIKE', '%' . $searchTerm . '%')
                 ->where('withdrawal_items.status', 2)
                 ->where('withdrawals.subsidiaryid', $subsidiaryId)
-                ->select('withdrawal_items.item_code')
+                ->select('withdrawals.request_number')
                 ->limit(10)
                 ->get();
 
@@ -1744,55 +1809,105 @@ class InventoryController extends Controller
 
     public function returnSearchItem(Request $request)
     {
-        $itemCode = $request->query('item_code');
-        $subsidiaryId = $request->query('subsidiary_id');
+        $requestId = $request->request_id;
+        $subsidiaryId = $request->subsidiary_id;
 
         try {
             $items = WithdrawalItems::join('withdrawals', 'withdrawal_items.withdrawal_id', '=', 'withdrawals.id')
-                ->where('withdrawal_items.item_code', 'LIKE', '%' . $itemCode . '%')
+                ->join('uoms', 'withdrawal_items.uom_id', '=', 'uoms.id') // Join with the UOM table
+                ->where('withdrawals.request_number', $requestId)
                 ->where('withdrawal_items.status', 2)
                 ->where('withdrawals.subsidiaryid', $subsidiaryId)
-                ->select('withdrawal_items.*', 'withdrawals.*')
-                ->first();
-
-            if ($item) {
-                if ($item->uom_id) {
-                    $uom = Uoms::find($item->uom_id);
-                    if ($uom) {
-                        $item->primaryUOM = $uom->uomp;
-                        $item->primaryUOMValue = $uom->uomp_value;
-                        $item->secondaryUOM = $uom->uoms;
-                        $item->secondaryUOMValue = $uom->uoms_value;
-                        $item->tertiaryUOM = $uom->uomt;
-                        $item->tertiaryUOMValue = $uom->uomt_value;
-                        $item->relation_id = $uom->relation_id;
-                    }
-                }
-
+                ->select(
+                    'withdrawal_items.*', 
+                    'withdrawals.*', 
+                    'uoms.*'
+                )
+                ->get();
+            if ($items->isNotEmpty()) {
                 return response()->json([
                     'status' => 'success',
-                    'data' => $item,
+                    'data' => $items,
                 ], 200);
             } else {
-                $otherSubsidiaryItem = Inventory::where('item_code', $itemCode)->first();
-
-                if ($otherSubsidiaryItem) {
-                    return response()->json([
-                        'status' => 'warning',
-                        'message' => "ItemCode '{$itemCode}' is found in subsidiary '{$otherSubsidiaryItem->subsidiary}'.",
-                        'data' => $otherSubsidiaryItem,
-                    ], 200);
-                } else {
-                    return response()->json([
-                        'status' => 'error',
-                        'message' => 'Item not found in any subsidiary.',
-                    ], 404);
-                }
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'No matching item details found.',
+                ], 404);
             }
         } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Failed to fetch item details.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function approveReturn(Request $request, $transactId)
+    {
+        try {
+            $returns = Returns::where('id', $transactId)->firstOrFail();
+
+            if ($returns->status === 1) {
+                return $this->processReturn($request, $transactId);
+            } elseif ($returns->status !== 0) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'This return request is not pending and cannot be approved.',
+                ], 400);
+            }
+
+            $currentHierarchy = Approval::where('process_id', $transactId)
+                ->where('process', 'return')
+                ->where('approver_id', $request->input('approver_id'))
+                ->value('hierarchy');
+
+            if (!$currentHierarchy) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'You are not authorized to approve this return request at this stage.',
+                ], 403);
+            }
+
+            $returnQty = $request->input('return_qty');
+            if ($returnQty && $returnQty > 0) {
+                $returns->returned_qty = $returnQty; 
+            } else {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Invalid released quantity provided.',
+                ], 400);
+            }
+
+            $newReturnHierarchy = $returns->hierarchy + 1;
+            $returns->hierarchy = $newReturnHierarchy; 
+            $returns->save();
+
+            $nextApprovalExists = Approval::where('process_id', $transactId)
+            ->where('process', 'return')
+            ->where('hierarchy', $newReturnHierarchy)
+            ->exists();
+
+            if ($nextApprovalExists) {
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'Return request approved at this level. Waiting for next approver.',
+                ], 200);
+            }
+
+            $returns->status = 1;
+            $returns->save();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Return request is now marked as "Receiving". Requester will handle final approval.',
+            ], 200);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to approve return request.',
                 'error' => $e->getMessage(),
             ], 500);
         }

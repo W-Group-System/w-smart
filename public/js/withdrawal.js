@@ -587,7 +587,6 @@ document.addEventListener("DOMContentLoaded", function () {
             document.querySelectorAll("#itemsTable tbody tr")
         )
             .map((row) => {
-                console.log(row.dataset)
                 return {
                     item_code: row
                         .querySelector(".itemCodeInput")

@@ -35,9 +35,9 @@ document.addEventListener("DOMContentLoaded", function () {
         rows.forEach(row => {
             const itemCode = row.querySelector(".itemCodeInput")?.value.trim();
             const uom = row.querySelector('.uom-dropdown')?.value;
-            const reason = row.querySelector('.reason')?.textContent.trim();
+            const returnQty = row.querySelector('.returnQty')?.textContent.trim();
     
-            if (!itemCode || !uom || !reason) {
+            if (!itemCode || !uom || !returnQty) {
                 allFieldsFilled = false;
             }
         });
@@ -107,53 +107,58 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function fetchItemDetails(itemCode, subsidiaryId, targetCell) {
         const row = targetCell.closest("tr");
+
         axios
-            .get(`/api/inventory/search-item`, {
-                params: {
-                    item_code: itemCode,
-                    subsidiary_id: subsidiaryId,
-                },
+            .post(`/api/return/search`, {
+                request_id: itemCode,
+                subsidiary_id: subsidiaryId,
             })
             .then((response) => {
-            	console.log(response)
                 if (response.data.status === "success" && response.data.data) {
                     const item = response.data.data;
-    
-                    row.querySelector(".itemDescription").textContent = item.item_description;
-                    row.querySelector(".itemCategory").textContent = item.item_category;
-    
+                    row.querySelector(".itemCode").textContent = item[0].item_code;
+                    row.querySelector(".itemDescription").textContent = item[0].item_description;
+                    row.querySelector(".itemCategory").textContent = item[0].category;
                     const uomDropdown = row.querySelector(".uom-dropdown");
-                    populateUOMOptions(item.primaryUOM, item.secondaryUOM, item.tertiaryUOM, uomDropdown);
-    
-                    const qtyCell = row.querySelector(".requestedQty");
-                    const maxQty = parseFloat(item.qty);
-                    console.log(maxQty)
+                    populateUOMOptions(
+                        item[0].uomp || "Default UOM",
+                        item[0].uoms || null,
+                        item[0].uomt || null,
+                        uomDropdown
+                    );
+                    const qtyCell = row.querySelector(".returnQty");
+                    const withdrewQty = row.querySelector(".withdrewQty");
+                    const maxQty = parseFloat(item[0].released_qty) || 0;
+                    withdrewQty.textContent = maxQty.toFixed(2);
+                    withdrewQty.dataset.maxQty = maxQty;
                     qtyCell.textContent = maxQty.toFixed(2);
-                    qtyCell.dataset.maxQty = maxQty;
-    
-                    row.dataset.uomId = item.uom_id;
+                    row.dataset.uomId = item[0].uom_id;
                     row.dataset.baseQty = maxQty;
-                    row.dataset.primaryValue = item.primaryUOMValue || 1;
-                    row.dataset.secondaryValue = item.secondaryUOMValue || 1;
-                    row.dataset.tertiaryValue = item.tertiaryUOMValue || 1;
-    
+                    row.dataset.primaryValue = item[0].uomp_value || 1;
+                    row.dataset.secondaryValue = item[0].uoms_value|| 1;
+                    row.dataset.tertiaryValue = item[0].uomt_value || 1;
                     qtyCell.contentEditable = "true";
                     validateItems();
                 } else if (response.data.status === "warning") {
-                    alert(`${response.data.message} Please check the correct subsidiary.`);
+                    showAlert(`${response.data.message} Please check the correct subsidiary.`);
                 } else {
-                    alert("Item not found in the inventory.");
+                    showAlert("Item not found in the inventory.");
                 }
             })
             .catch((error) => {
                 console.error("Error fetching item details:", error);
-                alert("An error occurred while fetching item details.");
+                showAlert("An error occurred while fetching item details.");
             });
+    }
+
+    function showAlert(message) {
+        alert(message);
     }
     const newItemCodeInput = document.querySelector('#itemTableBody tr:last-child .itemCodeInput');
     newItemCodeInput.addEventListener('input', async (e) => {
         const searchTerm = e.target.value.trim();
         if (searchTerm.length > 1) {
+        	validateItems();
             const url = `/api/return/suggestions`;
             try {
                 const response = await fetch(url, {
@@ -172,13 +177,12 @@ document.addEventListener("DOMContentLoaded", function () {
                 }
 
                 const data = await response.json();
-                console.log(data)
                 const suggestions = document.getElementById('itemSuggestions');
                 suggestions.innerHTML = '';
 
                 data.data.forEach(item => {
                    const option = document.createElement('option');
-                   option.value = item.item_code;
+                   option.value = item.request_number;
                    suggestions.appendChild(option);
                 });
             } catch (error) {
@@ -220,7 +224,6 @@ document.addEventListener("DOMContentLoaded", function () {
         })
         .then((response) => response.json())
         .then((data) => {
-        	console.log("HERE" + data)
             if (data.data === "No records found") {
                 initializeDynamicTable(data.data, data.pagination.total_items);
                 updatePagination(data.pagination);
@@ -267,7 +270,7 @@ document.addEventListener("DOMContentLoaded", function () {
             row.dataset.status = item.status;
             row.dataset.requesterId = item.requestor_id;
             row.dataset.approverId = item.approver_id;
-            row.dataset.releasedQty = item.released_qty;
+            row.dataset.releasedQty = item.returned_qty;
             row.innerHTML = `
                 <td style="text-align: center; padding: 2px 10px;">${item.id}
                 </td>
@@ -445,7 +448,7 @@ document.addEventListener("DOMContentLoaded", function () {
     
         dropdown.addEventListener('change', function (event) {
             const row = dropdown.closest('tr');
-            const qtyElement = row.querySelector(".requestedQty");
+            const qtyElement = row.querySelector(".returnQty");
     
             let baseQty = parseFloat(row.dataset.baseQty) || parseFloat(qtyElement.textContent);
             if (!row.dataset.baseQty) {
@@ -498,85 +501,102 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-    document.getElementById('addRowBtn').addEventListener('click', function(e) {
-        e.preventDefault();
-        const submitButton = document.getElementById('submitRequestWithdraw');
-        submitButton.disabled = true;
-        
-        const newRow = `
-            <tr>
-                <td>
-                    <div style="position: relative;">
-                        <input type="text" class="form-control form-control-sm itemCodeInput" placeholder="Enter Item Code" list="itemSuggestions">
-                        <datalist id="itemSuggestions"></datalist>
-                    </div>
-                </td>
-                <td class="itemDescription" style="background-color: #E9ECEF; pointer-events: none;"></td>
-                <td class="itemCategory" style="background-color: #E9ECEF; pointer-events: none;"></td>
-                <td>
-                    <select class="form-control uom-dropdown"></select>
-                </td>
-                <td contenteditable="true" class="reason"></td>
-                <td contenteditable="true" class="requestedQty"></td>
-            </tr>
-        `;
+   document.getElementById('addRowBtn').addEventListener('click', function(e) {
+       e.preventDefault();
 
-        document.getElementById('itemTableBody').insertAdjacentHTML('beforeend', newRow);
+       // Disable the submit button at the start of adding a row
+       const submitButton = document.getElementById('submitRequestWithdraw');
+       submitButton.disabled = true;
 
-        const newItemCodeInput = document.querySelector('#itemTableBody tr:last-child .itemCodeInput');
-        const newReasonInput = document.querySelector('#itemTableBody tr:last-child .reason');
-        const newUomDropdown = document.querySelector('#itemTableBody tr:last-child .uom-dropdown');
-        
-        newItemCodeInput.addEventListener('input', async (e) => {
-            const searchTerm = e.target.value.trim();
-            if (searchTerm.length > 1) {
-                const url = `/api/inventory/suggestions`;
-                try {
-                    const response = await fetch(url, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                        },
-                        body: JSON.stringify({
-                            subsidiaryId: subsidiary_id,
-                            searchTerm: searchTerm 
-                        }),
-                    });
-                    if (!response.ok) {
-                        throw new Error('Failed to fetch data');
-                    }
+       // Create a new row
+       const newRow = `
+           <tr>
+               <td contenteditable="false">
+                   <div>
+                       <input type="text" class="form-control form-control-sm itemCodeInput" placeholder="Enter request id" style="width: 100%; max-width: 200px; padding: 6px; border-radius: 5px; border: 1px solid #ced4da;" list="itemSuggestions">
+                       <datalist id="itemSuggestions"></datalist>
+                   </div>
+               </td>
+               <td contenteditable="false" class="itemCode" style="background-color: #E9ECEF; color: #999; pointer-events: none;"></td>
+               <td contenteditable="false" class="itemDescription" style="background-color: #E9ECEF; color: #999; pointer-events: none;"></td>
+               <td contenteditable="false" class="itemCategory" style="background-color: #E9ECEF; color: #999; pointer-events: none; display: none;"></td>
+               <td>
+                   <select class="form-select form-select-sm uom-dropdown"></select>
+               </td>
+               <td contenteditable="false" class="withdrewQty"></td>
+               <td contenteditable="true" class="returnQty"></td>
+               <td contenteditable="true" class="reason"></td>
+           </tr>
+       `;
 
-                    const data = await response.json();
-                    const suggestions = newItemCodeInput.nextElementSibling;
-                    suggestions.innerHTML = '';
+       // Insert the new row
+       document.getElementById('itemTableBody').insertAdjacentHTML('beforeend', newRow);
 
-                    data.data.forEach(item => {
-                        const option = document.createElement('option');
-                        option.value = item.item_code;
-                        suggestions.appendChild(option);
-                    });
-                } catch (error) {
-                    console.error('Error fetching items:', error);
-                }
-            }
-        });
+       // Select the new row elements
+       const newItemCodeInput = document.querySelector('#itemTableBody tr:last-child .itemCodeInput');
+       const newReasonInput = document.querySelector('#itemTableBody tr:last-child .reason');
+       
+       // Add input event listener for item code input
+       newItemCodeInput.addEventListener('input', async (e) => {
+           const searchTerm = e.target.value.trim();
+           if (searchTerm.length > 1) {
+               const url = `/api/return/suggestions`;
+               try {
+                   const response = await fetch(url, {
+                       method: 'POST',
+                       headers: {
+                           'Content-Type': 'application/json',
+                           'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                       },
+                       body: JSON.stringify({
+                           subsidiaryId: subsidiary_id,
+                           searchTerm: searchTerm 
+                       }),
+                   });
+                   if (!response.ok) {
+                       throw new Error('Failed to fetch data');
+                   }
 
-        newItemCodeInput.addEventListener("blur", function(e) {
-            e.preventDefault();
-            const itemCode = e.target.value;
-            const subsidiaryId = document.getElementById('usersubsidiaryid').value;
-            if (itemCode) {
-                fetchItemDetails(itemCode, subsidiaryId, e.target);
-            }
-        });
+                   const data = await response.json();
+                   const suggestions = newItemCodeInput.nextElementSibling;
+                   suggestions.innerHTML = '';
 
-        newReasonInput.addEventListener("input", function(e) {
-            e.preventDefault();
-            validateItems();
-        });
-    });
+                   data.data.forEach(item => {
+                       const option = document.createElement('option');
+                       option.value = item.request_number;
+                       suggestions.appendChild(option);
+                   });
+               } catch (error) {
+                   console.error('Error fetching items:', error);
+               }
+           }
+       });
 
+       // Add blur event listener for item code input
+       newItemCodeInput.addEventListener("blur", function(e) {
+           e.preventDefault();
+           const itemCode = e.target.value;
+           const subsidiaryId = document.getElementById('usersubsidiaryid').value;
+           if (itemCode) {
+               fetchItemDetails(itemCode, subsidiaryId, e.target);
+           }
+       });
+
+       // Add input event listener for reason input
+       newReasonInput.addEventListener("input", function(e) {
+           e.preventDefault();
+           validateItems();
+       });
+   });
+
+    function formatDateForMySQL(date) {
+        return date.getFullYear() + '-' +
+        String(date.getMonth() + 1).padStart(2, '0') + '-' +
+        String(date.getDate()).padStart(2, '0') + ' ' +
+        String(date.getHours()).padStart(2, '0') + ':' +
+        String(date.getMinutes()).padStart(2, '0') + ':' +
+        String(date.getSeconds()).padStart(2, '0');
+    }
     submitButton.addEventListener("click", function () {
         const requestorName = document.getElementById('userName').value;
         const requestorNumber = document.getElementById('requestNumber').value; 
@@ -584,95 +604,110 @@ document.addEventListener("DOMContentLoaded", function () {
         const subsidiaryId = document.getElementById('usersubsidiaryid').value; 
         const subsidiary = document.getElementById('usersubsidiary').value; 
         const remarks = document.getElementById("remarks").textContent;
-        const items = Array.from(
-            document.querySelectorAll("#itemsTable tbody tr")
-        )
+        let validate = 0;
+        const items = Array.from(document.querySelectorAll("#itemsTable tbody tr"))
             .map((row) => {
-                return {
-                    item_code: row
-                        .querySelector(".itemCodeInput")
-                        .value,
-                    qty: parseFloat(
-                        row.querySelector(".requestedQty").textContent.trim()
-                    ),
-                    item_description: 
-                        row.querySelector(".itemDescription").textContent.trim()
-                    ,
-                    item_category:
-                        row.querySelector(".itemCategory").textContent.trim()
-                    ,
-                    uom: 
-                        row.querySelector(".uom-dropdown")?.value || '',
-                    uom_id: row.dataset.uomId,
-                    reason:
-                        row.querySelector(".reason").textContent.trim()
-                    ,
-                };
-            })
-            .filter((item) => item.item_code && item.qty > 0);
+                const reason = row.querySelector(".reason").textContent.trim();
+                const itemCode = row.querySelector(".itemCode").textContent.trim();
+                const withdrawQty = row.querySelector(".withdrewQty").textContent.trim();
+                const returnedQty = row.querySelector(".returnQty").textContent.trim();
 
-
-        const approvals = Array.from(document.querySelectorAll("#approversTable tbody tr")).map((row) => {
-            const approverIdField = row.querySelector("input[id^='userIdInput']");
-            const approverId = approverIdField ? approverIdField.value : null;
-            const approverName = row.querySelector("input[id^='userSearchInput']").value;
-            const hierarchy = row.querySelector(".hierarchy-input").textContent.trim();
-        
-            return {
-                approver_id: approverId,  
-                approver_name: approverName,
-                hierarchy: parseInt(hierarchy)
-            };
-        });
-
-        if (approvals.some((approval) => !approval.approver_id)) {
-            alert("Please ensure all approvers have valid IDs.");
-            return;
-        }
-
-        if (items.length === 0) {
-            alert("Please add at least one valid item before submitting.");
-            return;
-        }
-
-        axios
-            .post("/api/inventory/withdraw/request", {
-                requestor_name: requestorName,
-                requestor_number: requestorNumber,
-                requestor_id: requestorId,
-                items: items,
-                remarks: remarks,
-                subsidiaryid: subsidiaryId,
-                subsidiaryname: subsidiary,
-                approvals: approvals,
-            })
-            .then((response) => {
-                Swal.fire({
-                    title: "Success!",
-                    html: response.data.message,
-                    icon: "success",
-                    confirmButtonText: "Ok"
-                });
-/*                alert(response.data.message || "Withdraw request submitted.");*/
-                const requestTransferModal = bootstrap.Modal.getInstance(document.getElementById("inventoryWithdrawalModal"));
-                if (requestTransferModal) {
-                    requestTransferModal.hide();
+                if (!reason) {
+                    row.querySelector(".reason").style.border = "1px solid red";
+                    validate = 0
+                    return null;
+                } else {
+                	validate = 1
+                    row.querySelector(".reason").style.border = ""; 
                 }
-                setTimeout(() => {
-                    fetchReturn(currentPage);
-                    clearTransferModal();
-                    document.querySelectorAll(".modal-backdrop").forEach((el) => el.remove());
-                    document.body.classList.remove("modal-open");
-                    document.body.style.overflow = "";
-                }, 300); 
 
+                if (!itemCode || !returnedQty) {
+                    return null;
+                }
+
+                return {
+                    item_code: itemCode,
+                    withdraw_qty: withdrawQty,
+                    item_description: row.querySelector(".itemDescription").textContent.trim(),
+                    item_category: row.querySelector(".itemCategory").textContent.trim(),
+                    uom: row.querySelector(".uom-dropdown")?.value || '',
+                    uomid: row.dataset.uomId || '',
+                    returned_qty: returnedQty,
+                    reason: reason,
+                    return_date: formatDateForMySQL(new Date())
+                };	
             })
-            .catch((error) => {
-                alert(
-                    "Failed to submit the transfer request. Please try again."
-                );
-                console.error(error);
-            });
+            .filter((item) => item !== null);
+        if (validate === 0) {
+        	alert("Reason is required for all items.");
+        }
+
+       	else {
+       		const approvals = Array.from(document.querySelectorAll("#approversTable tbody tr")).map((row) => {
+       		    const approverIdField = row.querySelector("input[id^='userIdInput']");
+       		    const approverId = approverIdField ? approverIdField.value : null;
+       		    const approverName = row.querySelector("input[id^='userSearchInput']").value;
+       		    const hierarchy = row.querySelector(".hierarchy-input").textContent.trim();
+       		
+       		    return {
+       		        approver_id: approverId,  
+       		        approver_name: approverName,
+       		        hierarchy: parseInt(hierarchy)
+       		    };
+       		});
+	        if (approvals.some((approval) => !approval.approver_id)) {
+	            alert("Please ensure all approvers have valid IDs.");
+	            return;
+	        }
+
+	        else if (items.length === 0) {
+	            alert("Please add at least one valid item before submitting.");
+	            return;
+	        }
+
+	        else 
+	        {
+		        axios
+		            .post("/api/inventory/return/request", {
+		                requestor_name: requestorName,
+		                request_number: requestorNumber,
+		                requestor_id: requestorId,
+		                items: items,
+		                remarks: remarks,
+		                subsidiaryid: subsidiaryId,
+		                subsidiary_name: subsidiary,
+		                approvals: approvals,
+		            })
+		            .then((response) => {
+		                Swal.fire({
+		                    title: "Success!",
+		                    html: response.data.message,
+		                    icon: "success",
+		                    confirmButtonText: "Ok"
+		                });
+		/*                alert(response.data.message || "Withdraw request submitted.");*/
+		                const requestTransferModal = bootstrap.Modal.getInstance(document.getElementById("inventoryWithdrawalModal"));
+		                if (requestTransferModal) {
+		                    requestTransferModal.hide();
+		                }
+		                setTimeout(() => {
+		                    fetchReturn(currentPage);
+		                    clearTransferModal();
+		                    document.querySelectorAll(".modal-backdrop").forEach((el) => el.remove());
+		                    document.body.classList.remove("modal-open");
+		                    document.body.style.overflow = "";
+		                }, 300); 
+
+		            })
+		            .catch((error) => {
+		                alert(
+		                    "Failed to submit the transfer request. Please try again."
+		                );
+		                console.error(error);
+		            });	
+	        }
+       	}
+        
     });
 
     function clearTransferModal() {
@@ -803,7 +838,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 const approverId = target.dataset.approverId;
                 const requesterId = target.dataset.requesterId;
                 const userId = document.getElementById("userId").value;
-                const uom = target.querySelector("td:nth-child(9)").textContent.trim();
+                const uom = target.querySelector("td:nth-child(10)").textContent.trim();
                 if (target.dataset.status === "1") {
                     if (requesterId !== userId) {
                         Swal.fire({
@@ -816,11 +851,11 @@ document.addEventListener("DOMContentLoaded", function () {
                     }
                     
                     const transactionNumber = target.dataset.transactId;
-                    const requestedQty = parseFloat(target.querySelector("td:nth-child(7)").textContent.trim());
+                    const requestedQty = parseFloat(target.querySelector("td:nth-child(9)").textContent.trim());
                     const releasedQty = parseFloat(target.dataset.releasedQty);
                 
                     document.getElementById("requestedQtyReceive").value = requestedQty;
-                    document.getElementById("releasedQtyReceive").value = releasedQty;
+                    document.getElementById("returnQtyReceive").value = releasedQty;
                 
                     const receiveWithdrawModal = new bootstrap.Modal(document.getElementById("receiveWithdrawModal"));
                     receiveWithdrawModal.show();
@@ -842,8 +877,8 @@ document.addEventListener("DOMContentLoaded", function () {
                     const approvedBy = document.getElementById("userName").value;
                     document.getElementById("approvedByText").textContent = `Approver: ${approvedBy}`;
                 
-                    const requestedQty = parseFloat(target.querySelector("td:nth-child(7)").textContent.trim());
-                    const releasedQtyInput = document.getElementById("releasedQty");
+                    const requestedQty = parseFloat(target.querySelector("td:nth-child(9)").textContent.trim());
+                    const releasedQtyInput = document.getElementById("returnQty");
                 
                     const currentReleasedQty = target.dataset.releasedQty || "";
                     releasedQtyInput.value = currentReleasedQty !== "" ? currentReleasedQty : "";
@@ -885,14 +920,14 @@ document.addEventListener("DOMContentLoaded", function () {
     approveWithdrawButton.addEventListener("click", function () {
         const transactionNumber = approveWithdrawButton.dataset.transactionNumber;
         const approvedBy = document.getElementById("userName").value;
-        const releasedQty = document.getElementById("releasedQty").value;
+        const returnQty = document.getElementById("returnQty").value;
     
         const approverId = document.querySelector(`.clickable-row[data-transact-id='${transactionNumber}']`).dataset.approverId;
     
         axios
-            .post(`/api/inventory/withdraw/approve/${transactionNumber}`, {
+            .post(`/api/inventory/return/approve/${transactionNumber}`, {
                 approved_by: approvedBy,
-                released_qty: releasedQty,
+                return_qty: returnQty,
                 approver_id: approverId,
             })
             .then((response) => {
@@ -928,11 +963,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
     document.getElementById("receiveWithdrawButton").addEventListener("click", function () {
         const transactionNumber = document.querySelector('.clickable-row[data-status="1"]').dataset.transactId;
-        const releasedQty = document.getElementById("releasedQtyReceive").value;
+        const releasedQty = document.getElementById("returnQtyReceive").value;
         const requesterId = document.getElementById("userId").value;
         
         axios
-            .post(`/api/inventory/withdraw/approve/${transactionNumber}`, {
+            .post(`/api/inventory/return/approve/${transactionNumber}`, {
                 released_qty: releasedQty,
                 requester_id: requesterId,
                 status: 2,

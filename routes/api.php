@@ -59,3 +59,5 @@ Route::post('inventory/return', 'InventoryController@fetchReturns')->name('inven
 Route::post('inventory/return/request', 'InventoryController@requestReturn')->name('inventory.return.request');
 Route::post('search-return', 'InventoryController@searchReturn')->name('search-return');
 Route::post('return/suggestions', 'InventoryController@getReturnSuggestions')->name('return.suggestions');
+Route::post('return/search', 'InventoryController@returnSearchItem')->name('return.search');
+Route::post('inventory/return/approve/{id}', 'InventoryController@approveReturn')->name('inventory.return.approve');
