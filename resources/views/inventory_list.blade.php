@@ -271,19 +271,19 @@
                         </div>
                         <div class="col-md-4">
                             <label for="newPrimaryUOM" class="form-label">Primary UOM</label>
-                            <input type="text" id="primaryUOMSearch" placeholder="Search Primary UOM" class="form-control">
+                            <!-- <input type="text" id="primaryUOMSearch" placeholder="Search Primary UOM" class="form-control"> -->
                             <select class="form-select" id="newPrimaryUOM" required></select>
                         </div>
 
                         <div class="col-md-4">
                             <label for="newSecondaryUOM" class="form-label">Secondary UOM</label>
-                            <input type="text" id="secondaryUOMSearch" placeholder="Search Secondary UOM" class="form-control">
+                            <!-- <input type="text" id="secondaryUOMSearch" placeholder="Search Secondary UOM" class="form-control"> -->
                             <select class="form-select" id="newSecondaryUOM" required></select>
                         </div>
 
                         <div class="col-md-4">
                             <label for="newTertiaryUOM" class="form-label">Tertiary UOM</label>
-                            <input type="text" id="tertiaryUOMSearch" placeholder="Search Tertiary UOM" class="form-control">
+                            <!-- <input type="text" id="tertiaryUOMSearch" placeholder="Search Tertiary UOM" class="form-control"> -->
                             <select class="form-select" id="newTertiaryUOM" required></select>
                         </div>
 

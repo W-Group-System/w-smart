@@ -641,13 +641,6 @@ document.addEventListener("DOMContentLoaded", async function () {
     const secondaryUOMSelect = document.getElementById("newSecondaryUOM");
     const tertiaryUOMSelect = document.getElementById("newTertiaryUOM");
 
-    const primaryUOMSearch = document.getElementById("primaryUOMSearch");
-    const secondaryUOMSearch = document.getElementById("secondaryUOMSearch");
-    const tertiaryUOMSearch = document.getElementById("tertiaryUOMSearch");
-
-    secondaryUOMSearch.disabled = true;
-    tertiaryUOMSearch.disabled = true;
-
     let selectedPrimaryUOM = null;
     let selectedSecondaryUOM = null;
 
@@ -663,17 +656,17 @@ document.addEventListener("DOMContentLoaded", async function () {
             if (type === 'primary') {
                 params.searchPrimary = searchTerm;
             } else if (type === 'secondary') {
-                params.searchSecondary = searchTerm;
+                params.searchPrimary = searchTerm;
                 if (primaryUOM) {
-                    params.primary = primaryUOM; 
+                    params.primary = primaryUOM;
                 }
             } else if (type === 'tertiary') {
-                params.searchTertiary = searchTerm;
+                params.searchSecondary = searchTerm;
                 if (primaryUOM) {
-                    params.primary = primaryUOM; 
+                    params.primary = primaryUOM;
                 }
                 if (secondaryUOM) {
-                    params.secondary = secondaryUOM; 
+                    params.secondary = secondaryUOM;
                 }
             }
 
@@ -707,10 +700,9 @@ document.addEventListener("DOMContentLoaded", async function () {
     function updateDropdownOptions(selectElement, options, type) {
         selectElement.innerHTML = '<option value="" disabled selected>Select UOM</option>';
         options.forEach(uom => {
-            const uomValue = uom[`${type}UOM`]; 
-            const uomText = `${uomValue} (${uom[`${type}UOMValue`]})`;
+            const uomText = `${uom[`${type}UOM`]} (${uom[`${type}UOMValue`]})`;
             const option = document.createElement('option');
-            option.value = uomValue;
+            option.value = uom[`${type}UOM`];
             option.text = uomText;
             selectElement.appendChild(option);
         });
@@ -719,50 +711,26 @@ document.addEventListener("DOMContentLoaded", async function () {
     function clearSecondaryAndTertiary() {
         secondaryUOMSelect.innerHTML = '<option value="" disabled selected>Select UOM</option>';
         tertiaryUOMSelect.innerHTML = '<option value="" disabled selected>Select UOM</option>';
-        secondaryUOMSearch.value = "";
-        tertiaryUOMSearch.value = "";
-        tertiaryUOMSearch.disabled = true;
         selectedSecondaryUOM = null;
     }
 
     function clearTertiary() {
         tertiaryUOMSelect.innerHTML = '<option value="" disabled selected>Select UOM</option>';
-        tertiaryUOMSearch.value = "";
     }
-
-    primaryUOMSearch.addEventListener("input", async function () {
-        const searchTerm = this.value.trim();
-        const primaryUOMs = await fetchUOMs('primary', searchTerm);
-        updateDropdownOptions(primaryUOMSelect, primaryUOMs, 'primary');
-    });
 
     primaryUOMSelect.addEventListener("change", async function () {
         selectedPrimaryUOM = this.value;
-        secondaryUOMSearch.disabled = false; 
-        clearSecondaryAndTertiary(); 
+        clearSecondaryAndTertiary();
 
-        const secondaryUOMs = await fetchUOMs('secondary', '', selectedPrimaryUOM);
-        updateDropdownOptions(secondaryUOMSelect, secondaryUOMs, 'secondary');
-    });
-
-    secondaryUOMSearch.addEventListener("input", async function () {
-        const searchTerm = this.value.trim();
-        const secondaryUOMs = await fetchUOMs('secondary', searchTerm, selectedPrimaryUOM);
+        const secondaryUOMs = await fetchUOMs('secondary', selectedPrimaryUOM);
         updateDropdownOptions(secondaryUOMSelect, secondaryUOMs, 'secondary');
     });
 
     secondaryUOMSelect.addEventListener("change", async function () {
         selectedSecondaryUOM = this.value;
-        tertiaryUOMSearch.disabled = false; 
-        clearTertiary(); 
+        clearTertiary();
 
-        const tertiaryUOMs = await fetchUOMs('tertiary', '', selectedPrimaryUOM, selectedSecondaryUOM);
-        updateDropdownOptions(tertiaryUOMSelect, tertiaryUOMs, 'tertiary');
-    });
-
-    tertiaryUOMSearch.addEventListener("input", async function () {
-        const searchTerm = this.value.trim();
-        const tertiaryUOMs = await fetchUOMs('tertiary', searchTerm, selectedPrimaryUOM, selectedSecondaryUOM);
+        const tertiaryUOMs = await fetchUOMs('tertiary', selectedPrimaryUOM, selectedSecondaryUOM);
         updateDropdownOptions(tertiaryUOMSelect, tertiaryUOMs, 'tertiary');
     });
 
@@ -772,7 +740,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         });
     });
 
-    const initialPrimaryUOMs = await fetchUOMs('primary', ''); // Fetch without search term
+    const initialPrimaryUOMs = await fetchUOMs('primary');
     updateDropdownOptions(primaryUOMSelect, initialPrimaryUOMs, 'primary');
 });
 

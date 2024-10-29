@@ -1283,17 +1283,17 @@ class InventoryController extends Controller
     
             if ($request->has('searchPrimary') && !empty($request->searchPrimary)) {
                 $search = $request->searchPrimary;
-                $query->where('uomp', 'LIKE', "%$search%");
+                $query->whereRaw("LOWER(uomp) = ?", [strtolower($search)]);
             }
-    
+            
             if ($request->has('searchSecondary') && !empty($request->searchSecondary)) {
                 $search = $request->searchSecondary;
-                $query->where('uoms', 'LIKE', "%$search%");
+                $query->whereRaw("LOWER(uoms) = ?", [strtolower($search)]);
             }
-    
+            
             if ($request->has('searchTertiary') && !empty($request->searchTertiary)) {
                 $search = $request->searchTertiary;
-                $query->where('uomt', 'LIKE', "%$search%");
+                $query->whereRaw("LOWER(uomt) = ?", [strtolower($search)]);
             }
     
             $uoms = $query->limit($request->input('limit', 10))->get();
