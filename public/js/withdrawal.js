@@ -406,7 +406,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
     document.getElementById('addWithdraw').addEventListener('click', (e) => {
         e.preventDefault();
-
+        const withdrawalModal = new bootstrap.Modal(document.getElementById("inventoryWithdrawalModal"));
+        withdrawalModal.show();
+        
         const today = new Date().toISOString().split('T')[0];
         const userId = document.getElementById('userId').value;
         const userName = document.getElementById('userName').value;
@@ -418,7 +420,7 @@ document.addEventListener("DOMContentLoaded", function () {
         document.getElementById('subsidiary').value = subsidiary;
         document.getElementById('subsidiaryid').value = subsidiaryid;
         validateItems();
-        
+    
     });
 
     function populateUOMOptions(primaryUOM, secondaryUOM, tertiaryUOM, dropdown) {
@@ -576,6 +578,14 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 
+    function closeModalAndCleanup(modalInstance) {
+        document.querySelectorAll(".modal-backdrop").forEach((el) => el.remove());
+    
+        if (modalInstance) {
+            modalInstance.hide();
+        }
+    }
+
     submitButton.addEventListener("click", function () {
         const requestorName = document.getElementById('userName').value;
         const requestorNumber = document.getElementById('requestNumber').value; 
@@ -651,20 +661,17 @@ document.addEventListener("DOMContentLoaded", function () {
                     html: response.data.message,
                     icon: "success",
                     confirmButtonText: "Ok"
+                }).then(() => {
+                    clearTransferModal(); 
                 });
 /*                alert(response.data.message || "Withdraw request submitted.");*/
                 const requestTransferModal = bootstrap.Modal.getInstance(document.getElementById("inventoryWithdrawalModal"));
                 if (requestTransferModal) {
                     requestTransferModal.hide();
                 }
-                setTimeout(() => {
-                    fetchWithdrawal(currentPage);
-                    clearTransferModal();
-                    document.querySelectorAll(".modal-backdrop").forEach((el) => el.remove());
-                    document.body.classList.remove("modal-open");
-                    document.body.style.overflow = "";
-                }, 300); 
-
+                const modalInstance = bootstrap.Modal.getInstance(document.getElementById("yourModalId"));
+                closeModalAndCleanup(modalInstance);
+                fetchWithdrawal(currentPage);
             })
             .catch((error) => {
                 alert(

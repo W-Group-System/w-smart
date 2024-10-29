@@ -58,6 +58,7 @@ document.addEventListener("DOMContentLoaded", function () {
             row.dataset.approverId = item.approver_id;
             row.dataset.requesterId = item.requester_id;
             row.dataset.releasedQty = item.released_qty;
+            row.dataset.remarks = item.remarks || "";
 
             let statusBadge = item.status;
             if (item.status === "Pending" && item.approver_name) {
@@ -78,7 +79,12 @@ document.addEventListener("DOMContentLoaded", function () {
                 <td style="text-align: center; padding: 8px 10px;">${item.qty}</td>
                 <td style="text-align: center; padding: 8px 10px;">${item.uomp}</td>
                 <td style="text-align: center; padding: 8px 10px;">
-                    <span class="badge bg-${item.status === "Received" ? "success" : item.status === "Receiving" ? "primary" : "danger"}">
+                    <span class="badge bg-${
+                        item.status === "Received" ? "success" :
+                        item.status === "Receiving" ? "primary" :
+                        item.status === "Pending" ? "warning" : 
+                        "danger" 
+                    }">
                         ${statusBadge}
                     </span>
                 </td>
@@ -648,6 +654,17 @@ document.addEventListener("DOMContentLoaded", function () {
         if (target) {
             const status = target.dataset.status;
 
+            if (status === "Declined" || status === "Not Received") {
+                const reason = target.dataset.remarks || "No reason provided.";
+                Swal.fire({
+                    title: `Transfer is ${status}`,
+                    text: reason,
+                    icon: "info",
+                    confirmButtonText: "Ok"
+                });
+                return;
+            }
+
             if (status === "Received") {
                 Swal.fire({
                     title: "Transfer already received",
@@ -781,6 +798,129 @@ document.addEventListener("DOMContentLoaded", function () {
                 });
                 console.error(error);
             });
+    });
+
+    document.getElementById("declineTransferButton").addEventListener("click", function () {
+        const transactionNumber = approveTransferButton.dataset.transactionNumber;
+    
+        const approveTransferModalInstance = bootstrap.Modal.getInstance(document.getElementById("approveTransferModal"));
+        if (approveTransferModalInstance) {
+            approveTransferModalInstance.hide();
+        }
+
+        Swal.fire({
+            title: 'Reason for Declining',
+            html: `
+                <label for="declineReasonTextarea">Enter reason for declining this transfer:</label>
+                <textarea id="declineReasonTextarea" class="swal2-textarea" placeholder="Enter reason here..." rows="4"></textarea>
+            `,
+            showCancelButton: true,
+            confirmButtonText: 'Decline Transfer',
+            cancelButtonText: 'Cancel',
+            focusConfirm: false,
+            preConfirm: () => {
+                const reason = document.getElementById('declineReasonTextarea').value;
+                if (!reason) {
+                    Swal.showValidationMessage('Please enter a reason for declining');
+                    return false;
+                }
+                return reason;
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                const reason = result.value;
+                const approveTransferModalInstance = bootstrap.Modal.getInstance(document.getElementById("approveTransferModal"));
+                approveTransferModalInstance.hide();
+    
+                axios.post(`/api/inventory/transfer/decline/${transactionNumber}`, {
+                    remarks: reason 
+                })
+                .then(response => {
+                    Swal.fire({
+                        title: "Declined!",
+                        text: "Transfer request has been declined.",
+                        icon: "warning",
+                        confirmButtonText: "Ok"
+                    }).then(() => {
+                        fetchTransfer(currentPage);
+                    });
+                })
+                .catch(error => {
+                    Swal.fire({
+                        title: "Error!",
+                        text: "Failed to decline the transfer request. Please try again.",
+                        icon: "error",
+                        confirmButtonText: "Ok"
+                    });
+                    console.error("Decline transfer error:", error);
+                });
+            }
+        });
+    });
+    
+    document.getElementById("declineTransferButtonReceive").addEventListener("click", function () {
+        const transactionNumber = document.querySelector('.clickable-row[data-status="Receiving"]').dataset.transactId;
+        const receiveTransferModalInstance = bootstrap.Modal.getInstance(document.getElementById("receiveTransferModal"));
+    
+        if (receiveTransferModalInstance) {
+            receiveTransferModalInstance.hide();
+        }
+    
+        Swal.fire({
+            title: 'Reason for Not Receiving',
+            html: `
+                <label for="declineReasonTextarea">Enter reason for declining this transfer:</label>
+                <textarea id="declineReasonTextarea" class="swal2-textarea" placeholder="Enter reason here..." rows="4"></textarea>
+                <br><label for="declineProofImage">Upload proof (optional):</label>
+                <input type="file" id="declineProofImage" class="swal2-file" accept="image/*" />
+            `,
+            showCancelButton: true,
+            confirmButtonText: 'Decline Transfer',
+            cancelButtonText: 'Cancel',
+            focusConfirm: false,
+            preConfirm: () => {
+                const reason = document.getElementById('declineReasonTextarea').value;
+                const imageFile = document.getElementById('declineProofImage').files[0];
+                if (!reason) {
+                    Swal.showValidationMessage('Please enter a reason for declining');
+                    return false;
+                }
+                return { reason, imageFile };
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                const { reason, imageFile } = result.value;
+    
+                const requestData = {
+                    remarks: reason
+                };
+                
+                if (imageFile) {
+                    requestData.image = imageFile;
+                }
+    
+                axios.post(`/api/inventory/transfer/decline/${transactionNumber}`, requestData)
+                .then(response => {
+                    Swal.fire({
+                        title: "Declined!",
+                        text: "Transfer request has been declined.",
+                        icon: "warning",
+                        confirmButtonText: "Ok"
+                    }).then(() => {
+                        fetchTransfer(currentPage);
+                    });
+                })
+                .catch(error => {
+                    Swal.fire({
+                        title: "Error!",
+                        text: "Failed to decline the transfer request. Please try again.",
+                        icon: "error",
+                        confirmButtonText: "Ok"
+                    });
+                    console.error("Decline transfer error:", error);
+                });
+            }
+        });
     });
 
     document.getElementById("receiveTransferButton").addEventListener("click", function () {

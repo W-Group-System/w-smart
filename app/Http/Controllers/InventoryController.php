@@ -534,6 +534,33 @@ class InventoryController extends Controller
         }
     }
 
+    public function declineTransfer(Request $request, $transactId)
+{
+    try {
+        $transfer = Transfer::where('transfer_id', $transactId)->firstOrFail();
+
+        $transfer->status = $transfer->status === 'Receiving' ? 'Not Received' : 'Declined';
+
+        if ($request->has('remarks')) {
+            $transfer->remarks = $request->input('remarks');
+        }
+
+        $transfer->save();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Transfer status updated successfully.',
+        ], 200);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'status' => 'error',
+            'message' => 'Failed to decline transfer.',
+            'error' => $e->getMessage(),
+        ], 500);
+    }
+}
+
     public function processReceiving(Request $request, $transfer)
     {
         try {
@@ -1350,17 +1377,17 @@ class InventoryController extends Controller
     
             if ($request->has('searchPrimary') && !empty($request->searchPrimary)) {
                 $search = $request->searchPrimary;
-                $query->where('uomp', 'LIKE', "%$search%");
+                $query->whereRaw("LOWER(uomp) = ?", [strtolower($search)]);
             }
-    
+            
             if ($request->has('searchSecondary') && !empty($request->searchSecondary)) {
                 $search = $request->searchSecondary;
-                $query->where('uoms', 'LIKE', "%$search%");
+                $query->whereRaw("LOWER(uoms) = ?", [strtolower($search)]);
             }
-    
+            
             if ($request->has('searchTertiary') && !empty($request->searchTertiary)) {
                 $search = $request->searchTertiary;
-                $query->where('uomt', 'LIKE', "%$search%");
+                $query->whereRaw("LOWER(uomt) = ?", [strtolower($search)]);
             }
     
             $uoms = $query->limit($request->input('limit', 10))->get();
