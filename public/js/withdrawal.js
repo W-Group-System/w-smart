@@ -406,7 +406,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
     document.getElementById('addWithdraw').addEventListener('click', (e) => {
         e.preventDefault();
-
+        const withdrawalModal = new bootstrap.Modal(document.getElementById("inventoryWithdrawalModal"));
+        withdrawalModal.show();
+        
         const today = new Date().toISOString().split('T')[0];
         const userId = document.getElementById('userId').value;
         const userName = document.getElementById('userName').value;
@@ -418,7 +420,7 @@ document.addEventListener("DOMContentLoaded", function () {
         document.getElementById('subsidiary').value = subsidiary;
         document.getElementById('subsidiaryid').value = subsidiaryid;
         validateItems();
-        
+    
     });
 
     function populateUOMOptions(primaryUOM, secondaryUOM, tertiaryUOM, dropdown) {
@@ -660,6 +662,8 @@ document.addEventListener("DOMContentLoaded", function () {
                     html: response.data.message,
                     icon: "success",
                     confirmButtonText: "Ok"
+                }).then(() => {
+                    clearTransferModal(); 
                 });
 /*                alert(response.data.message || "Withdraw request submitted.");*/
                 const requestTransferModal = bootstrap.Modal.getInstance(document.getElementById("inventoryWithdrawalModal"));
