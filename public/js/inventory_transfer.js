@@ -78,7 +78,12 @@ document.addEventListener("DOMContentLoaded", function () {
                 <td style="text-align: center; padding: 8px 10px;">${item.qty}</td>
                 <td style="text-align: center; padding: 8px 10px;">${item.uomp}</td>
                 <td style="text-align: center; padding: 8px 10px;">
-                    <span class="badge bg-${item.status === "Received" ? "success" : item.status === "Receiving" ? "primary" : "danger"}">
+                    <span class="badge bg-${
+                        item.status === "Received" ? "success" :
+                        item.status === "Receiving" ? "primary" :
+                        item.status === "Pending" ? "warning" : 
+                        "danger" 
+                    }">
                         ${statusBadge}
                     </span>
                 </td>
@@ -648,6 +653,16 @@ document.addEventListener("DOMContentLoaded", function () {
         if (target) {
             const status = target.dataset.status;
 
+            if (status === "Declined" || status === "Not Received") {
+                Swal.fire({
+                    title: "Transfer Status",
+                    text: `Transfer is ${status}`,
+                    icon: "info",
+                    confirmButtonText: "Ok"
+                });
+                return; 
+            }
+
             if (status === "Received") {
                 Swal.fire({
                     title: "Transfer already received",
@@ -780,6 +795,60 @@ document.addEventListener("DOMContentLoaded", function () {
                     confirmButtonText: "Ok"
                 });
                 console.error(error);
+            });
+    });
+
+    document.getElementById("declineTransferButton").addEventListener("click", function () {
+        const transactionNumber = approveTransferButton.dataset.transactionNumber;
+        
+        axios.post(`/api/inventory/transfer/decline/${transactionNumber}`)
+            .then(response => {
+                Swal.fire({
+                    title: "Declined!",
+                    text: "Transfer request has been declined.",
+                    icon: "warning",
+                    confirmButtonText: "Ok"
+                }).then(() => {
+                    fetchTransfer(currentPage);
+                    const approveTransferModalInstance = bootstrap.Modal.getInstance(document.getElementById("approveTransferModal"));
+                    approveTransferModalInstance.hide();
+                });
+            })
+            .catch(error => {
+                Swal.fire({
+                    title: "Error!",
+                    text: "Failed to decline the transfer request. Please try again.",
+                    icon: "error",
+                    confirmButtonText: "Ok"
+                });
+                console.error("Decline transfer error:", error);
+            });
+    });
+    
+    document.getElementById("declineTransferButtonReceive").addEventListener("click", function () {
+        const transactionNumber = document.querySelector('.clickable-row[data-status="Receiving"]').dataset.transactId;
+        
+        axios.post(`/api/inventory/transfer/decline/${transactionNumber}`)
+            .then(response => {
+                Swal.fire({
+                    title: "Declined!",
+                    text: "Transfer request has been declined.",
+                    icon: "warning",
+                    confirmButtonText: "Ok"
+                }).then(() => {
+                    fetchTransfer(currentPage);
+                    const receiveTransferModalInstance = bootstrap.Modal.getInstance(document.getElementById("receiveTransferModal"));
+                    receiveTransferModalInstance.hide();
+                });
+            })
+            .catch(error => {
+                Swal.fire({
+                    title: "Error!",
+                    text: "Failed to decline the transfer request. Please try again.",
+                    icon: "error",
+                    confirmButtonText: "Ok"
+                });
+                console.error("Decline transfer error:", error);
             });
     });
 

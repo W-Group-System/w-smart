@@ -353,7 +353,7 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger" id="declineTransferButton">Decline</button>
                 <button type="button" class="btn btn-primary" id="approveTransferButton">Approve</button>
             </div>
         </div>
@@ -385,8 +385,8 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-primary" id="receiveTransferButton">Submit</button>
+                <button type="button" class="btn btn-danger" id="declineTransferButtonReceive">No Receive</button>
+                <button type="button" class="btn btn-primary" id="receiveTransferButton">Receive</button>
             </div>
         </div>
     </div>

@@ -33,6 +33,7 @@ Route::post('search-inventory', 'InventoryController@search')->name('search-inve
 //inventory-transfer
 Route::post('inventory/transfer/request', 'InventoryController@requestTransfer')->name('inventory.transfer.request');
 Route::post('inventory/transfer/approve/{transferId}', 'InventoryController@approveTransfer')->name('inventory.transfer.approve');
+Route::post('inventory/transfer/decline/{transactId}', 'InventoryController@declineTransfer')->name('inventory.transfer.decline');
 Route::post('inventory/transfer', 'InventoryController@fetchTransfers')->name('inventory.transfer.fetch');
 Route::get('inventory/search-item', 'InventoryController@searchItem')->name('inventory.search-item');
 Route::post('inventory/suggestions', 'InventoryController@getInventorySuggestions')->name('inventory.suggestions');

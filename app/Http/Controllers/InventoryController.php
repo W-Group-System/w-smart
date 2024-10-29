@@ -534,6 +534,33 @@ class InventoryController extends Controller
         }
     }
 
+    public function declineTransfer(Request $request, $transactId)
+    {
+        try {
+            $transfer = Transfer::where('transfer_id', $transactId)->firstOrFail();
+
+            if ($transfer->status === 'Receiving') {
+                $transfer->status = 'Not Received';
+            } else {
+                $transfer->status = 'Declined';
+            }
+
+            $transfer->save();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Transfer status updated successfully.',
+            ], 200);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to decline transfer.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
     public function processReceiving(Request $request, $transfer)
     {
         try {
