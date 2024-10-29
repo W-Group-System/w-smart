@@ -1047,15 +1047,20 @@ class InventoryController extends Controller
 
     public function processReturn(Request $request, $id)
     {
+
         try {
             $return = Returns::where('id', $id)->firstOrFail();
-
+            
             if ($return->status !== 1) {
                 return response()->json([
                     'status' => 'error',
                     'message' => 'This return request is not approved by the approvers yet!',
                 ], 400);
             }
+            $withdrawal = WithdrawalItems::join('withdrawals', 'withdrawal_items.withdrawal_id', '=', 'withdrawals.id')
+                                       ->where('withdrawals.request_number', $return->process_id)
+                                       ->select('withdrawal_items.*')
+                                       ->firstOrFail();
 
             $itemCode = $return->item_code;
             $releasedQty = $request->released_qty;
@@ -1093,6 +1098,8 @@ class InventoryController extends Controller
 
             $inventory->qty += $convertedQty;
             $inventory->usage -= $convertedQty;
+            $withdrawal->released_qty -= $convertedQty;
+            $withdrawal->save();
             $inventory->save();
 
             $return->status = 2;
@@ -1670,6 +1677,7 @@ class InventoryController extends Controller
 
             foreach ($request->items as $item) {
                 $itemCode = $item['item_code'];
+                $process_id = $item['process_id'];
                 $returned_qty = $item['returned_qty'];
                 $withdraw_qty = $item['withdraw_qty'];
                 $uom = $item['uom'];
@@ -1694,6 +1702,7 @@ class InventoryController extends Controller
                     $newReturnLog->request_number = $requestId;
                     $newReturnLog->requestor_name = $requestorName;
                     $newReturnLog->requestor_id = $requestorId;
+                    $newReturnLog->process_id = $process_id;
                     $newReturnLog->remarks = $remarks;
                     $newReturnLog->subsidiaryid = $subsidiaryid;
                     $newReturnLog->subsidiary_name = $subsidiary_name;

@@ -609,6 +609,7 @@ document.addEventListener("DOMContentLoaded", function () {
             .map((row) => {
                 const reason = row.querySelector(".reason").textContent.trim();
                 const itemCode = row.querySelector(".itemCode").textContent.trim();
+                const processId = row.querySelector(".itemCodeInput").value;
                 const withdrawQty = row.querySelector(".withdrewQty").textContent.trim();
                 const returnedQty = row.querySelector(".returnQty").textContent.trim();
 
@@ -627,6 +628,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
                 return {
                     item_code: itemCode,
+                    process_id: processId,
                     withdraw_qty: withdrawQty,
                     item_description: row.querySelector(".itemDescription").textContent.trim(),
                     item_category: row.querySelector(".itemCategory").textContent.trim(),
@@ -638,6 +640,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 };	
             })
             .filter((item) => item !== null);
+            console.log(items)
         if (validate === 0) {
         	alert("Reason is required for all items.");
         }
@@ -720,10 +723,10 @@ document.addEventListener("DOMContentLoaded", function () {
             row.querySelector(".itemCodeInput").value = "";
             row.querySelector(".itemDescription").textContent = "";
             row.querySelector(".itemCategory").textContent = "";
-            row.querySelector(".uom").textContent = "";
+            row.querySelector(".uom-dropdown").textContent = "";
             row.querySelector(".reason").textContent = "";
-            row.querySelector(".requestedQty").textContent = "";
-            row.querySelector(".releasedQty").textContent = "";
+            row.querySelector(".returnQty").textContent = "";
+            row.querySelector(".withdrewQty").textContent = "";
         });
 
         document.getElementById("remarks").value = "";
@@ -965,7 +968,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const transactionNumber = document.querySelector('.clickable-row[data-status="1"]').dataset.transactId;
         const releasedQty = document.getElementById("returnQtyReceive").value;
         const requesterId = document.getElementById("userId").value;
-        
+        console.log(transactionNumber);
         axios
             .post(`/api/inventory/return/approve/${transactionNumber}`, {
                 released_qty: releasedQty,
