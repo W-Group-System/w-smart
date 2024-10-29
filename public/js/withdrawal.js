@@ -576,6 +576,14 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 
+    function closeModalAndCleanup(modalInstance) {
+        document.querySelectorAll(".modal-backdrop").forEach((el) => el.remove());
+    
+        if (modalInstance) {
+            modalInstance.hide();
+        }
+    }
+
     submitButton.addEventListener("click", function () {
         const requestorName = document.getElementById('userName').value;
         const requestorNumber = document.getElementById('requestNumber').value; 
@@ -658,14 +666,9 @@ document.addEventListener("DOMContentLoaded", function () {
                 if (requestTransferModal) {
                     requestTransferModal.hide();
                 }
-                setTimeout(() => {
-                    fetchWithdrawal(currentPage);
-                    clearTransferModal();
-                    document.querySelectorAll(".modal-backdrop").forEach((el) => el.remove());
-                    document.body.classList.remove("modal-open");
-                    document.body.style.overflow = "";
-                }, 300); 
-
+                const modalInstance = bootstrap.Modal.getInstance(document.getElementById("yourModalId"));
+                closeModalAndCleanup(modalInstance);
+                fetchWithdrawal(currentPage);
             })
             .catch((error) => {
                 alert(
