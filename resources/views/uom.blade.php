@@ -62,11 +62,11 @@
                         </div>
 
                         <div class="form-group mb-3">
-                            <label for="tertiaryUOM">Tertiary UOM</label>
+                            <label for="tertiaryUOM">Tertiary UOM (Optional)</label>
                             <input type="text" class="form-control" id="tertiaryUOM"
-                                placeholder="Enter tertiary UOM name" required>
+                                placeholder="Enter tertiary UOM name">
                             <input type="number" class="form-control mt-2" id="tertiaryUOMValue"
-                                placeholder="Enter tertiary UOM value" required step="any">
+                                placeholder="Enter tertiary UOM value" step="any">
                         </div>
 
                         <div class="modal-footer">

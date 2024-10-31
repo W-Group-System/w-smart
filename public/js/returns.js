@@ -130,7 +130,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     const withdrewQty = row.querySelector(".withdrewQty");
                     const maxQty = parseFloat(item[0].released_qty) || 0;
                     withdrewQty.textContent = maxQty.toFixed(2);
-                    withdrewQty.dataset.maxQty = maxQty;
+                    withdrewQty.dataset.maxQty = maxQty.toFixed(2);
                     qtyCell.textContent = maxQty.toFixed(2);
                     row.dataset.uomId = item[0].uom_id;
                     row.dataset.baseQty = maxQty;
@@ -429,10 +429,10 @@ document.addEventListener("DOMContentLoaded", function () {
         dropdown.innerHTML = '';
     
         const uomOptions = [
-            { label: primaryUOM || 'Primary', value: primaryUOM || 'Primary' }, 
-            { label: secondaryUOM || 'Secondary', value: secondaryUOM || 'Secondary' }, 
-            { label: tertiaryUOM || 'Tertiary', value: tertiaryUOM || 'Tertiary' } 
-        ];
+            { label: primaryUOM || 'Primary', value: primaryUOM || 'Primary' },
+            { label: secondaryUOM || 'Secondary', value: secondaryUOM || 'Secondary' },
+            tertiaryUOM ? { label: tertiaryUOM, value: tertiaryUOM } : null 
+        ].filter(option => option !== null);
     
         uomOptions.forEach((uom, index) => {
             if (uom.label) {
@@ -449,6 +449,7 @@ document.addEventListener("DOMContentLoaded", function () {
         dropdown.addEventListener('change', function (event) {
             const row = dropdown.closest('tr');
             const qtyElement = row.querySelector(".returnQty");
+            const withdrewElement = row.querySelector(".withdrewQty");
     
             let baseQty = parseFloat(row.dataset.baseQty) || parseFloat(qtyElement.textContent);
             if (!row.dataset.baseQty) {
@@ -458,7 +459,6 @@ document.addEventListener("DOMContentLoaded", function () {
             const primaryValue = parseFloat(row.dataset.primaryValue) || 1;
             const secondaryValue = parseFloat(row.dataset.secondaryValue) || 1;
             const tertiaryValue = parseFloat(row.dataset.tertiaryValue) || 1;
-    
             let selectedUOM = dropdown.value;
             let convertedQty;
             let maxConvertedQty;
@@ -482,6 +482,7 @@ document.addEventListener("DOMContentLoaded", function () {
             }
     
             qtyElement.textContent = convertedQty.toFixed(2);
+            withdrewElement.textContent = convertedQty.toFixed(2);
             qtyElement.setAttribute('data-max-qty', maxConvertedQty.toFixed(2));
             row.dataset.maxQty = maxConvertedQty;
     

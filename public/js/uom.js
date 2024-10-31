@@ -48,10 +48,14 @@ document.addEventListener("DOMContentLoaded", function () {
     );
     document.querySelectorAll("#addUOMForm input").forEach((input) => {
         input.addEventListener("input", () => {
-            const allFilled = Array.from(
-                document.querySelectorAll("#addUOMForm input")
-            ).every((input) => input.value.trim() !== "");
-            saveButton.disabled = !allFilled;
+            const primaryFilled = document.getElementById("primaryUOM").value.trim() !== "" &&
+                                  document.getElementById("primaryUOMValue").value.trim() !== "";
+            const secondaryFilled = document.getElementById("secondaryUOM").value.trim() !== "" &&
+                                    document.getElementById("secondaryUOMValue").value.trim() !== "";
+            const tertiaryFilled = document.getElementById("tertiaryUOM").value.trim() !== "" &&
+                                   document.getElementById("tertiaryUOMValue").value.trim() !== "";
+    
+            saveButton.disabled = !(primaryFilled && secondaryFilled && (tertiaryFilled || !document.getElementById("tertiaryUOM").value));
         });
     });
 

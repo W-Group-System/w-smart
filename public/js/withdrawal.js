@@ -124,7 +124,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     row.querySelector(".itemCategory").textContent = item.item_category;
     
                     const uomDropdown = row.querySelector(".uom-dropdown");
-                    populateUOMOptions(item.primaryUOM, item.secondaryUOM, item.tertiaryUOM, uomDropdown);
+                    populateUOMOptions(item.uomp, item.uoms, item.uomt, uomDropdown);
     
                     const qtyCell = row.querySelector(".requestedQty");
                     const maxQty = parseFloat(item.qty);
@@ -427,20 +427,22 @@ document.addEventListener("DOMContentLoaded", function () {
         dropdown.innerHTML = '';
     
         const uomOptions = [
-            { label: primaryUOM || 'Primary', value: primaryUOM || 'Primary' }, 
-            { label: secondaryUOM || 'Secondary', value: secondaryUOM || 'Secondary' }, 
-            { label: tertiaryUOM || 'Tertiary', value: tertiaryUOM || 'Tertiary' } 
+            { label: primaryUOM || 'Primary', value: primaryUOM || 'Primary' },
+            { label: secondaryUOM || 'Secondary', value: secondaryUOM || 'Secondary' }
         ];
     
+        if (tertiaryUOM) {
+            uomOptions.push({ label: tertiaryUOM, value: tertiaryUOM });
+        }
+    
         uomOptions.forEach((uom, index) => {
-            if (uom.label) {
-                const option = document.createElement('option');
-                option.value = uom.value; 
-                option.textContent = uom.label;
-                dropdown.appendChild(option);
-                if (index === 0) {
-                    option.selected = true;
-                }
+            const option = document.createElement('option');
+            option.value = uom.value;
+            option.textContent = uom.label;
+            dropdown.appendChild(option);
+            
+            if (index === 0) {
+                option.selected = true;
             }
         });
     
@@ -456,7 +458,7 @@ document.addEventListener("DOMContentLoaded", function () {
             const primaryValue = parseFloat(row.dataset.primaryValue) || 1;
             const secondaryValue = parseFloat(row.dataset.secondaryValue) || 1;
             const tertiaryValue = parseFloat(row.dataset.tertiaryValue) || 1;
-    
+            console.log("primaryValue", primaryValue, "secondaryValue", secondaryValue, "tertiaryValue", tertiaryValue);
             let selectedUOM = dropdown.value;
             let convertedQty;
             let maxConvertedQty;

@@ -187,7 +187,7 @@
                             <select class="form-select" id="secondaryUOM">
                             </select>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-6" id="tertiaryUOMContainer">
                             <label for="tertiaryUOM" class="form-label">Tertiary UOM</label>
                             <select class="form-select" id="tertiaryUOM">
                             </select>
@@ -284,7 +284,7 @@
                         <div class="col-md-4">
                             <label for="newTertiaryUOM" class="form-label">Tertiary UOM</label>
                             <!-- <input type="text" id="tertiaryUOMSearch" placeholder="Search Tertiary UOM" class="form-control"> -->
-                            <select class="form-select" id="newTertiaryUOM" required></select>
+                            <select class="form-select" id="newTertiaryUOM"></select>
                         </div>
 
                         <div class="col-md-6">

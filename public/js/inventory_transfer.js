@@ -546,18 +546,18 @@ document.addEventListener("DOMContentLoaded", function () {
             switch (selectedUOM) {
                 case 'primary':
                     uomp = uomDropdown.options[0].text;
-                    uoms = uomDropdown.options[1].text;  
-                    uomt = uomDropdown.options[2].text;  
+                    uoms = uomDropdown.options[1].text;
+                    uomt = uomDropdown.options[2] ? uomDropdown.options[2].text : '';
                     break;
                 case 'secondary':
-                    uomp = uomDropdown.options[1].text;  
-                    uoms = uomDropdown.options[0].text;  
-                    uomt = uomDropdown.options[2].text;  
+                    uomp = uomDropdown.options[1].text;
+                    uoms = uomDropdown.options[0].text;
+                    uomt = uomDropdown.options[2] ? uomDropdown.options[2].text : '';
                     break;
                 case 'tertiary':
-                    uomp = uomDropdown.options[2].text;  
-                    uoms = uomDropdown.options[0].text; 
-                    uomt = uomDropdown.options[1].text; 
+                    uomp = uomDropdown.options[2] ? uomDropdown.options[2].text : ''; 
+                    uoms = uomDropdown.options[0].text;
+                    uomt = uomDropdown.options[1].text;
                     break;
                 default:
                     uomp = selectedUOM;
@@ -573,7 +573,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 uomt: uomt,
                 relation_id: relationId
             };
-        }).filter((item) => item.item_code && item.qty > 0 && item.uomp && item.uoms && item.uomt); 
+        }).filter((item) => item.item_code && item.qty > 0 && item.uomp && item.uoms); 
     
         const approvals = Array.from(document.querySelectorAll("#approversTable tbody tr")).map((row) => {
             const approverIdField = row.querySelector("input[id^='userIdInput']");
@@ -1158,19 +1158,21 @@ document.addEventListener("DOMContentLoaded", function () {
     
         const uomOptions = [
             { label: primaryUOM || 'Primary', value: 'primary' },
-            { label: secondaryUOM || 'Secondary', value: 'secondary' },
-            { label: tertiaryUOM || 'Tertiary', value: 'tertiary' }
+            { label: secondaryUOM || 'Secondary', value: 'secondary' }
         ];
     
+        if (tertiaryUOM) {
+            uomOptions.push({ label: tertiaryUOM, value: 'tertiary' });
+        }
+    
         uomOptions.forEach((uom, index) => {
-            if (uom.label) {
-                const option = document.createElement('option');
-                option.value = uom.value;
-                option.textContent = uom.label;
-                dropdown.appendChild(option);
-                if (index === 0) {
-                    option.selected = true;
-                }
+            const option = document.createElement('option');
+            option.value = uom.value;
+            option.textContent = uom.label;
+            dropdown.appendChild(option);
+    
+            if (index === 0) {
+                option.selected = true;
             }
         });
     
@@ -1182,14 +1184,14 @@ document.addEventListener("DOMContentLoaded", function () {
             if (!row.dataset.baseQty) {
                 row.dataset.baseQty = baseQty;
             }
-
+    
             const primaryValue = parseFloat(row.dataset.primaryValue) || 1;
             const secondaryValue = parseFloat(row.dataset.secondaryValue) || 1;
             const tertiaryValue = parseFloat(row.dataset.tertiaryValue) || 1;
-
+    
             let selectedUOM = dropdown.value;
             let convertedQty;
-
+    
             switch (selectedUOM) {
                 case 'primary':
                     convertedQty = baseQty * primaryValue; 

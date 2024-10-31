@@ -150,7 +150,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 <select class="form-select uom-select" data-index="${index}">
                     <option value="primary" selected>${item.uomp}</option>
                     <option value="secondary">${item.uoms}</option>
-                    <option value="tertiary">${item.uomt}</option>
+                    ${item.uomt ? `<option value="tertiary">${item.uomt}</option>` : ''}
                 </select>
             `;
 
@@ -604,14 +604,17 @@ document.addEventListener("DOMContentLoaded", function () {
                         name: document.getElementById("newSecondaryUOM").options[document.getElementById("newSecondaryUOM").selectedIndex].text.split(" (")[0], 
                         value: document.getElementById("newSecondaryUOM").options[document.getElementById("newSecondaryUOM").selectedIndex].text.split(" (")[1].slice(0, -1) // Get the value part
                     },
-                    tertiaryUOM: {
-                        name: document.getElementById("newTertiaryUOM").options[document.getElementById("newTertiaryUOM").selectedIndex].text.split(" (")[0], 
-                        value: document.getElementById("newTertiaryUOM").options[document.getElementById("newTertiaryUOM").selectedIndex].text.split(" (")[1].slice(0, -1) // Get the value part
-                    },
                     qty: document.getElementById("newQuantity").value,
                     remarks: document.getElementById("remarks").value,
                     usage: document.getElementById("newUsage").value,
                 };
+                const tertiaryUOMSelect = document.getElementById("newTertiaryUOM");
+                if (tertiaryUOMSelect.selectedIndex > 0) {
+                    data.tertiaryUOM = {
+                        name: tertiaryUOMSelect.options[tertiaryUOMSelect.selectedIndex].text.split(" (")[0],
+                        value: tertiaryUOMSelect.options[tertiaryUOMSelect.selectedIndex].text.split(" (")[1].slice(0, -1)
+                    };
+                }
                 axios
                     .post(`/api/create-inventory`, data)
                     .then((response) => {
