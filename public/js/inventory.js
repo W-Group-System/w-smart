@@ -148,7 +148,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
             const uomDropdown = `
                 <select class="form-select uom-select" data-index="${index}">
-                    <option value="primary" selected>${item.uomp}</option>
+                    <option value="primary" style="color: orange;" selected>${item.uomp}</option> <!-- Light green text for primary -->
                     <option value="secondary">${item.uoms}</option>
                     ${item.uomt ? `<option value="tertiary">${item.uomt}</option>` : ''}
                 </select>

@@ -246,7 +246,7 @@
                                         </div>
                                     </td>
                                     <td contenteditable="false" id="userRoleInput1" style="background-color: #E9ECEF; color: #999; pointer-events: none;">Auto Generate</td>
-                                    <td contenteditable="true" class="hierarchy-input">1</td>
+                                    <td contenteditable="false" class="hierarchy-input" style="background-color: #E9ECEF; color: #999; pointer-events: none;">1</td>
                                     <td contenteditable="true"></td>
                                 </tr>
                                 <tr>
@@ -258,7 +258,7 @@
                                         </div>
                                     </td>
                                     <td contenteditable="false" id="userRoleInput2" style="background-color: #E9ECEF; color: #999; pointer-events: none;">Auto Generate</td>
-                                    <td contenteditable="true" class="hierarchy-input">2</td>
+                                    <td contenteditable="false" class="hierarchy-input" style="background-color: #E9ECEF; color: #999; pointer-events: none;">2</td>
                                     <td contenteditable="true"></td>
                                 </tr>
                             </tbody>
