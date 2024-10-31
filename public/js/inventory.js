@@ -709,13 +709,13 @@ document.addEventListener("DOMContentLoaded", async function () {
     }
 
     function clearSecondaryAndTertiary() {
-        secondaryUOMSelect.innerHTML = '<option value="" disabled selected>Select UOM</option>';
-        tertiaryUOMSelect.innerHTML = '<option value="" disabled selected>Select UOM</option>';
+        secondaryUOMSelect.selectedIndex = 0; 
+        tertiaryUOMSelect.innerHTML = '<option value="" disabled selected>Select UOM</option>'; 
         selectedSecondaryUOM = null;
     }
 
     function clearTertiary() {
-        tertiaryUOMSelect.innerHTML = '<option value="" disabled selected>Select UOM</option>';
+        tertiaryUOMSelect.selectedIndex = 0;
     }
 
     primaryUOMSelect.addEventListener("change", async function () {
@@ -730,7 +730,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         selectedSecondaryUOM = this.value;
         clearTertiary();
 
-        const tertiaryUOMs = await fetchUOMs('tertiary', selectedPrimaryUOM, selectedSecondaryUOM);
+        const tertiaryUOMs = await fetchUOMs('tertiary', selectedSecondaryUOM, selectedPrimaryUOM);
         updateDropdownOptions(tertiaryUOMSelect, tertiaryUOMs, 'tertiary');
     });
 
