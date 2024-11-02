@@ -62,13 +62,13 @@
             </a>
             <ul id="equipmentSubmenu" class="collapse submenu {{ request()->is('equipment*') ? 'show' : '' }}">
                 <li class="nav-item dashboard-list" id="new-asset-item" style="display: none;">
-                    <a class="nav-link {{ request()->is('equipment/new') ? 'submenu-active' : '' }}" href="#">New Asset</a>
+                    <a class="nav-link {{ request()->is('equipment/list') ? 'submenu-active' : '' }}" href="{{ route('equipment.list') }}">Asset List</a>
                 </li>
                 <li class="nav-item dashboard-list" id="transfer-asset-item" style="display: none;">
-                    <a class="nav-link {{ request()->is('equipment/transfer') ? 'submenu-active' : '' }}" href="#">Transfer Asset</a>
+                    <a class="nav-link {{ request()->is('equipment/transfer') ? 'submenu-active' : '' }}" href="{{ route('equipment.transfer') }}">Transfer Asset</a>
                 </li>
                 <li class="nav-item dashboard-list" id="disposal-asset-item" style="display: none;">
-                    <a class="nav-link {{ request()->is('equipment/disposal') ? 'submenu-active' : '' }}" href="#">Disposal Asset</a>
+                    <a class="nav-link {{ request()->is('equipment/disposal') ? 'submenu-active' : '' }}" href="{{ route('equipment.disposal') }}">Disposal Asset</a>
                 </li>
             </ul>
         </li>

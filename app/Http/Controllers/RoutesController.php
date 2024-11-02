@@ -38,4 +38,19 @@ class RoutesController extends Controller
     {
         return view('uom');
     }
+
+    public function equipmentList()
+    {
+        return view('equipment_list');
+    }
+
+    public function equipmentTransfer()
+    {
+        return view('equipment_transfer');
+    }
+
+    public function equipmentDisposal()
+    {
+        return view('equipment_disposal');
+    }
 }
