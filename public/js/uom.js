@@ -173,9 +173,9 @@ document.addEventListener("DOMContentLoaded", function () {
                                 <td>${firstUOM.secondaryUOMValue}</td>
                                 <td>${firstUOM.tertiaryUOM}</td>
                                 <td>${firstUOM.tertiaryUOMValue}</td>
-                                <td>
-                                    <button class="btn btn-danger delete-uom" data-relation-id="${relationId}">Delete</button>
-                                </td>
+                                // <td>
+                                //     <button class="btn btn-danger delete-uom" data-relation-id="${relationId}">Delete</button>
+                                // </td>
                             </tr>
                         `;
 
@@ -269,7 +269,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function deleteUOM(relationId) {
         axios
-            .post(`/api/uom/delete-all/${relationId}`)
+            .delete(`/api/uom/${relationId}`)
             .then((response) => {
                 Swal.fire({
                     icon: "success",

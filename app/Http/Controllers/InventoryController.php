@@ -1577,6 +1577,26 @@ class InventoryController extends Controller
         }
     }
 
+    public function deleteUOM($id)
+    {
+        try {
+            $uom = Uoms::findOrFail($id);
+            
+            Uoms::where('relation_id', $uom->relation_id)->delete();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'UOM and related entries deleted successfully.',
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to delete UOM.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
     public function getUOMSettings(Request $request)
     {
         try {

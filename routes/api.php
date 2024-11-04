@@ -54,6 +54,7 @@ Route::post('inventory/subcategories', 'InventoryController@postSubCategory')->n
 Route::get('/uom/list', 'InventoryController@getUOMs')->name('uom.list');
 Route::get('/uom/settings', 'InventoryController@getUOMSettings')->name('uom.settings');
 Route::post('/uom/create', 'InventoryController@postUOM')->name('uom.create');
+Route::delete('/uom/{id}', 'InventoryController@deleteUOM')->name('uom.delete');
 
 //inventory-return
 Route::post('inventory/return', 'InventoryController@fetchReturns')->name('inventory.return.fetch');
