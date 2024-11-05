@@ -1,5 +1,6 @@
 document.addEventListener("DOMContentLoaded", function () {
     const submitButton = document.getElementById("submitRequestWithdraw");
+    const returnSubmitButton = document.getElementById("submitRequestReturn");
     const startDateInput = document.getElementById("start-date");
     const endDateInput = document.getElementById("end-date");
     const subsidiary = document.getElementById("subsidiary");
@@ -106,6 +107,53 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         });
     });
+
+    function returnFetchItemDetails(itemCode, subsidiaryId, targetCell) {
+        const row = targetCell.closest("tr");
+        axios
+            .post(`/api/return/search`, {
+                request_id: itemCode,
+                subsidiary_id: subsidiaryId,
+            })
+            .then((response) => {
+                if (response.data.status === "success" && response.data.data) {
+                    const item = response.data.data;
+                    document.getElementById("returnItemCode").textContent = item[0].item_code;
+                    document.getElementById("returnItemDescription").textContent = item[0].item_description;
+                    document.getElementById("returnItemCategory").textContent = item[0].category;
+                    const uomId = document.getElementById("uomId").textContent = item[0].uom_id;
+                    const uomDropdown = document.getElementById("return-uom-dropdown");
+                    const qtyCell = document.getElementById("returnQty");
+                    const withdrewQty = document.getElementById("withdrewQty");
+                    const maxQty = parseFloat(item[0].released_qty) || 0;
+                    withdrewQty.textContent = maxQty.toFixed(2);
+                    withdrewQty.dataset.maxQty = maxQty.toFixed(2);
+                    qtyCell.textContent = maxQty.toFixed(2);
+                    row.dataset.uomId = item[0].uom_id;
+                    row.dataset.baseQty = maxQty;
+                    row.dataset.primaryValue = item[0].uomp_value || 1;
+                    row.dataset.secondaryValue = item[0].uoms_value|| 1;
+                    row.dataset.tertiaryValue = item[0].uomt_value || 1;
+                    qtyCell.contentEditable = "true";
+                    returnPopulateUOMOptions(
+                        item[0].uomp || "Default UOM",
+                        item[0].uoms || null,
+                        item[0].uomt || null,
+                        uomDropdown,
+                        row
+                    );
+                    returnValidateItems();
+                } else if (response.data.status === "warning") {
+                    showAlert(`${response.data.message} Please check the correct subsidiary.`);
+                } else {
+                    showAlert("Item not found in the inventory.");
+                }
+            })
+            .catch((error) => {
+                console.error("Error fetching item details:", error);
+                showAlert("An error occurred while fetching item details.");
+            });
+    }
 
     function fetchItemDetails(itemCode, subsidiaryId, targetCell) {
         const row = targetCell.closest("tr");
@@ -276,7 +324,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 <td style="text-align: center; padding: 2px 10px;">${item.item_description}</td>
                 <td style="text-align: center; padding: 2px 10px;">${item.requested_qty}</td>
                 <td style="text-align: center; padding: 2px 10px;">${item.released_qty}</td>
-                <td style="text-align: center; padding: 2px 10px;">${item.uom}</td>
+                <td style="text-align: center; padding: 2px 10px;">${item.uomp}</td>
                 <td style="text-align: center; padding: 2px 10px;">${updatedAt}</td>
                 <td style="text-align: center; padding: 2px 10px;">${item.reason}</td>
                 <td style="text-align: center; padding: 2px 10px;">
@@ -427,12 +475,12 @@ document.addEventListener("DOMContentLoaded", function () {
         dropdown.innerHTML = '';
     
         const uomOptions = [
-            { label: primaryUOM || 'Primary', value: primaryUOM || 'Primary' },
-            { label: secondaryUOM || 'Secondary', value: secondaryUOM || 'Secondary' }
+            { label: primaryUOM || 'Primary', value: 'primary' || 'Primary' },
+            { label: secondaryUOM || 'Secondary', value: 'secondary' || 'Secondary' }
         ];
     
         if (tertiaryUOM) {
-            uomOptions.push({ label: tertiaryUOM, value: tertiaryUOM });
+            uomOptions.push({ label: tertiaryUOM, value: 'teriary' });
         }
     
         uomOptions.forEach((uom, index) => {
@@ -458,7 +506,6 @@ document.addEventListener("DOMContentLoaded", function () {
             const primaryValue = parseFloat(row.dataset.primaryValue) || 1;
             const secondaryValue = parseFloat(row.dataset.secondaryValue) || 1;
             const tertiaryValue = parseFloat(row.dataset.tertiaryValue) || 1;
-            console.log("primaryValue", primaryValue, "secondaryValue", secondaryValue, "tertiaryValue", tertiaryValue);
             let selectedUOM = dropdown.value;
             let convertedQty;
             let maxConvertedQty;
@@ -599,6 +646,31 @@ document.addEventListener("DOMContentLoaded", function () {
             document.querySelectorAll("#itemsTable tbody tr")
         )
             .map((row) => {
+                const uomDropdown = row.querySelector(".uom-dropdown");
+                const selectedUOM = uomDropdown ? uomDropdown.value : '';
+                let uomp, uoms, uomt;
+
+                switch (selectedUOM) {
+                    case 'primary':
+                        uomp = uomDropdown.options[0].text;
+                        uoms = uomDropdown.options[1].text;
+                        uomt = uomDropdown.options[2] ? uomDropdown.options[2].text : '';
+                        break;
+                    case 'secondary':
+                        uomp = uomDropdown.options[1].text;
+                        uoms = uomDropdown.options[0].text;
+                        uomt = uomDropdown.options[2] ? uomDropdown.options[2].text : '';
+                        break;
+                    case 'tertiary':
+                        uomp = uomDropdown.options[2] ? uomDropdown.options[2].text : ''; 
+                        uoms = uomDropdown.options[0].text;
+                        uomt = uomDropdown.options[1].text;
+                        break;
+                    default:
+                        uomp = selectedUOM;
+                        uoms = '';
+                        uomt = '';
+                }
                 return {
                     item_code: row
                         .querySelector(".itemCodeInput")
@@ -612,8 +684,9 @@ document.addEventListener("DOMContentLoaded", function () {
                     item_category:
                         row.querySelector(".itemCategory").textContent.trim()
                     ,
-                    uom: 
-                        row.querySelector(".uom-dropdown")?.value || '',
+                    uomp: uomp, 
+                    uoms: uoms,  
+                    uomt: uomt,
                     uom_id: row.dataset.uomId,
                     reason:
                         row.querySelector(".reason").textContent.trim()
@@ -693,10 +766,9 @@ document.addEventListener("DOMContentLoaded", function () {
             row.querySelector(".itemCodeInput").value = "";
             row.querySelector(".itemDescription").textContent = "";
             row.querySelector(".itemCategory").textContent = "";
-            row.querySelector(".uom").textContent = "";
+            row.querySelector(".uom-dropdown").value = "";
             row.querySelector(".reason").textContent = "";
             row.querySelector(".requestedQty").textContent = "";
-            row.querySelector(".releasedQty").textContent = "";
         });
 
         document.getElementById("remarks").value = "";
@@ -789,19 +861,191 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
+    function initializeReturnUserSearch(inputField) {
+        const dataList = document.getElementById("returnUserSuggestions");
+        inputField.setAttribute("list", "returnUserSuggestions");
+    
+        let lastRoleSearchTerm = '';
+        inputField.addEventListener("input", async function (e) {
+            const searchTerm = e.target.value.trim();
+        
+            if (searchTerm.length > 1 && searchTerm !== lastRoleSearchTerm) {
+                lastRoleSearchTerm = searchTerm; 
+        
+                try {
+                    const response = await axios.post('/api/users/suggestions', {
+                        searchTerm: searchTerm,
+                    });
+        
+                    if (response.data.status === "success") {
+                        dataList.innerHTML = '';
+        
+                        response.data.data.forEach(user => {
+                            const option = document.createElement('option');
+                            option.value = user.name;
+                            option.dataset.userId = user.id;
+                            option.dataset.email = user.email;
+                            option.dataset.roleName = user.role_name;
+                            dataList.appendChild(option);
+                        });
+                    } else {
+                        console.error('Failed to fetch user suggestions:', response.data.message);
+                    }
+                } catch (error) {
+                    console.error('Error fetching user suggestions:', error);
+                }
+            }
+        });
+        inputField.addEventListener("blur", function (e) {
+            const selectedOption = document.querySelector(`#returnUserSuggestions option[value='${e.target.value}']`);
+            if (selectedOption) {
+                const approverIdField = e.target.closest("tr").querySelector("input[id^='returnUserIdInput']");
+                
+                approverIdField.value = selectedOption.dataset.userId;
+                document.getElementById('returnUserEmailInput').value = selectedOption.dataset.email;
+                if(selectedOption.dataset.roleName === null) {
+                    document.getElementById(e.target.id.replace("returnUserSearchInput", "returnUserRoleInput")).textContent = selectedOption.dataset.roleName;     
+                }
+                else {
+                    document.getElementById(e.target.id.replace("returnUserSearchInput", "returnUserRoleInput")).textContent = "Super Admin"; 
+                }
+                
+
+
+            } else {
+                console.warn("No matching option found for user.");
+            }
+        });
+    }
+
+    function returnGenerateItemCode() {
+        const prefix = "RETURN";
+        const datePart = new Date()
+            .toISOString()
+            .split("T")[0]
+            .replace(/-/g, "");
+        const randomPart = Math.floor(Math.random() * 90000) + 10000;
+        return `${prefix}-${datePart}-${randomPart}`;
+    }
+
+    function returnValidateItems() {
+        const submitButton = document.getElementById('submitRequestReturn');
+        const rows = document.querySelectorAll('#returnItemTableBody tr');
+        let allFieldsFilled = true;
+        
+        rows.forEach(row => {
+            const itemCode = row.querySelector("#returnItemCode")?.textContent.trim();
+            const uom = row.querySelector('#return-uom-dropdown')?.value;
+            const returnQty = row.querySelector('#returnQty')?.textContent.trim();
+    
+            if (!itemCode || !uom || !returnQty) {
+                allFieldsFilled = false;
+            }
+        });
+    
+        submitButton.disabled = !allFieldsFilled;
+    }
+
+    function returnPopulateUOMOptions(primaryUOM, secondaryUOM, tertiaryUOM, dropdown, data) {
+        dropdown.innerHTML = '';
+
+        const uomOptions = [
+            { label: primaryUOM || 'Primary', value: data.dataset.uom || 'Primary' },
+            { label: secondaryUOM || 'Secondary', value: secondaryUOM || 'Secondary' },
+            tertiaryUOM ? { label: tertiaryUOM, value: tertiaryUOM } : null 
+        ].filter(option => option !== null);
+        uomOptions.forEach((uom, index) => {
+            if (uom.label) {
+                const option = document.createElement('option');
+                option.value = uom.value; 
+                option.textContent = uom.label;
+                dropdown.appendChild(option);
+                if (index === 0) {
+                    option.selected = true;
+                }
+            }
+        });
+        dropdown.addEventListener('change', function (event) {
+            const row = dropdown.closest('tr');
+            const qtyElement = document.getElementById("returnQty");
+            const uomId = document.getElementById("uomId").textContent = data.dataset.uomId;
+            const withdrewElement = document.getElementById("withdrewQty");
+            let baseQty = parseFloat(row.dataset.baseQty) || parseFloat(qtyElement.textContent);
+            if (!row.dataset.baseQty) {
+                row.dataset.baseQty = baseQty;
+            }
+            
+            const primaryValue = parseFloat(data.dataset.primaryValue) || 1;
+            const secondaryValue = parseFloat(data.dataset.secondaryValue) || 1;
+            const tertiaryValue = parseFloat(data.dataset.tertiaryValue) || 1;
+            let selectedUOM = dropdown.value;
+            let convertedQty;
+            let maxConvertedQty;
+            switch (selectedUOM) {
+                case primaryUOM:
+                    convertedQty = baseQty * primaryValue;
+                    maxConvertedQty = baseQty * primaryValue;
+                    break;
+                case secondaryUOM:
+                    convertedQty = baseQty * secondaryValue;
+                    maxConvertedQty = baseQty * secondaryValue;
+                    break;
+                case tertiaryUOM:
+                    convertedQty = baseQty * tertiaryValue;
+                    maxConvertedQty = baseQty * tertiaryValue;
+                    break;
+                default:
+                    convertedQty = baseQty;
+                    maxConvertedQty = baseQty;
+            }
+            console.log(convertedQty)
+            qtyElement.textContent = convertedQty.toFixed(2);
+            withdrewElement.textContent = convertedQty.toFixed(2);
+            qtyElement.setAttribute('data-max-qty', maxConvertedQty.toFixed(2));
+            row.dataset.maxQty = maxConvertedQty;
+    
+            qtyElement.removeEventListener("input", handleQuantityInput);
+            qtyElement.addEventListener("input", handleQuantityInput);
+            document.addEventListener("input", handleQuantityInput);
+        });
+    
+        function handleQuantityInput(event) {
+            const qtyElement = event.target;
+            const maxAllowedQty = parseFloat(qtyElement.getAttribute('data-max-qty'));
+            const currentQty = parseFloat(qtyElement.textContent) || 0;
+    
+            if (currentQty > maxAllowedQty) {
+                qtyElement.textContent = maxAllowedQty.toFixed(2);
+                alert(`Maximum allowed quantity is ${maxAllowedQty.toFixed(2)}`);
+            }
+        }
+    }
+
     document.addEventListener("click", function(event) {
         const target = event.target.closest(".clickable-row");
         if (target) {
-
             const status = target.dataset.status;
             if (status === "2") {
-                Swal.fire({
-                    title: "Item withdraw request done",
-                    text: "This withdraw transaction has already been marked as closed.",
-                    icon: "info",
-                    confirmButtonText: "Ok"
-                });
-                return;
+                const transactionCode = target.cells[3].textContent.trim();
+                const today = new Date().toISOString().split('T')[0];
+                const userId = document.getElementById('userId').value;
+                const userName = document.getElementById('userName').value;
+                const subsidiary = document.getElementById('usersubsidiary').value;
+                const subsidiaryId = document.getElementById('usersubsidiaryid').value;
+                
+                if (transactionCode) {
+                    returnFetchItemDetails(transactionCode, subsidiaryId, event.target);
+                }
+                document.getElementById('returnDate').value = today;
+                document.getElementById('returnRequestNumber').value = returnGenerateItemCode();
+                document.getElementById('returnRequestName').value = userName;
+                document.getElementById('returnSubsidiary').value = subsidiary;
+                document.getElementById('returnProcessId').textContent = transactionCode;
+                returnValidateItems();
+                    
+                var inventoryReturnModal = new bootstrap.Modal(document.getElementById('inventoryReturnModal'));
+                inventoryReturnModal.show();
+
             }
 
             else {
@@ -1012,8 +1256,164 @@ document.addEventListener("DOMContentLoaded", function () {
             });
     });
 
+    document.getElementById('closeModalButton').addEventListener('click', function () {
+        const requestTransferModal = bootstrap.Modal.getInstance(document.getElementById("receiveWithdrawModal"));
+        if (requestTransferModal) {
+           requestTransferModal.hide();
+        }
+        setTimeout(() => {
+           fetchWithdrawal(currentPage);
+           clearTransferModal();
+           // Optionally remove backdrop and reset body styles
+           document.querySelectorAll(".modal-backdrop").forEach((el) => el.remove());
+           document.body.classList.remove("modal-open");
+           document.body.style.overflow = ""; // Resets body overflow style if needed
+        }, 300);
+    });
+
+    document.getElementById('inventoryWithdrawalModalBtn').addEventListener('click', function () {
+        const requestTransferModal = bootstrap.Modal.getInstance(document.getElementById("inventoryWithdrawalModal"));
+        if (requestTransferModal) {
+           requestTransferModal.hide();
+        }
+        setTimeout(() => {
+           fetchWithdrawal(currentPage);
+           clearTransferModal();
+           document.querySelectorAll(".modal-backdrop").forEach((el) => el.remove());
+           document.body.classList.remove("modal-open");
+           document.body.style.overflow = "";
+        }, 300);
+    });
+
+    function formatDateForMySQL(date) {
+        return date.getFullYear() + '-' +
+        String(date.getMonth() + 1).padStart(2, '0') + '-' +
+        String(date.getDate()).padStart(2, '0') + ' ' +
+        String(date.getHours()).padStart(2, '0') + ':' +
+        String(date.getMinutes()).padStart(2, '0') + ':' +
+        String(date.getSeconds()).padStart(2, '0');
+    }
+
+    returnSubmitButton.addEventListener("click", function () {
+        const requestorName = document.getElementById('userName').value;
+        const requestorNumber = document.getElementById('returnRequestNumber').value; 
+        const requestorId = document.getElementById('userId').value; 
+        const subsidiaryId = document.getElementById('usersubsidiaryid').value; 
+        const subsidiary = document.getElementById('usersubsidiary').value; 
+        const remarks = document.getElementById("remarks").textContent;
+        let validate = 0;
+        const items = Array.from(document.querySelectorAll("#returnItemsTable tbody tr"))
+            .map((row) => {
+                const reason = document.getElementById("returnReason").textContent.trim();
+                const itemCode = document.getElementById("returnItemCode").textContent.trim();
+                const processId = document.getElementById("returnProcessId").textContent.trim();
+                console.log(processId)
+                const withdrawQty = document.getElementById("withdrewQty").textContent.trim();
+                const returnedQty = document.getElementById("returnQty").textContent.trim();
+
+                if (!reason) {
+                    document.getElementById("returnReason").style.border = "1px solid red";
+                    validate = 0
+                    return null;
+                } else {
+                    validate = 1
+                    document.getElementById("returnReason").style.border = ""; 
+                }
+
+                if (!itemCode || !returnedQty) {
+                    return null;
+                }
+                console.log(document.getElementById("uomId").textContent)
+                return {
+                    item_code: itemCode,
+                    process_id: processId,
+                    withdraw_qty: withdrawQty,
+                    item_description: document.getElementById("returnItemDescription").textContent.trim(),
+                    item_category: document.getElementById("returnItemCategory").textContent.trim(),
+                    uom: document.getElementById("return-uom-dropdown")?.value || '',
+                    uomid: document.getElementById("uomId").textContent || '',
+                    returned_qty: returnedQty,
+                    reason: reason,
+                    return_date: formatDateForMySQL(new Date())
+                };  
+            })
+            .filter((item) => item !== null);
+        if (validate === 0) {
+            alert("Reason is required for all items.");
+        }
+
+        else {
+            const approvals = Array.from(document.querySelectorAll("#returnApproversTable tbody tr")).map((row) => {
+                const approverIdField = row.querySelector("input[id^='returnUserIdInput']");
+                const approverId = approverIdField ? approverIdField.value : null;
+                const approverName = row.querySelector("input[id^='returnUserSearchInput']").value;
+                const hierarchy = row.querySelector(".returnHierarchy-input").textContent.trim();
+            
+                return {
+                    approver_id: approverId,  
+                    approver_name: approverName,
+                    hierarchy: parseInt(hierarchy)
+                };
+            });
+            if (approvals.some((approval) => !approval.approver_id)) {
+                alert("Please ensure all approvers have valid IDs.");
+                return;
+            }
+
+            else if (items.length === 0) {
+                alert("Please add at least one valid item before submitting.");
+                return;
+            }
+
+            else 
+            {
+                axios
+                    .post("/api/inventory/return/request", {
+                        requestor_name: requestorName,
+                        request_number: requestorNumber,
+                        requestor_id: requestorId,
+                        items: items,
+                        remarks: remarks,
+                        subsidiaryid: subsidiaryId,
+                        subsidiary_name: subsidiary,
+                        approvals: approvals,
+                    })
+                    .then((response) => {
+                        Swal.fire({
+                            title: "Success!",
+                            html: response.data.message,
+                            icon: "success",
+                            confirmButtonText: "Ok"
+                        });
+        /*                alert(response.data.message || "Withdraw request submitted.");*/
+                        const requestTransferModal = bootstrap.Modal.getInstance(document.getElementById("inventoryReturnModal"));
+                        if (requestTransferModal) {
+                            requestTransferModal.hide();
+                        }
+                        setTimeout(() => {
+                            fetchReturn(currentPage);
+                            clearTransferModal();
+                            document.querySelectorAll(".modal-backdrop").forEach((el) => el.remove());
+                            document.body.classList.remove("modal-open");
+                            document.body.style.overflow = "";
+                        }, 300); 
+
+                    })
+                    .catch((error) => {
+                        alert(
+                            "Failed to submit the transfer request. Please try again."
+                        );
+                        console.error(error);
+                    }); 
+            }
+        }
+        
+    });
+
     initializeUserSearch(document.getElementById("userSearchInput1"));
     initializeUserSearch(document.getElementById("userSearchInput2"));
+    initializeReturnUserSearch(document.getElementById("returnUserSearchInput1"));
+    initializeReturnUserSearch(document.getElementById("returnUserSearchInput2"));
 
     validateItems()
 });

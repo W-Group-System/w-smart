@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", function () {
-    const submitButton = document.getElementById("submitRequestWithdraw");
+    const submitButton = document.getElementById("submitRequestReturn");
     const startDateInput = document.getElementById("start-date");
     const endDateInput = document.getElementById("end-date");
     const subsidiary = document.getElementById("subsidiary");
@@ -17,7 +17,7 @@ document.addEventListener("DOMContentLoaded", function () {
     subsidiary.addEventListener("change", function () {
         selectedText = subsidiary.selectedOptions[0].text; 
     });*/
-    function generateItemCode() {
+    function returnGenerateItemCode() {
         const prefix = "RETURN";
         const datePart = new Date()
             .toISOString()
@@ -28,7 +28,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function validateItems() {
-        const submitButton = document.getElementById('submitRequestWithdraw');
+        const submitButton = document.getElementById('submitRequestReturn');
         const rows = document.querySelectorAll('#itemTableBody tr');
         let allFieldsFilled = true;
     
@@ -154,7 +154,7 @@ document.addEventListener("DOMContentLoaded", function () {
     function showAlert(message) {
         alert(message);
     }
-    const newItemCodeInput = document.querySelector('#itemTableBody tr:last-child .itemCodeInput');
+    const newItemCodeInput = document.querySelector('#returnItemTableBody tr:last-child .itemCodeInput');
     newItemCodeInput.addEventListener('input', async (e) => {
         const searchTerm = e.target.value.trim();
         if (searchTerm.length > 1) {
@@ -177,7 +177,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 }
 
                 const data = await response.json();
-                const suggestions = document.getElementById('itemSuggestions');
+                const suggestions = document.getElementById('returnItemSuggestions');
                 suggestions.innerHTML = '';
 
                 data.data.forEach(item => {
@@ -408,6 +408,8 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
+
+
     document.getElementById('addWithdraw').addEventListener('click', (e) => {
         e.preventDefault();
 
@@ -416,16 +418,16 @@ document.addEventListener("DOMContentLoaded", function () {
         const userName = document.getElementById('userName').value;
         const subsidiary = document.getElementById('usersubsidiary').value;
         const subsidiaryid = document.getElementById('usersubsidiaryid').value;
-        document.getElementById('withdrawalDate').value = today;
-        document.getElementById('requestNumber').value = generateItemCode();
-        document.getElementById('requestName').value = userName;
-        document.getElementById('subsidiary').value = subsidiary;
+        document.getElementById('returnDate').value = today;
+        document.getElementById('returnRequestNumber').value = returnGenerateItemCode();
+        document.getElementById('returnRequestName').value = userName;
+        document.getElementById('returnSubsidiary').value = subsidiary;
        /* document.getElementById('subsidiaryid').value = subsidiaryid;*/
         validateItems();
         
     });
 
-    function populateUOMOptions(primaryUOM, secondaryUOM, tertiaryUOM, dropdown) {
+    function returnPopulateUOMOptions(primaryUOM, secondaryUOM, tertiaryUOM, dropdown) {
         dropdown.innerHTML = '';
     
         const uomOptions = [
@@ -502,11 +504,11 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-   document.getElementById('addRowBtn').addEventListener('click', function(e) {
+/*   document.getElementById('returnAddRowBtn').addEventListener('click', function(e) {
        e.preventDefault();
 
        // Disable the submit button at the start of adding a row
-       const submitButton = document.getElementById('submitRequestWithdraw');
+       const submitButton = document.getElementById('submitRequestReturn');
        submitButton.disabled = true;
 
        // Create a new row
@@ -514,28 +516,28 @@ document.addEventListener("DOMContentLoaded", function () {
            <tr>
                <td contenteditable="false">
                    <div>
-                       <input type="text" class="form-control form-control-sm itemCodeInput" placeholder="Enter request id" style="width: 100%; max-width: 200px; padding: 6px; border-radius: 5px; border: 1px solid #ced4da;" list="itemSuggestions">
+                       <input type="text" class="form-control form-control-sm returnItemCodeInput" placeholder="Enter request id" style="width: 100%; max-width: 200px; padding: 6px; border-radius: 5px; border: 1px solid #ced4da;" list="itemSuggestions">
                        <datalist id="itemSuggestions"></datalist>
                    </div>
                </td>
-               <td contenteditable="false" class="itemCode" style="background-color: #E9ECEF; color: #999; pointer-events: none;"></td>
-               <td contenteditable="false" class="itemDescription" style="background-color: #E9ECEF; color: #999; pointer-events: none;"></td>
-               <td contenteditable="false" class="itemCategory" style="background-color: #E9ECEF; color: #999; pointer-events: none; display: none;"></td>
+               <td contenteditable="false" class="returnItemCode" style="background-color: #E9ECEF; color: #999; pointer-events: none;"></td>
+               <td contenteditable="false" class="returnItemDescription" style="background-color: #E9ECEF; color: #999; pointer-events: none;"></td>
+               <td contenteditable="false" class="returnItemCategory" style="background-color: #E9ECEF; color: #999; pointer-events: none; display: none;"></td>
                <td>
-                   <select class="form-select form-select-sm uom-dropdown"></select>
+                   <select class="form-select form-select-sm return-uom-dropdown"></select>
                </td>
-               <td contenteditable="false" class="withdrewQty"></td>
+               <td contenteditable="false" class="returnWithdrewQty"></td>
                <td contenteditable="true" class="returnQty"></td>
-               <td contenteditable="true" class="reason"></td>
+               <td contenteditable="true" class="returnReason"></td>
            </tr>
        `;
 
        // Insert the new row
-       document.getElementById('itemTableBody').insertAdjacentHTML('beforeend', newRow);
+       document.getElementById('returnItemTableBody').insertAdjacentHTML('beforeend', newRow);
 
        // Select the new row elements
-       const newItemCodeInput = document.querySelector('#itemTableBody tr:last-child .itemCodeInput');
-       const newReasonInput = document.querySelector('#itemTableBody tr:last-child .reason');
+       const newItemCodeInput = document.querySelector('#returnItemTableBody tr:last-child .returnItemCodeInput');
+       const newReasonInput = document.querySelector('#returnItemTableBody tr:last-child .returnReason');
        
        // Add input event listener for item code input
        newItemCodeInput.addEventListener('input', async (e) => {
@@ -589,7 +591,7 @@ document.addEventListener("DOMContentLoaded", function () {
            validateItems();
        });
    });
-
+*/
     function formatDateForMySQL(date) {
         return date.getFullYear() + '-' +
         String(date.getMonth() + 1).padStart(2, '0') + '-' +
@@ -606,11 +608,11 @@ document.addEventListener("DOMContentLoaded", function () {
         const subsidiary = document.getElementById('usersubsidiary').value; 
         const remarks = document.getElementById("remarks").textContent;
         let validate = 0;
-        const items = Array.from(document.querySelectorAll("#itemsTable tbody tr"))
+        const items = Array.from(document.querySelectorAll("#returnItemsTable tbody tr"))
             .map((row) => {
-                const reason = row.querySelector(".reason").textContent.trim();
-                const itemCode = row.querySelector(".itemCode").textContent.trim();
-                const processId = row.querySelector(".itemCodeInput").value;
+                const reason = row.querySelector(".returnReason").textContent.trim();
+                const itemCode = row.querySelector(".returnItemCode").textContent.trim();
+                const processId = row.querySelector(".returnItemCodeInput").value;
                 const withdrawQty = row.querySelector(".withdrewQty").textContent.trim();
                 const returnedQty = row.querySelector(".returnQty").textContent.trim();
 
@@ -647,11 +649,11 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
        	else {
-       		const approvals = Array.from(document.querySelectorAll("#approversTable tbody tr")).map((row) => {
-       		    const approverIdField = row.querySelector("input[id^='userIdInput']");
+       		const approvals = Array.from(document.querySelectorAll("#returnApproversTable tbody tr")).map((row) => {
+       		    const approverIdField = row.querySelector("input[id^='returnUserIdInput']");
        		    const approverId = approverIdField ? approverIdField.value : null;
-       		    const approverName = row.querySelector("input[id^='userSearchInput']").value;
-       		    const hierarchy = row.querySelector(".hierarchy-input").textContent.trim();
+       		    const approverName = row.querySelector("input[id^='returnUserSearchInput']").value;
+       		    const hierarchy = row.querySelector(".returnHierarchy-input").textContent.trim();
        		
        		    return {
        		        approver_id: approverId,  
@@ -690,7 +692,7 @@ document.addEventListener("DOMContentLoaded", function () {
 		                    confirmButtonText: "Ok"
 		                });
 		/*                alert(response.data.message || "Withdraw request submitted.");*/
-		                const requestTransferModal = bootstrap.Modal.getInstance(document.getElementById("inventoryWithdrawalModal"));
+		                const requestTransferModal = bootstrap.Modal.getInstance(document.getElementById("inventoryReturnModalLabel"));
 		                if (requestTransferModal) {
 		                    requestTransferModal.hide();
 		                }
@@ -716,21 +718,21 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function clearTransferModal() {
         const tableBody = document
-            .getElementById("itemsTable")
+            .getElementById("returnItemsTable")
             .getElementsByTagName("tbody")[0];
         const rows = tableBody.getElementsByTagName("tr");
 
         Array.from(rows).forEach((row) => {
-            row.querySelector(".itemCodeInput").value = "";
-            row.querySelector(".itemDescription").textContent = "";
-            row.querySelector(".itemCategory").textContent = "";
-            row.querySelector(".uom-dropdown").textContent = "";
-            row.querySelector(".reason").textContent = "";
+            row.querySelector(".returnItemCodeInput").value = "";
+            row.querySelector(".returnItemDescription").textContent = "";
+            row.querySelector(".returnItemCategory").textContent = "";
+            row.querySelector(".return-uom-dropdown").textContent = "";
+            row.querySelector(".returnReason").textContent = "";
             row.querySelector(".returnQty").textContent = "";
             row.querySelector(".withdrewQty").textContent = "";
         });
 
-        document.getElementById("remarks").value = "";
+        document.getElementById("returnRemarks").value = "";
     }
 
     searchInput.addEventListener("input", function (e) {
@@ -764,14 +766,14 @@ document.addEventListener("DOMContentLoaded", function () {
         
     });
 
-    const userSearchInputField = document.getElementById("userSearchInput");
+    const userSearchInputField = document.getElementById("returnUserSearchInput");
     if (userSearchInputField) {
         initializeUserSearch(userSearchInputField);
     }
 
     function initializeUserSearch(inputField) {
-        const dataList = document.getElementById("userSuggestions");
-        inputField.setAttribute("list", "userSuggestions");
+        const dataList = document.getElementById("returnUserSuggestions");
+        inputField.setAttribute("list", "returnUserSuggestions");
     
         let lastRoleSearchTerm = '';
         inputField.addEventListener("input", async function (e) {
@@ -805,11 +807,11 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         });
         inputField.addEventListener("blur", function (e) {
-            const selectedOption = document.querySelector(`#userSuggestions option[value='${e.target.value}']`);
+            const selectedOption = document.querySelector(`#returnUserSuggestions option[value='${e.target.value}']`);
             if (selectedOption) {
-                const approverIdField = e.target.closest("tr").querySelector("input[id^='userIdInput']");
+                const approverIdField = e.target.closest("tr").querySelector("input[id^='returnUserIdInput']");
                 approverIdField.value = selectedOption.dataset.userId;
-                document.getElementById('userEmailInput').value = selectedOption.dataset.email;
+                document.getElementById('returnUserEmailInput').value = selectedOption.dataset.email;
                 if(selectedOption.dataset.roleName === null) {
                     document.getElementById(e.target.id.replace("userSearchInput", "userRoleInput")).textContent = selectedOption.dataset.roleName;     
                 }
@@ -1046,8 +1048,8 @@ document.addEventListener("DOMContentLoaded", function () {
             });
     });
 
-    initializeUserSearch(document.getElementById("userSearchInput1"));
-    initializeUserSearch(document.getElementById("userSearchInput2"));
+    initializeUserSearch(document.getElementById("returnUserSearchInput1"));
+    initializeUserSearch(document.getElementById("returnUserSearchInput2"));
 
     validateItems()
 });

@@ -114,6 +114,8 @@ class InventoryController extends Controller
                'primaryUOM.value' => 'required|numeric|min:0',
                'secondaryUOM.name' => 'required|string|max:255',
                'secondaryUOM.value' => 'required|numeric|min:0',
+               'tertiaryUOM.name' => 'required|string|max:255',
+               'tertiaryUOM.value' => 'required|numeric|min:0',
                'qty' => 'required|numeric|min:0',
                'cost' => 'required|numeric|min:0',
                'usage' => 'required|numeric|min:0',
@@ -125,45 +127,22 @@ class InventoryController extends Controller
             $primaryUOMValue = $request->primaryUOM['value'];
             $secondaryUOMName = $request->secondaryUOM['name'];
             $secondaryUOMValue = $request->secondaryUOM['value'];
-            $tertiaryUOMName = $request->tertiaryUOM['name'] ?? null;
-            $tertiaryUOMValue = $request->tertiaryUOM['value'] ?? null;
+            $tertiaryUOMName = $request->tertiaryUOM['name'];
+            $tertiaryUOMValue = $request->tertiaryUOM['value'];
 
-            $uomQuery = Uoms::where('uomp', $primaryUOMName)
+            $uom = Uoms::where('uomp', $primaryUOMName)
                 ->where('uomp_value', $primaryUOMValue)
                 ->where('uoms', $secondaryUOMName)
-                ->where('uoms_value', $secondaryUOMValue);
-
-            if ($tertiaryUOMName && $tertiaryUOMValue) {
-                $uomQuery->where('uomt', $tertiaryUOMName)
-                        ->where('uomt_value', $tertiaryUOMValue);
-            } else {
-                $uomQuery->whereNull('uomt');
-            }
-
-            $uom = $uomQuery->first();
+                ->where('uoms_value', $secondaryUOMValue)
+                ->where('uomt', $tertiaryUOMName)
+                ->where('uomt_value', $tertiaryUOMValue)
+                ->first();
 
             if (!$uom) {
-                $uom = Uoms::create([
-                    'uomp' => $primaryUOMName,
-                    'uomp_value' => $primaryUOMValue,
-                    'uoms' => $secondaryUOMName,
-                    'uoms_value' => $secondaryUOMValue,
-                    'uomt' => $tertiaryUOMName,
-                    'uomt_value' => $tertiaryUOMValue,
-                ]);
-            
-                $uom->relation_id = $uom->id;
-                $uom->save();
-            
-                Uoms::create([
-                    'uomp' => $secondaryUOMName,
-                    'uomp_value' => $secondaryUOMValue / $secondaryUOMValue,
-                    'uoms' => $primaryUOMName,
-                    'uoms_value' => $primaryUOMValue / $secondaryUOMValue,
-                    'uomt' => $tertiaryUOMName,
-                    'uomt_value' => $tertiaryUOMValue / $secondaryUOMValue,
-                    'relation_id' => $uom->id, 
-                ]);
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Invalid UOM combination provided.',
+                ], 400);
             }
 
            	$new_inventory = new Inventory();
@@ -348,7 +327,7 @@ class InventoryController extends Controller
                 'items.*.relation_id' => 'required|integer|exists:uoms,relation_id',
                 'items.*.uomp' => 'required|string|max:255',
                 'items.*.uoms' => 'required|string|max:255',
-                'items.*.uomt' => 'nullable|string|max:255',
+                'items.*.uomt' => 'required|string|max:255',
                 'transfer_from' => 'required|integer|exists:subsidiaries,subsidiary_id',
                 'transfer_to' => 'required|integer|exists:subsidiaries,subsidiary_id|different:transfer_from',
                 'remarks' => 'nullable|string|max:255',
@@ -374,9 +353,7 @@ class InventoryController extends Controller
                 $uom = Uoms::where('relation_id', $relationId)
                     ->where('uomp', $item['uomp'])
                     ->where('uoms', $item['uoms'])
-                    ->when(!empty($item['uomt']), function ($query) use ($item) {
-                        return $query->where('uomt', $item['uomt']); 
-                    })
+                    ->where('uomt', $item['uomt'])
                     ->first();
 
                 if (!$uom) {
@@ -650,7 +627,7 @@ class InventoryController extends Controller
                     'subcategory_id' => $sourceInventory->subcategory_id ?? 0,
                     'uomp' => $targetUom->uomp,
                     'uoms' => $targetUom->uoms,
-                    'uomt' => $sourceInventory->uomt ?? '',
+                    'uomt' => $targetUom->uomt,
                     'uom_id' => $transfer->uom_id,
                     'qty' => $releasedQty,
                     'cost' => $sourceInventory->cost,
@@ -891,7 +868,9 @@ class InventoryController extends Controller
                 'items.*.item_code' => 'required|string|max:50',
                 'items.*.item_description' => 'required|string|max:255',
                 'items.*.item_category' => 'required|string|max:100',
-                'items.*.uom' => 'required|string|max:50',
+                'items.*.uomp' => 'required|string|max:50',
+                'items.*.uoms' => 'required|string|max:50',
+                'items.*.uomt' => 'required|string|max:50',
                 'items.*.uom_id' => 'required|integer|exists:uoms,id',
                 'items.*.reason' => 'required|string|max:50',
                 'items.*.qty' => 'required|numeric|min:0.01',
@@ -920,7 +899,9 @@ class InventoryController extends Controller
             foreach ($request->items as $item) {
                 $itemCode = $item['item_code'];
                 $qty = $item['qty'];
-                $uom = $item['uom'];
+                $uomp = $item['uomp'];
+                $uoms = $item['uoms'];
+                $uomt = $item['uomt'];
                 $uomId = $item['uom_id'];
                 $reason = $item['reason'];
                 $item_description = $item['item_description'];
@@ -936,32 +917,17 @@ class InventoryController extends Controller
                         'message' => "Item '{$itemCode}' not found in the specified subsidiary.",
                     ], 404);
                 }
-
-                $uomRecord = Uoms::find($uomId);
-
-                if (!$uomRecord || $uomRecord->uomp !== $uom) {
-                    if ($uomRecord && $uomRecord->relation_id) {
-                        $uomRecord = Uoms::where('relation_id', $uomRecord->relation_id)
-                                        ->where('uomp', $uom)
-                                        ->first();
-                    }
-                }
-
-                if (!$uomRecord) {
-                    return response()->json([
-                        'status' => 'error',
-                        'message' => "Matching UOM configuration not found for item '{$itemCode}'.",
-                    ], 404);
-                }
-
+                else{
                     $newWithdrawalLog = new WithdrawalItems();
                     $newWithdrawalLog->withdrawal_id = $savedWithdrawal->id;
                     $newWithdrawalLog->item_code = $itemCode;
                     $newWithdrawalLog->item_description = $item_description;
                     $newWithdrawalLog->category = $item_category;
                     $newWithdrawalLog->requested_qty = $qty;
-                    $newWithdrawalLog->uom = $uom;
-                    $newWithdrawalLog->uom_id = $uomRecord->id;
+                    $newWithdrawalLog->uomp = $uomp; 
+                    $newWithdrawalLog->uoms = $uoms; 
+                    $newWithdrawalLog->uomt = $uomt; 
+                    $newWithdrawalLog->uom_id = $uomId;
                     $newWithdrawalLog->reason = $reason;
                     $newWithdrawalLog->status = 0;
                     $newWithdrawalLog->hierarchy = 1;
@@ -993,7 +959,7 @@ class InventoryController extends Controller
                             'message' => 'Failed to retrieve transfer log ID.',
                         ], 500);
                     }   
-                
+                } 
 
 
             }
@@ -1053,7 +1019,6 @@ class InventoryController extends Controller
                     'message' => 'UOM configuration not found for the inventory item.',
                 ], 404);
             }
-
             $convertedQty = $this->convertToPrimaryUOM($uom, $releasedQty, $withdraw->uom);
 
             if ($inventory->qty < $convertedQty) {
@@ -1090,18 +1055,17 @@ class InventoryController extends Controller
 
         try {
             $return = Returns::where('id', $id)->firstOrFail();
-            
             if ($return->status !== 1) {
                 return response()->json([
                     'status' => 'error',
                     'message' => 'This return request is not approved by the approvers yet!',
                 ], 400);
             }
-            $withdrawal = WithdrawalItems::join('withdrawals', 'withdrawal_items.withdrawal_id', '=', 'withdrawals.id')
-                                       ->where('withdrawals.request_number', $return->process_id)
-                                       ->select('withdrawal_items.*')
-                                       ->firstOrFail();
 
+            $withdrawal = WithdrawalItems::join('withdrawals', 'withdrawal_items.withdrawal_id', '=', 'withdrawals.id')
+               ->where('withdrawals.request_number', $return->process_id)
+               ->select('withdrawal_items.*')
+               ->firstOrFail();
             $itemCode = $return->item_code;
             $releasedQty = $request->released_qty;
 
@@ -1127,19 +1091,10 @@ class InventoryController extends Controller
             }
 
             $convertedQty = $this->convertToPrimaryUOM($uom, $releasedQty, $return->uom);
-
-            if ($inventory->qty < $convertedQty) {
-                return response()->json([
-                    'status' => 'error',
-                    'message' => "Insufficient quantity for item '{$itemCode}'.",
-                    'available_qty' => $inventory->qty,
-                ], 200);
-            }
-
+            dd($convertedQty);
             $inventory->qty += $convertedQty;
             $inventory->usage -= $convertedQty;
-            $withdrawal->released_qty -= $convertedQty;
-            $withdrawal->save();
+            $withdrawal->released_qty -+ $convertedQty;
             $inventory->save();
 
             $return->status = 2;
@@ -1162,13 +1117,13 @@ class InventoryController extends Controller
     private function convertToPrimaryUOM($uom, $releasedQty, $currentUOM)
     {
         $secondaryValue = $uom->uoms_value; 
-        $tertiaryValue = $uom->uomt_value ?? 0;
+        $tertiaryValue = $uom->uomt_value;
 
         if ($currentUOM === $uom->uomp) {
             return $releasedQty;
         } elseif ($currentUOM === $uom->uoms) {
             return $releasedQty / $secondaryValue;
-        } elseif ($currentUOM === $uom->uomt && $tertiaryValue !== 0) {
+        } elseif ($currentUOM === $uom->uomt) {
             return $releasedQty / $tertiaryValue;
         }
 
@@ -1460,8 +1415,8 @@ class InventoryController extends Controller
                 'primaryUOMValue' => 'required|numeric|min:0',
                 'secondaryUOM' => 'required|string|max:255',
                 'secondaryUOMValue' => 'required|numeric|min:0',
-                'tertiaryUOM' => 'nullable|string|max:255',
-                'tertiaryUOMValue' => 'nullable|numeric|min:0',
+                'tertiaryUOM' => 'required|string|max:255',
+                'tertiaryUOMValue' => 'required|numeric|min:0',
             ]);
 
             $uoms = [
@@ -1472,67 +1427,51 @@ class InventoryController extends Controller
                 [
                     'uom' => strtolower($request->secondaryUOM),
                     'value' => round($request->secondaryUOMValue / $request->primaryUOMValue, 6)
-                ]
-            ];
-            
-            if ($request->filled('tertiaryUOM') && $request->filled('tertiaryUOMValue')) {
-                $uoms[] = [
+                ],
+                [
                     'uom' => strtolower($request->tertiaryUOM),
                     'value' => round($request->tertiaryUOMValue / $request->primaryUOMValue, 6)
-                ];
-            }
+                ]
+            ];
 
             function adjustUOMValues($primaryIndex, $secondaryIndex, $tertiaryIndex, $uoms)
             {
                 $primaryUOM = $uoms[$primaryIndex];
                 $primaryUOM['value'] = 1;
 
-                $secondaryValue = $uoms[$secondaryIndex]['value'] / $primaryUOM['value'];
-
-                $tertiaryValue = isset($tertiaryIndex) && isset($uoms[$tertiaryIndex]) 
-                    ? $uoms[$tertiaryIndex]['value'] / $primaryUOM['value'] 
-                    : null;
+                $secondaryValue = $uoms[$secondaryIndex]['value'] / $uoms[$primaryIndex]['value'];
+                $tertiaryValue = $uoms[$tertiaryIndex]['value'] / $uoms[$primaryIndex]['value'];
 
                 $uoms[$primaryIndex]['value'] = 1;
                 $uoms[$secondaryIndex]['value'] = round($secondaryValue, 6);
+                $uoms[$tertiaryIndex]['value'] = round($tertiaryValue, 6);
 
                 return [
                     $uoms[$primaryIndex],
                     $uoms[$secondaryIndex],
-                    $uoms[$tertiaryIndex] ?? ['uom' => null, 'value' => null]
+                    $uoms[$tertiaryIndex]
                 ];
             }
 
-
             $combinations = [];
-            $indices = count($uoms) === 3 
-                ? [
-                    [0, 1, 2], 
-                    [0, 2, 1], 
-                    [1, 0, 2], 
-                    [1, 2, 0], 
-                    [2, 0, 1], 
-                    [2, 1, 0]  
-                ]
-                : [
-                    [0, 1], 
-                    [1, 0]
-                ];
+            $indices = [
+                [0, 1, 2], 
+                [0, 2, 1], 
+                [1, 0, 2], 
+                [1, 2, 0], 
+                [2, 0, 1], 
+                [2, 1, 0]  
+            ];
 
             foreach ($indices as $indexSet) {
-                $adjustedUOMs = adjustUOMValues(
-                    $indexSet[0], 
-                    $indexSet[1], 
-                    $indexSet[2] ?? null, 
-                    $uoms
-                );
+                $adjustedUOMs = adjustUOMValues($indexSet[0], $indexSet[1], $indexSet[2], $uoms);
                 $combinations[] = [
                     'uomp' => $adjustedUOMs[0]['uom'],
                     'uomp_value' => $adjustedUOMs[0]['value'],
                     'uoms' => $adjustedUOMs[1]['uom'],
                     'uoms_value' => $adjustedUOMs[1]['value'],
-                    'uomt' => $adjustedUOMs[2]['uom'] ?? null,
-                    'uomt_value' => $adjustedUOMs[2]['value'] ?? null
+                    'uomt' => $adjustedUOMs[2]['uom'],
+                    'uomt_value' => $adjustedUOMs[2]['value']
                 ];
             }
 
@@ -1572,26 +1511,6 @@ class InventoryController extends Controller
             return response()->json([
                 'status' => 'error',
                 'message' => 'Failed to create UOM.',
-                'error' => $e->getMessage(),
-            ], 500);
-        }
-    }
-
-    public function deleteUOM($id)
-    {
-        try {
-            $uom = Uoms::findOrFail($id);
-            
-            Uoms::where('relation_id', $uom->relation_id)->delete();
-
-            return response()->json([
-                'status' => 'success',
-                'message' => 'UOM and related entries deleted successfully.',
-            ], 200);
-        } catch (\Exception $e) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Failed to delete UOM.',
                 'error' => $e->getMessage(),
             ], 500);
         }

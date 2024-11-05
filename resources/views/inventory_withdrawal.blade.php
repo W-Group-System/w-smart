@@ -153,7 +153,7 @@
         <div class="modal-content" style="padding: 20px;">
             <div class="modal-header">
                 <h5 class="modal-title" id="inventoryWithdrawalModalLabel">Inventory Withdrawal</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="inventoryWithdrawalModalBtn"></button>
             </div>
             <div class="modal-body p-2">
                 <form id="inventoryWithdrawalForm">
@@ -319,7 +319,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="receiveWithdrawModalLabel">Close Withdrawal</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="closeModalButton"></button>
             </div>
             <div class="modal-body">
                 <p>Have you release the correct released qty for this withdrawal?</p>
@@ -339,6 +339,140 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                 <button type="button" class="btn btn-primary" id="receiveWithdrawButton">Submit</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="inventoryReturnModal" tabindex="-1" aria-labelledby="inventoryReturnModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content" style="padding: 20px;">
+            <div class="modal-header">
+                <h5 class="modal-title" id="inventoryReturnModalLabel">Inventory Return</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-2">
+                <form id="inventoryReturnForm">
+                    <!-- Transaction Information -->
+                    <div class="row g-2 mb-3">
+                        <div class="col-md-6">
+                            <label for="requestedDateTime" class="form-label">Requested Date/Time</label>
+                            <input type="text" class="form-control form-control-sm" id="returnDate" value="Auto Generate" readonly>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="requestNumber" class="form-label">Request Number</label>
+                            <input type="text" class="form-control form-control-sm" id="returnRequestNumber" readonly>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="requestorName" class="form-label">Requestor Name</label>
+                            <input type="text" class="form-control form-control-sm" id="returnRequestName" readonly>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="requestorName" class="form-label">Subsidiary</label>
+                            <input type="text" class="form-control form-control-sm" id="returnSubsidiary" value="HO" readonly>
+                        </div>
+
+                    </div>
+
+                    <!-- Item Information Table -->
+
+                    <div class="table-responsive mb-3">
+                        <!-- Button to add a new row -->
+<!--                         <button type="button" class="btn btn-link text-secondary fw-bold" id="returnAddRowBtn"
+                            style="font-size: 14px;">
+                            + Add More Item
+                        </button> -->
+                        <table  class="table table-hover table-bordered" style="border-collapse: collapse; min-width: 1000px;" id="returnItemsTable">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Request ID</th>
+                                    <th>Item Code</th>
+                                    <th>Item Description</th>
+                                    <th>UOM</th>
+                                    <th>Withdrew QTY</th>
+                                    <th>Returned QTY</th>
+                                    <th>Reason</th>
+                                </tr>
+                            </thead>
+                            <tbody id="returnItemTableBody">
+                                <tr>
+                                    <div style="position: relative;">
+                                    <td contenteditable="false" id="returnProcessId" style="background-color: #E9ECEF; color: #999; pointer-events: none;"></td>
+                                    <td contenteditable="false" id="returnItemCode" style="background-color: #E9ECEF; color: #999; pointer-events: none;"></td>
+                                    <td contenteditable="false" id="returnItemDescription" style="background-color: #E9ECEF; color: #999; pointer-events: none;"></td>
+                                    <td contenteditable="false" id="returnItemCategory" style="background-color: #E9ECEF; color: #999; pointer-events: none; display: none;"></td>
+                                    <td>
+                                        <select class="form-select form-select-sm" id="return-uom-dropdown">
+                                        </select>
+                                    </td>
+                                    <td contenteditable="false" id="withdrewQty" style="background-color: #E9ECEF; color: #999; pointer-events: none;"></td>
+                                    <td contenteditable="true" id="returnQty"></td>
+                                    <td contenteditable="true" id="returnReason"></td>
+                                    <td contenteditable="true" id="uomId" style="display: none;"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                  
+                    <div class="mb-3">
+                        <label for="remarks" class="form-label">Remarks</label>
+                        <textarea class="form-control form-control-sm" id="returnRemarks"></textarea>
+                    </div>
+                    <div class="table-responsive mb-3">
+                        <button type="button" class="btn btn-link text-secondary fw-bold" id="addMoreApprover" style="font-size: 14px;">
+                            + Add More Approver
+                        </button>
+                        <table class="table table-bordered table-sm" id="returnApproversTable">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Approver Name</th>
+                                    <th>Role</th>
+                                    <th>Hierarchy</th>
+                                    <th>Remarks</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td contenteditable="true">
+                                        <div style="position: relative;">
+                                            <input type="text" id="returnUserSearchInput1" list="returnUserSuggestions" class="form-control form-control-sm" placeholder="Enter User Name" style="width: 100%; max-width: 200px; padding: 6px; border-radius: 5px; border: 1px solid #ced4da;">
+                                            <datalist id="returnUserSuggestions"></datalist>
+                                            <input type="hidden" id="returnUserIdInput1">
+                                        </div>
+                                    </td>
+                                    <td contenteditable="false" id="returnUserRoleInput1" style="background-color: #E9ECEF; color: #999; pointer-events: none;">Auto Generate</td>
+                                    <td contenteditable="false" class="returnHierarchy-input" style="background-color: #E9ECEF; color: #999; pointer-events: none;">1</td>
+                                    <td contenteditable="true"></td>
+                                </tr>
+                                <tr>
+                                    <td contenteditable="true">
+                                        <div style="position: relative;">
+                                            <input type="text" id="returnUserSearchInput2" list="returnUserSuggestions" class="form-control form-control-sm" placeholder="Enter User Name" style="width: 100%; max-width: 200px; padding: 6px; border-radius: 5px; border: 1px solid #ced4da;">
+                                            <datalist id="returnUserSuggestions"></datalist>
+                                            <input type="hidden" id="returnUserIdInput2">
+                                        </div>
+                                    </td>
+                                    <td contenteditable="false" id="returnUserRoleInput2" style="background-color: #E9ECEF; color: #999; pointer-events: none;">Auto Generate</td>
+                                    <td contenteditable="false" class="returnHierarchy-input" style="background-color: #E9ECEF; color: #999; pointer-events: none;">2</td>
+                                    <td contenteditable="true"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <input type="hidden" id="returnUserIdInput">
+                    <input type="hidden" id="returnUserEmailInput">
+                    <!-- Action Section -->
+                    <div class="row g-2 align-items-end mb-3">
+                        <div class="col-md-12 d-flex justify-content-end">
+                            <button type="button" class="btn btn-success btn-lg" id="submitRequestReturn" disabled
+                                style="background-color: #28a745; color: white; border: 1px solid #28a745; padding: 10px 20px;">
+                                Submit
+                            </button>
+                        </div>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
