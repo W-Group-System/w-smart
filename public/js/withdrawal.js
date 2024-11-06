@@ -306,6 +306,12 @@ document.addEventListener("DOMContentLoaded", function () {
             if (item.status === 2) {
                 statusBadge = `Transaction Close`;
             }
+            if (item.status === 4) {
+                statusBadge = `Decline`;
+            }
+            if (item.status === 5) {
+                statusBadge = `Not Received`;
+            }
             const updatedAt = item.status === 2 ? item.updated_at : 'Pending';
             const row = document.createElement("tr");
             row.classList.add("clickable-row");
@@ -1408,6 +1414,128 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         }
         
+    });
+
+    document.getElementById("declineWithdrawButton").addEventListener("click", function () {
+        const transactionNumber = approveWithdrawButton.dataset.transactionNumber;
+    
+        const approveTransferModalInstance = bootstrap.Modal.getInstance(document.getElementById("approveWithdrawModal"));
+        if (approveTransferModalInstance) {
+            approveTransferModalInstance.hide();
+        }
+
+        Swal.fire({
+            title: 'Reason for Declining',
+            html: `
+                <label for="declineReasonTextarea">Enter reason for declining this withdraw:</label>
+                <textarea id="declineReasonTextarea" class="swal2-textarea" placeholder="Enter reason here..." rows="4"></textarea>
+            `,
+            showCancelButton: true,
+            confirmButtonText: 'Decline Withdraw',
+            cancelButtonText: 'Cancel',
+            focusConfirm: false,
+            preConfirm: () => {
+                const reason = document.getElementById('declineReasonTextarea').value;
+                if (!reason) {
+                    Swal.showValidationMessage('Please enter a reason for declining');
+                    return false;
+                }
+                return reason;
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                const reason = result.value;
+                const approveTransferModalInstance = bootstrap.Modal.getInstance(document.getElementById("approveWithdrawModal"));
+                approveTransferModalInstance.hide();
+                axios.post(`/api/inventory/withdraw/decline/${transactionNumber}`, {
+                    remarks: reason 
+                })
+                .then(response => {
+                    Swal.fire({
+                        title: "Declined!",
+                        text: "Transfer request has been declined.",
+                        icon: "warning",
+                        confirmButtonText: "Ok"
+                    }).then(() => {
+                        fetchWithdrawal(currentPage);
+                    });
+                })
+                .catch(error => {
+                    Swal.fire({
+                        title: "Error!",
+                        text: "Failed to decline the transfer request. Please try again.",
+                        icon: "error",
+                        confirmButtonText: "Ok"
+                    });
+                    console.error("Decline transfer error:", error);
+                });
+            }
+        });
+    });
+    
+    document.getElementById("declineWithdrawButtonReceive").addEventListener("click", function () {
+        const transactionNumber = document.querySelector('.clickable-row[data-status="Receiving"]').dataset.transactId;
+        const receiveTransferModalInstance = bootstrap.Modal.getInstance(document.getElementById("receiveWithdrawModal"));
+    
+        if (receiveTransferModalInstance) {
+            receiveTransferModalInstance.hide();
+        }
+    
+        Swal.fire({
+            title: 'Reason for Not Receiving',
+            html: `
+                <label for="declineReasonTextarea">Enter reason for declining this transfer:</label>
+                <textarea id="declineReasonTextarea" class="swal2-textarea" placeholder="Enter reason here..." rows="4"></textarea>
+                <br><label for="declineProofImage">Upload proof (optional):</label>
+                <input type="file" id="declineProofImage" class="swal2-file" accept="image/*" />
+            `,
+            showCancelButton: true,
+            confirmButtonText: 'Decline Withdraw',
+            cancelButtonText: 'Cancel',
+            focusConfirm: false,
+            preConfirm: () => {
+                const reason = document.getElementById('declineReasonTextarea').value;
+                const imageFile = document.getElementById('declineProofImage').files[0];
+                if (!reason) {
+                    Swal.showValidationMessage('Please enter a reason for declining');
+                    return false;
+                }
+                return { reason, imageFile };
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                const { reason, imageFile } = result.value;
+    
+                const requestData = {
+                    remarks: reason
+                };
+                
+                if (imageFile) {
+                    requestData.image = imageFile;
+                }
+    
+                axios.post(`/api/inventory/withdraw/decline/${transactionNumber}`, requestData)
+                .then(response => {
+                    Swal.fire({
+                        title: "Declined!",
+                        text: "Withdraw request has been declined.",
+                        icon: "warning",
+                        confirmButtonText: "Ok"
+                    }).then(() => {
+                        fetchWithdrawal(currentPage);
+                    });
+                })
+                .catch(error => {
+                    Swal.fire({
+                        title: "Error!",
+                        text: "Failed to decline the withdraw request. Please try again.",
+                        icon: "error",
+                        confirmButtonText: "Ok"
+                    });
+                    console.error("Decline withdraw error:", error);
+                });
+            }
+        });
     });
 
     initializeUserSearch(document.getElementById("userSearchInput1"));
