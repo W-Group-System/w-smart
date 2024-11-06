@@ -306,7 +306,7 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger" id="declineWithdrawButton">Decline</button>
                 <button type="button" class="btn btn-primary" id="approveWithdrawButton">Approve</button>
             </div>
         </div>
@@ -337,8 +337,8 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-primary" id="receiveWithdrawButton">Submit</button>
+                <button type="button" class="btn btn-danger" id="declineWithdrawButtonReceive">No Receive</button>
+                <button type="button" class="btn btn-primary" id="receiveWithdrawButton">Receive</button>
             </div>
         </div>
     </div>

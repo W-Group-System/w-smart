@@ -43,6 +43,7 @@ Route::post('inventory/withdraw', 'InventoryController@fetchWithdraw')->name('in
 Route::post('search-withdrawal', 'InventoryController@searchWithdrawal')->name('search-withdrawal');
 Route::post('inventory/withdraw/request', 'InventoryController@requestWithdraw')->name('inventory.withdraw.request');
 Route::post('inventory/withdraw/approve/{id}', 'InventoryController@approveWithdraw')->name('inventory.withdraw.approve');
+Route::post('inventory/withdraw/decline/{id}', 'InventoryController@declineWithdraw')->name('inventory.withdraw.decline');
 
 //inventory-categories
 Route::get('inventory/categories', 'InventoryController@getCategory')->name('inventory.categories');
@@ -63,3 +64,4 @@ Route::post('search-return', 'InventoryController@searchReturn')->name('search-r
 Route::post('return/suggestions', 'InventoryController@getReturnSuggestions')->name('return.suggestions');
 Route::post('return/search', 'InventoryController@returnSearchItem')->name('return.search');
 Route::post('inventory/return/approve/{id}', 'InventoryController@approveReturn')->name('inventory.return.approve');
+Route::post('inventory/return/decline/{id}', 'InventoryController@declineWithdraw')->name('inventory.return.decline');
