@@ -535,31 +535,31 @@ class InventoryController extends Controller
     }
 
     public function declineTransfer(Request $request, $transactId)
-{
-    try {
-        $transfer = Transfer::where('transfer_id', $transactId)->firstOrFail();
+    {
+        try {
+            $transfer = Transfer::where('transfer_id', $transactId)->firstOrFail();
 
-        $transfer->status = $transfer->status === 'Receiving' ? 'Not Received' : 'Declined';
+            $transfer->status = $transfer->status === 'Receiving' ? 'Not Received' : 'Declined';
 
-        if ($request->has('remarks')) {
-            $transfer->remarks = $request->input('remarks');
+            if ($request->has('remarks')) {
+                $transfer->remarks = $request->input('remarks');
+            }
+
+            $transfer->save();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Transfer status updated successfully.',
+            ], 200);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to decline transfer.',
+                'error' => $e->getMessage(),
+            ], 500);
         }
-
-        $transfer->save();
-
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Transfer status updated successfully.',
-        ], 200);
-
-    } catch (\Exception $e) {
-        return response()->json([
-            'status' => 'error',
-            'message' => 'Failed to decline transfer.',
-            'error' => $e->getMessage(),
-        ], 500);
     }
-}
 
     public function processReceiving(Request $request, $transfer)
     {
@@ -1019,9 +1019,10 @@ class InventoryController extends Controller
                     'message' => 'UOM configuration not found for the inventory item.',
                 ], 404);
             }
-            $convertedQty = $this->convertToPrimaryUOM($uom, $releasedQty, $withdraw->uom);
+            $convertedQty = $this->convertToTargetUOM($inventory, $releasedQty, $withdraw);
 
-            if ($inventory->qty < $convertedQty) {
+            $convertedPrimaryQty = $this->convertToTargetUOM($inventory, $inventory->qty, $withdraw);
+            if ($convertedPrimaryQty < $releasedQty) {
                 return response()->json([
                     'status' => 'error',
                     'message' => "Insufficient quantity for item '{$itemCode}'.",
@@ -1029,11 +1030,12 @@ class InventoryController extends Controller
                 ], 200);
             }
 
-            $inventory->qty -= $convertedQty;
-            $inventory->usage += $convertedQty;
+            $inventory->qty -= $this->revertToPrimaryUOM($inventory, $releasedQty, $withdraw);
+            $inventory->usage += $this->revertToPrimaryUOM($inventory, $releasedQty, $withdraw);
             $inventory->save();
 
             $withdraw->status = 2;
+            $withdraw->primary_qty = $this->revertToPrimaryUOM($inventory, $releasedQty, $withdraw);
             $withdraw->updated_at = now();
             $withdraw->save();
 
@@ -1089,14 +1091,18 @@ class InventoryController extends Controller
                     'message' => 'UOM configuration not found for the inventory item.',
                 ], 404);
             }
-
-            $convertedQty = $this->convertToPrimaryUOM($uom, $releasedQty, $return->uom);
-            dd($convertedQty);
-            $inventory->qty += $convertedQty;
-            $inventory->usage -= $convertedQty;
-            $withdrawal->released_qty -+ $convertedQty;
+            $convertedQty = $this->convertToTargetUOM($inventory, $releasedQty, $withdrawal);
+            
+            $inventory->qty += $this->revertToPrimaryUOM($inventory, $convertedQty, $withdrawal);
+            $inventory->usage -= $this->revertToPrimaryUOM($inventory, $convertedQty, $withdrawal);
             $inventory->save();
+            $withdrawal->released_qty -= $convertedQty;
 
+            $withdrawal->primary_qty -= $this->revertToPrimaryUOM($inventory, $convertedQty, $withdrawal);
+            if ($withdrawal->primary_qty <= 0) {
+                $withdrawal->status = 6;
+            }
+            $withdrawal->save();
             $return->status = 2;
             $return->updated_at = now();
             $return->save();
@@ -1939,6 +1945,60 @@ class InventoryController extends Controller
             return response()->json([
                 'status' => 'error',
                 'message' => 'Failed to approve return request.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function declineWithdraw(Request $request, $transactId)
+    {
+        try {
+            $withdrawal = WithdrawalItems::where('id', $transactId)->firstOrFail();
+
+            $withdrawal->status = $withdrawal->status === 0 ? 4 : 5;
+
+            if ($request->has('remarks')) {
+                $withdrawal->remarks = $request->input('remarks');
+            }
+
+            $withdrawal->save();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Withdraw status updated successfully.',
+            ], 200);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to decline withdraw.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function declineReturn(Request $request, $transactId)
+    {
+        try {
+            $returns = Returns::where('id', $transactId)->firstOrFail();
+
+            $returns->status = $withdrawal->status === 0 ? 4 : 5;
+
+            if ($request->has('remarks')) {
+                $returns->remarks = $request->input('remarks');
+            }
+
+            $returns->save();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Return status updated successfully.',
+            ], 200);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to decline return.',
                 'error' => $e->getMessage(),
             ], 500);
         }

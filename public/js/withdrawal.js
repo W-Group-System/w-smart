@@ -116,6 +116,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 subsidiary_id: subsidiaryId,
             })
             .then((response) => {
+                console.log(response)
                 if (response.data.status === "success" && response.data.data) {
                     const item = response.data.data;
                     document.getElementById("returnItemCode").textContent = item[0].item_code;
@@ -126,9 +127,9 @@ document.addEventListener("DOMContentLoaded", function () {
                     const qtyCell = document.getElementById("returnQty");
                     const withdrewQty = document.getElementById("withdrewQty");
                     const maxQty = parseFloat(item[0].released_qty) || 0;
-                    withdrewQty.textContent = maxQty.toFixed(2);
-                    withdrewQty.dataset.maxQty = maxQty.toFixed(2);
-                    qtyCell.textContent = maxQty.toFixed(2);
+                    withdrewQty.textContent = item[0].primary_qty.toFixed(2);
+                    withdrewQty.dataset.maxQty = item[0].primary_qty.toFixed(2);
+                    qtyCell.textContent = item[0].primary_qty.toFixed(2);
                     row.dataset.uomId = item[0].uom_id;
                     row.dataset.baseQty = maxQty;
                     row.dataset.primaryValue = item[0].uomp_value || 1;
@@ -167,13 +168,12 @@ document.addEventListener("DOMContentLoaded", function () {
             .then((response) => {
                 if (response.data.status === "success" && response.data.data) {
                     const item = response.data.data;
-    
                     row.querySelector(".itemDescription").textContent = item.item_description;
                     row.querySelector(".itemCategory").textContent = item.item_category;
     
                     const uomDropdown = row.querySelector(".uom-dropdown");
                     populateUOMOptions(item.uomp, item.uoms, item.uomt, uomDropdown);
-    
+                        
                     const qtyCell = row.querySelector(".requestedQty");
                     const maxQty = parseFloat(item.qty);
                     qtyCell.textContent = maxQty.toFixed(2);
@@ -312,7 +312,10 @@ document.addEventListener("DOMContentLoaded", function () {
             if (item.status === 5) {
                 statusBadge = `Not Received`;
             }
-            const updatedAt = item.status === 2 ? item.updated_at : 'Pending';
+            if (item.status === 6) {
+                statusBadge = `All items returned`;
+            }
+            const updatedAt = item.status >= 2 ? item.updated_at : 'Pending';
             const row = document.createElement("tr");
             row.classList.add("clickable-row");
             row.dataset.transactId = item.id;
@@ -320,6 +323,7 @@ document.addEventListener("DOMContentLoaded", function () {
             row.dataset.requesterId = item.requestor_id;
             row.dataset.approverId = item.approver_id;
             row.dataset.releasedQty = item.released_qty;
+            row.dataset.remarks = item.remarks;
             row.innerHTML = `
                 <td style="text-align: center; padding: 2px 10px;">${item.id}
                 </td>
@@ -334,7 +338,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 <td style="text-align: center; padding: 2px 10px;">${updatedAt}</td>
                 <td style="text-align: center; padding: 2px 10px;">${item.reason}</td>
                 <td style="text-align: center; padding: 2px 10px;">
-                    <span class="badge bg-${item.status === 2 ? "success" : item.status === 1 ? "primary" : "danger"}">
+                    <span class="badge bg-${item.status === 2 || item.status === 6 ? "success" : item.status === 1 || item.status === 4 || item.status === 5 ? "primary" : "danger"}">
                         ${statusBadge}
                     </span>
                 </td>
@@ -479,14 +483,14 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function populateUOMOptions(primaryUOM, secondaryUOM, tertiaryUOM, dropdown) {
         dropdown.innerHTML = '';
-    
+        
         const uomOptions = [
-            { label: primaryUOM || 'Primary', value: 'primary' || 'Primary' },
+            { label: primaryUOM || 'Primary', value: 'primary'|| 'Primary' },
             { label: secondaryUOM || 'Secondary', value: 'secondary' || 'Secondary' }
         ];
     
         if (tertiaryUOM) {
-            uomOptions.push({ label: tertiaryUOM, value: 'teriary' });
+            uomOptions.push({ label: tertiaryUOM, value: 'tertiary' });
         }
     
         uomOptions.forEach((uom, index) => {
@@ -515,17 +519,16 @@ document.addEventListener("DOMContentLoaded", function () {
             let selectedUOM = dropdown.value;
             let convertedQty;
             let maxConvertedQty;
-    
             switch (selectedUOM) {
-                case primaryUOM:
+                case 'primary':
                     convertedQty = baseQty * primaryValue;
                     maxConvertedQty = baseQty * primaryValue;
                     break;
-                case secondaryUOM:
+                case 'secondary':
                     convertedQty = baseQty * secondaryValue;
                     maxConvertedQty = baseQty * secondaryValue;
                     break;
-                case tertiaryUOM:
+                case 'tertiary':
                     convertedQty = baseQty * tertiaryValue;
                     maxConvertedQty = baseQty * tertiaryValue;
                     break;
@@ -655,7 +658,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 const uomDropdown = row.querySelector(".uom-dropdown");
                 const selectedUOM = uomDropdown ? uomDropdown.value : '';
                 let uomp, uoms, uomt;
-
+                console.log(uomDropdown)
                 switch (selectedUOM) {
                     case 'primary':
                         uomp = uomDropdown.options[0].text;
@@ -956,7 +959,7 @@ document.addEventListener("DOMContentLoaded", function () {
         dropdown.innerHTML = '';
 
         const uomOptions = [
-            { label: primaryUOM || 'Primary', value: data.dataset.uom || 'Primary' },
+            { label: primaryUOM || 'Primary', value: primaryUOM || 'Primary' },
             { label: secondaryUOM || 'Secondary', value: secondaryUOM || 'Secondary' },
             tertiaryUOM ? { label: tertiaryUOM, value: tertiaryUOM } : null 
         ].filter(option => option !== null);
@@ -1004,7 +1007,6 @@ document.addEventListener("DOMContentLoaded", function () {
                     convertedQty = baseQty;
                     maxConvertedQty = baseQty;
             }
-            console.log(convertedQty)
             qtyElement.textContent = convertedQty.toFixed(2);
             withdrewElement.textContent = convertedQty.toFixed(2);
             qtyElement.setAttribute('data-max-qty', maxConvertedQty.toFixed(2));
@@ -1052,6 +1054,28 @@ document.addEventListener("DOMContentLoaded", function () {
                 var inventoryReturnModal = new bootstrap.Modal(document.getElementById('inventoryReturnModal'));
                 inventoryReturnModal.show();
 
+            }
+
+            else if (status === "4" || status === "5") {
+                const reason = target.dataset.remarks || "No reason provided.";
+                Swal.fire({
+                    title: `Transfer is ${status}`,
+                    text: reason,
+                    icon: "info",
+                    confirmButtonText: "Ok"
+                });
+                return;
+            }
+
+            else if (status === "6") {
+                const reason = target.dataset.remarks || "No reason provided.";
+                Swal.fire({
+                    title: `All items has been returned`,
+                    text: "No item to return",
+                    icon: "info",
+                    confirmButtonText: "Ok"
+                });
+                return;   
             }
 
             else {
@@ -1453,7 +1477,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 .then(response => {
                     Swal.fire({
                         title: "Declined!",
-                        text: "Transfer request has been declined.",
+                        text: "Withdraw request has been declined.",
                         icon: "warning",
                         confirmButtonText: "Ok"
                     }).then(() => {
@@ -1463,7 +1487,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 .catch(error => {
                     Swal.fire({
                         title: "Error!",
-                        text: "Failed to decline the transfer request. Please try again.",
+                        text: "Failed to decline the withdraw request. Please try again.",
                         icon: "error",
                         confirmButtonText: "Ok"
                     });

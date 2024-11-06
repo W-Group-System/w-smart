@@ -57,8 +57,8 @@
                     <option value="7">WGC</option>
                 </select> -->
                 <a href="#" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#inventoryWithdrawalModal" id="addWithdraw"
-                    style="height: 35px; padding: 0 15px; display: flex; align-items: center; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); font-size: 14px;">
-                    Inventory Return
+                   style="display: none; height: 35px; padding: 0 15px; flex; align-items: center; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); font-size: 14px;">
+                   Inventory Return
                 </a>
             </div>
 

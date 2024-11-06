@@ -746,4 +746,3 @@ document.addEventListener("DOMContentLoaded", async function () {
     const initialPrimaryUOMs = await fetchUOMs('primary');
     updateDropdownOptions(primaryUOMSelect, initialPrimaryUOMs, 'primary');
 });
-
