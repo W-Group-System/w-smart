@@ -263,6 +263,7 @@ document.addEventListener("DOMContentLoaded", function () {
             if (item.status === 2) {
                 statusBadge = `Transaction Close`;
             }
+            
             const updatedAt = item.status === 2 ? item.updated_at : 'Pending';
             const row = document.createElement("tr");
             row.classList.add("clickable-row");
@@ -282,7 +283,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 <td style="text-align: center; padding: 2px 10px;">${item.item_description}</td>
                 <td style="text-align: center; padding: 2px 10px;">${item.withdraw_qty}</td>
                 <td style="text-align: center; padding: 2px 10px;">${item.returned_qty}</td>
-                <td style="text-align: center; padding: 2px 10px;">${item.uom}</td>
+                <td style="text-align: center; padding: 2px 10px;">${item.uomp}</td>
                 <td style="text-align: center; padding: 2px 10px;">
                     <span class="badge bg-${item.status === 2 ? "success" : item.status === 1 ? "primary" : "danger"}">
                         ${statusBadge}
@@ -643,7 +644,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 };	
             })
             .filter((item) => item !== null);
-            console.log(items)
         if (validate === 0) {
         	alert("Reason is required for all items.");
         }
@@ -832,8 +832,8 @@ document.addEventListener("DOMContentLoaded", function () {
             const status = target.dataset.status;
             if (status === "2") {
                 Swal.fire({
-                    title: "Item withdraw request done",
-                    text: "This withdraw transaction has already been marked as closed.",
+                    title: "Item return request done",
+                    text: "This return transaction has already been marked as closed.",
                     icon: "info",
                     confirmButtonText: "Ok"
                 });
@@ -939,7 +939,7 @@ document.addEventListener("DOMContentLoaded", function () {
             .then((response) => {
                 Swal.fire({
                     title: "Success!",
-                    text: response.data.message || "Withdraw approved.",
+                    text: response.data.message || "Return approved.",
                     icon: "success",
                     confirmButtonText: "Ok"
                 }).then(() => {
@@ -959,7 +959,7 @@ document.addEventListener("DOMContentLoaded", function () {
             .catch((error) => {
                 Swal.fire({
                     title: "Error!",
-                    text: "Failed to approve the withdraw. Please try again.",
+                    text: "Failed to approve the return. Please try again.",
                     icon: "error",
                     confirmButtonText: "Ok"
                 });
@@ -971,7 +971,6 @@ document.addEventListener("DOMContentLoaded", function () {
         const transactionNumber = document.querySelector('.clickable-row[data-status="1"]').dataset.transactId;
         const releasedQty = document.getElementById("returnQtyReceive").value;
         const requesterId = document.getElementById("userId").value;
-        console.log(transactionNumber);
         axios
             .post(`/api/inventory/return/approve/${transactionNumber}`, {
                 released_qty: releasedQty,
@@ -982,7 +981,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 if(response.data.status !== "error") {
                     Swal.fire({
                         title: "Success!",
-                        text: response.data.message || "Withdraw release successfully.",
+                        text: response.data.message || "Return release successfully.",
                         icon: "success",
                         confirmButtonText: "Ok",
                     }).then(() => {
@@ -1004,7 +1003,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     const message = `${response.data.message} <br> available qty: ${response.data.available_qty}`;
                     Swal.fire({
                         title: "Failed!",
-                        html: message  || "Withdraw release failed.",
+                        html: message  || "Return release failed.",
                         icon: "error",
                         confirmButtonText: "Ok",
                     }).then(() => {
@@ -1044,7 +1043,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     document.body.classList.remove("modal-open");
                     document.body.style.overflow = ""; // Resets body overflow style if needed
                 }, 300);
-                console.error("Withdraw error:", error);
+                console.error("Return error:", error);
             });
     });
 

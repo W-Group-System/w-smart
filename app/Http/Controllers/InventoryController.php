@@ -1093,12 +1093,13 @@ class InventoryController extends Controller
             }
             $convertedQty = $this->convertToTargetUOM($inventory, $releasedQty, $withdrawal);
             
-            $inventory->qty += $this->revertToPrimaryUOM($inventory, $convertedQty, $withdrawal);
-            $inventory->usage -= $this->revertToPrimaryUOM($inventory, $convertedQty, $withdrawal);
+            // dd($convertedQty);
+            $inventory->qty = $this->revertToPrimaryUOM($inventory, $releasedQty, $return);
+            $inventory->usage -= $this->revertToPrimaryUOM($inventory, $releasedQty, $return);
             $inventory->save();
             $withdrawal->released_qty -= $convertedQty;
 
-            $withdrawal->primary_qty -= $this->revertToPrimaryUOM($inventory, $convertedQty, $withdrawal);
+            $withdrawal->primary_qty -= $this->revertToPrimaryUOM($inventory, $releasedQty, $return);
             if ($withdrawal->primary_qty <= 0) {
                 $withdrawal->status = 6;
             }
@@ -1713,7 +1714,7 @@ class InventoryController extends Controller
                     $newReturnLog->item_category = $item_category;
                     $newReturnLog->returned_qty = $returned_qty;
                     $newReturnLog->return_date = $return_date;
-                    $newReturnLog->uom = $uom;
+                    $newReturnLog->uomp = $uom;
                     $newReturnLog->uomid = $uomId;
                     $newReturnLog->status = 0;
                     $newReturnLog->hierarchy = 1;

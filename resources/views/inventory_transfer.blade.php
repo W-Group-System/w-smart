@@ -11,7 +11,7 @@
     <div class="card p-4" style="border: 1px solid #ddd; border-radius: 20px; margin-top: -25px;">
         <div class="d-flex justify-content-between align-items-center mb-3">
             <div class="d-flex align-items-center">
-                <h6 class="fw-bold me-3">Masterlistssss</h6>
+                <h6 class="fw-bold me-3">Masterlist</h6>
                 <input type="hidden" id="userId" value="{{ auth()->user()->id }}">
                 <input type="hidden" id="userName" value="{{ auth()->user()->name }}">
                 <input type="hidden" id="usersubsidiary" value="{{ auth()->user()->subsidiary }}">
