@@ -1091,7 +1091,7 @@ class InventoryController extends Controller
                     'message' => 'UOM configuration not found for the inventory item.',
                 ], 404);
             }
-            $convertedQty = $this->convertToTargetUOM($inventory, $releasedQty, $withdrawal);
+            $convertedQty = $this->convertToTargetUOM($inventory, $releasedQty, $return);
             
             // dd($convertedQty);
             $inventory->qty = $this->revertToPrimaryUOM($inventory, $releasedQty, $return);
