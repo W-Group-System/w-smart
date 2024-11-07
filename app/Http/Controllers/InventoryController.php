@@ -664,6 +664,7 @@ class InventoryController extends Controller
 
     private function convertToTargetUOM($sourceInventory, $releasedQty, $transfer)
     {
+        
         $uom = Uoms::find($sourceInventory->uom_id);
         if (!$uom) {
             return $releasedQty;
@@ -675,12 +676,11 @@ class InventoryController extends Controller
 
         $sourceUOM = $sourceInventory->uomp;
         $targetUOM = $transfer->uomp;
-
         // Convert based on UOM values
         if ($sourceUOM === $targetUOM) {
             return $releasedQty;
         }
-
+        
         // Adjust conversion logic to convert to target UOM
         if ($sourceUOM === $uom->uomp && $targetUOM === $uom->uoms) {
             return $releasedQty * ($secondaryValue / $primaryValue);
@@ -1084,16 +1084,15 @@ class InventoryController extends Controller
                 ], 404);
             }
 
-            $uom = Uoms::find($return->uomid);
+            $uom = Uoms::find($return->uom_id);
             if (!$uom) {
                 return response()->json([
                     'status' => 'error',
                     'message' => 'UOM configuration not found for the inventory item.',
                 ], 404);
             }
-            $convertedQty = $this->convertToTargetUOM($inventory, $releasedQty, $return);
-            
-            // dd($convertedQty);
+            // $convertedQty = $this->convertToTargetUOM($inventory, $releasedQty, $withdrawal);
+            $convertedQty = $this->convertToTargetUOM($return, $releasedQty, $withdrawal);
             $inventory->qty = $this->revertToPrimaryUOM($inventory, $releasedQty, $return);
             $inventory->usage -= $this->revertToPrimaryUOM($inventory, $releasedQty, $return);
             $inventory->save();
@@ -1715,7 +1714,7 @@ class InventoryController extends Controller
                     $newReturnLog->returned_qty = $returned_qty;
                     $newReturnLog->return_date = $return_date;
                     $newReturnLog->uomp = $uom;
-                    $newReturnLog->uomid = $uomId;
+                    $newReturnLog->uom_id = $uomId;
                     $newReturnLog->status = 0;
                     $newReturnLog->hierarchy = 1;
                     $newReturnLog->reason = $reason;
