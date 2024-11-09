@@ -116,7 +116,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 subsidiary_id: subsidiaryId,
             })
             .then((response) => {
-                console.log(response)
                 if (response.data.status === "success" && response.data.data) {
                     const item = response.data.data;
                     document.getElementById("returnItemCode").textContent = item[0].item_code;
@@ -478,6 +477,7 @@ document.addEventListener("DOMContentLoaded", function () {
         document.getElementById('subsidiary').value = subsidiary;
         document.getElementById('subsidiaryid').value = subsidiaryid;
         validateItems();
+        getApprovers();
     
     });
 
@@ -658,7 +658,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 const uomDropdown = row.querySelector(".uom-dropdown");
                 const selectedUOM = uomDropdown ? uomDropdown.value : '';
                 let uomp, uoms, uomt;
-                console.log(uomDropdown)
                 switch (selectedUOM) {
                     case 'primary':
                         uomp = uomDropdown.options[0].text;
@@ -706,11 +705,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
         const approvals = Array.from(document.querySelectorAll("#approversTable tbody tr")).map((row) => {
+
             const approverIdField = row.querySelector("input[id^='userIdInput']");
             const approverId = approverIdField ? approverIdField.value : null;
-            const approverName = row.querySelector("input[id^='userSearchInput']").value;
+            const approverName = row.querySelector("td[id^='approver']").textContent.trim();
             const hierarchy = row.querySelector(".hierarchy-input").textContent.trim();
-        
             return {
                 approver_id: approverId,  
                 approver_name: approverName,
@@ -1034,6 +1033,7 @@ document.addEventListener("DOMContentLoaded", function () {
         if (target) {
             const status = target.dataset.status;
             if (status === "2") {
+                getReturnApprovers()
                 const transactionCode = target.cells[3].textContent.trim();
                 const today = new Date().toISOString().split('T')[0];
                 const userId = document.getElementById('userId').value;
@@ -1337,7 +1337,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 const reason = document.getElementById("returnReason").textContent.trim();
                 const itemCode = document.getElementById("returnItemCode").textContent.trim();
                 const processId = document.getElementById("returnProcessId").textContent.trim();
-                console.log(processId)
                 const withdrawQty = document.getElementById("withdrewQty").textContent.trim();
                 const returnedQty = document.getElementById("returnQty").textContent.trim();
 
@@ -1353,7 +1352,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 if (!itemCode || !returnedQty) {
                     return null;
                 }
-                console.log(document.getElementById("uomId").textContent)
                 return {
                     item_code: itemCode,
                     process_id: processId,
@@ -1376,9 +1374,9 @@ document.addEventListener("DOMContentLoaded", function () {
             const approvals = Array.from(document.querySelectorAll("#returnApproversTable tbody tr")).map((row) => {
                 const approverIdField = row.querySelector("input[id^='returnUserIdInput']");
                 const approverId = approverIdField ? approverIdField.value : null;
-                const approverName = row.querySelector("input[id^='returnUserSearchInput']").value;
+                const approverName = row.querySelector("td[id^='returnApprover']").textContent.trim();
                 const hierarchy = row.querySelector(".returnHierarchy-input").textContent.trim();
-            
+                console.log(approverName)
                 return {
                     approver_id: approverId,  
                     approver_name: approverName,
@@ -1561,6 +1559,40 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         });
     });
+
+    function getApprovers() {
+        axios
+            .get(`/api/inventory/approvers/${subsidiary_id}`)
+            .then((response) => {
+                document.getElementById("approver1").textContent = response.data.data[0].name
+                document.getElementById("userRoleInput1").textContent = response.data.data[0].role
+                document.getElementById("userIdInput1").value = response.data.data[0].uid
+                document.getElementById("approver2").textContent = response.data.data[1].name
+                document.getElementById("userRoleInput2").textContent = response.data.data[1].role
+                document.getElementById("userIdInput2").value = response.data.data[1].uid
+            })
+            .catch((error) => {
+                console.error("Error fetching item details:", error);
+                alert("An error occurred while fetching item details.");
+            });
+    }
+
+    function getReturnApprovers() {
+        axios
+            .get(`/api/inventory/approvers/${subsidiary_id}`)
+            .then((response) => {
+                document.getElementById("returnApprover1").textContent = response.data.data[0].name
+                document.getElementById("returnUserRoleInput1").textContent = response.data.data[0].role
+                document.getElementById("returnUserIdInput1").value = response.data.data[0].uid
+                document.getElementById("returnApprover2").textContent = response.data.data[1].name
+                document.getElementById("returnUserRoleInput2").textContent = response.data.data[1].role
+                document.getElementById("returnUserIdInput2").value = response.data.data[1].uid
+            })
+            .catch((error) => {
+                console.error("Error fetching item details:", error);
+                alert("An error occurred while fetching item details.");
+            });
+    }
 
     initializeUserSearch(document.getElementById("userSearchInput1"));
     initializeUserSearch(document.getElementById("userSearchInput2"));

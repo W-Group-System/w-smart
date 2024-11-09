@@ -13,6 +13,7 @@ use App\Categories;
 use App\Subcategories;
 use App\Uoms;
 use App\Returns;
+use App\Approver;
 use RealRashid\SweetAlert\Facades\Alert;
 
 class InventoryController extends Controller
@@ -2001,6 +2002,24 @@ class InventoryController extends Controller
                 'message' => 'Failed to decline return.',
                 'error' => $e->getMessage(),
             ], 500);
+        }
+    }
+
+    public function getApprovers(Request $request, $subsidiaryid)
+    {
+        try {
+            $approvers = Approver::where('subsidiary_id', $subsidiaryid)->get();
+
+            return response()->json([
+                'status' => 'success',
+                'data' => $approvers,
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to fetch approvers.',
+                'error' => $e->getMessage(),
+            ], 500); 
         }
     }
 }

@@ -241,11 +241,12 @@
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td contenteditable="true">
-                                        <div style="position: relative;">
-                                            <input type="text" id="userSearchInput1" list="userSuggestions" class="form-control form-control-sm" placeholder="Enter User Name" style="width: 100%; max-width: 200px; padding: 6px; border-radius: 5px; border: 1px solid #ced4da;">
+                                    <input type="hidden" id="userIdInput1">
+                                    
+                                    <td contenteditable="false" id="approver1" style="background-color: #E9ECEF; color: #999; pointer-events: none;">
+                                        <div style="position: relative; display: none;" disable>
+                                            <input type="text" id="userSearchInput1" list="userSuggestions" class="form-control form-control-sm" disabled placeholder="Enter User Name" style="width: 100%; max-width: 200px; padding: 6px; border-radius: 5px; border: 1px solid #ced4da;">
                                             <datalist id="userSuggestions"></datalist>
-                                            <input type="hidden" id="userIdInput1">
                                         </div>
                                     </td>
                                     <td contenteditable="false" id="userRoleInput1" style="background-color: #E9ECEF; color: #999; pointer-events: none;">Auto Generate</td>
@@ -253,11 +254,11 @@
                                     <td contenteditable="true"></td>
                                 </tr>
                                 <tr>
-                                    <td contenteditable="true">
-                                        <div style="position: relative;">
+                                    <input type="hidden" id="userIdInput2">
+                                    <td contenteditable="false" id="approver2" style="background-color: #E9ECEF; color: #999; pointer-events: none;">
+                                        <div style="position: relative;  display: none;">
                                             <input type="text" id="userSearchInput2" list="userSuggestions" class="form-control form-control-sm" placeholder="Enter User Name" style="width: 100%; max-width: 200px; padding: 6px; border-radius: 5px; border: 1px solid #ced4da;">
                                             <datalist id="userSuggestions"></datalist>
-                                            <input type="hidden" id="userIdInput2">
                                         </div>
                                     </td>
                                     <td contenteditable="false" id="userRoleInput2" style="background-color: #E9ECEF; color: #999; pointer-events: none;">Auto Generate</td>
@@ -420,9 +421,9 @@
                         <textarea class="form-control form-control-sm" id="returnRemarks"></textarea>
                     </div>
                     <div class="table-responsive mb-3">
-                        <button type="button" class="btn btn-link text-secondary fw-bold" id="addMoreApprover" style="font-size: 14px;">
+<!--                         <button type="button" class="btn btn-link text-secondary fw-bold" id="addMoreApprover" style="font-size: 14px;">
                             + Add More Approver
-                        </button>
+                        </button> -->
                         <table class="table table-bordered table-sm" id="returnApproversTable">
                             <thead class="table-light">
                                 <tr>
@@ -434,11 +435,12 @@
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td contenteditable="true">
-                                        <div style="position: relative;">
+                                    <input type="hidden" id="returnUserIdInput1">
+                                    <td contenteditable="false" id="returnApprover1" style="background-color: #E9ECEF; color: #999; pointer-events: none;">
+                                        <div style="position: relative; display: none;" disable>
                                             <input type="text" id="returnUserSearchInput1" list="returnUserSuggestions" class="form-control form-control-sm" placeholder="Enter User Name" style="width: 100%; max-width: 200px; padding: 6px; border-radius: 5px; border: 1px solid #ced4da;">
                                             <datalist id="returnUserSuggestions"></datalist>
-                                            <input type="hidden" id="returnUserIdInput1">
+                                            
                                         </div>
                                     </td>
                                     <td contenteditable="false" id="returnUserRoleInput1" style="background-color: #E9ECEF; color: #999; pointer-events: none;">Auto Generate</td>
@@ -446,11 +448,12 @@
                                     <td contenteditable="true"></td>
                                 </tr>
                                 <tr>
-                                    <td contenteditable="true">
+                                    <input type="hidden" id="returnUserIdInput2">
+                                    <td contenteditable="false" id="returnApprover2" style="background-color: #E9ECEF; color: #999; pointer-events: none;">
                                         <div style="position: relative;">
                                             <input type="text" id="returnUserSearchInput2" list="returnUserSuggestions" class="form-control form-control-sm" placeholder="Enter User Name" style="width: 100%; max-width: 200px; padding: 6px; border-radius: 5px; border: 1px solid #ced4da;">
                                             <datalist id="returnUserSuggestions"></datalist>
-                                            <input type="hidden" id="returnUserIdInput2">
+                                            
                                         </div>
                                     </td>
                                     <td contenteditable="false" id="returnUserRoleInput2" style="background-color: #E9ECEF; color: #999; pointer-events: none;">Auto Generate</td>
