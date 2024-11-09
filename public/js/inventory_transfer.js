@@ -421,7 +421,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function updateTransferToOptions() {
         const selectedFromValue = transferFrom.value;
-
+        populateApprover();
         Array.from(transferTo.options).forEach((option) => {
             option.disabled = false;
         });
@@ -437,7 +437,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
     transferFrom.addEventListener("change", updateTransferToOptions);
     updateTransferToOptions();
-
     const transactionDateInput = document.getElementById("transactionDate");
     const transactionNumberInput = document.getElementById("transactionNumber");
     const today = new Date().toISOString().split("T")[0].replace(/-/g, "");
@@ -1141,7 +1140,7 @@ document.addEventListener("DOMContentLoaded", function () {
             });
     }
 
-    document.addEventListener("click", function (event) {
+/*    document.addEventListener("click", function (event) {
         const dropdownButton = document.getElementById("approverDropdown");
         const dropdownMenu = document.getElementById("approverDropdownMenu");
         if (
@@ -1150,7 +1149,7 @@ document.addEventListener("DOMContentLoaded", function () {
         ) {
             dropdownMenu.style.display = "none";
         }
-    });
+    });*/
 
     function populateUOMOptions(primaryUOM, secondaryUOM, tertiaryUOM, dropdown) {
         dropdown.innerHTML = '';
