@@ -60,7 +60,7 @@
                 <option value="6" {{ auth()->user()->subsidiary == 'WOI' ? 'selected' : '' }}>WOI</option>
                 <option value="7" {{ auth()->user()->subsidiary == 'WGC' ? 'selected' : '' }}>WGC</option>
             </select>
-                <a href="#" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#requestTransferModal"
+                <a href="#" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#requestTransferModal" id="requestTransferOpen"
                     style="height: 35px; padding: 0 15px; display: flex; align-items: center; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); font-size: 14px;">
                     Request Transfer
                 </a>
@@ -272,7 +272,7 @@
 
                     <!-- Approver Section -->
                     <div class="table-responsive mb-3">
-                        <button type="button" class="btn btn-link text-secondary fw-bold" id="addMoreApprover" style="font-size: 14px;">
+                         <button type="button" class="btn btn-link text-secondary fw-bold" id="addMoreApprover" style="font-size: 14px; display: none;">
                             + Add More Approver
                         </button>
                         <table class="table table-bordered table-sm" id="approversTable">
@@ -286,11 +286,12 @@
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td contenteditable="false">
-                                        <div style="position: relative;">
+                                    <input type="hidden" id="userIdInput1">
+                                    <td contenteditable="false" id="approver1" style="background-color: #E9ECEF; color: #999; pointer-events: none;">
+                                        <div style="position: relative; display: none;">
                                             <input type="text" id="userSearchInput1" list="userSuggestions" class="form-control form-control-sm" placeholder="Enter User Name" style="width: 100%; max-width: 200px; padding: 6px; border-radius: 5px; border: 1px solid #ced4da;">
                                             <datalist id="userSuggestions"></datalist>
-                                            <input type="hidden" id="userIdInput1">
+                                            
                                         </div>
                                     </td>
                                     <td contenteditable="false" id="userRoleInput1" style="background-color: #E9ECEF; color: #999; pointer-events: none;">Auto Generate</td>
@@ -298,11 +299,12 @@
                                     <td contenteditable="true"></td>
                                 </tr>
                                 <tr>
-                                    <td contenteditable="false">
+                                    <input type="hidden" id="userIdInput2">
+                                    <td contenteditable="false" id="approver2" style="background-color: #E9ECEF; color: #999; pointer-events: none;">
                                         <div style="position: relative;">
                                             <input type="text" id="userSearchInput2" list="userSuggestions" class="form-control form-control-sm" placeholder="Enter User Name" style="width: 100%; max-width: 200px; padding: 6px; border-radius: 5px; border: 1px solid #ced4da;">
                                             <datalist id="userSuggestions"></datalist>
-                                            <input type="hidden" id="userIdInput2">
+                                            
                                         </div>
                                     </td>
                                     <td contenteditable="false" id="userRoleInput2" style="background-color: #E9ECEF; color: #999; pointer-events: none;">Auto Generate</td>

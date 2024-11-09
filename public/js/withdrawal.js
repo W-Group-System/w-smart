@@ -1376,7 +1376,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 const approverId = approverIdField ? approverIdField.value : null;
                 const approverName = row.querySelector("td[id^='returnApprover']").textContent.trim();
                 const hierarchy = row.querySelector(".returnHierarchy-input").textContent.trim();
-                console.log(approverName)
                 return {
                     approver_id: approverId,  
                     approver_name: approverName,

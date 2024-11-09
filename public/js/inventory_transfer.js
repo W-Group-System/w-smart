@@ -578,7 +578,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const approvals = Array.from(document.querySelectorAll("#approversTable tbody tr")).map((row) => {
             const approverIdField = row.querySelector("input[id^='userIdInput']");
             const approverId = approverIdField ? approverIdField.value : null;
-            const approverName = row.querySelector("input[id^='userSearchInput']").value;
+            const approverName = row.querySelector("td[id^='approver']").textContent.trim();
             const hierarchy = row.querySelector(".hierarchy-input").textContent.trim();
     
             return {
@@ -587,7 +587,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 hierarchy: parseInt(hierarchy)
             };
         });
-        console.log(items)
         if (items.length === 0) {
             alert("Please add at least one valid item before submitting.");
             return;
@@ -1060,7 +1059,7 @@ document.addEventListener("DOMContentLoaded", function () {
     let selectedApprovers = new Set();
     let fetchedRoles = [];
 
-    document.getElementById("approverDropdown").addEventListener("click", function () {
+    /*document.getElementById("approverDropdown").addEventListener("click", function () {
         const dropdownMenu = document.getElementById("approverDropdownMenu");
     
         if (dropdownMenu.style.display === "none") {
@@ -1086,7 +1085,7 @@ document.addEventListener("DOMContentLoaded", function () {
         } else {
             dropdownMenu.style.display = "none";
         }
-    });
+    });*/
 
     function populateDropdownMenu(roles) {
         const dropdownMenu = document.getElementById("approverDropdownMenu");
@@ -1211,4 +1210,27 @@ document.addEventListener("DOMContentLoaded", function () {
             row.dataset.maxQty = convertedQty;
         });
     }
+
+    function populateApprover() {
+        const id = document.getElementById("transferFrom").value;
+        axios
+            .get(`/api/inventory/approvers/${id}`)
+            .then((response) => {
+                document.getElementById("approver1").textContent = response.data.data[0].name
+                document.getElementById("userRoleInput1").textContent = response.data.data[0].role
+                document.getElementById("userIdInput1").value = response.data.data[0].uid
+                document.getElementById("approver2").textContent = response.data.data[1].name
+                document.getElementById("userRoleInput2").textContent = response.data.data[1].role
+                document.getElementById("userIdInput2").value = response.data.data[1].uid
+            })
+            .catch((error) => {
+                console.error("Error fetching item details:", error);
+                alert("An error occurred while fetching item details.");
+            });
+    }
+
+    document.getElementById("requestTransferOpen").addEventListener("click", function () {
+        populateApprover();
+    });
+
 });
