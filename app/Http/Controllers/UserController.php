@@ -87,7 +87,7 @@ class UserController extends Controller
             ], 500);
         }
     }
-    public function updateUser(Request $request, $id)
+    public function updateUser(Request $request)
     {
 
         // Validate incoming request data
