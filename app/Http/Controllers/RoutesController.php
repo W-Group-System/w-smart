@@ -53,4 +53,8 @@ class RoutesController extends Controller
     {
         return view('equipment_disposal');
     }
+    public function userManagement()
+    {
+        return view('user_management');
+    }
 }

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\User;
 use App\Role;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
@@ -85,5 +86,65 @@ class UserController extends Controller
                 'error' => $e->getMessage(),
             ], 500);
         }
+    }
+    public function updateUser(Request $request, $id)
+    {
+
+        // Validate incoming request data
+/*        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|max:255|unique:users,email,' . $id,
+            'password' => 'nullable|string|min:8|confirmed', 
+            'subsidiary' => 'required|string|max:255', 
+            'subsidiaryid' => 'required|string|max:255', 
+        ]);*/
+
+        // Find the user by ID
+        $user = User::where('email', $request->email)->first();
+        if (!$user) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'User not found.'
+            ], 404);
+        }
+
+        // Update the user's details
+        $user->name = $request->input('name');
+        $user->email = $request->input('email');
+        $user->subsidiary = $request->input('subsidiary');
+        $user->subsidiaryid = $request->input('subsidiaryid');
+
+        if ($request->has('password') && $request->input('password') !== null) {
+            $user->password = Hash::make($request->input('password'));
+        }
+
+        // Save the updated user
+        $user->save();
+
+        // Return a success response with the updated user data
+        return response()->json([
+            'status' => 'success',
+            'message' => 'User updated successfully.',
+        ]);
+    }
+
+    public function deleteUser(Request $request)
+    {
+        $user = User::where('email', $request->email)->first();
+        if (!$user) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'User not found.'
+            ], 404);
+        }
+
+        // Delete the user
+        $user->delete();
+
+        // Return a success response
+        return response()->json([
+            'status' => 'success',
+            'message' => 'User deleted successfully.'
+        ]);
     }
 }

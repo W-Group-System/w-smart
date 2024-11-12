@@ -12,6 +12,11 @@ use Illuminate\Http\Request;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
+//Users
+Route::post('register', 'Auth\RegisterController@register')->name('register');
+Route::post('edit-user', 'UserController@updateUser')->name('edit-user');
+Route::post('delete-user', 'UserController@deleteUser')->name('delete-user');
+
 
 //roles and permissions
 Route::get('permissions', 'PermissionController@index')->name('permissions');
