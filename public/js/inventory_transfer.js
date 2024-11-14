@@ -435,6 +435,16 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
+    function updateDateTime() {
+        const now = new Date();
+        const utcTime = now.getTime() + (now.getTimezoneOffset() * 60000);
+        const philippineTime = new Date(utcTime + (8 * 60 * 60 * 1000));
+        const formattedDateTime = `${philippineTime.toISOString().split("T")[0]} ${philippineTime.toTimeString().split(' ')[0]}`;
+        
+        // Update the dateCreated input field
+        document.getElementById("transactionDate").value = formattedDateTime;
+    }
+
     transferFrom.addEventListener("change", updateTransferToOptions);
     updateTransferToOptions();
     const transactionDateInput = document.getElementById("transactionDate");
@@ -442,8 +452,8 @@ document.addEventListener("DOMContentLoaded", function () {
     const today = new Date().toISOString().split("T")[0].replace(/-/g, "");
 
     const now = new Date();
-    const formattedDateTime = now.toISOString().split("T")[0] + ' ' + now.toTimeString().split(' ')[0];
-    transactionDateInput.value = formattedDateTime;
+    updateDateTime();
+    setInterval(updateDateTime, 100);
 
     const timePart = now.toTimeString().split(' ')[0].replace(/:/g, '').substring(0, 6);
 

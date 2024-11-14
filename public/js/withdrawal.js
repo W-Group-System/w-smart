@@ -461,17 +461,27 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
+    function updateDateTime() {
+        const now = new Date();
+        const utcTime = now.getTime() + (now.getTimezoneOffset() * 60000);
+        const philippineTime = new Date(utcTime + (8 * 60 * 60 * 1000));
+        const formattedDateTime = `${philippineTime.toISOString().split("T")[0]} ${philippineTime.toTimeString().split(' ')[0]}`;
+        
+        // Update the dateCreated input field
+        document.getElementById("withdrawalDate").value = formattedDateTime;
+    }
+
     document.getElementById('addWithdraw').addEventListener('click', (e) => {
         e.preventDefault();
         const withdrawalModal = new bootstrap.Modal(document.getElementById("inventoryWithdrawalModal"));
         withdrawalModal.show();
         
-        const today = new Date().toISOString().split('T')[0];
         const userId = document.getElementById('userId').value;
         const userName = document.getElementById('userName').value;
         const subsidiary = document.getElementById('usersubsidiary').value;
         const subsidiaryid = document.getElementById('usersubsidiaryid').value;
-        document.getElementById('withdrawalDate').value = today;
+        updateDateTime();
+        setInterval(updateDateTime, 100);
         document.getElementById('requestNumber').value = generateItemCode();
         document.getElementById('requestName').value = userName;
         document.getElementById('subsidiary').value = subsidiary;
@@ -782,31 +792,44 @@ document.addEventListener("DOMContentLoaded", function () {
         document.getElementById("remarks").value = "";
     }
 
-    searchInput.addEventListener("input", function (e) {
-        const searchTerm = this.value;
-        const url = `/api/search-withdrawal?page=${currentPage}&per_page=${rowsPerPage}`;
-
-        // Ensure you get the actual value of userId
-        const requestBody = {
-            id: userId.value,
-            search: searchTerm, 
-            subsidiaryid: subsidiary_id
+    function debounce(func, delay) {
+        let timer;
+        return function(...args) {
+            clearTimeout(timer);
+            timer = setTimeout(() => {
+                func.apply(this, args);
+            }, delay);
         };
+    }
 
-        axios
-            .post(url, requestBody)
-            .then((response) => {
-                if (response.data.status === "success") {
-                    renderTable(response.data.data, response.data.pagination.total_items);
-                    updatePagination(response.data.pagination);
-                } else {
-                    console.error("Failed to fetch withdraws:", response.data.message);
-                }
-            })
-            .catch((error) => {
-                console.error("Error fetching withdraws:", error);
-            });
-    });
+
+    if(searchInput) {
+        searchInput.addEventListener("input", debounce(function () {
+            const searchTerm = this.value;
+            const url = `/api/search-withdrawal?page=${currentPage}&per_page=${rowsPerPage}`;
+    
+            // Ensure you get the actual value of userId
+            const requestBody = {
+                id: userId.value,
+                search: searchTerm, 
+                subsidiaryid: subsidiary_id
+            };
+    
+            axios
+                .post(url, requestBody)
+                .then((response) => {
+                    if (response.data.status === "success") {
+                        renderTable(response.data.data, response.data.pagination.total_items);
+                        updatePagination(response.data.pagination);
+                    } else {
+                        console.error("Failed to fetch withdraws:", response.data.message);
+                    }
+                })
+                .catch((error) => {
+                    console.error("Error fetching withdraws:", error);
+                });
+        }, 1000));   
+    }
 
     const userSearchInputField = document.getElementById("userSearchInput");
     if (userSearchInputField) {

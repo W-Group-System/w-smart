@@ -363,11 +363,23 @@ document.addEventListener("DOMContentLoaded", function () {
             });
         });
     }
+
+    function debounce(func, delay) {
+        let timer;
+        return function(...args) {
+            clearTimeout(timer);
+            timer = setTimeout(() => {
+                func.apply(this, args);
+            }, delay);
+        };
+    }
+
+
     if(searchInput) {
-        searchInput.addEventListener("input", function () {
+        searchInput.addEventListener("input", debounce(function () {
             const searchTerm = this.value;
             determineFetchFunction(searchTerm);
-        });   
+        }, 1000));   
     }
 
     document

@@ -735,7 +735,17 @@ document.addEventListener("DOMContentLoaded", function () {
         document.getElementById("returnRemarks").value = "";
     }
 
-    searchInput.addEventListener("input", function (e) {
+    function debounce(func, delay) {
+        let timer;
+        return function(...args) {
+            clearTimeout(timer);
+            timer = setTimeout(() => {
+                func.apply(this, args);
+            }, delay);
+        };
+    }
+
+    searchInput.addEventListener("input", debounce(function (e) {
         const searchTerm = this.value;
         if (!searchTerm) {
         	fetchReturn();
@@ -764,7 +774,7 @@ document.addEventListener("DOMContentLoaded", function () {
         	    });	
         }
         
-    });
+    }, 1000));
 
     const userSearchInputField = document.getElementById("returnUserSearchInput");
     if (userSearchInputField) {
