@@ -576,7 +576,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 e.preventDefault();
                 const descriptionInput =
                     document.getElementById("newItemDescription");
-
                 if (!descriptionInput.value.trim()) {
                     alert("Item Description cannot be empty or whitespace only.");
                     descriptionInput.focus();
@@ -637,8 +636,101 @@ document.addEventListener("DOMContentLoaded", function () {
                     });
             });
         }
-});
+        document.getElementById("viewTable").addEventListener("click", async function () {
+            const pathOnly = window.location.pathname;
+            if(pathOnly === "/inventory/list") {
+                fetch(`/api/inventory/transfer`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        start_date: startDateInput.value,
+                        end_date: endDateInput.value,
+                        subsidiaryid: subsidiary.value,
+                        per_page: rowsPerPage,
+                    }),
+                })
+                .then((response) => response.json())
+                .then((data) => {  
+                    if (data.status === "success") {
+                        const tableBody = document.getElementById("transferItemList");
+                        tableBody.innerHTML = "";
+                        data.data.forEach((item) => {
+                            const row = document.createElement("tr");
+                            row.innerHTML = `
+                                <td>${item.transact_id}</td>
+                                <td>${item.created_at}</td>
+                                <td>${item.item_code}</td>
+                                <td>${item.item_description}</td>
+                                <td>${item.item_category}</td>
+                                <td>${item.uomp}</td>
+                                <td>${item.released_qty}</td>
+                                <td>${item.requester_name}</td>
+                                <td>${item.status}</td>
+                            `;
+                            tableBody.appendChild(row);
+                        });  
+                    } else {
+                        console.error("Failed to fetch inventory:", data.message);
+                    }
+                })
+                .catch((error) => {
+                    console.error("Error fetching inventory:", error);
+                });
+                $('#tableModal').modal('show');
+            }
+        });
 
+        document.getElementById("viewTable2").addEventListener("click", async function () {
+            const pathOnly = window.location.pathname;
+            if(pathOnly === "/inventory/list") {
+                fetch(`/api/inventory/withdraw`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        start_date: startDateInput.value,
+                        end_date: endDateInput.value,
+                        subsidiaryid: subsidiary.value,
+                        per_page: rowsPerPage,
+                    }),
+                })
+                .then((response) => response.json())
+                .then((data) => {  
+                    if (data.status === "success") {
+                        const tableBody = document.getElementById("transferItemList");
+                        tableBody.innerHTML = "";
+                        data.data.forEach((item) => {
+                            const row = document.createElement("tr");
+                            row.innerHTML = `
+                                <td>${item.request_number}</td>
+                                <td>${item.created_at}</td>
+                                <td>${item.item_code}</td>
+                                <td>${item.item_description}</td>
+                                <td>${item.category}</td>
+                                <td>${item.uomp}</td>
+                                <td>${item.released_qty}</td>
+                                <td>${item.requestor_name}</td>
+                                <td>${item.status <= 1 ? "For Approval" : item.status === 2 ? "Transaction Close" : item.status === 4 ? "Decline" : item.status === 5 ? "Not Received" : "Item Returned"}</td>
+                            `;
+                            tableBody.appendChild(row);
+                        });  
+                    } else {
+                        console.error("Failed to fetch inventory:", data.message);
+                    }
+                })
+                .catch((error) => {
+                    console.error("Error fetching inventory:", error);
+                });
+                $('#tableModal').modal('show');
+            }
+        });
+});
+function CloseModal() {
+    $('#tableModal').modal('hide'); // Close the modal
+}
 document.addEventListener("DOMContentLoaded", async function () {
     const primaryUOMSelect = document.getElementById("newPrimaryUOM");
     const secondaryUOMSelect = document.getElementById("newSecondaryUOM");
@@ -745,6 +837,4 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     const initialPrimaryUOMs = await fetchUOMs('primary');
     updateDropdownOptions(primaryUOMSelect, initialPrimaryUOMs, 'primary');
-
-    
 });
