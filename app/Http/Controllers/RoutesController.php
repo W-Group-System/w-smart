@@ -57,4 +57,10 @@ class RoutesController extends Controller
     {
         return view('user_management');
     }
+    public function companyManagement()
+    {
+        return view('company');
+    }
+
+    
 }

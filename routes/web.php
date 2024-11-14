@@ -33,5 +33,6 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/settings/category', 'RoutesController@category')->name('category');
     Route::get('/settings/uom', 'RoutesController@uom')->name('settings.uom');
     Route::get('/settings/users', 'RoutesController@userManagement')->name('settings.users');
+    Route::get('/settings/company', 'RoutesController@companyManagement')->name('settings.company');
 
 });

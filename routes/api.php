@@ -17,6 +17,9 @@ Route::post('register', 'Auth\RegisterController@register')->name('register');
 Route::post('edit-user', 'UserController@updateUser')->name('edit-user');
 Route::post('delete-user', 'UserController@deleteUser')->name('delete-user');
 
+//Subsidiary
+Route::post('create-company', 'CompanyController@createCompany')->name('create-company');
+Route::get('company', 'CompanyController@index')->name('company');
 
 //roles and permissions
 Route::get('permissions', 'PermissionController@index')->name('permissions');
