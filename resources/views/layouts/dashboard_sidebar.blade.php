@@ -106,10 +106,13 @@
             </a>
             <ul id="settingsSubmenu" class="collapse submenu {{ request()->is('settings*') ? 'show' : '' }}">
                 <li class="nav-item dashboard-list" id="company-item" style="display: none;">
-                    <a class="nav-link {{ request()->is('settings/company') ? 'submenu-active' : '' }}" href="#">Company</a>
+                    <a class="nav-link {{ request()->is('settings/company') ? 'submenu-active' : '' }}" href="{{ route('settings.company') }}">Company</a>
                 </li>
                 <li class="nav-item dashboard-list" id="department-item" style="display: none;">
                     <a class="nav-link {{ request()->is('settings/department') ? 'submenu-active' : '' }}" href="#">Department</a>
+                </li>
+                <li class="nav-item dashboard-list" id="user-item">
+                    <a class="nav-link {{ request()->is('settings/users') ? 'submenu-active' : '' }}" href="{{ route('settings.users') }}">User Management</a>
                 </li>
                 <li class="nav-item dashboard-list" id="role-item" style="display: none;">
                     <a class="nav-link {{ request()->is('settings/roles') ? 'submenu-active' : '' }}" href="{{ route('settings.roles') }}">Role</a>

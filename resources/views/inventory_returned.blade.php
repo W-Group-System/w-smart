@@ -57,8 +57,8 @@
                     <option value="7">WGC</option>
                 </select> -->
                 <a href="#" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#inventoryWithdrawalModal" id="addWithdraw"
-                    style="height: 35px; padding: 0 15px; display: flex; align-items: center; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); font-size: 14px;">
-                    Inventory Return
+                   style="display: none; height: 35px; padding: 0 15px; flex; align-items: center; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); font-size: 14px;">
+                   Inventory Return
                 </a>
             </div>
 
@@ -143,13 +143,13 @@
     </div>
 </div>
 
-<!-- Withdrawal Modal -->
+<!-- Return Modal -->
 <div class="modal fade" id="inventoryWithdrawalModal" tabindex="-1" aria-labelledby="inventoryWithdrawalModalLabel"
     aria-hidden="true">
     <div class="modal-dialog modal-xl">
         <div class="modal-content" style="padding: 20px;">
             <div class="modal-header">
-                <h5 class="modal-title" id="inventoryWithdrawalModalLabel">Inventory Withdrawal</h5>
+                <h5 class="modal-title" id="inventoryWithdrawalModalLabel">Inventory Return</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body p-2">
@@ -179,7 +179,7 @@
 
                     <div class="table-responsive mb-3">
                         <!-- Button to add a new row -->
-                        <button type="button" class="btn btn-link text-secondary fw-bold" id="addRowBtn"
+                        <button type="button" class="btn btn-link text-secondary fw-bold" id="returnAddRowBtn"
                             style="font-size: 14px;">
                             + Add More Item
                         </button>
@@ -195,7 +195,7 @@
                                     <th>Reason</th>
                                 </tr>
                             </thead>
-                            <tbody id="itemTableBody">
+                            <tbody id="returnItemTableBody">
                                 <tr>
                                     <div style="position: relative;">
                                     <td contenteditable="false">
@@ -270,7 +270,7 @@
                     <!-- Action Section -->
                     <div class="row g-2 align-items-end mb-3">
                         <div class="col-md-12 d-flex justify-content-end">
-                            <button type="button" class="btn btn-success btn-lg" id="submitRequestWithdraw" disabled
+                            <button type="button" class="btn btn-success btn-lg" id="submitRequestReturn" disabled
                                 style="background-color: #28a745; color: white; border: 1px solid #28a745; padding: 10px 20px;">
                                 Submit
                             </button>

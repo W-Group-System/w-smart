@@ -2,7 +2,7 @@
 
 @section('dashboard_content')
 <div class="container-fluid">
-    <h4 class="mb-4 mt-4">Role and Feature Management</h4>
+    <h4 class="mb-4 mt-4">Category Management</h4>
 
     <div class="mb-4">
         <button class="btn btn-primary" id="newCategory">Create Category</button>

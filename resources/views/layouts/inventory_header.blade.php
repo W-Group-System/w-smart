@@ -59,7 +59,7 @@
                         </h6>
                         <h3 class="card-text fw-bold mb-0">0</h3>
                     </div>
-                    <a href="#" class="btn btn-primary btn-sm" style="min-width: 110px; border-radius: 7px;">View
+                    <a href="#" id="viewTable" class="btn btn-primary btn-sm" style="min-width: 110px; border-radius: 7px;">View
                         All</a>
                 </div>
             </div>
@@ -78,7 +78,7 @@
                         </h6>
                         <h3 class="card-text fw-bold mb-0">0</h3>
                     </div>
-                    <a href="#" class="btn btn-primary btn-sm" style="min-width: 110px; border-radius: 7px;">View
+                    <a href="#" id="viewTable2" class="btn btn-primary btn-sm" style="min-width: 110px; border-radius: 7px;">View
                         All</a>
                 </div>
             </div>
