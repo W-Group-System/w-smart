@@ -732,36 +732,39 @@ document.addEventListener("DOMContentLoaded", function () {
 
         document.getElementById("remarks").value = "";
     }
+    
+    let searchTimeout;
 
-    searchInput.addEventListener("input", function (e) {
-        const searchTerm = this.value;
-        if (!searchTerm) {
-        	fetchReturn();
-        }
-        else {
-        	const url = `/api/search-return?page=${currentPage}&per_page=${rowsPerPage}`;
+    searchInput.addEventListener("input", function () {
+        const searchTerm = this.value.trim();
+        clearTimeout(searchTimeout);
 
-        	const requestBody = {
-        	    id: userId.value,
-        	    search: searchTerm, 
-        	    subsidiaryid: subsidiary_id
-        	};
+        searchTimeout = setTimeout(() => {
+            if (!searchTerm) {
+                fetchReturn(currentPage); 
+            } else {
+                const url = `/api/search-return?page=${currentPage}&per_page=${rowsPerPage}`;
+                const requestBody = {
+                    id: userId.value,
+                    search: searchTerm,
+                    subsidiaryid: subsidiary_id
+                };
 
-        	axios
-        	    .post(url, requestBody)
-        	    .then((response) => {
-        	        if (response.data.status === "success") {
-        	            renderTable(response.data.data, response.data.pagination.total_items);
-        	            updatePagination(response.data.pagination);
-        	        } else {
-        	            console.error("Failed to fetch withdraws:", response.data.message);
-        	        }
-        	    })
-        	    .catch((error) => {
-        	        console.error("Error fetching withdraws:", error);
-        	    });	
-        }
-        
+                axios
+                    .post(url, requestBody)
+                    .then((response) => {
+                        if (response.data.status === "success") {
+                            renderTable(response.data.data, response.data.pagination.total_items);
+                            updatePagination(response.data.pagination);
+                        } else {
+                            console.error("Failed to fetch returns:", response.data.message);
+                        }
+                    })
+                    .catch((error) => {
+                        console.error("Error fetching returns:", error);
+                    });
+            }
+        }, 2000); 
     });
 
     const userSearchInputField = document.getElementById("userSearchInput");

@@ -702,30 +702,34 @@ document.addEventListener("DOMContentLoaded", function () {
         document.getElementById("remarks").value = "";
     }
 
+    let searchTimeout
+
     searchInput.addEventListener("input", function (e) {
         const searchTerm = this.value;
-        const url = `/api/search-withdrawal?page=${currentPage}&per_page=${rowsPerPage}`;
+        clearTimeout(searchTimeout);
+        
+        searchTimeout = setTimeout(() => {
+            const url = `/api/search-withdrawal?page=${currentPage}&per_page=${rowsPerPage}`;
+            const requestBody = {
+                id: userId.value,
+                search: searchTerm,
+                subsidiaryid: subsidiary_id,
+            };
 
-        // Ensure you get the actual value of userId
-        const requestBody = {
-            id: userId.value,
-            search: searchTerm, 
-            subsidiaryid: subsidiary_id
-        };
-
-        axios
-            .post(url, requestBody)
-            .then((response) => {
-                if (response.data.status === "success") {
-                    renderTable(response.data.data, response.data.pagination.total_items);
-                    updatePagination(response.data.pagination);
-                } else {
-                    console.error("Failed to fetch withdraws:", response.data.message);
-                }
-            })
-            .catch((error) => {
-                console.error("Error fetching withdraws:", error);
-            });
+            axios
+                .post(url, requestBody)
+                .then((response) => {
+                    if (response.data.status === "success") {
+                        renderTable(response.data.data, response.data.pagination.total_items);
+                        updatePagination(response.data.pagination);
+                    } else {
+                        console.error("Failed to fetch withdraws:", response.data.message);
+                    }
+                })
+                .catch((error) => {
+                    console.error("Error fetching withdraws:", error);
+                });
+        }, 2000);
     });
 
     const userSearchInputField = document.getElementById("userSearchInput");

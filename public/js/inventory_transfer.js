@@ -2,35 +2,41 @@ document.addEventListener("DOMContentLoaded", function () {
     const submitButton = document.getElementById("submitRequestTransfer");
     const pagination = document.querySelector("ul.pagination");
     let currentPage = 1;
+    let fetchTransferTimeout;
 
     window.fetchTransfer = function (page, search) {
         const rowsPerPage = parseInt(document.querySelector("select.form-select-sm").value, 10) || 10;
-        const url = `/api/inventory/transfer?page=${page}&per_page=${rowsPerPage}`;
-        const startDateInput = document.getElementById("start-date");
-        const endDateInput = document.getElementById("end-date");
-        const subsidiary = document.getElementById("subsidiary");
 
-        const requestBody = {
-            start_date: startDateInput.value,
-            end_date: endDateInput.value,
-            subsidiaryid: subsidiary.value,
-            search: search,
-            sort: 'desc'
-        };
+        clearTimeout(fetchTransferTimeout);
 
-        axios
-            .post(url, requestBody)
-            .then((response) => {
-                if (response.data.status === "success") {
-                    initializeDynamicTable(response.data.data, response.data.pagination.total_items);
-                    updatePagination(response.data.pagination);
-                } else {
-                    console.error("Failed to fetch transfers:", response.data.message);
-                }
-            })
-            .catch((error) => {
-                console.error("Error fetching transfers:", error);
-            });
+        fetchTransferTimeout = setTimeout(() => {
+            const url = `/api/inventory/transfer?page=${page}&per_page=${rowsPerPage}`;
+            const startDateInput = document.getElementById("start-date");
+            const endDateInput = document.getElementById("end-date");
+            const subsidiary = document.getElementById("subsidiary");
+
+            const requestBody = {
+                start_date: startDateInput.value,
+                end_date: endDateInput.value,
+                subsidiaryid: subsidiary.value,
+                search: search,
+                sort: 'desc'
+            };
+
+            axios
+                .post(url, requestBody)
+                .then((response) => {
+                    if (response.data.status === "success") {
+                        initializeDynamicTable(response.data.data, response.data.pagination.total_items);
+                        updatePagination(response.data.pagination);
+                    } else {
+                        console.error("Failed to fetch transfers:", response.data.message);
+                    }
+                })
+                .catch((error) => {
+                    console.error("Error fetching transfers:", error);
+                });
+        }, 2000); 
     };
 
     function initializeDynamicTable(transferData, totalItems) {

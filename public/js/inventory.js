@@ -98,16 +98,22 @@ document.addEventListener("DOMContentLoaded", function () {
         document.getElementById("newItemCode").value = `${categoryCode}-${subcategoryCode}-${formattedItemCode}`;
     }
 
-    function determineFetchFunction(search) {
-        const isTransferRoute = window.location.pathname.includes(
-            "/inventory/transfer"
-        );
+    let determineFetchTimer;
 
-        if (isTransferRoute) {
-            fetchTransfer(currentPage);
-        } else {
-            fetchInventory(currentPage, search);
-        }
+    function determineFetchFunction(search) {
+        clearTimeout(determineFetchTimer); 
+    
+        determineFetchTimer = setTimeout(() => {
+            const isTransferRoute = window.location.pathname.includes(
+                "/inventory/transfer"
+            );
+    
+            if (isTransferRoute) {
+                fetchTransfer(currentPage);
+            } else {
+                fetchInventory(currentPage, search);
+            }
+        }, 2000); 
     }
 
     determineFetchFunction();
