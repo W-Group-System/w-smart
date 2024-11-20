@@ -2022,4 +2022,158 @@ class InventoryController extends Controller
             ], 500); 
         }
     }
+
+    public function fetchTransfersByStatus(Request $request)
+    {
+        try {
+            $startDate = $request->start_date;
+            $endDate = $request->end_date;
+            $subsidiaryid = $request->subsidiaryid;
+            $status = $request->status;
+            $perPage = $request->get('per_page', 10);
+
+            $subsidiary = Subsidiary::where('subsidiary_id', $subsidiaryid)->first();
+            $query = Transfer::query();
+
+            $query->leftJoin('approvals', function($join) {
+                $join->on('transfers.transfer_id', '=', 'approvals.process_id')
+                    ->where('approvals.process', '=', 'transfer')
+                    ->whereColumn('transfers.hierarchy', '=', 'approvals.hierarchy');
+            })
+            ->select('transfers.*', 'approvals.approver_id', 'approvals.approver_name');
+            
+            if ($startDate && $endDate) {
+                $query->whereBetween('transfers.created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59']);
+            }
+            
+            if ($subsidiary) {
+                $query->where('transfers.transfer_to', $subsidiary->subsidiary_name);
+            } else {
+                Log::warning("No subsidiary found for ID: {$subsidiaryid}");
+            }
+            $query->where('transfers.status', $status);
+            $query->orderBy('transfers.created_at', 'desc');
+
+            Log::info('Executing Transfer Query:', [
+                'query' => $query->toSql(),
+                'bindings' => $query->getBindings(),
+            ]);
+
+            $transfers = $query->paginate($perPage);
+
+            return response()->json([
+                'status' => 'success',
+                'data' => $transfers->items(),
+                'pagination' => [
+                    'current_page' => $transfers->currentPage(),
+                    'total_pages' => $transfers->lastPage(),
+                    'total_items' => $transfers->total(),
+                    'per_page' => $transfers->perPage(),
+                ]
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to fetch transfer records.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+    public function fetchWithdrawByStatus(Request $request)
+    {
+        try {
+            $startDate = $request->start_date;
+            $endDate = $request->end_date;
+            $subsidiaryid = $request->subsidiaryid;
+            $status = $request->status;
+            $perPage = $request->get('per_page', 10);
+            Log::info('Fetching withdrawals with parameters:', [
+                'start_date' => $startDate,
+                'end_date' => $endDate,
+                'subsidiary_id' => $subsidiaryid,
+                'status' => $status,
+                'per_page' => $perPage,
+            ]);
+
+            // Check if subsidiary exists
+            $subsidiary = Subsidiary::where('subsidiary_name', $subsidiaryid)->first();
+            if (!$subsidiary) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Invalid subsidiary ID provided.',
+                ], 400);
+            }
+
+            // Initialize query
+            $withdrawQuery = Withdrawal::query()
+                ->join('withdrawal_items', 'withdrawals.id', '=', 'withdrawal_items.withdrawal_id')
+                ->leftJoin('approvals', function ($join) use ($status) {
+                    $join->on('withdrawal_items.id', '=', 'approvals.process_id')
+                         ->where('approvals.process', '=', 'withdraw')
+                         ->whereColumn('withdrawal_items.hierarchy', '=', 'approvals.hierarchy');
+                })
+                ->select(
+                    'withdrawals.id as withdrawal_id',
+                    'withdrawals.request_number as transact_id',
+                    'withdrawals.created_at as created_at',
+                    'withdrawals.updated_at as withdrawal_updated_at',
+                    'withdrawals.requestor_name as requester_name',
+                    'withdrawal_items.category as item_category',
+                    'withdrawal_items.uomp as uomp',
+                    'withdrawal_items.released_qty as released_qty',
+                    'withdrawal_items.status as status',
+                    'withdrawals.subsidiaryid',
+                    'withdrawal_items.id as item_id',
+                    'withdrawal_items.item_code',
+                    'withdrawal_items.item_description',
+                    'withdrawal_items.status as item_status',
+                    'approvals.approver_id',
+                    'approvals.approver_name'
+                );
+
+            // Apply filters
+            if ($startDate && $endDate) {
+                $withdrawQuery->whereBetween('withdrawals.created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59']);
+            }
+
+            if ($subsidiaryid) {
+                $withdrawQuery->where('withdrawals.subsidiaryid', $subsidiary->subsidiary_id);
+            }
+
+            if (!$status) {
+                $withdrawQuery->where('withdrawal_items.status', '>', 1);
+            }
+            else {
+                $withdrawQuery->where('withdrawal_items.status', $status);    
+            }
+            
+            $withdrawQueryResult = $withdrawQuery->orderBy('withdrawals.updated_at', 'desc')->paginate($perPage);
+
+            Log::info('Withdrawal query executed:', [
+                'query' => $withdrawQuery->toSql(),
+                'bindings' => $withdrawQuery->getBindings(),
+            ]);
+
+            return response()->json([
+                'status' => 'success',
+                'data' => $withdrawQueryResult->items(),
+                'pagination' => [
+                    'current_page' => $withdrawQueryResult->currentPage(),
+                    'total_pages' => $withdrawQueryResult->lastPage(),
+                    'total_items' => $withdrawQueryResult->total(),
+                    'per_page' => $withdrawQueryResult->perPage(),
+                ]
+            ], 200);
+
+        } catch (\Exception $e) {
+            Log::error('Error fetching withdrawal records:', ['error' => $e->getMessage()]);
+
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to fetch withdrawal records.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
 }

@@ -345,6 +345,44 @@
                     </tbody>
                 </table>
             </div>
+            <!-- <hr style="border-top: 1px solid #ddd; margin-top: 10px; margin-bottom: 10px; margin-left: 10px; margin-right: 10px;">
+
+            <div class="d-flex justify-content-between align-items-center mt-3 border-top pt-3">
+                <div class="d-flex align-items-center">
+                    <span>Rows per page:</span>
+                    <select class="form-select form-select-sm ms-2" style="width: auto; border-radius: 5px;">
+                        <option value="5">5</option>
+                        <option value="10">10</option>
+                        <option value="20">20</option>
+                    </select>
+                </div>
+                <div class="d-flex align-items-center">
+                    <span class="dynamic-rows-info me-3">1-5 of 13</span>
+                    <nav aria-label="Page navigation">
+                        <ul class="pagination pagination-sm mb-0">
+                            <li class="page-item disabled">
+                                <a class="page-link" href="#" aria-label="Previous" tabindex="-1">
+                                    <span aria-hidden="true">&laquo;</span>
+                                </a>
+                            </li>
+                            <li class="page-item active">
+                                <a class="page-link" href="#">1</a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="#">2</a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="#">3</a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="#" aria-label="Next">
+                                    <span aria-hidden="true">&raquo;</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+            </div> -->
             <div class="modal-footer">
                 <button type="button" onclick="CloseModal()" class="btn btn-secondary" data-dismiss="modal">Close</button>
             </div>

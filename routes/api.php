@@ -45,6 +45,7 @@ Route::post('inventory/transfer/decline/{transactId}', 'InventoryController@decl
 Route::post('inventory/transfer', 'InventoryController@fetchTransfers')->name('inventory.transfer.fetch');
 Route::get('inventory/search-item', 'InventoryController@searchItem')->name('inventory.search-item');
 Route::post('inventory/suggestions', 'InventoryController@getInventorySuggestions')->name('inventory.suggestions');
+Route::post('inventory/transfer/bystatus', 'InventoryController@fetchTransfersByStatus')->name('inventory.transfer.bystatus');
 
 //inventory-withdraw
 Route::post('inventory/withdraw', 'InventoryController@fetchWithdraw')->name('inventory.withdraw.fetch');
@@ -52,6 +53,7 @@ Route::post('search-withdrawal', 'InventoryController@searchWithdrawal')->name('
 Route::post('inventory/withdraw/request', 'InventoryController@requestWithdraw')->name('inventory.withdraw.request');
 Route::post('inventory/withdraw/approve/{id}', 'InventoryController@approveWithdraw')->name('inventory.withdraw.approve');
 Route::post('inventory/withdraw/decline/{id}', 'InventoryController@declineWithdraw')->name('inventory.withdraw.decline');
+Route::post('inventory/withdraw/bystatus', 'InventoryController@fetchWithdrawByStatus')->name('inventory.withdraw.bystatus');
 
 //inventory-categories
 Route::get('inventory/categories', 'InventoryController@getCategory')->name('inventory.categories');

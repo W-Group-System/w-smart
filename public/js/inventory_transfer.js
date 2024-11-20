@@ -1,6 +1,9 @@
 document.addEventListener("DOMContentLoaded", function () {
     const submitButton = document.getElementById("submitRequestTransfer");
     const pagination = document.querySelector("ul.pagination");
+    const startDateInput = document.getElementById("start-date");
+    const endDateInput = document.getElementById("end-date");
+    const subsidiary = document.getElementById("subsidiary");
     let currentPage = 1;
     let fetchTransferTimeout;
 
@@ -11,9 +14,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         fetchTransferTimeout = setTimeout(() => {
             const url = `/api/inventory/transfer?page=${page}&per_page=${rowsPerPage}`;
-            const startDateInput = document.getElementById("start-date");
-            const endDateInput = document.getElementById("end-date");
-            const subsidiary = document.getElementById("subsidiary");
+
 
             const requestBody = {
                 start_date: startDateInput.value,
@@ -1243,6 +1244,103 @@ document.addEventListener("DOMContentLoaded", function () {
                 alert("An error occurred while fetching item details.");
             });
     }
+
+    document.getElementById("viewTable").addEventListener("click", async function () {
+        const pathOnly = window.location.pathname;
+        document.getElementById("tableTransferModalLabel").innerText = "Pending Transfer Item List"
+        if(pathOnly === "/inventory/transfer") {
+            fetch(`/api/inventory/transfer/bystatus`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    start_date: startDateInput.value,
+                    end_date: endDateInput.value,
+                    subsidiaryid: subsidiary.value,
+                    status: "Pending"
+                }),
+            })
+            .then((response) => response.json())
+            .then((data) => {  
+                if (data.status === "success") {
+                    const tableBody = document.getElementById("transferItemList");
+                    tableBody.innerHTML = "";
+                    data.data.forEach((item) => {
+                        const row = document.createElement("tr");
+                        row.innerHTML = `
+                            <td>${item.transact_id}</td>
+                            <td>${item.created_at}</td>
+                            <td>${item.item_code}</td>
+                            <td>${item.item_description}</td>
+                            <td>${item.item_category}</td>
+                            <td>${item.uomp}</td>
+                            <td>${item.released_qty}</td>
+                            <td>${item.requester_name}</td>
+                            <td>${item.status}</td>
+                        `;
+                        tableBody.appendChild(row);
+                    });  
+                } else {
+                    console.error("Failed to fetch inventory:", data.message);
+                }
+            })
+            .catch((error) => {
+                console.error("Error fetching inventory:", error);
+            });
+            $('#tableTransferModal').modal('show');
+        }
+    });
+
+    document.getElementById("viewTable2").addEventListener("click", async function () {
+        const pathOnly = window.location.pathname;
+        document.getElementById("tableTransferModalLabel").innerText = "Approve Transfer Item List"
+        if(pathOnly === "/inventory/transfer") {
+            fetch(`/api/inventory/transfer/bystatus`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    start_date: startDateInput.value,
+                    end_date: endDateInput.value,
+                    subsidiaryid: subsidiary.value,
+                    status: "Received"
+                }),
+            })
+            .then((response) => response.json())
+            .then((data) => {  
+                if (data.status === "success") {
+                    const tableBody = document.getElementById("transferItemList");
+                    tableBody.innerHTML = "";
+                    data.data.forEach((item) => {
+                        const row = document.createElement("tr");
+                        row.innerHTML = `
+                            <td>${item.transact_id}</td>
+                            <td>${item.created_at}</td>
+                            <td>${item.item_code}</td>
+                            <td>${item.item_description}</td>
+                            <td>${item.item_category}</td>
+                            <td>${item.uomp}</td>
+                            <td>${item.released_qty}</td>
+                            <td>${item.requester_name}</td>
+                            <td>${item.status}</td>
+                        `;
+                        tableBody.appendChild(row);
+                    });  
+                } else {
+                    console.error("Failed to fetch inventory:", data.message);
+                }
+            })
+            .catch((error) => {
+                console.error("Error fetching inventory:", error);
+            });
+            $('#tableTransferModal').modal('show');
+        }
+    });
+
+
+
 
     document.getElementById("requestTransferOpen").addEventListener("click", function () {
         populateApprover();

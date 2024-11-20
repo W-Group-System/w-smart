@@ -656,6 +656,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
         document.getElementById("viewTable").addEventListener("click", async function () {
             const pathOnly = window.location.pathname;
+            document.getElementById("tableModalLabel").innerText = "Transfer Item List"
             if(pathOnly === "/inventory/list") {
                 fetch(`/api/inventory/transfer`, {
                     method: "POST",
@@ -672,6 +673,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 .then((response) => response.json())
                 .then((data) => {  
                     if (data.status === "success") {
+                        updatePagination(data.pagination);
                         const tableBody = document.getElementById("transferItemList");
                         tableBody.innerHTML = "";
                         data.data.forEach((item) => {
@@ -702,6 +704,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         document.getElementById("viewTable2").addEventListener("click", async function () {
             const pathOnly = window.location.pathname;
+            document.getElementById("tableModalLabel").innerText = "Withdraw Item List"
             if(pathOnly === "/inventory/list") {
                 fetch(`/api/inventory/withdraw`, {
                     method: "POST",
@@ -748,6 +751,10 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 function CloseModal() {
     $('#tableModal').modal('hide'); // Close the modal
+}
+
+function CloseModalTransfer() {
+    $('#tableTransferModal').modal('hide'); // Close the modal
 }
 document.addEventListener("DOMContentLoaded", async function () {
     const primaryUOMSelect = document.getElementById("newPrimaryUOM");

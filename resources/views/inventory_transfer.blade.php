@@ -394,6 +394,42 @@
     </div>
 </div>
 
+<div class="modal fade" id="tableTransferModal" tabindex="-1" role="dialog" aria-labelledby="tableTransferModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="tableTransferModalLabel">Pending Transfer Item List</h5>
+                <button type="button" class="close" data-dismiss="modal" onclick="CloseModalTransfer()" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body table-responsive">
+                <table class="table table-hover table-bordered" style="border-collapse: collapse; min-width: 1000px;">
+                    <thead>
+                        <tr>
+                            <th>Transaction ID</th>
+                            <th>Date</th>
+                            <th>Item Code</th>
+                            <th>Item Description</th>
+                            <th>Item Category</th>
+                            <th>UOM</th>
+                            <th>Released QTY</th>
+                            <th>Requestor</th>
+                            <th>status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="transferItemList">
+                
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" onclick="CloseModalTransfer()" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <input type="hidden" id="userName" value="{{ auth()->user()->name }}">
 
 @endsection

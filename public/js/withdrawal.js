@@ -1618,6 +1618,109 @@ document.addEventListener("DOMContentLoaded", function () {
             });
     }
 
+    window.CloseModalWithdraw = function () {
+        $('#tableWithdrawModal').modal('hide');
+    };
+
+    document.getElementById("viewTable").addEventListener("click", async function () {
+        const pathOnly = window.location.pathname;
+        document.getElementById("tableWithdrawModalLabel").innerText = "Pending Transfer Item List"
+        if(pathOnly === "/inventory/withdrawal") {
+            fetch(`/api/inventory/withdraw/bystatus`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    start_date: startDateInput.value,
+                    end_date: endDateInput.value,
+                    subsidiaryid: subsidiary.value,
+                    status: 1
+                }),
+            })
+            .then((response) => response.json())
+            .then((data) => {  
+                console.log(data)
+                if (data.status === "success") {
+                    const tableBody = document.getElementById("withdrawItemList");
+                    tableBody.innerHTML = "";
+                    data.data.forEach((item) => {
+                        console.log(item)
+                        const row = document.createElement("tr");
+                        row.innerHTML = `
+                            <td>${item.transact_id}</td>
+                            <td>${item.created_at}</td>
+                            <td>${item.item_code}</td>
+                            <td>${item.item_description}</td>
+                            <td>${item.item_category}</td>
+                            <td>${item.uomp}</td>
+                            <td>${item.released_qty}</td>
+                            <td>${item.requester_name}</td>
+                            <td>${item.status}</td>
+                        `;
+                        tableBody.appendChild(row);
+                    });  
+                } else {
+                    console.error("Failed to fetch inventory:", data.message);
+                }
+            })
+            .catch((error) => {
+                console.error("Error fetching inventory:", error);
+            });
+            $('#tableWithdrawModal').modal('show');
+        }
+    });
+
+    document.getElementById("viewTable2").addEventListener("click", async function () {
+        const pathOnly = window.location.pathname;
+        document.getElementById("tableWithdrawModalLabel").innerText = "Pending Transfer Item List"
+        if(pathOnly === "/inventory/withdrawal") {
+            fetch(`/api/inventory/withdraw/bystatus`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    start_date: startDateInput.value,
+                    end_date: endDateInput.value,
+                    subsidiaryid: subsidiary.value,
+                }),
+            })
+            .then((response) => response.json())
+            .then((data) => {  
+                console.log(data)
+                if (data.status === "success") {
+                    const tableBody = document.getElementById("withdrawItemList");
+                    tableBody.innerHTML = "";
+                    data.data.forEach((item) => {
+                        console.log(item)
+                        const row = document.createElement("tr");
+                        row.innerHTML = `
+                            <td>${item.transact_id}</td>
+                            <td>${item.created_at}</td>
+                            <td>${item.item_code}</td>
+                            <td>${item.item_description}</td>
+                            <td>${item.item_category}</td>
+                            <td>${item.uomp}</td>
+                            <td>${item.released_qty}</td>
+                            <td>${item.requester_name}</td>
+                            <td>${item.status}</td>
+                        `;
+                        tableBody.appendChild(row);
+                    });  
+                } else {
+                    console.error("Failed to fetch inventory:", data.message);
+                }
+            })
+            .catch((error) => {
+                console.error("Error fetching inventory:", error);
+            });
+            $('#tableWithdrawModal').modal('show');
+        }
+    });
+
+
+
     initializeUserSearch(document.getElementById("userSearchInput1"));
     initializeUserSearch(document.getElementById("userSearchInput2"));
     initializeReturnUserSearch(document.getElementById("returnUserSearchInput1"));
