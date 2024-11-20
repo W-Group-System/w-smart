@@ -1057,6 +1057,108 @@ document.addEventListener("DOMContentLoaded", function () {
             });
     });
 
+
+    window.CloseModal = function () {
+        $('#tableReturnModal').modal('hide');
+    };
+
+    document.getElementById("viewTable").addEventListener("click", async function () {
+        const pathOnly = window.location.pathname;
+        document.getElementById("tableReturnModalLabel").innerText = "Pending Return Item List"
+        if(pathOnly === "/inventory/returned") {
+            fetch(`/api/inventory/return/bystatus`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    start_date: startDateInput.value,
+                    end_date: endDateInput.value,
+                    subsidiaryid: subsidiary.value,
+                    status: 1
+                }),
+            })
+            .then((response) => response.json())
+            .then((data) => {  
+                console.log(data)
+                if (data.status === "success") {
+                    const tableBody = document.getElementById("returnItemList");
+                    tableBody.innerHTML = "";
+                    data.data.forEach((item) => {
+                        console.log(item)
+                        const row = document.createElement("tr");
+                        row.innerHTML = `
+                            <td>${item.transact_id}</td>
+                            <td>${item.created_at}</td>
+                            <td>${item.item_code}</td>
+                            <td>${item.item_description}</td>
+                            <td>${item.item_category}</td>
+                            <td>${item.uomp}</td>
+                            <td>${item.released_qty}</td>
+                            <td>${item.requester_name}</td>
+                            <td>${item.status <= 1 ? "Pending" : "Approved"}</td>
+                        `;
+                        tableBody.appendChild(row);
+                    });  
+                } else {
+                    console.error("Failed to fetch inventory:", data.message);
+                }
+            })
+            .catch((error) => {
+                console.error("Error fetching inventory:", error);
+            });
+            $('#tableReturnModal').modal('show');
+        }
+    });
+
+    document.getElementById("viewTable2").addEventListener("click", async function () {
+        const pathOnly = window.location.pathname;
+        document.getElementById("tableReturnModalLabel").innerText = "Pending Transfer Item List"
+        if(pathOnly === "/inventory/returned") {
+            fetch(`/api/inventory/return/bystatus`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    start_date: startDateInput.value,
+                    end_date: endDateInput.value,
+                    subsidiaryid: subsidiary.value,
+                }),
+            })
+            .then((response) => response.json())
+            .then((data) => {  
+                console.log(data)
+                if (data.status === "success") {
+                    const tableBody = document.getElementById("returnItemList");
+                    tableBody.innerHTML = "";
+                    data.data.forEach((item) => {
+                        console.log(item)
+                        const row = document.createElement("tr");
+                        row.innerHTML = `
+                            <td>${item.request_number}</td>
+                            <td>${item.created_at}</td>
+                            <td>${item.item_code}</td>
+                            <td>${item.item_description}</td>
+                            <td>${item.item_category}</td>
+                            <td>${item.uomp}</td>
+                            <td>${item.returned_qty}</td>
+                            <td>${item.requestor_name}</td>
+                            <td>${item.status <= 1 ? "Pending" : "Approved"}</td>
+                        `;
+                        tableBody.appendChild(row);
+                    });  
+                } else {
+                    console.error("Failed to fetch inventory:", data.message);
+                }
+            })
+            .catch((error) => {
+                console.error("Error fetching inventory:", error);
+            });
+            $('#tableReturnModal').modal('show');
+        }
+    });
+
     initializeUserSearch(document.getElementById("returnUserSearchInput1"));
     initializeUserSearch(document.getElementById("returnUserSearchInput2"));
 

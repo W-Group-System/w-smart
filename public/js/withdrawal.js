@@ -1656,7 +1656,7 @@ document.addEventListener("DOMContentLoaded", function () {
                             <td>${item.uomp}</td>
                             <td>${item.released_qty}</td>
                             <td>${item.requester_name}</td>
-                            <td>${item.status}</td>
+                            <td>${item.status <= 1 ? "Pending" : "Approved"}</td>
                         `;
                         tableBody.appendChild(row);
                     });  
@@ -1704,7 +1704,7 @@ document.addEventListener("DOMContentLoaded", function () {
                             <td>${item.uomp}</td>
                             <td>${item.released_qty}</td>
                             <td>${item.requester_name}</td>
-                            <td>${item.status}</td>
+                            <td>${item.status <= 1 ? "Pending" : "Approved"}</td>
                         `;
                         tableBody.appendChild(row);
                     });  

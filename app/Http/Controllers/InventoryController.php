@@ -2175,5 +2175,61 @@ class InventoryController extends Controller
             ], 500);
         }
     }
+    public function fetchReturnsByStatus(Request $request)
+    {
+        try {
+            $startDate = $request->start_date;
+            $endDate = $request->end_date;
+            $subsidiaryid = $request->subsidiaryid;
+            $status = $request->status;
+            $perPage = $request->get('per_page', 10);
+
+            $subsidiary = Subsidiary::where('subsidiary_id', $subsidiaryid)->first();
+            $query = Returns::query();
+
+            $query->leftJoin('approvals', function($join) {
+                $join->on('returns.id', '=', 'approvals.process_id')
+                    ->where('approvals.process', '=', 'return')
+                    ->whereColumn('returns.hierarchy', '=', 'approvals.hierarchy');
+            })
+            ->select('returns.*', 'approvals.approver_id', 'approvals.approver_name');
+            
+            if ($startDate && $endDate) {
+                $query->whereBetween('returns.created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59']);
+            }
+            if(!$status) {
+                $query->where('returns.status', '>' , 1);    
+            }
+            else {
+                $query->where('returns.status', $status);    
+            }
+            
+            $query->orderBy('returns.created_at', 'desc');
+
+            Log::info('Executing Returns Query:', [
+                'query' => $query->toSql(),
+                'bindings' => $query->getBindings(),
+            ]);
+
+            $returns = $query->paginate($perPage);
+
+            return response()->json([
+                'status' => 'success',
+                'data' => $returns->items(),
+                'pagination' => [
+                    'current_page' => $returns->currentPage(),
+                    'total_pages' => $returns->lastPage(),
+                    'total_items' => $returns->total(),
+                    'per_page' => $returns->perPage(),
+                ]
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to fetch transfer records.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
 
 }

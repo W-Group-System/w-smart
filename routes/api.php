@@ -75,6 +75,7 @@ Route::post('return/suggestions', 'InventoryController@getReturnSuggestions')->n
 Route::post('return/search', 'InventoryController@returnSearchItem')->name('return.search');
 Route::post('inventory/return/approve/{id}', 'InventoryController@approveReturn')->name('inventory.return.approve');
 Route::post('inventory/return/decline/{id}', 'InventoryController@declineWithdraw')->name('inventory.return.decline');
+Route::post('inventory/return/bystatus', 'InventoryController@fetchReturnsByStatus')->name('inventory.return.bystatus');
 
 //approvers
 Route::get('inventory/approvers/{id}', 'InventoryController@getApprovers')->name('inventory.approvers.fetch');
