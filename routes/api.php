@@ -80,4 +80,7 @@ Route::post('inventory/return/bystatus', 'InventoryController@fetchReturnsByStat
 //approvers
 Route::get('inventory/approvers/{id}', 'InventoryController@getApprovers')->name('inventory.approvers.fetch');
 
+//equipment-list
+Route::get('equipment', 'EquipmentController@index')->name('equipment.index');
+Route::post('equipment/create', 'EquipmentController@createEquipment')->name('equipment.create');
 
