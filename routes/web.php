@@ -35,4 +35,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/settings/users', 'RoutesController@userManagement')->name('settings.users');
     Route::get('/settings/company', 'RoutesController@companyManagement')->name('settings.company');
 
+    // Purchased Request
+    Route::get('procurement/purchase-request', 'RoutesController@purchaseRequest')->name('procurement.purchase_request');
+
 });

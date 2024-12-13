@@ -62,5 +62,8 @@ class RoutesController extends Controller
         return view('company');
     }
 
-    
+    public function purchaseRequest()
+    {
+        return view('purchased_request');
+    }
 }

@@ -84,7 +84,7 @@
             </a>
             <ul id="procurementSubmenu" class="collapse submenu {{ request()->is('procurement*') ? 'show' : '' }}">
                 <li class="nav-item dashboard-list" id="purchase-request-item" style="display: none;">
-                    <a class="nav-link {{ request()->is('procurement/purchase-request') ? 'submenu-active' : '' }}" href="#">Purchased Request</a>
+                    <a class="nav-link {{ request()->is('procurement/purchase-request') ? 'submenu-active' : '' }}" href="{{route('procurement.purchase_request')}}">Purchased Request</a>
                 </li>
                 <li class="nav-item dashboard-list" id="canvassing-item" style="display: none;">
                     <a class="nav-link {{ request()->is('procurement/canvassing') ? 'submenu-active' : '' }}" href="#">Canvassing</a>
