@@ -227,7 +227,7 @@
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="addInventoryModalLabel">New Inventory</h5>
+                <h5 class="modal-title" id="addInventoryModalLabel">Purchase Request</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -235,80 +235,101 @@
                     @csrf
                     <div class="row g-3">
                         <div class="col-md-6">
-                            <label for="dateCreated" class="form-label">Date Created</label>
-                            <input type="text" class="form-control" id="dateCreated" value="Auto Generate" readonly style="height: 50%;">
+                            <label for="puchaseNo" class="form-label">Purchase No.:</label>
+                            <input type="text" class="form-control" id="puchaseNo" value="Auto Generated" readonly style="height: 50%;">
                         </div>
                         <div class="col-md-6">
-                            <label for="newItemCode" class="form-label">Item Code</label>
-                            <input type="text" class="form-control" id="newItemCode" readonly style="height: 50%;">
+                            {{-- <label for="newItemCode" class="form-label">Item Code</label>
+                            <input type="text" class="form-control" id="newItemCode" readonly style="height: 50%;"> --}}
                         </div>
                         <div class="col-md-6">
-                            <label for="newItemDescription" class="form-label" >Item Description</label>
-                            <input type="text" class="form-control" id="newItemDescription" required style="height: 50%;">
+                            <label for="requestorName" class="form-label" >Requestor Name:</label>
+                            <input type="text" class="form-control" id="requestorName" required style="height: 50%;" value="{{auth()->user()->name}}" readonly>
                         </div>
                         <div class="col-md-6">
-                            <label for="newSubsidiary" class="form-label">Subsidiary</label>
-                            <select class="form-select me-3" id="modalSubsidiary" required style="height: 50%;">
-                                <option selected value="1">HO</option>
-                                <option value="2">WTCC</option>
-                                <option value="3">CITI</option>
-                                <option value="4">WCC</option>
-                                <option value="5">WFA</option>
-                                <option value="6">WOI</option>
-                                <option value="7">WGC</option>
-                            </select>
+                            <label for="requestedDateTime" class="form-label">Requested Date/Time:</label>
+                            <input type="datetime-local" class="form-control" style="height: 50%;" id="requestedDateTime" value="{{date('Y-m-d H:i:s')}}" readonly>
                         </div>
 
-                        <div class="col-md-6">
-                            <label for="newCategory" class="form-label">Category</label>
-                            <div class="input-group">
-                                <select class="form-select" id="newCategory" required>
-                                    <option value="" disabled selected>Select a category</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <label for="subCategory" class="form-label">Sub-Category</label>
-                            <div class="input-group">
-                                <select class="form-select" id="subCategory" required>
-                                    <option value="" disabled selected>Select a sub-category</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <label for="newPrimaryUOM" class="form-label">Primary UOM</label>
-                            <!-- <input type="text" id="primaryUOMSearch" placeholder="Search Primary UOM" class="form-control"> -->
-                            <select class="form-select" id="newPrimaryUOM" required></select>
-                        </div>
-
-                        <div class="col-md-4">
-                            <label for="newSecondaryUOM" class="form-label">Secondary UOM</label>
-                            <!-- <input type="text" id="secondaryUOMSearch" placeholder="Search Secondary UOM" class="form-control"> -->
-                            <select class="form-select" id="newSecondaryUOM" required></select>
-                        </div>
-
-                        <div class="col-md-4">
-                            <label for="newTertiaryUOM" class="form-label">Tertiary UOM</label>
-                            <!-- <input type="text" id="tertiaryUOMSearch" placeholder="Search Tertiary UOM" class="form-control"> -->
-                            <select class="form-select" id="newTertiaryUOM"></select>
-                        </div>
-
-                        <div class="col-md-6">
-                            <label for="newCost" class="form-label" >Cost</label>
-                            <input type="number" class="form-control" id="newCost" required style="height: 50%;">
-                        </div>
-
-                        <div class="col-md-6">
-                            <label for="newQuantity" class="form-label">Quantity</label>
-                            <input type="number" class="form-control" id="newQuantity" required style="height: 50%;">
-                        </div>
                         <div class="col-md-6">
                             <label for="remarks" class="form-label">Remarks</label>
-                            <textarea class="form-control" id="remarks" style="height: 50%" rows="3"></textarea>
+                            <textarea name="" class="form-control" cols="30" rows="10" style="height: 50%;"></textarea>
                         </div>
                         <div class="col-md-6">
-                            <label for="newUsage" class="form-label">Usage</label>
-                            <input type="number" class="form-control" id="newUsage" value=0 required style="height: 50%">
+                            <label for="requestDueDate" class="form-label">Request Due-Date:</label>
+                            <input type="date" name="requestDueDate" id="requestDueDate" class="form-control form-control-sm">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="assignedTo" class="form-label">Assigned To:</label>
+                            <!-- <input type="text" id="primaryUOMSearch" placeholder="Search Primary UOM" class="form-control"> -->
+                            <select class="form-select" id="assignedTo" required></select>
+                        </div>
+
+                        <div class="col-md-6">
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="subsidiary" class="form-label">Subsidiary:</label>
+                            <!-- <input type="text" id="tertiaryUOMSearch" placeholder="Search Tertiary UOM" class="form-control"> -->
+                            <select class="form-select" id="subsidiary"></select>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="class" class="form-label" >Class:</label>
+                            <select class="form-select" id="class"></select>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="department" class="form-label">Department</label>
+                            <select data-placeholder="Select department" class="form-select" id="department">
+                                <option value=""></option>
+                            </select>
+                        </div>
+                        <div class="col-md-12">
+                            {{-- <label for="remarks" class="form-label">Remarks</label>
+                            <textarea class="form-control" id="remarks" style="height: 50%" rows="3"></textarea> --}}
+                            <div class="table-responsive">
+                                <table class="table table-bordered" width="100%">
+                                    <thead>
+                                        <tr>
+                                            <th>Item Code</th>
+                                            <th>Item Category</th>
+                                            <th>Item Description</th>
+                                            <th>Item Quantity</th>
+                                            <th>Unit of Measurement</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tbodyAddRow">
+                                        <tr>
+                                            <td>
+                                                <input type="text" name="" class="form-control form-control-sm">
+                                            </td>
+                                            <td>
+                                                <input type="text" name="" class="form-control form-control-sm">
+                                            </td>
+                                            <td>
+                                                <input type="text" name="" class="form-control form-control-sm">
+                                            </td>
+                                            <td>
+                                                <input type="text" name="" class="form-control form-control-sm">
+                                            </td>
+                                            <td>
+                                                <input type="text" name="" class="form-control form-control-sm">
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                <button type="button" class="btn btn-success" id="addRow">
+                                    Add Row
+                                </button>
+                                <button type="button" class="btn btn-danger" id="deleteRowBtn">
+                                    Delete Row
+                                </button>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            {{-- <label for="newUsage" class="form-label">Usage</label>
+                            <input type="number" class="form-control" id="newUsage" value=0 required style="height: 50%"> --}}
                         </div>
                     </div>
                     <div class="modal-footer d-flex justify-content-end">
@@ -398,6 +419,6 @@
 
 @endsection
 
-{{-- @push('scripts')
-    <script src="{{ asset('js/inventory.js') }}"></script>
-@endpush --}}
+@push('scripts')
+    <script src="{{ asset('js/purchaseRequest.js') }}"></script>
+@endpush

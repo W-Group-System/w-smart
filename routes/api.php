@@ -84,3 +84,4 @@ Route::get('inventory/approvers/{id}', 'InventoryController@getApprovers')->name
 Route::get('equipment', 'EquipmentController@index')->name('equipment.index');
 Route::post('equipment/create', 'EquipmentController@createEquipment')->name('equipment.create');
 
+// Purchase Request
