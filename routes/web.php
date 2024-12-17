@@ -35,6 +35,13 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/settings/users', 'RoutesController@userManagement')->name('settings.users');
     Route::get('/settings/company', 'RoutesController@companyManagement')->name('settings.company');
 
+    // Department
+    Route::get('/settings/department','DepartmentController@index')->name('settings.department');
+    Route::post('/settings/store-department','DepartmentController@store');
+    Route::post('/settings/update-department/{id}','DepartmentController@update');
+    Route::post('/settings/active-department/{id}','DepartmentController@active');
+    Route::post('/settings/deactive-department/{id}','DepartmentController@deactive');
+
     // Purchased Request
     Route::get('procurement/purchase-request', 'RoutesController@purchaseRequest')->name('procurement.purchase_request');
 

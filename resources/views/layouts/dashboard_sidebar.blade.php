@@ -109,7 +109,7 @@
                     <a class="nav-link {{ request()->is('settings/company') ? 'submenu-active' : '' }}" href="{{ route('settings.company') }}">Company</a>
                 </li>
                 <li class="nav-item dashboard-list" id="department-item" style="display: none;">
-                    <a class="nav-link {{ request()->is('settings/department') ? 'submenu-active' : '' }}" href="#">Department</a>
+                    <a class="nav-link {{ request()->is('settings/department') ? 'submenu-active' : '' }}" href="{{route('settings.department')}}">Department</a>
                 </li>
                 <li class="nav-item dashboard-list" id="user-item">
                     <a class="nav-link {{ request()->is('settings/users') ? 'submenu-active' : '' }}" href="{{ route('settings.users') }}">User Management</a>
