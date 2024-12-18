@@ -89,7 +89,7 @@
                                         @endforeach
                                     @else
                                     <tr>
-                                        <td style="padding: 5px 10px;" class="text-center">No data available.</td>
+                                        <td style="padding: 5px 10px;" class="text-center" colspan="6">No data available.</td>
                                     </tr>
                                     @endif
                                 </tbody>
@@ -138,7 +138,7 @@
                                         @endforeach
                                     @else
                                     <tr>
-                                        <td style="padding: 5px 10px;" class="text-center">No data available.</td>
+                                        <td style="padding: 5px 10px;" class="text-center" colspan="5">No data available.</td>
                                     </tr>
                                     @endif
                                 </tbody>

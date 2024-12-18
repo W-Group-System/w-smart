@@ -10,7 +10,7 @@
                 <div class="modal-body">
                     <div class="form-group">
                         <label for="assignedTo" class="form-label">Assigned To:</label>
-                        <select class="form-select" id="assignedTo" name="assigned_to" required>
+                        <select class="form-select chosen-select" id="assignedTo" name="assigned_to" required>
                             <option value="">Assigned To</option>
                             @foreach ($users as $key=>$user)
                                 <option value="{{$key}}">{{$user}}</option>

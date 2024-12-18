@@ -51,4 +51,6 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('procurement/delete-files/{id}','PurchaseRequestController@deleteFiles');
     Route::post('procurement/edit-assigned/{id}', 'PurchaseRequestController@editAssigned');
 
+    // Purchased Order
+    Route::get('procurement/purchase-order', 'PurchaseOrderController@index')->name('procurement.purchase_order');
 });

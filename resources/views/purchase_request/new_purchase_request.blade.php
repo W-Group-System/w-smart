@@ -38,10 +38,10 @@
                             <input type="date" name="requestDueDate" name="request_due_date" id="requestDueDate" class="form-control form-control-sm">
                         </div>
                         <div class="col-md-6">
-                            <label for="assignedTo" class="form-label">Assigned To:</label>
+                            <label for="assignedTo" class="form-label ">Assigned To:</label>
                             <!-- <input type="text" id="primaryUOMSearch" placeholder="Search Primary UOM" class="form-control"> -->
-                            <select class="form-select" id="assignedTo" name="assigned_to" required>
-                                <option value="">Assigned To</option>
+                            <select data-placeholder="Assigned To" class="form-select chosen-select" id="assignedTo" name="assigned_to" required>
+                                <option value=""></option>
                                 @foreach ($users as $key=>$user)
                                     <option value="{{$key}}">{{$user}}</option>
                                 @endforeach

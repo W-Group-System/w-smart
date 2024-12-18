@@ -13,6 +13,9 @@
                         @if (Request::is('procurement/purchase-request'))
                             Purchase Request
                         @endif
+                        @if (Request::is('procurement/purchase-order'))
+                            Purchase Order
+                        @endif
                     </span>
                 </div>
             </nav>
@@ -46,6 +49,9 @@
                     <div class="text-center">
                         <h6 class="card-title mb-3">
                             @if (Request::is('procurement/purchase-request'))
+                                Pending
+                            @endif
+                            @if (Request::is('procurement/purchase-order'))
                                 Pending
                             @endif
                         </h6>

@@ -90,7 +90,7 @@
                     <a class="nav-link {{ request()->is('procurement/canvassing') ? 'submenu-active' : '' }}" href="#">Canvassing</a>
                 </li>
                 <li class="nav-item dashboard-list" id="purchase-order-item" style="display: none;">
-                    <a class="nav-link {{ request()->is('procurement/order') ? 'submenu-active' : '' }}" href="#">Purchased Order</a>
+                    <a class="nav-link {{ request()->is('procurement/purchase-order') ? 'submenu-active' : '' }}" href="{{route('procurement.purchase_order')}}">Purchased Order</a>
                 </li>
             </ul>
         </li>
