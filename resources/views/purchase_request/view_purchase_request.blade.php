@@ -19,9 +19,9 @@
                 <button type="button" class="btn btn-warning text-white" title="Edit" data-bs-toggle="modal" data-bs-target="#editPr{{$purchase_requests->id}}">
                     Edit
                 </button>
-                {{-- <button type="button" class="">
-                    Edit
-                </button> --}}
+                <button type="button" class="btn btn-info text-white" title="Request for quotation" data-bs-toggle="modal" data-bs-target="#rfq{{$purchase_requests->id}}">
+                    Request For Quotation (RFQ)
+                </button>
                 <a href="{{url('procurement/purchase-request')}}" type="button" class="btn btn-danger text-white">
                     Close   
                 </a>
@@ -161,6 +161,7 @@
 </div>
 
 @include('purchase_request.edit2_purchase_request')
+@include('purchase_request.request_for_quotation')
 @endsection
 
 @push('scripts')

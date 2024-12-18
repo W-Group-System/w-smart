@@ -91,4 +91,40 @@ $(document).ready(function() {
         // $("#tbodyAddRow").children().last().remove()
         
     })
+
+    $("#addVendorBtn").on('click', function() {
+        var newRow = `
+            <tr>
+                <td style="padding: 5px 10px;">
+                    <select name="vendor_name[]" class="form-select" required>
+                        <option value="">Select vendor name</option>
+                    </select>
+                </td>
+                <td style="padding: 5px 10px;">
+                    <select name="vendor_email[]" class="form-select" required>
+                        <option value="">Select vendor email</option>
+                    </select>
+                </td>
+            </tr>
+        `
+        
+        $('#vendorTbodyRow').append(newRow);
+    })
+
+    $("#deleteVendorBtn").on('click', function() {
+        
+        if ($("#vendorTbodyRow").children().length > 1) 
+        {
+            $("#vendorTbodyRow").children().last().remove()
+        }
+    })
+
+    $("#itemCheckboxAll").on('click', function() {
+        $('.itemCheckbox').prop('checked', $(this).is(':checked'));
+    })
+
+    $("#fileCheckboxAll").on('click', function() {
+        $('.fileCheckbox').prop('checked', $(this).is(':checked'));
+    })
+
 })
