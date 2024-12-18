@@ -43,6 +43,12 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('/settings/deactive-department/{id}','DepartmentController@deactive');
 
     // Purchased Request
-    Route::get('procurement/purchase-request', 'RoutesController@purchaseRequest')->name('procurement.purchase_request');
+    Route::get('procurement/purchase-request', 'PurchaseRequestController@index')->name('procurement.purchase_request');
+    Route::get('procurement/show-purchase-request/{id}','PurchaseRequestController@show');
+    Route::post('procurement/store-purchase-request','PurchaseRequestController@store');
+    Route::post('procurement/update-purchase-request/{id}','PurchaseRequestController@update');
+    Route::post('procurement/update-files/{id}','PurchaseRequestController@updateFiles');
+    Route::post('procurement/delete-files/{id}','PurchaseRequestController@deleteFiles');
+    Route::post('procurement/edit-assigned/{id}', 'PurchaseRequestController@editAssigned');
 
 });

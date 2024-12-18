@@ -1,26 +1,94 @@
-document.addEventListener("DOMContentLoaded", function() {
-    
-    const addRowBtn = document.querySelector("#addRow");
-    const deleteRowBtn = document.querySelector("#deleteRowBtn");
-    const tBody = document.querySelector("#tbodyAddRow");
 
-    addRowBtn.addEventListener('click', function() {
+function addRow(id)
+{
+    var newRow = `
+            <tr>
+                <td>
+                    <input type="text" name="item_code[]" class="form-control form-control-sm" required>
+                </td>
+                <td>
+                    <input type="text" name="item_category[]" class="form-control form-control-sm" required>
+                </td>
+                <td>
+                    <input type="text" name="item_description[]" class="form-control form-control-sm" required>
+                </td>
+                <td>
+                    <input type="text" name="item_quantity[]" class="form-control form-control-sm" required>
+                </td>
+                <td>
+                    <input type="text" name="unit_of_measurement[]" class="form-control form-control-sm" required>
+                </td>
+            </tr>
+        `;
+
+    $('#tbodyAddRow'+id).append(newRow)
+}
+
+function deleteRow(id)
+{
+    var row = $('#tbodyAddRow'+id).children();
         
-        const newRow = document.createElement('tr');
+    if (row.length > 1) {
+        row.last().remove()
+    }
+}
 
-        for (let i = 0; i < 5; i++) {
-            const cell = document.createElement('td');
-            const input = document.createElement('input');
-            input.type = 'text';
-            input.className = 'form-control form-control-sm'
-            cell.appendChild(input);
-            newRow.appendChild(cell);
+function removeFiles(id)
+{
+    // console.log('dasdad');
+    var form = $("#deleteForm"+id)[0];
+
+    Swal.fire({
+        title: "Are you sure?",
+        text: "The file will be deleted",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Yes, delete it!"
+    }).then((result) => {
+        if (result.isConfirmed) {
+            form.submit()
         }
-
-        tBody.appendChild(newRow);
-    })
+    });
     
-    deleteRowBtn.addEventListener('click', function() {
+}
+
+$(document).ready(function() {
+    $("#addRowBtn").on('click', function() {
+        console.log('sadasd');
+        
+        var newRow = `
+            <tr>
+                <td>
+                    <input type="text" name="item_code[]" class="form-control form-control-sm" required>
+                </td>
+                <td>
+                    <input type="text" name="item_category[]" class="form-control form-control-sm" required>
+                </td>
+                <td>
+                    <input type="text" name="item_description[]" class="form-control form-control-sm" required>
+                </td>
+                <td>
+                    <input type="text" name="item_quantity[]" class="form-control form-control-sm" required>
+                </td>
+                <td>
+                    <input type="text" name="unit_of_measurement[]" class="form-control form-control-sm" required>
+                </td>
+            </tr>
+        `;
+
+        $('#tbodyAddRow').append(newRow)
+    })
+
+    $("#deleteRowBtn").on('click', function() {
+        
+        var row = $('#tbodyAddRow').children();
+        
+        if (row.length > 1) {
+            row.last().remove()
+        }
+        // $("#tbodyAddRow").children().last().remove()
         
     })
 })
