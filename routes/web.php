@@ -53,4 +53,7 @@ Route::group(['middleware' => 'auth'], function () {
 
     // Purchased Order
     Route::get('procurement/purchase-order', 'PurchaseOrderController@index')->name('procurement.purchase_order');
+
+    // Canvassing
+    Route::get('procurement/canvassing', 'CanvassingController@index')->name('procurement.canvassing');
 });

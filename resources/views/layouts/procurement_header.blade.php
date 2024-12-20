@@ -16,6 +16,9 @@
                         @if (Request::is('procurement/purchase-order'))
                             Purchase Order
                         @endif
+                        @if (Request::is('procurement/canvassing'))
+                            Canvassing
+                        @endif
                     </span>
                 </div>
             </nav>
