@@ -11,9 +11,12 @@ class CanvassingController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        return view('canvassing');
+        $start_date = $request->start_date;
+        $end_date = $request->end_date;
+
+        return view('canvassing',compact('start_date','end_date'));
     }
 
     /**

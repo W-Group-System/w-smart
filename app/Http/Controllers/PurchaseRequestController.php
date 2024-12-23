@@ -18,13 +18,21 @@ class PurchaseRequestController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
+        // dd($request->all());
+        $start_date = $request->start_date;
+        $end_date = $request->end_date;
+
         $users = User::where('status','Active')->pluck('name','id');
-        $purchase_requests = PurchaseRequest::with('user','department','assignedTo')->paginate(10);
+        $purchase_requests = PurchaseRequest::with('user','department','assignedTo')
+            ->when($start_date || $end_date, function($query) use ($start_date,$end_date){
+                $query->whereBetween('created_at',[$start_date.' 00:00:01',$end_date.' 23:59:59']);
+            })
+            ->paginate(10);
         $get_pr_no = PurchaseRequest::orderBy('id','desc')->first();
         
-        return view('purchased_request', compact('users','purchase_requests','get_pr_no'));
+        return view('purchased_request', compact('users','purchase_requests','get_pr_no','start_date','end_date'));
     }
 
     /**

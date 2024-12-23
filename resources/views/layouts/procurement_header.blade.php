@@ -28,15 +28,15 @@
     <div class="row align-items-center mb-4">
         <div class="col-12 d-flex justify-content-between align-items-center flex-wrap">
             <form class="d-flex gap-2 align-items-center me-3" style="flex-shrink: 0; flex-basis: 400px;"
-                id="filter-submit">
+                id="filter-submit" method="GET">
                 <label class="fw-bold me-2" for="start-date">From</label>
                 <div class="input-group" style="border-radius: 10px; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);">
-                    <input type="date" class="form-control" id="start-date" placeholder="dd/mm/yyyy"
+                    <input type="date" class="form-control" id="start-date" name="start_date" value="{{$start_date}}" placeholder="dd/mm/yyyy"
                         aria-label="Start Date" style="border-radius: 10px; font-size: 1rem; padding: 0.5rem 0.5rem;">
                 </div>
                 <label class="fw-bold me-2" for="end-date">To</label>
                 <div class="input-group" style="border-radius: 10px; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);">
-                    <input type="date" class="form-control" id="end-date" placeholder="dd/mm/yyyy" aria-label="End Date"
+                    <input type="date" class="form-control" id="end-date"  name="end_date" value="{{$end_date}}" placeholder="dd/mm/yyyy" aria-label="End Date"
                         style="border-radius: 10px; font-size: 1rem; padding: 0.5rem 0.5rem;">
                 </div>
                 <button type="submit" class="btn btn-primary ms-2"
