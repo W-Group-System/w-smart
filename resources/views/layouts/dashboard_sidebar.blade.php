@@ -114,6 +114,9 @@
                 <li class="nav-item dashboard-list" id="user-item">
                     <a class="nav-link {{ request()->is('settings/users') ? 'submenu-active' : '' }}" href="{{ route('settings.users') }}">User Management</a>
                 </li>
+                <li class="nav-item dashboard-list" id="user-item">
+                    <a class="nav-link {{ request()->is('settings/vendors') ? 'submenu-active' : '' }}" href="{{ route('settings.vendors') }}">Vendor Management</a>
+                </li>
                 <li class="nav-item dashboard-list" id="role-item" style="display: none;">
                     <a class="nav-link {{ request()->is('settings/roles') ? 'submenu-active' : '' }}" href="{{ route('settings.roles') }}">Role</a>
                 </li>
