@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 
-class PurchaseOrderController extends Controller
+class CanvassingController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -16,7 +16,7 @@ class PurchaseOrderController extends Controller
         $start_date = $request->start_date;
         $end_date = $request->end_date;
 
-        return view('purchase_order',compact('start_date','end_date'));
+        return view('canvassing',compact('start_date','end_date'));
     }
 
     /**

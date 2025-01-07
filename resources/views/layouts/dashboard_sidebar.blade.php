@@ -87,7 +87,7 @@
                     <a class="nav-link {{ request()->is('procurement/purchase-request') ? 'submenu-active' : '' }}" href="{{route('procurement.purchase_request')}}">Purchased Request</a>
                 </li>
                 <li class="nav-item dashboard-list" id="canvassing-item" style="display: none;">
-                    <a class="nav-link {{ request()->is('procurement/canvassing') ? 'submenu-active' : '' }}" href="#">Canvassing</a>
+                    <a class="nav-link {{ request()->is('procurement/canvassing') ? 'submenu-active' : '' }}" href="{{route('procurement.canvassing')}}">Canvassing</a>
                 </li>
                 <li class="nav-item dashboard-list" id="purchase-order-item" style="display: none;">
                     <a class="nav-link {{ request()->is('procurement/purchase-order') ? 'submenu-active' : '' }}" href="{{route('procurement.purchase_order')}}">Purchased Order</a>
