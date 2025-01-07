@@ -51,6 +51,13 @@ class VendorController extends Controller
         $maxRequestId = Vendor::max('request_id');
         $newRequestId = $maxRequestId ? $maxRequestId + 1 : 1;
 
+        $lastVendorCode = Vendor::orderBy('id', 'desc')->first()->vendor_code;
+        if ($lastVendorCode) {
+            $newVendorCode = 'VEND' . str_pad((int) substr($lastVendorCode, 4) + 1, 3, '0', STR_PAD_LEFT);
+        } else {
+            $newVendorCode = 'VEND001';
+        }
+
         $new_vendor = new Vendor();
         $new_vendor->requestor_name =  $request->request_id;
         $new_vendor->request_id = $newRequestId;
@@ -66,6 +73,8 @@ class VendorController extends Controller
         $new_vendor->registration_dti_no =  $request->registration_dti_no;
         $new_vendor->date_registered =  $request->date_registered;
         $new_vendor->remarks =  $request->remarks;
+        $new_vendor->password = bcrypt('wgroup1nc');
+        $new_vendor->vendor_code = $newVendorCode;
         $new_vendor->save();
 
         foreach($request->work_email as $key=>$work_email)

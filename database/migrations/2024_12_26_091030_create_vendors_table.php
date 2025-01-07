@@ -21,7 +21,7 @@ class CreateVendorsTable extends Migration
             $table->string('vendor_name')->nullable();
             $table->boolean('sole_proprietor')->nullable();
             $table->string('type')->nullable();
-            $table->string('company_name')->nullable();
+            $table->string('company_name')->unique();
             $table->string('vendor_status')->nullable();
             $table->string('classification_type')->nullable();
             $table->string('subsidiary')->nullable();
@@ -34,6 +34,9 @@ class CreateVendorsTable extends Migration
             $table->date('action')->nullable();
             $table->string('remarks')->nullable();
             $table->date('deleted_at')->nullable();
+            $table->string('password'); 
+            $table->rememberToken(); 
+            $table->string('vendor_code')->nullable(); 
             $table->timestamps();
         });
     }
