@@ -53,7 +53,13 @@ Route::group(['middleware' => 'auth'], function () {
 
     // Purchased Order
     Route::get('procurement/purchase-order', 'PurchaseOrderController@index')->name('procurement.purchase_order');
-
+  
+    // Vendors
+    Route::get('/settings/vendors', 'VendorController@index')->name('settings.vendors');
+    Route::post('/settings/store-vendor','VendorController@store');
+    Route::get('/settings/view_vendor/{id}','VendorController@show');
+    Route::post('/settings/edit-vendor/{id}','VendorController@update');
+  
     // Canvassing
     Route::get('procurement/canvassing', 'CanvassingController@index')->name('procurement.canvassing');
 });
