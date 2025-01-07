@@ -42,7 +42,7 @@
                         </div> --}}
                         <div class="col-md-12">
                             <label for="contactDetails" class="form-label">Contact Details:</label>
-                            <table class="table table-bordered" id="contactDetailsTable">
+                            <table class="table table-bordered" id="contactDetailsTables">
                                 <thead>
                                     <tr>
                                         <th>Work Email</th>
@@ -62,7 +62,7 @@
                                         <td><input type="text" name="alternative_phone[]" class="form-control form-control-sm" placeholder="Enter Alternate Phone Number"></td>
                                         <td><input type="text" name="address[]" class="form-control form-control-sm" placeholder="Enter Address"></td>
                                         <td><input type="text" name="contact_person[]" class="form-control form-control-sm" placeholder="Enter Contact Person"></td>
-                                        <td><button type="button" class="btn btn-sm btn-danger" onclick="removeRow(this)">Remove</button></td>
+                                        <td><button type="button" class="btn btn-sm btn-danger" onclick="removeRowS(this)">Remove</button></td>
                                     </tr>
                                 </tbody>
                             </table>

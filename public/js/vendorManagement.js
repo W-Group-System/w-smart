@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 function addRow() {
-    const tableBody = document.querySelector('#contactDetailsTable tbody');
+    const tableBody = document.querySelector('#contactDetailsTables tbody');
     const rowCount = tableBody.rows.length;
     
     if (rowCount >= 1) {
@@ -36,9 +36,9 @@ function addRow() {
     }
 }
 
-function removeRow(button) {
+function removeRowS(button) {
     const row = button.closest('tr');
-    const tableBody = document.querySelector('#contactDetailsTable tbody');
+    const tableBody = document.querySelector('#contactDetailsTables tbody');
     
     if (tableBody.rows.length > 1) {
         row.remove();
@@ -68,8 +68,12 @@ document.addEventListener("DOMContentLoaded", function() {
 
     function removeRow(button) {
         const row = button.closest('tr');
-        if (row) {
+        const tableBody = row.closest('tbody');
+    
+        if (tableBody && tableBody.rows.length > 1) {
             row.remove();
+        } else {
+            alert('At least one row is required!');
         }
     }
 
