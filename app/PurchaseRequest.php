@@ -29,4 +29,16 @@ class PurchaseRequest extends Model
     {
         return $this->hasMany(PurchaseRequestFile::class);
     }
+    public function rfqEmail()
+    {
+        return $this->hasMany(RfqEmail::class);
+    }
+    public function rfqItem()
+    {
+        return $this->hasMany(RfqItem::class);
+    }
+    public function rfqFile()
+    {
+        return $this->hasMany(RfqFile::class);
+    }
 }

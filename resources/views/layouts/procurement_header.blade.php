@@ -79,7 +79,11 @@
                                 RFQ
                             @endif
                         </h6>
+                        @if (Request::is('procurement/purchase-request'))
+                        <h3 class="card-text fw-bold mb-0">{{count($purchase_requests->where('status','RFQ'))}}</h3>
+                        @else
                         <h3 class="card-text fw-bold mb-0">0</h3>
+                        @endif
                     </div>
                     <a href="#" id="viewTable2" class="btn btn-primary btn-sm" style="min-width: 110px; border-radius: 7px;">View
                         All</a>

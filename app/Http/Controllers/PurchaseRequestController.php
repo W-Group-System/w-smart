@@ -8,6 +8,8 @@ use App\PurchaseItem;
 use App\PurchaseRequest;
 use App\PurchaseRequestFile;
 use App\Subsidiary;
+use App\Vendor;
+use App\VendorContact;
 use Illuminate\Http\Request;
 use RealRashid\SweetAlert\Facades\Alert;
 
@@ -106,8 +108,9 @@ class PurchaseRequestController extends Controller
     {
         $purchase_requests = PurchaseRequest::with('user','department','assignedTo','purchaseItems','purchaseRequestFiles')->findOrFail($id);
         $users = User::where('status','Active')->pluck('name','id');
+        $vendor_list = Vendor::pluck('vendor_name','id');
 
-        return view('purchase_request.view_purchase_request', compact('purchase_requests','users'));
+        return view('purchase_request.view_purchase_request', compact('purchase_requests','users','vendor_list'));
     }
 
     /**
@@ -223,5 +226,12 @@ class PurchaseRequestController extends Controller
 
         Alert::success('Successfully Updated')->persistent('Dismiss');
         return back();
+    }
+
+    public function refreshVendorEmail(Request $request)
+    {
+        $vendor_contact = VendorContact::where('vendor_id', $request->vendor_id)->get()->pluck('work_email')->toArray();
+        
+        return $vendor_contact;
     }
 }

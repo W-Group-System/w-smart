@@ -50,6 +50,10 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('procurement/update-files/{id}','PurchaseRequestController@updateFiles');
     Route::post('procurement/delete-files/{id}','PurchaseRequestController@deleteFiles');
     Route::post('procurement/edit-assigned/{id}', 'PurchaseRequestController@editAssigned');
+    Route::post('refresh_vendor_email', 'PurchaseRequestController@refreshVendorEmail')->name('refresh_vendor_email');
+    
+    // Request For Quotation
+    Route::post('store-request-for-quotation', 'RequestForQuotationController@store');
 
     // Purchased Order
     Route::get('procurement/purchase-order', 'PurchaseOrderController@index')->name('procurement.purchase_order');
