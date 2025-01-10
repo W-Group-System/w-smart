@@ -121,13 +121,19 @@
                                     <i class="bi bi-eye"></i>
                                 </a>
                                 
+                                @if($pr->status == 'Returned')
                                 <button type="button" class="btn btn-sm btn-warning text-white" title="Edit" data-bs-toggle="modal" data-bs-target="#editPurchaseRequest{{$pr->id}}">
                                     <i class="bi bi-pencil-square"></i>
                                 </button>
+                                @endif
                             </td>
                             <td style="text-align: center; padding: 5px 10px;">{{date('m/d/Y', strtotime($pr->created_at))}}</td>
                             <td style="text-align: center; padding: 5px 10px;">{{str_pad($pr->id,6,'0',STR_PAD_LEFT)}}</td>
-                            <td style="text-align: center; padding: 5px 10px;"></td>
+                            <td style="text-align: center; padding: 5px 10px;">
+                                @foreach ($pr->purchaseItems as $item)
+                                    {{$item->item_description}} <br>
+                                @endforeach
+                            </td>
                             <td style="text-align: center; padding: 5px 10px;">{{date('m/d/Y', strtotime($pr->due_date))}}</td>
                             <td style="text-align: center; padding: 5px 10px;">{{$pr->user->name}}</td>
                             <td style="text-align: center; padding: 5px 10px;">{{$pr->department->name}}</td>

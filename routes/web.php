@@ -51,6 +51,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('procurement/delete-files/{id}','PurchaseRequestController@deleteFiles');
     Route::post('procurement/edit-assigned/{id}', 'PurchaseRequestController@editAssigned');
     Route::post('refresh_vendor_email', 'PurchaseRequestController@refreshVendorEmail')->name('refresh_vendor_email');
+    Route::post('return_purchase_request/{id}','PurchaseRequestController@return');
     
     // Request For Quotation
     Route::post('store-request-for-quotation', 'RequestForQuotationController@store');
@@ -66,4 +67,5 @@ Route::group(['middleware' => 'auth'], function () {
   
     // Canvassing
     Route::get('procurement/canvassing', 'CanvassingController@index')->name('procurement.canvassing');
+    Route::get('procurement/show-canvassing/{id}', 'CanvassingController@show');
 });

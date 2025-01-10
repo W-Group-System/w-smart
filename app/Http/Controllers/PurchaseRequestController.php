@@ -234,4 +234,15 @@ class PurchaseRequestController extends Controller
         
         return $vendor_contact;
     }
+
+    public function return(Request $request,$id)
+    {
+        $purchase_request = PurchaseRequest::findOrFail($id);
+        $purchase_request->return_remarks = $request->remarks;
+        // $purchase_request->status = 'Returned';
+        $purchase_request->save();
+
+        Alert::success('Successfully Returned')->persistent('Dismiss');
+        return back();
+    }
 }

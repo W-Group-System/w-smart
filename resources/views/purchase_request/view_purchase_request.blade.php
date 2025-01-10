@@ -22,6 +22,9 @@
                 <button type="button" class="btn btn-info text-white" title="Request for quotation" data-bs-toggle="modal" data-bs-target="#rfq{{$purchase_requests->id}}">
                     Request For Quotation (RFQ)
                 </button>
+                <button type="button" class="btn btn-secondary text-white" title="Request for quotation" data-bs-toggle="modal" data-bs-target="#returnRemarks{{$purchase_requests->id}}">
+                    Return  
+                </button>
                 <a href="{{url('procurement/purchase-request')}}" type="button" class="btn btn-danger text-white">
                     Close   
                 </a>
@@ -72,6 +75,10 @@
             <div class="col-md-6 mb-2">
                 <p class="m-0 fw-bold">Department:</p>
                 {{$purchase_requests->department->name}}
+            </div>
+            <div class="col-md-6 mb-2">
+                <p class="m-0 fw-bold">Return Remarks:</p>
+                {!! nl2br(e($purchase_requests->return_remarks)) !!}
             </div>
         </div>
 
@@ -162,6 +169,7 @@
 
 @include('purchase_request.edit2_purchase_request')
 @include('purchase_request.request_for_quotation')
+@include('purchase_request.return_remarks')
 @endsection
 
 @push('scripts')
