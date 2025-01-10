@@ -54,12 +54,17 @@
                             @if (Request::is('procurement/purchase-request'))
                                 Pending
                             @endif
+                            @if (Request::is('procurement/canvassing'))
+                                Canvassing
+                            @endif
                             @if (Request::is('procurement/purchase-order'))
                                 Pending
                             @endif
                         </h6>
                         @if (Request::is('procurement/purchase-request'))
                         <h3 class="card-text fw-bold mb-0">{{count($purchase_requests->where('status','Pending'))}}</h3>
+                        @elseif(Request::is('procurement/canvassing'))
+                        <h3 class="card-text fw-bold mb-0">{{count($purchase_request->where('status','RFQ'))}}</h3>
                         @else
                         <h3 class="card-text fw-bold mb-0">0</h3>
                         @endif
@@ -77,6 +82,8 @@
                         <h6 class="card-title mb-3">
                             @if (Request::is('procurement/purchase-request'))
                                 RFQ
+                            @elseif (Request::is('procurement/canvassing'))
+                                For Approval
                             @endif
                         </h6>
                         @if (Request::is('procurement/purchase-request'))
@@ -96,7 +103,7 @@
                 <div class="card-body d-flex justify-content-between align-items-center">
                     <div class="text-center">
                         <h6 class="card-title mb-3">
-                            @if (Request::is('procurement/purchase-request'))
+                            @if (Request::is('procurement/purchase-request') || Request::is('procurement/canvassing'))
                                 Closed
                             @endif
                         </h6>

@@ -56,10 +56,10 @@
                         <option value="7">WGC</option>
                     </select>
     
-                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addPurchaseRequest" id="addPR"
+                    {{-- <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addPurchaseRequest" id="addPR"
                         style="height: 35px; padding: 0 15px; display: flex; align-items: center; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); font-size: 14px;">
                         Add New PR
-                    </button>
+                    </button> --}}
                 </div>
     
             </div>
@@ -89,31 +89,27 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {{-- @foreach ($purchase_requests as $pr)
+                        @foreach ($purchase_request as $pr)
                             <tr>
                                 <td style="text-align: center; padding: 5px 10px;">
-                                    <a href="{{url('procurement/show-purchase-request/'.$pr->id)}}" class="btn btn-sm btn-info text-white">
+                                    <a href="{{url('procurement/show-canvassing/'.$pr->id)}}" class="btn btn-sm btn-info text-white">
                                         <i class="bi bi-eye"></i>
                                     </a>
                                     
-                                    <button type="button" class="btn btn-sm btn-warning text-white" title="Edit" data-bs-toggle="modal" data-bs-target="#editPurchaseRequest{{$pr->id}}">
+                                    {{-- <button type="button" class="btn btn-sm btn-warning text-white" title="Edit" data-bs-toggle="modal" data-bs-target="#editPurchaseRequest{{$pr->id}}">
                                         <i class="bi bi-pencil-square"></i>
-                                    </button>
+                                    </button> --}}
                                 </td>
-                                <td style="text-align: center; padding: 5px 10px;">{{date('m/d/Y', strtotime($pr->created_at))}}</td>
                                 <td style="text-align: center; padding: 5px 10px;">{{str_pad($pr->id,6,'0',STR_PAD_LEFT)}}</td>
-                                <td style="text-align: center; padding: 5px 10px;"></td>
-                                <td style="text-align: center; padding: 5px 10px;">{{date('m/d/Y', strtotime($pr->due_date))}}</td>
-                                <td style="text-align: center; padding: 5px 10px;">{{$pr->user->name}}</td>
-                                <td style="text-align: center; padding: 5px 10px;">{{$pr->department->name}}</td>
+                                <td style="text-align: center; padding: 5px 10px;">
+                                    @foreach ($pr->rfqItem as $item)
+                                        {{$item->purchaseItem->item_description}} <br>
+                                    @endforeach
+                                </td>
                                 <td style="text-align: center; padding: 5px 10px;">{{$pr->subsidiary}}</td>
-                                <td style="text-align: center; padding: 5px 10px;">0.00</td>
-                                <td style="text-align: center; padding: 5px 10px;">Expedited</td>
                                 <td style="text-align: center; padding: 5px 10px;">{{$pr->status}}</td>
-                                <td style="text-align: center; padding: 5px 10px;">{{$pr->assignedTo->name}}</td>
-                                <td style="text-align: center; padding: 5px 10px;">{{date('m/d/Y', strtotime($pr->created_at))}}</td>
                             </tr>
-                        @endforeach --}}
+                        @endforeach
                     </tbody>
                 </table>
             </div>

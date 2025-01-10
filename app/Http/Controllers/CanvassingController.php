@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\PurchaseRequest;
 use Illuminate\Http\Request;
 
 class CanvassingController extends Controller
@@ -16,7 +17,9 @@ class CanvassingController extends Controller
         $start_date = $request->start_date;
         $end_date = $request->end_date;
 
-        return view('canvassing',compact('start_date','end_date'));
+        $purchase_request = PurchaseRequest::where('status','RFQ')->get();
+
+        return view('canvassing',compact('start_date','end_date','purchase_request'));
     }
 
     /**
@@ -48,7 +51,9 @@ class CanvassingController extends Controller
      */
     public function show($id)
     {
-        //
+        $purchase_request = PurchaseRequest::with('rfqItem.purchaseItem')->findOrFail($id);
+        
+        return view('view_canvassing', compact('purchase_request'));
     }
 
     /**
