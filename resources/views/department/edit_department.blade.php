@@ -26,7 +26,7 @@
                                     <select data-placeholder="Select department head" name="department_head" class="form-select chosen-select" required>
                                         <option value=""></option>
                                         @foreach ($dept_head as $head)
-                                            <option value="{{$head->id}}">{{$head->name}}</option>
+                                            <option value="{{$head->id}}" @if($head->id == $department->department_head) selected @endif>{{$head->name}}</option>
                                         @endforeach
                                     </select>
                                 </div>

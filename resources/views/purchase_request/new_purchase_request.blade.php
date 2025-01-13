@@ -35,7 +35,7 @@
                         </div>
                         <div class="col-md-6">
                             <label for="requestDueDate" class="form-label">Request Due-Date:</label>
-                            <input type="date" name="requestDueDate" name="request_due_date" id="requestDueDate" class="form-control form-control-sm">
+                            <input type="date" name="requestDueDate" name="request_due_date" id="requestDueDate" class="form-control form-control-sm" required>
                         </div>
                         <div class="col-md-6">
                             <label for="assignedTo" class="form-label ">Assigned To:</label>
@@ -61,11 +61,11 @@
                             <select class="form-select" id="class"></select>
                         </div>
 
-                        {{-- <div class="col-md-6">
+                        <div class="col-md-6">
                             <label for="department" class="form-label">Department</label>
                             <input type="hidden" name="department" value="{{auth()->user()->department_id}}">
                             <input type="text"  value="{{auth()->user()->department->name}}" class="form-control form-control-sm" readonly>
-                        </div> --}}
+                        </div>
                         <div class="col-md-12">
                             {{-- <label for="remarks" class="form-label">Remarks</label>
                             <textarea class="form-control" id="remarks" style="height: 50%" rows="3"></textarea> --}}

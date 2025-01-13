@@ -86,6 +86,9 @@
                 <li class="nav-item dashboard-list" id="purchase-request-item" style="display: none;">
                     <a class="nav-link {{ request()->is('procurement/purchase-request') ? 'submenu-active' : '' }}" href="{{route('procurement.purchase_request')}}">Purchased Request</a>
                 </li>
+                <li class="nav-item dashboard-list" id="" style="display: none;">
+                    <a class="nav-link {{ request()->is('procurement/for-approval-pr') ? 'submenu-active' : '' }}" href="{{route('procurement.for_approval_pr')}}">For Approval Purchase Request</a>
+                </li>
                 <li class="nav-item dashboard-list" id="canvassing-item" style="display: none;">
                     <a class="nav-link {{ request()->is('procurement/canvassing') ? 'submenu-active' : '' }}" href="{{route('procurement.canvassing')}}">Canvassing</a>
                 </li>

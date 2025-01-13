@@ -19,12 +19,14 @@
                 <button type="button" class="btn btn-warning text-white" title="Edit" data-bs-toggle="modal" data-bs-target="#editPr{{$purchase_requests->id}}">
                     Edit
                 </button>
+                @if($purchase_requests->status == 'For RFQ')
                 <button type="button" class="btn btn-info text-white" title="Request for quotation" data-bs-toggle="modal" data-bs-target="#rfq{{$purchase_requests->id}}">
                     Request For Quotation (RFQ)
                 </button>
-                <button type="button" class="btn btn-secondary text-white" title="Request for quotation" data-bs-toggle="modal" data-bs-target="#returnRemarks{{$purchase_requests->id}}">
+                @endif
+                {{-- <button type="button" class="btn btn-secondary text-white" title="Request for quotation" data-bs-toggle="modal" data-bs-target="#returnRemarks{{$purchase_requests->id}}">
                     Return  
-                </button>
+                </button> --}}
                 <a href="{{url('procurement/purchase-request')}}" type="button" class="btn btn-danger text-white">
                     Close   
                 </a>

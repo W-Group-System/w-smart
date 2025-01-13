@@ -42,7 +42,7 @@ class RequestForQuotationController extends Controller
     {
         // dd($request->all());
         $purchased_request = PurchaseRequest::findOrFail($request->purchase_request_id);
-        $purchased_request->status = 'RFQ';
+        $purchased_request->status = 'For Canvassing';
         $purchased_request->save();
 
         if ($request->has('vendor_name'))

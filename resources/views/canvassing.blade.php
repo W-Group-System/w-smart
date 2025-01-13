@@ -126,8 +126,8 @@
                         <option>20</option>
                     </select>
                 </div>
-                {{-- <div class="me-3 dynamic-rows-info">{{$purchase_requests->firstItem()}}-{{$purchase_requests->lastItem()}} of {{$purchase_requests->total()}}</div>
-                {!! $purchase_requests->links() !!} --}}
+                <div class="me-3 dynamic-rows-info">{{$purchase_request->firstItem()}}-{{$purchase_request->lastItem()}} of {{$purchase_request->total()}}</div>
+                {!! $purchase_request->links() !!}
             </div>
         </div>
     </div>

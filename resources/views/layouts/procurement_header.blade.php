@@ -19,6 +19,9 @@
                         @if (Request::is('procurement/canvassing'))
                             Canvassing
                         @endif
+                        @if (Request::is('procurement/for-approval-pr'))
+                            For Approval Purchase Request
+                        @endif
                     </span>
                 </div>
             </nav>
@@ -57,11 +60,11 @@
                             @if (Request::is('procurement/canvassing'))
                                 Canvassing
                             @endif
-                            @if (Request::is('procurement/purchase-order'))
-                                Pending
+                            @if (Request::is('procurement/for-approval-pr'))
+                                For Approval
                             @endif
                         </h6>
-                        @if (Request::is('procurement/purchase-request'))
+                        @if (Request::is('procurement/purchase-request') || Request::is('procurement/for-approval-pr'))
                         <h3 class="card-text fw-bold mb-0">{{count($purchase_requests->where('status','Pending'))}}</h3>
                         @elseif(Request::is('procurement/canvassing'))
                         <h3 class="card-text fw-bold mb-0">{{count($purchase_request->where('status','RFQ'))}}</h3>
@@ -74,6 +77,7 @@
                 </div>
             </div>
 
+            @if(!Request::is('procurement/for-approval-pr'))
             <!-- Withdrawal Card -->
             <div class="card shadow-sm"
                 style="flex: 1 1 220px; padding: 15px; border-radius: 10px; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); margin-right: 15px;">
@@ -96,7 +100,9 @@
                         All</a>
                 </div>
             </div>
+            @endif
             
+            @if(!Request::is('procurement/for-approval-pr'))
             <!-- Withdrawal Card -->
             <div class="card shadow-sm"
                 style="flex: 1 1 220px; padding: 15px; border-radius: 10px; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);">
@@ -113,6 +119,7 @@
                         All</a>
                 </div>
             </div>
+            @endif
         </div>
     </div>
 </div>

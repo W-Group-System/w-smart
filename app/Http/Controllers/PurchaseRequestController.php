@@ -78,20 +78,23 @@ class PurchaseRequestController extends Controller
             $purchase_item->save();
         }
 
-        $attachments = $request->file('attachments');
-        foreach($attachments as $attachment)
+        if ($request->has('attachments'))
         {
-            $name = time().'_'.$attachment->getClientOriginalName();
-            $extention = $attachment->getClientOriginalExtension();
-            $attachment->move(public_path('purchase_request_files'),$name);
-
-            $file_name = '/purchase_request_files/'.$name;
-            
-            $purchase_request_file = new PurchaseRequestFile;
-            $purchase_request_file->purchase_request_id = $purchase_request->id;
-            $purchase_request_file->document_type = $extention;
-            $purchase_request_file->file = $file_name;
-            $purchase_request_file->save();
+            $attachments = $request->file('attachments');
+            foreach($attachments as $attachment)
+            {
+                $name = time().'_'.$attachment->getClientOriginalName();
+                $extention = $attachment->getClientOriginalExtension();
+                $attachment->move(public_path('purchase_request_files'),$name);
+    
+                $file_name = '/purchase_request_files/'.$name;
+                
+                $purchase_request_file = new PurchaseRequestFile;
+                $purchase_request_file->purchase_request_id = $purchase_request->id;
+                $purchase_request_file->document_type = $extention;
+                $purchase_request_file->file = $file_name;
+                $purchase_request_file->save();
+            }
         }
 
         Alert::success('Successfully Saved')->persistent('Dismiss');
@@ -137,9 +140,9 @@ class PurchaseRequestController extends Controller
         $purchase_request = PurchaseRequest::findOrFail($id);
         $purchase_request->due_date = $request->requestDueDate;
         $purchase_request->user_id = $request->requestor_name;
-        $purchase_request->assigned_to = $request->assigned_to;
+        // $purchase_request->assigned_to = $request->assigned_to;
         $purchase_request->subsidiary = $request->subsidiary;
-        // $purchase_request->status = 'Pending';
+        $purchase_request->status = 'Pending';
         $purchase_request->department_id = $request->department;
         $purchase_request->remarks = $request->remarks;
         $purchase_request->save();

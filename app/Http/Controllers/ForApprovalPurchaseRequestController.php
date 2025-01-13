@@ -4,8 +4,9 @@ namespace App\Http\Controllers;
 
 use App\PurchaseRequest;
 use Illuminate\Http\Request;
+use RealRashid\SweetAlert\Facades\Alert;
 
-class CanvassingController extends Controller
+class ForApprovalPurchaseRequestController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -14,12 +15,13 @@ class CanvassingController extends Controller
      */
     public function index(Request $request)
     {
+        //
         $start_date = $request->start_date;
         $end_date = $request->end_date;
 
-        $purchase_request = PurchaseRequest::with('rfqItem.purchaseItem')->where('status','For Canvassing')->paginate(10);
+        $purchase_requests = PurchaseRequest::where('status', 'Pending')->paginate(10);
 
-        return view('canvassing',compact('start_date','end_date','purchase_request'));
+        return view('purchase_request.for_approval', compact('start_date','end_date','purchase_requests'));
     }
 
     /**
@@ -51,9 +53,7 @@ class CanvassingController extends Controller
      */
     public function show($id)
     {
-        $purchase_request = PurchaseRequest::with('rfqItem.purchaseItem')->findOrFail($id);
-        
-        return view('view_canvassing', compact('purchase_request'));
+        //
     }
 
     /**
@@ -77,6 +77,22 @@ class CanvassingController extends Controller
     public function update(Request $request, $id)
     {
         //
+        $purchase_requests = PurchaseRequest::findOrFail($id);
+        
+        if ($request->action == 'Approved')
+        {
+            $purchase_requests->status = 'For RFQ';
+            Alert::success('Successfully Approved')->persistent('Dismiss');
+        }
+        elseif($request->action == 'Returned')
+        {
+            $purchase_requests->status = 'Returned';
+            Alert::success('Successfully Returned')->persistent('Dismiss');
+        }
+
+        $purchase_requests->save();
+
+        return back();
     }
 
     /**
