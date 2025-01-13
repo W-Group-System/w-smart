@@ -92,8 +92,11 @@
                 <li class="nav-item dashboard-list" id="purchase-order-item" style="display: none;">
                     <a class="nav-link {{ request()->is('procurement/purchase-order') ? 'submenu-active' : '' }}" href="{{route('procurement.purchase_order')}}">Purchased Order</a>
                 </li>
+                <li class="nav-item dashboard-list" id="supplier-accreditation-item" style="display: none;">
+                    <a class="nav-link {{ request()->is('procurement/supplier-accreditation') ? 'submenu-active' : '' }}" href="{{route('procurement.supplier_accreditation')}}">Supplier Accreditation</a>
+                </li>
             </ul>
-        </li>
+        </li>   
 
         <!-- Settings -->
         <li class="nav-item" id="settings-menu" style="display: none;">

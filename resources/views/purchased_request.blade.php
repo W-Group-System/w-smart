@@ -129,13 +129,13 @@
                             <td style="text-align: center; padding: 5px 10px;">{{str_pad($pr->id,6,'0',STR_PAD_LEFT)}}</td>
                             <td style="text-align: center; padding: 5px 10px;"></td>
                             <td style="text-align: center; padding: 5px 10px;">{{date('m/d/Y', strtotime($pr->due_date))}}</td>
-                            <td style="text-align: center; padding: 5px 10px;">{{$pr->user->name}}</td>
-                            <td style="text-align: center; padding: 5px 10px;">{{$pr->department->name}}</td>
+                            <td style="text-align: center; padding: 5px 10px;"></td>
+                            <td style="text-align: center; padding: 5px 10px;"></td>
                             <td style="text-align: center; padding: 5px 10px;">{{$pr->subsidiary}}</td>
                             <td style="text-align: center; padding: 5px 10px;">0.00</td>
                             <td style="text-align: center; padding: 5px 10px;">Expedited</td>
                             <td style="text-align: center; padding: 5px 10px;">{{$pr->status}}</td>
-                            <td style="text-align: center; padding: 5px 10px;">{{$pr->assignedTo->name}}</td>
+                            <td style="text-align: center; padding: 5px 10px;"></td>
                             <td style="text-align: center; padding: 5px 10px;">{{date('m/d/Y', strtotime($pr->created_at))}}</td>
                         </tr>
                     @endforeach
