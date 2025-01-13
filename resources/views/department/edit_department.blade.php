@@ -20,6 +20,19 @@
                             <input type="text" class="form-control form-control-sm" name="dept_name" id="deptName" value="{{$department->name}}" required />
                         </div>
                         <div class="form-group">
+                            <label for="deptName">Department Head</label>
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <select data-placeholder="Select department head" name="department_head" class="form-select chosen-select" required>
+                                        <option value=""></option>
+                                        @foreach ($dept_head as $head)
+                                            <option value="{{$head->id}}">{{$head->name}}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
                             <label for="subsidiary">Subsidiary</label>
                             <select class="form-select" id="subsidiary" name="subsidiary">
                                 <option value=""></option>

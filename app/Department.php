@@ -10,4 +10,8 @@ class Department extends Model
     {
         return $this->belongsTo(Subsidiary::class,'subsidiary_id','subsidiary_id');
     }
+    public function departmentHead()
+    {
+        return $this->belongsTo(User::class,'department_head');
+    }
 }
