@@ -146,11 +146,13 @@
     {
         if (value == 'Returned')
         {
-            document.getElementById('returnRemarks').removeAttribute('hidden')
+            document.getElementById('returnRemarksCol').removeAttribute('hidden')
+            document.getElementById('returnRemarks').setAttribute('required',true)
         }
         else
         {
-            document.getElementById('returnRemarks').setAttribute('hidden', true)
+            document.getElementById('returnRemarksCol').setAttribute('hidden', true)
+            document.getElementById('returnRemarks').removeAttribute('required')
         }
     }
     

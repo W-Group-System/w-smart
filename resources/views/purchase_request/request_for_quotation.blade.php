@@ -118,10 +118,10 @@
                                                     <td style="padding: 5px 10px" class="text-center">
                                                         <input type="checkbox" name="item_checkbox[]" class="itemCheckbox" @if(in_array($item->id, $rfq_item)) checked @endif value="{{$item->id}}">
                                                     </td>
-                                                    <td style="padding: 5px 10px;">{{$item->item_code}}</td>
-                                                    <td style="padding: 5px 10px;">{{$item->item_category}}</td>
-                                                    <td style="padding: 5px 10px;">{{$item->item_description}}</td>
-                                                    <td style="padding: 5px 10px;">{{$item->item_quantity}}</td>
+                                                    <td style="padding: 5px 10px;">{{$item->inventory->item_code}}</td>
+                                                    <td style="padding: 5px 10px;">{{$item->inventory->item_category}}</td>
+                                                    <td style="padding: 5px 10px;">{{$item->inventory->item_description}}</td>
+                                                    <td style="padding: 5px 10px;">{{$item->inventory->qty}}</td>
                                                     <td style="padding: 5px 10px;">{{$item->unit_of_measurement}}</td>
                                                 </tr>
                                             @endforeach

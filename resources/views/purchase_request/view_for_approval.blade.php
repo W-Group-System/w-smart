@@ -136,9 +136,9 @@
                                 <option value="Returned">Returned</option>
                             </select>
                         </div>
-                        <div class="col-lg-4" id="returnRemarks" hidden>
+                        <div class="col-lg-4" id="returnRemarksCol" hidden>
                             Remarks
-                            <textarea name="return_remarks" class="form-control" cols="30" rows="10" required></textarea>
+                            <textarea name="return_remarks" id="returnRemarks" class="form-control" cols="30" rows="10" ></textarea>
                         </div>
                     </div>
     
