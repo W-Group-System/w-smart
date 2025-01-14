@@ -85,28 +85,34 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach ($purchase_requests as $pr)
-                        <tr>
-                            <td style="text-align: center; padding: 5px 10px;">
-                                <button title="View" type="button" class="btn btn-sm btn-info text-white" data-bs-toggle="modal" data-bs-target="#view{{$pr->id}}">
-                                    <i class="bi bi-eye"></i>
-                                </button>
-                                
-                                @if($pr->status == 'Returned')
-                                <button type="button" class="btn btn-sm btn-warning text-white" title="Edit" data-bs-toggle="modal" data-bs-target="#editPurchaseRequest{{$pr->id}}">
-                                    <i class="bi bi-pencil-square"></i>
-                                </button>
-                                @endif
-                            </td>
-                            <td style="text-align: center; padding: 5px 10px;">{{str_pad($pr->id,6,'0',STR_PAD_LEFT)}}</td>
-                            <td style="text-align: center; padding: 5px 10px;">
-                                @foreach ($pr->purchaseItems as $item)
-                                    {{$item->item_description}} <br>
-                                @endforeach
-                            </td>
-                        </tr>
+                    @if(count($purchase_requests) > 0)
+                        @foreach ($purchase_requests as $pr)
+                            <tr>
+                                <td style="text-align: center; padding: 5px 10px;">
+                                    <button title="View" type="button" class="btn btn-sm btn-info text-white" data-bs-toggle="modal" data-bs-target="#view{{$pr->id}}">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                    
+                                    @if($pr->status == 'Returned')
+                                    <button type="button" class="btn btn-sm btn-warning text-white" title="Edit" data-bs-toggle="modal" data-bs-target="#editPurchaseRequest{{$pr->id}}">
+                                        <i class="bi bi-pencil-square"></i>
+                                    </button>
+                                    @endif
+                                </td>
+                                <td style="text-align: center; padding: 5px 10px;">{{str_pad($pr->id,6,'0',STR_PAD_LEFT)}}</td>
+                                <td style="text-align: center; padding: 5px 10px;">
+                                    @foreach ($pr->purchaseItems as $item)
+                                        {{$item->inventory->item_description}} <br>
+                                    @endforeach
+                                </td>
+                            </tr>
 
-                    @endforeach
+                        @endforeach
+                    @else
+                        <tr>
+                            <td colspan="3" class="text-center">No data available.</td>
+                        </tr>
+                    @endif
                 </tbody>
             </table>
         </div>
@@ -133,3 +139,20 @@
 @include('purchase_request.view_for_approval')
 @endforeach
 @endsection
+
+@push('scripts')
+<script>
+    function actionFunction(value)
+    {
+        if (value == 'Returned')
+        {
+            document.getElementById('returnRemarks').removeAttribute('hidden')
+        }
+        else
+        {
+            document.getElementById('returnRemarks').setAttribute('hidden', true)
+        }
+    }
+    
+</script>
+@endpush

@@ -101,10 +101,10 @@
                             @if($purchase_requests->purchaseItems->isNotEmpty())
                                 @foreach ($purchase_requests->purchaseItems as $item)
                                     <tr>
-                                        <td style="padding: 5px 10px;">{{$item->item_code}}</td>
-                                        <td style="padding: 5px 10px;">{{$item->item_category}}</td>
-                                        <td style="padding: 5px 10px;">{{$item->item_description}}</td>
-                                        <td style="padding: 5px 10px;">{{$item->item_quantity}}</td>
+                                        <td style="padding: 5px 10px;">{{$item->inventory->item_code}}</td>
+                                        <td style="padding: 5px 10px;">{{$item->inventory->item_category}}</td>
+                                        <td style="padding: 5px 10px;">{{$item->inventory->item_description}}</td>
+                                        <td style="padding: 5px 10px;">{{number_format($item->inventory->qty,2)}}</td>
                                         <td style="padding: 5px 10px;">{{$item->unit_of_measurement}}</td>
                                     </tr>
                                 @endforeach

@@ -87,6 +87,7 @@ class ForApprovalPurchaseRequestController extends Controller
         elseif($request->action == 'Returned')
         {
             $purchase_requests->status = 'Returned';
+            $purchase_requests->return_remarks = $request->return_remarks;
             Alert::success('Successfully Returned')->persistent('Dismiss');
         }
 

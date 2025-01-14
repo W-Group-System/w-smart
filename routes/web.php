@@ -52,6 +52,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('procurement/edit-assigned/{id}', 'PurchaseRequestController@editAssigned');
     Route::post('refresh_vendor_email', 'PurchaseRequestController@refreshVendorEmail')->name('refresh_vendor_email');
     Route::post('return_purchase_request/{id}','PurchaseRequestController@return');
+    Route::post('refresh_inventory', 'PurchaseRequestController@refreshInventory')->name('refreshInventory');
 
     // For Approval
     Route::get('procurement/for-approval-pr', 'ForApprovalPurchaseRequestController@index')->name('procurement.for_approval_pr');

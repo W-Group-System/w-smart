@@ -62,8 +62,8 @@
                             <input type="text"  value="{{auth()->user()->department->name}}" class="form-control form-control-sm" readonly>
                         </div>
                         <div class="col-md-12">
-                            <div class="table-responsive">
-                                <table class="table table-bordered" width="100%">
+                            {{-- <div class="table-responsive"> --}}
+                                <table class="table table-bordered" width="100%" style="table-layout: fixed;">
                                     <thead>
                                         <tr>
                                             <th>Item Code</th>
@@ -77,20 +77,29 @@
                                     <tbody id="tbodyAddRow{{$pr->id}}">
                                         @foreach ($pr->purchaseItems as $item)
                                             <tr>
-                                                <td>
-                                                    <input type="text" name="item_code[]" class="form-control form-control-sm" value="{{$item->item_code}}">
+                                                <td style="padding: 5px 10px">
+                                                    <p class="item_code">{{$item->inventory->item_code}}</p>
                                                 </td>
-                                                <td>
-                                                    <input type="text" name="item_category[]" class="form-control form-control-sm" value="{{$item->item_category}}">
+                                                <td style="padding: 5px 10px">
+                                                    <p class="item_category">{{$item->inventory->item_category}}</p>
                                                 </td>
-                                                <td>
-                                                    <input type="text" name="item_description[]" class="form-control form-control-sm" value="{{$item->item_description}}">
+                                                <td style="padding: 5px 10px">
+                                                    <select data-placeholder="Select item description" name="inventory_id[]" class="form-select chosen-select" onchange="itemDescription(this.value)">
+                                                        <option value=""></option>
+                                                        @foreach ($inventory_list as $inventory)
+                                                            <option value="{{$inventory->inventory_id}}" @if($inventory->inventory_id == $item->inventory->inventory_id) selected @endif>{{$inventory->item_description}}</option>
+                                                        @endforeach
+                                                    </select>
                                                 </td>
-                                                <td>
-                                                    <input type="text" name="item_quantity[]" class="form-control form-control-sm" value="{{$item->item_quantity}}">
+                                                <td style="padding: 5px 10px">
+                                                    <p class="item_quantity">{{$item->inventory->qty}}</p>
                                                 </td>
-                                                <td>
-                                                    <input type="text" name="unit_of_measurement[]" class="form-control form-control-sm" value="{{$item->unit_of_measurement}}">
+                                                <td style="padding: 5px 10px">
+                                                    <select data-placeholder="Select unit of measurement" name="unit_of_measurement[]" class="form-select chosen-select" required>
+                                                        <option value=""></option>
+                                                        <option value="KG" @if($item->unit_of_measurement == 'KG') selected @endif>KG</option>
+                                                        <option value="G" @if($item->unit_of_measurement == 'G') selected @endif>Grams</option>
+                                                    </select>
                                                 </td>
                                             </tr>
                                         @endforeach
@@ -98,20 +107,29 @@
                                     @else 
                                     <tbody id="tbodyAddRow{{$pr->id}}">
                                         <tr>
-                                            <td>
-                                                <input type="text" name="item_code[]" class="form-control form-control-sm">
+                                            <td style="padding: 5px 10px">
+                                                <p class="item_code"></p>
                                             </td>
-                                            <td>
-                                                <input type="text" name="item_category[]" class="form-control form-control-sm">
+                                            <td style="padding: 5px 10px">
+                                                <p class="item_category"></p>
                                             </td>
-                                            <td>
-                                                <input type="text" name="item_description[]" class="form-control form-control-sm">
+                                            <td style="padding: 5px 10px">
+                                                <select data-placeholder="Select item description" name="inventory_id[]" class="form-select chosen-select" onchange="itemDescription(this.value)">
+                                                    <option value=""></option>
+                                                    @foreach ($inventory_list as $inventory)
+                                                        <option value="{{$inventory->inventory_id}}">{{$inventory->item_description}}</option>
+                                                    @endforeach
+                                                </select>
                                             </td>
-                                            <td>
-                                                <input type="text" name="item_quantity[]" class="form-control form-control-sm">
+                                            <td style="padding: 5px 10px">
+                                                <p class="item_quantity"></p>
                                             </td>
-                                            <td>
-                                                <input type="text" name="unit_of_measurement[]" class="form-control form-control-sm">
+                                            <td style="padding: 5px 10px">
+                                                <select data-placeholder="Select unit of measurement" name="unit_of_measurement[]" class="form-select chosen-select" required>
+                                                    <option value=""></option>
+                                                    <option value="KG">KG</option>
+                                                    <option value="G">Grams</option>
+                                                </select>
                                             </td>
                                         </tr>
                                     </tbody>
@@ -123,7 +141,7 @@
                                 <button type="button" class="btn btn-danger " onclick="deleteRow({{$pr->id}})">
                                     Delete Row
                                 </button>
-                            </div>
+                            {{-- </div> --}}
                         </div>
                         <div class="col-md-6">
                             <label for="attachments" class="form-label">Attachments:</label>

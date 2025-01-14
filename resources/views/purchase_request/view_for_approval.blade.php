@@ -76,10 +76,10 @@
                                         @if($pr->purchaseItems->isNotEmpty())
                                             @foreach ($pr->purchaseItems as $item)
                                                 <tr>
-                                                    <td style="padding: 5px 10px;">{{$item->item_code}}</td>
-                                                    <td style="padding: 5px 10px;">{{$item->item_category}}</td>
-                                                    <td style="padding: 5px 10px;">{{$item->item_description}}</td>
-                                                    <td style="padding: 5px 10px;">{{$item->item_quantity}}</td>
+                                                    <td style="padding: 5px 10px;">{{$item->inventory->item_code}}</td>
+                                                    <td style="padding: 5px 10px;">{{$item->inventory->item_category}}</td>
+                                                    <td style="padding: 5px 10px;">{{$item->inventory->item_description}}</td>
+                                                    <td style="padding: 5px 10px;">{{$item->inventory->qty}}</td>
                                                     <td style="padding: 5px 10px;">{{$item->unit_of_measurement}}</td>
                                                 </tr>
                                             @endforeach
@@ -130,11 +130,15 @@
                     <div class="row">
                         <div class="col-lg-4">
                             Select action
-                            <select data-placeholder="Select action" name="action" class="form-control chosen-select">
+                            <select data-placeholder="Select action" name="action" class="form-control chosen-select" onchange="actionFunction(this.value)">
                                 <option value=""></option>
                                 <option value="Approved">Approved</option>
                                 <option value="Returned">Returned</option>
                             </select>
+                        </div>
+                        <div class="col-lg-4" id="returnRemarks" hidden>
+                            Remarks
+                            <textarea name="return_remarks" class="form-control" cols="30" rows="10" required></textarea>
                         </div>
                     </div>
     

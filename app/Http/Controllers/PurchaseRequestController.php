@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Department;
+use App\Inventory;
 use App\Models\User;
 use App\PurchaseItem;
 use App\PurchaseRequest;
@@ -33,8 +34,9 @@ class PurchaseRequestController extends Controller
             })
             ->paginate(10);
         $get_pr_no = PurchaseRequest::orderBy('id','desc')->first();
+        $inventory_list = Inventory::get();
         
-        return view('purchased_request', compact('users','purchase_requests','get_pr_no','start_date','end_date'));
+        return view('purchased_request', compact('users','purchase_requests','get_pr_no','start_date','end_date', 'inventory_list'));
     }
 
     /**
@@ -66,14 +68,11 @@ class PurchaseRequestController extends Controller
         $purchase_request->remarks = $request->remarks;
         $purchase_request->save();
 
-        foreach($request->item_code as $key=>$item_code)
+        foreach($request->inventory_id as $key=>$inventory)
         {
             $purchase_item = new PurchaseItem;
             $purchase_item->purchase_request_id = $purchase_request->id;
-            $purchase_item->item_code = $item_code;
-            $purchase_item->item_category = $request->item_category[$key];
-            $purchase_item->item_description = $request->item_description[$key];
-            $purchase_item->item_quantity = $request->item_quantity[$key];
+            $purchase_item->inventory_id = $inventory;
             $purchase_item->unit_of_measurement = $request->unit_of_measurement[$key];
             $purchase_item->save();
         }
@@ -147,17 +146,17 @@ class PurchaseRequestController extends Controller
         $purchase_request->remarks = $request->remarks;
         $purchase_request->save();
 
-        $purchase_item = PurchaseItem::where('purchase_request_id', $id)->delete();
-        foreach($request->item_code as $key=>$item_code)
+        if ($request->has('inventory_id'))
         {
-            $purchase_item = new PurchaseItem;
-            $purchase_item->purchase_request_id = $id;
-            $purchase_item->item_code = $item_code;
-            $purchase_item->item_category = $request->item_category[$key];
-            $purchase_item->item_description = $request->item_description[$key];
-            $purchase_item->item_quantity = $request->item_quantity[$key];
-            $purchase_item->unit_of_measurement = $request->unit_of_measurement[$key];
-            $purchase_item->save();
+            $purchase_item = PurchaseItem::where('purchase_request_id', $id)->delete();
+            foreach($request->inventory_id as $key=>$inventory)
+            {
+                $purchase_item = new PurchaseItem;
+                $purchase_item->purchase_request_id = $purchase_request->id;
+                $purchase_item->inventory_id = $inventory;
+                $purchase_item->unit_of_measurement = $request->unit_of_measurement[$key];
+                $purchase_item->save();
+            }
         }
 
         if ($request->has('attachments'))
@@ -247,5 +246,12 @@ class PurchaseRequestController extends Controller
 
         Alert::success('Successfully Returned')->persistent('Dismiss');
         return back();
+    }
+
+    public function refreshInventory(Request $request)
+    {
+        $inventory = Inventory::findOrFail($request->id);
+        
+        return $inventory;
     }
 }

@@ -69,44 +69,51 @@
                         <div class="col-md-12">
                             {{-- <label for="remarks" class="form-label">Remarks</label>
                             <textarea class="form-control" id="remarks" style="height: 50%" rows="3"></textarea> --}}
-                            <div class="table-responsive">
-                                <table class="table table-bordered" width="100%">
-                                    <thead>
-                                        <tr>
-                                            <th>Item Code</th>
-                                            <th>Item Category</th>
-                                            <th>Item Description</th>
-                                            <th>Item Quantity</th>
-                                            <th>Unit of Measurement</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="tbodyAddRow">
-                                        <tr>
-                                            <td>
-                                                <input type="text" name="item_code[]" class="form-control form-control-sm">
-                                            </td>
-                                            <td>
-                                                <input type="text" name="item_category[]" class="form-control form-control-sm">
-                                            </td>
-                                            <td>
-                                                <input type="text" name="item_description[]" class="form-control form-control-sm">
-                                            </td>
-                                            <td>
-                                                <input type="text" name="item_quantity[]" class="form-control form-control-sm">
-                                            </td>
-                                            <td>
-                                                <input type="text" name="unit_of_measurement[]" class="form-control form-control-sm">
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                                <button type="button" class="btn btn-success" id="addRowBtn">
-                                    Add Row
-                                </button>
-                                <button type="button" class="btn btn-danger" id="deleteRowBtn">
-                                    Delete Row
-                                </button>
-                            </div>
+                            <table class="table table-bordered" width="100%" style="table-layout: fixed;">
+                                <thead>
+                                    <tr>
+                                        <th style="padding: 5px 10px">Item Code</th>
+                                        <th style="padding: 5px 10px">Item Category</th>
+                                        <th style="padding: 5px 10px">Item Description</th>
+                                        <th style="padding: 5px 10px">Item Quantity</th>
+                                        <th style="padding: 5px 10px">Unit of Measurement</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbodyAddRow">
+                                    <tr>
+                                        <td style="padding: 5px 10px">
+                                            <p class="item_code"></p>
+                                        </td>
+                                        <td style="padding: 5px 10px">
+                                            <p class="item_category"></p>
+                                        </td>
+                                        <td style="padding: 5px 10px">
+                                            <select data-placeholder="Select item description" name="inventory_id[]" class="form-select chosen-select" onchange="itemDescription(this.value)">
+                                                <option value=""></option>
+                                                @foreach ($inventory_list as $inventory)
+                                                    <option value="{{$inventory->inventory_id}}">{{$inventory->item_description}}</option>
+                                                @endforeach
+                                            </select>
+                                        </td>
+                                        <td style="padding: 5px 10px">
+                                            <p class="item_quantity"></p>
+                                        </td>
+                                        <td style="padding: 5px 10px">
+                                            <select data-placeholder="Select unit of measurement" name="unit_of_measurement[]" class="form-select chosen-select" required>
+                                                <option value=""></option>
+                                                <option value="KG">KG</option>
+                                                <option value="G">Grams</option>
+                                            </select>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>    
+                            <button type="button" class="btn btn-success" id="addRowBtn">
+                                Add Row
+                            </button>
+                            <button type="button" class="btn btn-danger" id="deleteRowBtn">
+                                Delete Row
+                            </button>
                         </div>
                         <div class="col-md-6">
                             <label for="attachments" class="form-label">Attachments:</label>
