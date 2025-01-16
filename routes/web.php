@@ -51,10 +51,26 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('procurement/update-files/{id}','PurchaseRequestController@updateFiles');
     Route::post('procurement/delete-files/{id}','PurchaseRequestController@deleteFiles');
     Route::post('procurement/edit-assigned/{id}', 'PurchaseRequestController@editAssigned');
+    Route::post('refresh_vendor_email', 'PurchaseRequestController@refreshVendorEmail')->name('refresh_vendor_email');
+    Route::post('return_purchase_request/{id}','PurchaseRequestController@return');
+    Route::post('refresh_inventory', 'PurchaseRequestController@refreshInventory')->name('refreshInventory');
+
+    // For Approval
+    Route::get('procurement/for-approval-pr', 'ForApprovalPurchaseRequestController@index')->name('procurement.for_approval_pr');
+    Route::post('procurement/action/{id}', 'ForApprovalPurchaseRequestController@update');
+    
+    // Request For Quotation
+    Route::post('store-request-for-quotation', 'RequestForQuotationController@store');
 
     // Purchased Order
     Route::get('procurement/purchase-order', 'PurchaseOrderController@index')->name('procurement.purchase_order');
-
+  
+    // Vendors
+    Route::get('/settings/vendors', 'VendorController@index')->name('settings.vendors');
+    Route::post('/settings/store-vendor','VendorController@store');
+    Route::get('/settings/view_vendor/{id}','VendorController@show');
+    Route::post('/settings/edit-vendor/{id}','VendorController@update');
+  
     // Canvassing
     Route::get('procurement/canvassing', 'CanvassingController@index')->name('procurement.canvassing');
 

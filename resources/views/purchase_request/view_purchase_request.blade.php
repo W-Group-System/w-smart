@@ -19,9 +19,14 @@
                 <button type="button" class="btn btn-warning text-white" title="Edit" data-bs-toggle="modal" data-bs-target="#editPr{{$purchase_requests->id}}">
                     Edit
                 </button>
+                @if($purchase_requests->status == 'For RFQ')
                 <button type="button" class="btn btn-info text-white" title="Request for quotation" data-bs-toggle="modal" data-bs-target="#rfq{{$purchase_requests->id}}">
                     Request For Quotation (RFQ)
                 </button>
+                @endif
+                {{-- <button type="button" class="btn btn-secondary text-white" title="Request for quotation" data-bs-toggle="modal" data-bs-target="#returnRemarks{{$purchase_requests->id}}">
+                    Return  
+                </button> --}}
                 <a href="{{url('procurement/purchase-request')}}" type="button" class="btn btn-danger text-white">
                     Close   
                 </a>
@@ -73,6 +78,10 @@
                 <p class="m-0 fw-bold">Department:</p>
                 {{$purchase_requests->department->name}}
             </div>
+            <div class="col-md-6 mb-2">
+                <p class="m-0 fw-bold">Return Remarks:</p>
+                {!! nl2br(e($purchase_requests->return_remarks)) !!}
+            </div>
         </div>
 
         <div class="row">
@@ -92,10 +101,10 @@
                             @if($purchase_requests->purchaseItems->isNotEmpty())
                                 @foreach ($purchase_requests->purchaseItems as $item)
                                     <tr>
-                                        <td style="padding: 5px 10px;">{{$item->item_code}}</td>
-                                        <td style="padding: 5px 10px;">{{$item->item_category}}</td>
-                                        <td style="padding: 5px 10px;">{{$item->item_description}}</td>
-                                        <td style="padding: 5px 10px;">{{$item->item_quantity}}</td>
+                                        <td style="padding: 5px 10px;">{{$item->inventory->item_code}}</td>
+                                        <td style="padding: 5px 10px;">{{$item->inventory->item_category}}</td>
+                                        <td style="padding: 5px 10px;">{{$item->inventory->item_description}}</td>
+                                        <td style="padding: 5px 10px;">{{number_format($item->inventory->qty,2)}}</td>
                                         <td style="padding: 5px 10px;">{{$item->unit_of_measurement}}</td>
                                     </tr>
                                 @endforeach
@@ -162,8 +171,80 @@
 
 @include('purchase_request.edit2_purchase_request')
 @include('purchase_request.request_for_quotation')
+@include('purchase_request.return_remarks')
 @endsection
 
 @push('scripts')
-    <script src="{{ asset('js/purchaseRequest.js') }}"></script>
+<script src="{{ asset('js/purchaseRequest.js') }}"></script>
+<script>
+    function getVendorEmail(value)
+    {
+        var emailDisplay = $(event.target).closest('tr').find('.vendor_email')
+        emailDisplay.html("")
+        
+        var hiddenInput = $(event.target).closest('tr').find("input[name='vendor_email[]']");
+        hiddenInput.val("")
+
+        if (value != null)
+        {
+            $.ajax({
+                type: "POST",
+                url: "{{ url('refresh_vendor_email') }}",
+                data: {
+                    vendor_id: value
+                },
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function(data)
+                {
+                    var vendorEmail = data.join('<br>')
+                    
+                    emailDisplay.html(vendorEmail)
+                    hiddenInput.val(data)
+                }
+            })
+        }
+    }
+
+    $(document).ready(function() {
+        $("#addVendorBtn").on('click', function() {
+            var newRow = `
+                <tr>
+                    <td style="padding: 5px 10px;">
+                        <select name="vendor_name[]" class="form-select" onchange="getVendorEmail(this.value)" required>
+                            <option value="">Select vendor name</option>
+                            @foreach ($vendor_list as $key=>$vendor)
+                                <option value="{{$key}}">{{$vendor}}</option>
+                            @endforeach
+                        </select>
+                    </td>
+                    <td style="padding: 5px 10px;">
+                        <input type="hidden" name="vendor_email[]">
+                        <p class='vendor_email'></p>
+                    </td>
+                </tr>
+            `
+            
+            $('#vendorTbodyRow').append(newRow);
+        })
+
+        $("#deleteVendorBtn").on('click', function() {
+            
+            if ($("#vendorTbodyRow").children().length > 1) 
+            {
+                $("#vendorTbodyRow").children().last().remove()
+            }
+        })
+
+        $("#itemCheckboxAll").on('click', function() {
+            $('.itemCheckbox').prop('checked', $(this).is(':checked'));
+        })
+
+        $("#fileCheckboxAll").on('click', function() {
+            $('.fileCheckbox').prop('checked', $(this).is(':checked'));
+        })
+
+    })
+</script>
 @endpush
