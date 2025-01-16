@@ -1,5 +1,6 @@
 <?php
-
+use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -72,5 +73,12 @@ Route::group(['middleware' => 'auth'], function () {
   
     // Canvassing
     Route::get('procurement/canvassing', 'CanvassingController@index')->name('procurement.canvassing');
-    Route::get('procurement/show-canvassing/{id}', 'CanvassingController@show');
+
+    // Supplier Accreditation
+    Route::get('procurement/supplier_accreditation', 'AccreditationController@index')->name('procurement.supplier_accreditation');
+    Route::get('supplier_accreditation/create', 'AccreditationController@create');
+    Route::post('procurement/store_supplier_accreditation','AccreditationController@store')->name('supplier_accreditation.store');
+    Route::get('procurement/view_supplier_accreditation/{id}','AccreditationController@view');
+    Route::get('procurement/edit_supplier_accreditation/{id}', 'AccreditationController@edit')->name('supplier_accreditation.edit');
+    Route::post('procurement/update_supplier_accreditation/{id}','AccreditationController@update');
 });

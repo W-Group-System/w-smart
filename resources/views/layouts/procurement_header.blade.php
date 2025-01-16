@@ -19,6 +19,10 @@
                         @if (Request::is('procurement/canvassing'))
                             Canvassing
                         @endif
+                        @if (Request::is('procurement/supplier-accreditation'))
+                            Supplier Accreditation
+                        @endif
+                        
                         @if (Request::is('procurement/for-approval-pr'))
                             For Approval Purchase Request
                         @endif

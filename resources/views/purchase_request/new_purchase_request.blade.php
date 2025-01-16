@@ -64,7 +64,7 @@
                         <div class="col-md-6">
                             <label for="department" class="form-label">Department</label>
                             <input type="hidden" name="department" value="{{auth()->user()->department_id}}">
-                            <input type="text"  value="{{auth()->user()->department->name}}" class="form-control form-control-sm" readonly>
+                            {{-- <input type="text"  value="{{auth()->user()->department->name}}" class="form-control form-control-sm" readonly> --}}
                         </div>
                         <div class="col-md-12">
                             {{-- <label for="remarks" class="form-label">Remarks</label>
