@@ -18,7 +18,17 @@
                         </div>
                         <div class="col-md-6">
                             <label for="vendor_name" class="form-label">Vendor Name:</label>
-                            <input type="text" name="vendor_name"id="vendor_name" class="form-control form-control-sm">
+                            <select name="vendor_name" id="vendor-Name" class="form-select chosen-select">
+                                <option value="" disabled selected>Select Supplier</option>
+                                @foreach ($accredited_suppliers as $supplier )
+                                    <option value="{{ $supplier->id }}" vendor-code="{{ $supplier->vendor_code }}">{{ $supplier->corporate_name }}</option>
+                                @endforeach
+                            </select>
+                            {{-- <input type="text" name="vendor_name"id="vendor_name" class="form-control form-control-sm"> --}}
+                        </div>
+                        <div class="col-md-6">
+                            <label for="vendor_code" class="form-label">Vendor Code:</label>
+                            <input type="text" name="vendor_code" id="vendor-Code" class="form-control form-control-sm">
                         </div>
                         <div class="col-md-4">
                             <label for="vendorCategory" class="form-label">Vendor Category:</label>
@@ -156,3 +166,20 @@
         </div>
     </div>
 </div>
+{{-- 
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const soleProprietorCheckbox = document.getElementById('sole_proprietor');
+        const companyNameDiv = document.getElementById('company_name');
+        const companyNameInput = companyNameDiv.querySelector('input'); 
+        const vendorNameSelect = document.getElementById('vendor-Name');
+        const vendorCodeInput = document.getElementById('vendor-Code');
+        companyNameDiv.style.display = 'none'; 
+
+        vendorNameSelect.addEventListener('change', function () {
+        const selectedOption = vendorNameSelect.options[vendorNameSelect.selectedIndex];
+        const vendorCode = selectedOption.getAttribute('vendor-code');
+        vendorCodeInput.value = vendorCode; 
+    });
+    });
+</script> --}}
