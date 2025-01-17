@@ -8,6 +8,7 @@ use App\PurchaseItem;
 use App\PurchaseRequest;
 use App\PurchaseRequestFile;
 use App\Subsidiary;
+use App\SupplierAccreditation;
 use App\Vendor;
 use App\VendorAttachment;
 use App\VendorCategory;
@@ -24,10 +25,11 @@ class VendorController extends Controller
      */
     public function index()
     {
+        $accredited_suppliers = SupplierAccreditation::all();
         $vendors = Vendor::paginate(10);   
         $categories = VendorCategory::get() ;
         $subsidiaries = Subsidiary::get() ;
-        return view('vendor_management', compact('vendors', 'categories', 'subsidiaries'));
+        return view('vendor_management', compact('vendors', 'categories', 'subsidiaries','accredited_suppliers'));
     }
 
     /**
