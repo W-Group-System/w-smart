@@ -57,10 +57,10 @@
                     <option value="7">WGC</option>
                 </select>
 
-                {{-- <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addPurchaseRequest" id="addPR"
+                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#new" id="addPR"
                     style="height: 35px; padding: 0 15px; display: flex; align-items: center; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); font-size: 14px;">
-                    Add New PR
-                </button> --}}
+                    Add PO
+                </button>
             </div>
 
         </div>
@@ -76,62 +76,35 @@
                         </th>
                         <th
                             style="text-align: center; padding: 8px 10px; border: none; font-weight: 400; color: #637281;">
-                            PR No <i class="bi bi-three-dots-vertical"></i>
+                            PR Number <i class="bi bi-three-dots-vertical"></i>
                         </th>                        
                         <th
                             style="text-align: center; padding: 8px 10px; border: none; font-weight: 400; color: #637281;">
-                            PR Requested Date/Time <i class="bi bi-three-dots-vertical"></i>
+                            GRN Number <i class="bi bi-three-dots-vertical"></i>
                         </th>
                         <th
                             style="text-align: center; padding: 8px 10px; border: none; font-weight: 400; color: #637281;">
-                            Due Date <i class="bi bi-three-dots-vertical"></i></th>
-                        <th
-                            style="text-align: center; padding: 8px 10px; border: none; font-weight: 400; color: #637281;">
-                            Requestor Name <i class="bi bi-three-dots-vertical"></i></th>
-                        <th
-                            style="text-align: center; padding: 8px 10px; border: none; font-weight: 400; color: #637281;">
-                            Department <i class="bi bi-three-dots-vertical"></i></th>
-                        <th
-                            style="text-align: center; padding: 8px 10px; border: none; font-weight: 400; color: #637281;">
-                            Subsidiary <i class="bi bi-three-dots-vertical"></i></th>
-                        <th
-                            style="text-align: center; padding: 8px 10px; border: none; font-weight: 400; color: #637281;">
-                            PO No <i class="bi bi-three-dots-vertical"></i></th>
-                        <th
-                            style="text-align: center; padding: 8px 10px; border: none; font-weight: 400; color: #637281;">
-                            GR No <i class="bi bi-three-dots-vertical"></i></th>
-                        <th
-                            style="text-align: center; padding: 8px 10px; border: none; font-weight: 400; color: #637281;">
-                            Status <i class="bi bi-three-dots-vertical"></i>
-                        </th> 
+                            Status <i class="bi bi-three-dots-vertical"></i></th>
                     </tr>
                 </thead>
                 <tbody>
-                    {{-- @foreach ($purchase_requests as $pr)
+                    @foreach ($purchase_order as $po)
                         <tr>
                             <td style="text-align: center; padding: 5px 10px;">
-                                <a href="{{url('procurement/show-purchase-request/'.$pr->id)}}" class="btn btn-sm btn-info text-white">
+                                <a href="{{url('procurement/show_purchase_order/'.$po->id)}}" class="btn btn-sm btn-info text-white">
                                     <i class="bi bi-eye"></i>
                                 </a>
                                 
-                                <button type="button" class="btn btn-sm btn-warning text-white" title="Edit" data-bs-toggle="modal" data-bs-target="#editPurchaseRequest{{$pr->id}}">
+                                <button type="button" class="btn btn-sm btn-warning text-white" title="Edit" data-bs-toggle="modal" data-bs-target="#editPurchaseRequest{{$po->id}}">
                                     <i class="bi bi-pencil-square"></i>
                                 </button>
                             </td>
-                            <td style="text-align: center; padding: 5px 10px;">{{date('m/d/Y', strtotime($pr->created_at))}}</td>
-                            <td style="text-align: center; padding: 5px 10px;">{{str_pad($pr->id,6,'0',STR_PAD_LEFT)}}</td>
+                            <td style="text-align: center; padding: 5px 10px;">{{str_pad($po->purchaseRequest->id,6,'0',STR_PAD_LEFT)}}</td>
                             <td style="text-align: center; padding: 5px 10px;"></td>
-                            <td style="text-align: center; padding: 5px 10px;">{{date('m/d/Y', strtotime($pr->due_date))}}</td>
-                            <td style="text-align: center; padding: 5px 10px;">{{$pr->user->name}}</td>
-                            <td style="text-align: center; padding: 5px 10px;">{{$pr->department->name}}</td>
-                            <td style="text-align: center; padding: 5px 10px;">{{$pr->subsidiary}}</td>
-                            <td style="text-align: center; padding: 5px 10px;">0.00</td>
-                            <td style="text-align: center; padding: 5px 10px;">Expedited</td>
-                            <td style="text-align: center; padding: 5px 10px;">{{$pr->status}}</td>
-                            <td style="text-align: center; padding: 5px 10px;">{{$pr->assignedTo->name}}</td>
-                            <td style="text-align: center; padding: 5px 10px;">{{date('m/d/Y', strtotime($pr->created_at))}}</td>
+                            <td style="text-align: center; padding: 5px 10px;">{{$po->status}}</td>
                         </tr>
-                    @endforeach --}}
+
+                    @endforeach
                 </tbody>
             </table>
         </div>
@@ -153,4 +126,6 @@
         </div>
     </div>
 </div>
+
+@include('purchase_orders.new_purchase_order')
 @endsection

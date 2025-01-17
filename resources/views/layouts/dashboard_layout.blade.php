@@ -20,6 +20,8 @@
 
     {{-- Chosen --}}
     <link rel="stylesheet" href="{{asset('css/component-chosen.css')}}">
+    <link rel="stylesheet" href="{{ asset('vendors/font-awesome/css/font-awesome.min.css') }}" />
+    <link rel="stylesheet" href="{{ asset('vendors/ti-icons/css/themify-icons.css') }}">
     <!-- Your Custom CSS -->
     <link rel="stylesheet" href="{{ asset('css/main.css') }}">
     <meta name="user-role-id" content="{{ Auth::user()->role }}">

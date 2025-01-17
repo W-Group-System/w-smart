@@ -64,6 +64,8 @@ Route::group(['middleware' => 'auth'], function () {
 
     // Purchased Order
     Route::get('procurement/purchase-order', 'PurchaseOrderController@index')->name('procurement.purchase_order');
+    Route::post('procurement/store_purchase_order', 'PurchaseOrderController@store');
+    Route::get('procurement/show_purchase_order/{id}','PurchaseOrderController@show');
   
     // Vendors
     Route::get('/settings/vendors', 'VendorController@index')->name('settings.vendors');
