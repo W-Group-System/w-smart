@@ -70,6 +70,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('/settings/store-vendor','VendorController@store');
     Route::get('/settings/view_vendor/{id}','VendorController@show');
     Route::post('/settings/edit-vendor/{id}','VendorController@update');
+    Route::post('/settings/refresh_vendor_code','VendorController@refreshVendorCode')->name('refreshVendorCode');
   
     // Canvassing
     Route::get('procurement/canvassing', 'CanvassingController@index')->name('procurement.canvassing');

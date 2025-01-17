@@ -116,7 +116,7 @@
                                         <div>{{ optional($contact)->phone_no }}</div>
                                     @endforeach
                                 </td>
-                                <td>{{ optional($vendor)->vendorCategory->name }}</td>
+                                <td>{{ optional($vendor->vendorCategory)->name }}</td>
                                 <td>{{ optional($vendor)->created_at }}</td>
                                 <td>{{ optional($vendor)->updated_at }}</td>
                                 <td>{{ optional($vendor)->vendor_status }}</td>
@@ -151,5 +151,27 @@
 @endsection
 
 @push('scripts')
-    <script src="{{ asset('js/vendorManagement.js') }}"></script>
+    <script src="{{ asset('js/vendorManagement1.js') }}"></script>
+
+    <script>
+        
+        function vendorNameSelect(value)
+        {
+            $.ajax({
+                type: "POST",
+                url: "{{route('refreshVendorCode')}}",
+                data: {
+                    id: value
+                },
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function(data) {
+                    
+                    document.getElementById('vendor-Code').value = data
+                }
+            })
+        }
+
+    </script>
 @endpush

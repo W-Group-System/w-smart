@@ -18,7 +18,7 @@
                         </div>
                         <div class="col-md-6">
                             <label for="vendor_name" class="form-label">Vendor Name:</label>
-                            <select name="vendor_name" id="vendor-Name" class="form-select chosen-select">
+                            <select name="vendor_name" id="vendor-Name" class="form-select chosen-select" onchange="vendorNameSelect(this.value)">
                                 <option value="" disabled selected>Select Supplier</option>
                                 @foreach ($accredited_suppliers as $supplier )
                                     <option value="{{ $supplier->id }}" vendor-code="{{ $supplier->vendor_code }}">{{ $supplier->corporate_name }}</option>
@@ -166,20 +166,3 @@
         </div>
     </div>
 </div>
-{{-- 
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const soleProprietorCheckbox = document.getElementById('sole_proprietor');
-        const companyNameDiv = document.getElementById('company_name');
-        const companyNameInput = companyNameDiv.querySelector('input'); 
-        const vendorNameSelect = document.getElementById('vendor-Name');
-        const vendorCodeInput = document.getElementById('vendor-Code');
-        companyNameDiv.style.display = 'none'; 
-
-        vendorNameSelect.addEventListener('change', function () {
-        const selectedOption = vendorNameSelect.options[vendorNameSelect.selectedIndex];
-        const vendorCode = selectedOption.getAttribute('vendor-code');
-        vendorCodeInput.value = vendorCode; 
-    });
-    });
-</script> --}}

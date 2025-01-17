@@ -16,11 +16,11 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
 
-    vendorNameSelect.addEventListener('change', function () {
-        const selectedOption = vendorNameSelect.options[vendorNameSelect.selectedIndex];
-        const vendorCode = selectedOption.getAttribute('vendor-code');
-        vendorCodeInput.value = vendorCode; 
-    });
+    // vendorNameSelect.addEventListener('change', function () {
+    //     const selectedOption = vendorNameSelect.options[vendorNameSelect.selectedIndex];
+    //     const vendorCode = selectedOption.getAttribute('vendor-code');
+    //     vendorCodeInput.value = vendorCode; 
+    // });
 
     function addRow(vendorId) {
         const tableBody = document.querySelector(`#contactDetailsTable${vendorId} tbody`);

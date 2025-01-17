@@ -260,4 +260,10 @@ class VendorController extends Controller
         //
     }
 
+    public function refreshVendorCode(Request $request)
+    {
+        $supplier_accreditation = SupplierAccreditation::findOrFail($request->id);
+
+        return $supplier_accreditation->vendor_code;
+    }
 }
