@@ -15,7 +15,11 @@ class Vendor extends Model
 
     public function vendorContact()
     {
-        return $this->hasMany(VendorContact::class);
+        return $this->hasMany(SupplierAccreditationRep::class, 'accreditation_id', 'vendor_name');
+    }
+    public function vendorSupplier()
+    {
+        return $this->belongsTo(SupplierAccreditation::class, 'vendor_name', 'id');
     }
     public function vendorCategory()
     {

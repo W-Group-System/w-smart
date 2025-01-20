@@ -59,7 +59,7 @@
                         </th>
                         <th
                             style="text-align: center; padding: 8px 10px; border: none; font-weight: 400; color: #637281;">
-                            Vendor ID <i class="bi bi-three-dots-vertical"></i></th>
+                            Vendor Code <i class="bi bi-three-dots-vertical"></i></th>
                         </th>
                         <th
                             style="text-align: center; padding: 8px 10px; border: none; font-weight: 400; color: #637281;">
@@ -99,21 +99,22 @@
                                         <i class="bi bi-pencil-square"></i>
                                     </button>
                                 </td>
-                                <td>{{ optional($vendor)->id }}</td>
-                                <td>{{ optional($vendor)->vendor_name }}</td>
+                                <td>{{ optional($vendor)->vendor_code }}</td>
+                                <td>{{ optional($vendor->vendorSupplier)->corporate_name }}</td>
+                                <td>
+                                    {{-- @foreach ($vendor->vendorContact as $contact) --}}
+                                    {{ optional($vendor->vendorSupplier)->business_address }} <br>
+                                    {{ optional($vendor->vendorSupplier)->billing_address }}
+                                    {{-- @endforeach --}}
+                                </td>
                                 <td>
                                     @foreach ($vendor->vendorContact as $contact)
-                                        <div>{{ optional($contact)->address }}</div>
+                                        <div>{{ optional($contact)->email }}</div>
                                     @endforeach
                                 </td>
                                 <td>
                                     @foreach ($vendor->vendorContact as $contact)
-                                        <div>{{ optional($contact)->work_email }}</div>
-                                    @endforeach
-                                </td>
-                                <td>
-                                    @foreach ($vendor->vendorContact as $contact)
-                                        <div>{{ optional($contact)->phone_no }}</div>
+                                        <div>{{ optional($contact)->contact }}</div>
                                     @endforeach
                                 </td>
                                 <td>{{ optional($vendor->vendorCategory)->name }}</td>
@@ -168,7 +169,8 @@
                 },
                 success: function(data) {
                     
-                    document.getElementById('vendor-Code').value = data
+                    document.getElementById('vendor-Code').value = data.vendor_code;
+                    document.getElementById('billing-Tin').value = data.billing_tin;
                 }
             })
         }
