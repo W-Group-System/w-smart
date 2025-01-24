@@ -10,7 +10,7 @@
         <div class="row">
             <div class="col-md-6 mb-2">
                 <p class="m-0 fw-bold">Vendor Name:</p>
-                {{$vendors->vendor_name}}
+                {{$vendors->vendorSupplier->corporate_name}}
             </div>
             <div class="col-md-6 mb-2">
                 <p class="m-0 fw-bold">Company Name:</p>
@@ -35,9 +35,9 @@
                             <tr>
                                 <th style="padding:5px 10px;">Work Email</th>
                                 <th style="padding:5px 10px;">Phone Number</th>
-                                <th style="padding:5px 10px;">FAX Number</th>
+                                {{-- <th style="padding:5px 10px;">FAX Number</th>
                                 <th style="padding:5px 10px;">Alternative Phone Number</th>
-                                <th style="padding:5px 10px;">Address</th>
+                                <th style="padding:5px 10px;">Address</th> --}}
                                 <th style="padding:5px 10px;">Contact Person</th>
                             </tr>
                         </thead>
@@ -45,12 +45,12 @@
                             @if($vendors->vendorContact->isNotEmpty())
                                 @foreach ($vendors->vendorContact as $contact)
                                     <tr>
-                                        <td style="padding: 5px 10px;">{{$contact->work_email}}</td>
-                                        <td style="padding: 5px 10px;">{{$contact->phone_no}}</td>
-                                        <td style="padding: 5px 10px;">{{$contact->fax_no}}</td>
+                                        <td style="padding: 5px 10px;">{{$contact->email}}</td>
+                                        <td style="padding: 5px 10px;">{{$contact->contact}}</td>
+                                        {{-- <td style="padding: 5px 10px;">{{$contact->fax_no}}</td>
                                         <td style="padding: 5px 10px;">{{$contact->alternative_phone}}</td>
-                                        <td style="padding: 5px 10px;">{{$contact->address}}</td>
-                                        <td style="padding: 5px 10px;">{{$contact->contact_person}}</td>
+                                        <td style="padding: 5px 10px;">{{$contact->address}}</td> --}}
+                                        <td style="padding: 5px 10px;">{{$contact->name}}</td>
                                     </tr>
                                 @endforeach
                             @else
@@ -76,18 +76,18 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @if($vendors->companyProfile->isNotEmpty())
-                                @foreach ($vendors->companyProfile as $file)
+                            @if($vendors->vendorSupplier->company_profile)
+                                {{-- @foreach ($vendors->vendorSupplier as $file) --}}
                                     <tr>
                                         <td style="padding: 5px 10px;">
-                                            <a href="{{url($file->file_path)}}" target="_blank">
+                                            <a href="{{url('storage/' .$vendors->vendorSupplier->company_profile)}}" target="_blank">
                                                 <i class="bi bi-files"></i>
                                             </a>
                                         </td>
-                                        <td style="padding: 5px 10px;">{{$file->file_name}}</td>
+                                        <td style="padding: 5px 10px;">{{$vendors->vendorSupplier->company_profile}}</td>
                                         
                                     </tr>
-                                @endforeach
+                                {{-- @endforeach --}}
                             @else
                             <tr>
                                 <td class="text-center" colspan="5" style="padding:5px 10px;">No data available.</td>
@@ -107,18 +107,18 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @if($vendors->officeLocation->isNotEmpty())
-                                @foreach ($vendors->officeLocation as $file)
+                            @if($vendors->vendorSupplier->office_location)
+                                {{-- @foreach ($vendors->officeLocation as $file) --}}
                                     <tr>
                                         <td style="padding: 5px 10px;">
-                                            <a href="{{url($file->file_path)}}" target="_blank">
+                                            <a href="{{url('storage/' .$vendors->vendorSupplier->office_location)}}" target="_blank">
                                                 <i class="bi bi-files"></i>
                                             </a>
                                         </td>
-                                        <td style="padding: 5px 10px;">{{$file->file_name}}</td>
+                                        <td style="padding: 5px 10px;">{{$vendors->vendorSupplier->office_location}}</td>
                                         
                                     </tr>
-                                @endforeach
+                                {{-- @endforeach --}}
                             @else
                             <tr>
                                 <td class="text-center" colspan="5" style="padding:5px 10px;">No data available.</td>
@@ -138,18 +138,18 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @if($vendors->dtiReg->isNotEmpty())
-                                @foreach ($vendors->dtiReg as $file)
+                            @if($vendors->vendorSupplier->sec_registration)
+                                {{-- @foreach ($vendors->dtiReg as $file) --}}
                                     <tr>
                                         <td style="padding: 5px 10px;">
-                                            <a href="{{url($file->file_path)}}" target="_blank">
+                                            <a href="{{url('storage/' .$vendors->vendorSupplier->sec_registration)}}" target="_blank">
                                                 <i class="bi bi-files"></i>
                                             </a>
                                         </td>
-                                        <td style="padding: 5px 10px;">{{$file->file_name}}</td>
+                                        <td style="padding: 5px 10px;">{{$vendors->vendorSupplier->sec_registration}}</td>
                                         
                                     </tr>
-                                @endforeach
+                                {{-- @endforeach --}}
                             @else
                             <tr>
                                 <td class="text-center" colspan="5" style="padding:5px 10px;">No data available.</td>
@@ -169,18 +169,18 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @if($vendors->articles->isNotEmpty())
-                                @foreach ($vendors->articles as $file)
+                            @if($vendors->vendorSupplier->articles)
+                                {{-- @foreach ($vendors->articles as $file) --}}
                                     <tr>
                                         <td style="padding: 5px 10px;">
-                                            <a href="{{url($file->file_path)}}" target="_blank">
+                                            <a href="{{url('storage/' . $vendors->vendorSupplier->articles)}}" target="_blank">
                                                 <i class="bi bi-files"></i>
                                             </a>
                                         </td>
-                                        <td style="padding: 5px 10px;">{{$file->file_name}}</td>
+                                        <td style="padding: 5px 10px;">{{$vendors->vendorSupplier->articles}}</td>
                                         
                                     </tr>
-                                @endforeach
+                                {{-- @endforeach --}}
                             @else
                             <tr>
                                 <td class="text-center" colspan="5" style="padding:5px 10px;">No data available.</td>
@@ -200,18 +200,18 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @if($vendors->birDoc->isNotEmpty())
-                                @foreach ($vendors->birDoc as $file)
+                            @if($vendors->vendorSupplier->bir_documents)
+                                {{-- @foreach ($vendors->birDoc as $file) --}}
                                     <tr>
                                         <td style="padding: 5px 10px;">
-                                            <a href="{{url($file->file_path)}}" target="_blank">
+                                            <a href="{{url('storage/' .$vendors->vendorSupplier->bir_documents)}}" target="_blank">
                                                 <i class="bi bi-files"></i>
                                             </a>
                                         </td>
-                                        <td style="padding: 5px 10px;">{{$file->file_name}}</td>
+                                        <td style="padding: 5px 10px;">{{$vendors->vendorSupplier->bir_documents}}</td>
                                         
                                     </tr>
-                                @endforeach
+                                {{-- @endforeach --}}
                             @else
                             <tr>
                                 <td class="text-center" colspan="5" style="padding:5px 10px;">No data available.</td>
@@ -231,18 +231,18 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @if($vendors->genInfo->isNotEmpty())
-                                @foreach ($vendors->genInfo as $file)
+                            @if($vendors->vendorSupplier->information_sheet)
+                                {{-- @foreach ($vendors->genInfo as $file) --}}
                                     <tr>
                                         <td style="padding: 5px 10px;">
-                                            <a href="{{url($file->file_path)}}" target="_blank">
+                                            <a href="{{url('storage/' .$vendors->vendorSupplier->information_sheet)}}" target="_blank">
                                                 <i class="bi bi-files"></i>
                                             </a>
                                         </td>
-                                        <td style="padding: 5px 10px;">{{$file->file_name}}</td>
+                                        <td style="padding: 5px 10px;">{{$vendors->vendorSupplier->information_sheet}}</td>
                                         
                                     </tr>
-                                @endforeach
+                                {{-- @endforeach --}}
                             @else
                             <tr>
                                 <td class="text-center" colspan="5" style="padding:5px 10px;">No data available.</td>
@@ -252,7 +252,7 @@
                     </table>
                 </div>
             </div>
-            <div class="col-md-6 mb-4">
+            {{-- <div class="col-md-6 mb-4">
                 <div class="table-responsive">
                     <table class="table table-bordered table-hover">
                         <thead>
@@ -262,15 +262,15 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @if($vendors->corpCert->isNotEmpty())
+                            @if($vendors->vendorSupplier->sec_registration)
                                 @foreach ($vendors->corpCert as $file)
                                     <tr>
                                         <td style="padding: 5px 10px;">
-                                            <a href="{{url($file->file_path)}}" target="_blank">
+                                            <a href="{{url('storage/' .$vendors->vendorSupplier->sec_registration)}}" target="_blank">
                                                 <i class="bi bi-files"></i>
                                             </a>
                                         </td>
-                                        <td style="padding: 5px 10px;">{{$file->file_name}}</td>
+                                        <td style="padding: 5px 10px;">{{$vendors->vendorSupplier->sec_registration}}</td>
                                         
                                     </tr>
                                 @endforeach
@@ -282,7 +282,7 @@
                         </tbody>
                     </table>
                 </div>
-            </div>
+            </div> --}}
             <div class="col-md-6 mb-4">
                 <div class="table-responsive">
                     <table class="table table-bordered table-hover">
@@ -293,18 +293,18 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @if($vendors->auditBir->isNotEmpty())
-                                @foreach ($vendors->auditBir as $file)
+                            @if($vendors->vendorSupplier->audited_financial)
+                                {{-- @foreach ($vendors->auditBir as $file) --}}
                                     <tr>
                                         <td style="padding: 5px 10px;">
-                                            <a href="{{url($file->file_path)}}" target="_blank">
+                                            <a href="{{url('storage/' .$vendors->vendorSupplier->audited_financial)}}" target="_blank">
                                                 <i class="bi bi-files"></i>
                                             </a>
                                         </td>
-                                        <td style="padding: 5px 10px;">{{$file->file_name}}</td>
+                                        <td style="padding: 5px 10px;">{{$vendors->vendorSupplier->audited_financial}}</td>
                                         
                                     </tr>
-                                @endforeach
+                                {{-- @endforeach --}}
                             @else
                             <tr>
                                 <td class="text-center" colspan="5" style="padding:5px 10px;">No data available.</td>
@@ -324,18 +324,18 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @if($vendors->busPermit->isNotEmpty())
-                                @foreach ($vendors->busPermit as $file)
+                            @if($vendors->vendorSupplier->business_permit)
+                                {{-- @foreach ($vendors->busPermit as $file) --}}
                                     <tr>
                                         <td style="padding: 5px 10px;">
-                                            <a href="{{url($file->file_path)}}" target="_blank">
+                                            <a href="{{url('storage/' .$vendors->vendorSupplier->business_permit)}}" target="_blank">
                                                 <i class="bi bi-files"></i>
                                             </a>
                                         </td>
-                                        <td style="padding: 5px 10px;">{{$file->file_name}}</td>
+                                        <td style="padding: 5px 10px;">{{$vendors->vendorSupplier->business_permit}}</td>
                                         
                                     </tr>
-                                @endforeach
+                                {{-- @endforeach --}}
                             @else
                             <tr>
                                 <td class="text-center" colspan="5" style="padding:5px 10px;">No data available.</td>
@@ -355,18 +355,18 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @if($vendors->taxIncentive->isNotEmpty())
-                                @foreach ($vendors->taxIncentive as $file)
+                            @if($vendors->vendorSupplier->tax_incentive)
+                                {{-- @foreach ($vendors->taxIncentive as $file) --}}
                                     <tr>
                                         <td style="padding: 5px 10px;">
-                                            <a href="{{url($file->file_path)}}" target="_blank">
+                                            <a href="{{url('storage/' .$vendors->vendorSupplier->tax_incentive)}}" target="_blank">
                                                 <i class="bi bi-files"></i>
                                             </a>
                                         </td>
-                                        <td style="padding: 5px 10px;">{{$file->file_name}}</td>
+                                        <td style="padding: 5px 10px;">{{$vendors->vendorSupplier->tax_incentive}}</td>
                                         
                                     </tr>
-                                @endforeach
+                                {{-- @endforeach --}}
                             @else
                             <tr>
                                 <td class="text-center" colspan="5" style="padding:5px 10px;">No data available.</td>
@@ -376,7 +376,7 @@
                     </table>
                 </div>
             </div>
-            <div class="col-md-6 mb-4">
+            {{-- <div class="col-md-6 mb-4">
                 <div class="table-responsive">
                     <table class="table table-bordered table-hover">
                         <thead>
@@ -386,15 +386,15 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @if($vendors->sampleInvoice->isNotEmpty())
+                            @if($vendors->vendorSupplier->tax_incentive)
                                 @foreach ($vendors->sampleInvoice as $file)
                                     <tr>
                                         <td style="padding: 5px 10px;">
-                                            <a href="{{url($file->file_path)}}" target="_blank">
+                                            <a href="{{url($vendors->vendorSupplier->tax_incentive)}}" target="_blank">
                                                 <i class="bi bi-files"></i>
                                             </a>
                                         </td>
-                                        <td style="padding: 5px 10px;">{{$file->file_name}}</td>
+                                        <td style="padding: 5px 10px;">{{$vendors->vendorSupplier->tax_incentive}}</td>
                                         
                                     </tr>
                                 @endforeach
@@ -406,7 +406,7 @@
                         </tbody>
                     </table>
                 </div>
-            </div>
+            </div> --}}
         </div>
     </div>
 </div>

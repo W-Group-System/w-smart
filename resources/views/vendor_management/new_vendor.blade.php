@@ -50,7 +50,7 @@
                             <label for="vendor_status" class="form-label">Vendor Status:</label>
                             <input type="text" name="vendor_status"  class="form-control form-control-sm">
                         </div> --}}
-                        <div class="col-md-12">
+                        {{-- <div class="col-md-12">
                             <label for="contactDetails" class="form-label">Contact Details:</label>
                             <table class="table table-bordered" id="contactDetailsTables">
                                 <thead>
@@ -77,7 +77,7 @@
                                 </tbody>
                             </table>
                             <button type="button" class="btn btn-sm btn-outline-primary" onclick="addRow()">Add Row</button>
-                        </div>  
+                        </div>   --}}
                         <div class="col-md-6">
                             <label for="classification_type" class="form-label">Vendor Classification:</label>
                             <select name="classification_type" id="classification_type" class="form-select chosen-select">
@@ -93,19 +93,19 @@
                                 @endforeach
                             </select>
                         </div>   
-                        <div class="col-md-6">
+                        {{-- <div class="col-md-6">
                             <label for="tin" class="form-label">TIN:</label>
-                            <input type="number" name="tin"  class="form-control form-control-sm">
+                            <input type="number" name="tin" id="billing-Tin"  class="form-control form-control-sm">
                         </div>    
                         <div class="col-md-6">
                             <label for="registration_dti_no" class="form-label">Sec Registration or DTI Number:</label>
                             <input type="number" name="registration_dti_no"  class="form-control form-control-sm">
-                        </div>        
+                        </div>         --}}
                         <div class="col-md-6">
                             <label for="date_registered" class="form-label">Date Registered:</label>
                             <input type="date" name="date_registered" class="form-control" style="height: 50%;" id="date_registered">
                         </div>
-                        <div class="row">
+                        {{-- <div class="row">
                             <div class="col-md-6">
                                 <label for="companyProfile" class="form-label">Company Profile</label>
                                 <input type="file" name="company_profile[]" id="companyProfile" class="form-control form-control-sm" multiple>
@@ -150,7 +150,7 @@
                                 <label for="sampleInvoice" class="form-label">Sample Sales/Service Invoice</label>
                                 <input type="file" name="sample_invoice[]" id="sampleInvoice" class="form-control form-control-sm" multiple>
                             </div>
-                        </div>
+                        </div> --}}
                         <div class="col-md-12">
                             <label for="remarks" class="form-label">Remarks</label>
                             <textarea class="form-control" name="remarks" cols="30" rows="10" style="height: 50%;"></textarea>
