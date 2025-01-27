@@ -47,9 +47,9 @@
                     </div>
                     
                     <div class="col-lg-4 mb-2 mt-5"><b>Ship To:</b></div>
-                    <div class="col-lg-8 mb-2 mt-5">Sample</div>
+                    <div class="col-lg-8 mb-2 mt-5">{{$po->purchaseRequest->subsidiary}}</div>
                     <div class="col-lg-4 mb-2"><b>Contact Person:</b></div>
-                    <div class="col-lg-8 mb-2">Sample</div>
+                    <div class="col-lg-8 mb-2">{{$po->purchaseRequest->assignedTo->name}}</div>
                     <div class="col-lg-4 mb-2"><b>Contact Number:</b></div>
                     <div class="col-lg-8 mb-2">Sample</div>
                     <div class="col-lg-4 mb-2"><b>Shipping Address:</b></div>
@@ -108,20 +108,18 @@
                     </table>
                 </div>
             </div>
-            {{-- <div class="col-md-12">
+            <div class="col-md-12">
                 <div class="table-responsive">
                     <table class="table table-bordered table-hover">
                         <thead>
                             <tr>
                                 <th style="padding:5px 10px;">Attachments</th>
                                 <th style="padding:5px 10px;">Document Type</th>
-                                <th style="padding:5px 10px;">Remove</th>
-                                <th style="padding:5px 10px;">Edit</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @if($purchase_requests->purchaseRequestFiles->isNotEmpty())
-                                @foreach ($purchase_requests->purchaseRequestFiles as $file)
+                            @if($po->purchaseRequest->purchaseRequestFiles->isNotEmpty())
+                                @foreach ($po->purchaseRequest->purchaseRequestFiles as $file)
                                     <tr>
                                         <td style="padding: 5px 10px;">
                                             <a href="{{url($file->file)}}" target="_blank">
@@ -129,23 +127,9 @@
                                             </a>
                                         </td>
                                         <td style="padding: 5px 10px;">{{$file->document_type}}</td>
-                                        <td style="padding: 5px 10px;">
-                                            <form method="POST" action="{{url('procurement/delete-files/'.$file->id)}}" class="d-inline-block" id="deleteForm{{$file->id}}">
-                                                @csrf 
-
-                                                <button type="button" class="btn btn-sm btn-danger text-white" title="Remove File" onclick="removeFiles({{$file->id}})">
-                                                    <i class="bi bi-x"></i>
-                                                </button>
-                                            </form>
-                                        </td>
-                                        <td style="padding: 5px 10px;">
-                                            <button type="button" class="btn btn-sm btn-warning text-white" title="Edit File" data-bs-toggle="modal" data-bs-target="#editFile{{$file->id}}">
-                                                <i class="bi bi-pencil-square"></i>
-                                            </button>
-                                        </td>
                                     </tr>
 
-                                    @include('purchase_request.edit_file')
+                                    {{-- @include('purchase_request.edit_file') --}}
                                 @endforeach
                             @else
                             <tr>
@@ -155,7 +139,7 @@
                         </tbody>
                     </table>
                 </div>
-            </div> --}}
+            </div>
         </div>
     </div>
 </div>

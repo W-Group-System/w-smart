@@ -41,4 +41,8 @@ class PurchaseRequest extends Model
     {
         return $this->hasMany(RfqFile::class);
     }
+    public function purchaseOrder()
+    {
+        return $this->hasOne(PurchaseOrder::class);
+    }
 }

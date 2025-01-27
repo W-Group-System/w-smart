@@ -34,7 +34,11 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/settings/category', 'RoutesController@category')->name('category');
     Route::get('/settings/uom', 'RoutesController@uom')->name('settings.uom');
     Route::get('/settings/users', 'RoutesController@userManagement')->name('settings.users');
-    Route::get('/settings/company', 'RoutesController@companyManagement')->name('settings.company');
+
+    // Company
+    Route::get('/settings/company', 'CompanyController@index')->name('settings.company');
+    Route::post('create-company', 'CompanyController@createCompany')->name('create-company');
+    Route::post('update-company/{id}', 'CompanyController@update');
 
     // Department
     Route::get('/settings/department','DepartmentController@index')->name('settings.department');

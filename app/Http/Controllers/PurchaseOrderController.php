@@ -20,7 +20,7 @@ class PurchaseOrderController extends Controller
         $start_date = $request->start_date;
         $end_date = $request->end_date;
 
-        $purchase_request = PurchaseRequest::where('status','For Canvassing')->get();
+        $purchase_request = PurchaseRequest::doesntHave('purchaseOrder')->where('status','For Canvassing')->get();
         $vendors = RfqEmail::get();
         
         $purchase_order = PurchaseOrder::with('purchaseRequest')->get();
