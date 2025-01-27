@@ -142,7 +142,7 @@
                                 <td style="text-align: center; padding: 5px 10px;">0.00</td>
                                 <td style="text-align: center; padding: 5px 10px;">Expedited</td>
                                 <td style="text-align: center; padding: 5px 10px;">{{$pr->status}}</td>
-                                <td style="text-align: center; padding: 5px 10px;">{{$pr->assignedTo->name}}</td>
+                                <td style="text-align: center; padding: 5px 10px;">{{optional($pr->assignedTo)->name}}</td>
                                 <td style="text-align: center; padding: 5px 10px;">{{date('m/d/Y', strtotime($pr->created_at))}}</td>
                             </tr>
                         @endforeach

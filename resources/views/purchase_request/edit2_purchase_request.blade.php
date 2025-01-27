@@ -1,10 +1,10 @@
-<div class="modal fade" id="editPr{{$purchase_requests->id}}">
+<div class="modal fade" id="editPr{{$purchase_request->id}}">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">Edit purchase request</h5>
             </div>
-            <form method="POST" action="{{url('procurement/edit-assigned/'.$purchase_requests->id)}}">
+            <form method="POST" action="{{url('procurement/edit-assigned/'.$purchase_request->id)}}">
                 @csrf 
                 
                 <div class="modal-body">

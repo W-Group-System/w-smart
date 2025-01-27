@@ -1,4 +1,4 @@
-<div class="modal fade" id="rfq{{$purchase_requests->id}}">
+<div class="modal fade" id="rfq{{$purchase_request->id}}">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
@@ -7,13 +7,13 @@
             <form method="POST" action="{{url('store-request-for-quotation')}}">
                 @csrf 
                 
-                <input type="hidden" name="purchase_request_id" value="{{$purchase_requests->id}}">
+                <input type="hidden" name="purchase_request_id" value="{{$purchase_request->id}}">
                 
                 <div class="modal-body">
                     <div class="row">
                         <div class="col-md-6 mb-2">
                             <p class="m-0 fw-bold">Purchase No.:</p>
-                            {{str_pad($purchase_requests->id, 6, '0', STR_PAD_LEFT)}}
+                            {{str_pad($purchase_request->id, 6, '0', STR_PAD_LEFT)}}
                         </div>
                         <div class="col-md-6"></div>
                         <div class="col-md-4 mb-2">
@@ -22,11 +22,11 @@
                         </div>
                         <div class="col-md-4 mb-2">
                             <p class="m-0 fw-bold">Request Date/Time.:</p>
-                            {{date('m/d/Y g:i:A', strtotime($purchase_requests->created_at))}}
+                            {{date('m/d/Y g:i:A', strtotime($purchase_request->created_at))}}
                         </div>
                         <div class="col-md-4 mb-2">
                             <p class="m-0 fw-bold">Request Due Date:</p>
-                            {{date('m/d/Y', strtotime($purchase_requests->due_date))}}
+                            {{date('m/d/Y', strtotime($purchase_request->due_date))}}
                         </div>
     
                         <div class="col-md-12">
@@ -38,10 +38,10 @@
                                             <th style="padding: 5px 10px;">Vendor Email</th>
                                         </tr>
                                     </thead>
-                                    {{-- {{dd($purchase_requests->rfqEmail)}} --}}
+                                    {{-- {{dd($purchase_request->rfqEmail)}} --}}
                                     <tbody id="vendorTbodyRow">
-                                        @if($purchase_requests->rfqEmail->isNotEmpty())
-                                            @foreach ($purchase_requests->rfqEmail as $rfqEmail)
+                                        @if($purchase_request->rfqEmail->isNotEmpty())
+                                            @foreach ($purchase_request->rfqEmail as $rfqEmail)
                                                 <tr>
                                                     <td style="padding: 5px 10px;">
                                                         <select name="vendor_name[]" class="form-select" onchange="getVendorEmail(this.value)" required>
@@ -109,10 +109,10 @@
                                         </tr>
                                     </thead>
                                     <tbody id="vendorTbodyRow">
-                                        @if($purchase_requests->purchaseItems->isNotEmpty())
-                                            @foreach ($purchase_requests->purchaseItems as $item)
+                                        @if($purchase_request->purchaseItems->isNotEmpty())
+                                            @foreach ($purchase_request->purchaseItems as $item)
                                                 @php
-                                                    $rfq_item = ($purchase_requests->rfqItem)->pluck('purchase_item_id')->toArray();
+                                                    $rfq_item = ($purchase_request->rfqItem)->pluck('purchase_item_id')->toArray();
                                                 @endphp
                                                 <tr>
                                                     <td style="padding: 5px 10px" class="text-center">
@@ -150,10 +150,10 @@
                                         </tr>
                                     </thead>
                                     <tbody id="vendorTbodyRow">
-                                        @if($purchase_requests->purchaseRequestFiles->isNotEmpty())
-                                            @foreach ($purchase_requests->purchaseRequestFiles as $item)
+                                        @if($purchase_request->purchaseRequestFiles->isNotEmpty())
+                                            @foreach ($purchase_request->purchaseRequestFiles as $item)
                                                 @php
-                                                    $rfq_files = ($purchase_requests->rfqFile)->pluck('purchase_request_file_id')->toArray();
+                                                    $rfq_files = ($purchase_request->rfqFile)->pluck('purchase_request_file_id')->toArray();
                                                 @endphp
                                                 <tr>
                                                     <td style="padding: 5px 10px" class="text-center">

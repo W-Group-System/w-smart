@@ -1,10 +1,10 @@
-<div class="modal fade" id="returnRemarks{{$purchase_requests->id}}">
+<div class="modal fade" id="returnRemarks{{$purchase_request->id}}">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">Return remarks</h5>
             </div>
-            <form method="POST" action="{{url('return_purchase_request/'.$purchase_requests->id)}}">
+            <form method="POST" action="{{url('return_purchase_request/'.$purchase_request->id)}}">
                 @csrf 
 
                 <div class="modal-body">

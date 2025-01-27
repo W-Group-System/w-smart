@@ -128,4 +128,10 @@
 </div>
 
 @include('purchase_orders.new_purchase_order')
+
+@push('scripts')
+<script>
+    
+</script>
+@endpush
 @endsection

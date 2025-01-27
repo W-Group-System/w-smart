@@ -89,9 +89,9 @@
                         @foreach ($purchase_requests as $pr)
                             <tr>
                                 <td style="text-align: center; padding: 5px 10px;">
-                                    <button title="View" type="button" class="btn btn-sm btn-info text-white" data-bs-toggle="modal" data-bs-target="#view{{$pr->id}}">
+                                    <a href="{{url('procurement/show-purchase-request/'.$pr->id.'/'.'?origin=for_approval')}}" title="View" class="btn btn-sm btn-info text-white" >
                                         <i class="bi bi-eye"></i>
-                                    </button>
+                                    </a>
                                     
                                     @if($pr->status == 'Returned')
                                     <button type="button" class="btn btn-sm btn-warning text-white" title="Edit" data-bs-toggle="modal" data-bs-target="#editPurchaseRequest{{$pr->id}}">
@@ -135,26 +135,15 @@
     </div>
 </div>
 
-@foreach ($purchase_requests as $pr)
-@include('purchase_request.view_for_approval')
-@endforeach
+{{-- @foreach ($purchase_requests as $purchase_request) --}}
+{{-- @include('purchase_request.view_for_approval') --}}
+{{-- @include('purchase_request.view_purchase_request') --}}
+{{-- @endforeach --}}
 @endsection
 
 @push('scripts')
 <script>
-    function actionFunction(value)
-    {
-        if (value == 'Returned')
-        {
-            document.getElementById('returnRemarksCol').removeAttribute('hidden')
-            document.getElementById('returnRemarks').setAttribute('required',true)
-        }
-        else
-        {
-            document.getElementById('returnRemarksCol').setAttribute('hidden', true)
-            document.getElementById('returnRemarks').removeAttribute('required')
-        }
-    }
+    
     
 </script>
 @endpush

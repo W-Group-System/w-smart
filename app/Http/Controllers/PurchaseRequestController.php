@@ -108,11 +108,11 @@ class PurchaseRequestController extends Controller
      */
     public function show($id)
     {
-        $purchase_requests = PurchaseRequest::with('user','department','assignedTo','purchaseItems','purchaseRequestFiles')->findOrFail($id);
+        $purchase_request = PurchaseRequest::with('user','department','assignedTo','purchaseItems','purchaseRequestFiles')->findOrFail($id);
         $users = User::where('status','Active')->pluck('name','id');
         $vendor_list = Vendor::pluck('vendor_name','id');
 
-        return view('purchase_request.view_purchase_request', compact('purchase_requests','users','vendor_list'));
+        return view('purchase_request.view_purchase_request', compact('purchase_request','users','vendor_list'));
     }
 
     /**

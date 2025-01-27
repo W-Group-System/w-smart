@@ -1,14 +1,14 @@
-<div class="modal fade" id="view{{$pr->id}}">
-    <div class="modal-dialog modal-lg">
+<div class="modal fade" id="view{{$purchase_request->id}}">
+    <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">View for approval</h5>
             </div>
-            <form method="POST" action="{{url('procurement/action/'.$pr->id)}}">
+            <form method="POST" action="{{url('procurement/action/'.$purchase_request->id)}}">
                 @csrf
 
                 <div class="modal-body">
-                    <p class="h5">Primary Information</p>
+                    {{-- <p class="h5">Primary Information</p>
                     <hr class="mt-0">
                     <div class="row">
                         <div class="col-md-6 mb-2">
@@ -34,7 +34,7 @@
                         </div>
                         <div class="col-md-6 mb-2">
                             <p class="m-0 fw-bold">Assigned To:</p>
-                            {{$pr->assignedTo->name}}
+                            {{optional($pr->assignedTo)->name}}
                         </div>
                     </div>
     
@@ -122,13 +122,13 @@
                                 </table>
                             </div>
                         </div>
-                    </div>
+                    </div> --}}
     
-                    <p class="h5 mt-3">Action</p>
-                    <hr class="mt-0">
+                    {{-- <p class="h5 mt-3">Action</p>
+                    <hr class="mt-0"> --}}
     
                     <div class="row">
-                        <div class="col-lg-4">
+                        <div class="col-lg-12">
                             Select action
                             <select data-placeholder="Select action" name="action" class="form-control chosen-select" onchange="actionFunction(this.value)">
                                 <option value=""></option>
@@ -136,7 +136,7 @@
                                 <option value="Returned">Returned</option>
                             </select>
                         </div>
-                        <div class="col-lg-4" id="returnRemarksCol" hidden>
+                        <div class="col-lg-12" id="returnRemarksCol" hidden>
                             Remarks
                             <textarea name="return_remarks" id="returnRemarks" class="form-control" cols="30" rows="10" ></textarea>
                         </div>

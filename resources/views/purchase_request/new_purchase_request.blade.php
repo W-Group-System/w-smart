@@ -37,7 +37,7 @@
                             <label for="requestDueDate" class="form-label">Request Due-Date:</label>
                             <input type="date" name="requestDueDate" name="request_due_date" id="requestDueDate" class="form-control form-control-sm" required>
                         </div>
-                        <div class="col-md-6">
+                        {{-- <div class="col-md-6">
                             <label for="assignedTo" class="form-label ">Assigned To:</label>
                             <!-- <input type="text" id="primaryUOMSearch" placeholder="Search Primary UOM" class="form-control"> -->
                             <select data-placeholder="Assigned To" class="form-select chosen-select" id="assignedTo" name="assigned_to" required>
@@ -46,10 +46,10 @@
                                     <option value="{{$key}}">{{$user}}</option>
                                 @endforeach
                             </select>
-                        </div>
+                        </div> --}}
 
-                        <div class="col-md-6">
-                        </div>
+                        {{-- <div class="col-md-6">
+                        </div> --}}
 
                         <div class="col-md-6">
                             <label for="subsidiary" class="form-label">Subsidiary:</label>

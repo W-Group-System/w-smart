@@ -7,7 +7,7 @@
     <!-- Main Content Section -->
     <div class="card p-4 mt-3" style="border: 1px solid #ddd; border-radius: 20px; margin-top: -25px;">
         <div class="d-flex justify-content-between align-items-center">
-            <h4>{{str_pad($purchase_requests->id, 6, '0', STR_PAD_LEFT)}} - {{$purchase_requests->status}}</h4>
+            <h4>{{str_pad($purchase_request->id, 6, '0', STR_PAD_LEFT)}} - {{$purchase_request->status}}</h4>
 
             <div>
                 {{-- <button>
@@ -16,20 +16,30 @@
                 <button>
                     Save    
                 </button> --}}
-                <button type="button" class="btn btn-warning text-white" title="Edit" data-bs-toggle="modal" data-bs-target="#editPr{{$purchase_requests->id}}">
+                <button type="button" class="btn btn-warning text-white" title="Edit" data-bs-toggle="modal" data-bs-target="#editPr{{$purchase_request->id}}">
                     Edit
                 </button>
-                @if($purchase_requests->status == 'For RFQ')
-                <button type="button" class="btn btn-info text-white" title="Request for quotation" data-bs-toggle="modal" data-bs-target="#rfq{{$purchase_requests->id}}">
+                @if($purchase_request->status == 'For RFQ')
+                <button type="button" class="btn btn-info text-white" title="Request for quotation" data-bs-toggle="modal" data-bs-target="#rfq{{$purchase_request->id}}">
                     Request For Quotation (RFQ)
                 </button>
                 @endif
-                {{-- <button type="button" class="btn btn-secondary text-white" title="Request for quotation" data-bs-toggle="modal" data-bs-target="#returnRemarks{{$purchase_requests->id}}">
-                    Return  
-                </button> --}}
+
+                @if($purchase_request->status == 'Pending'  && request('origin') == 'for_approval')
+                <button type="button" class="btn btn-success text-white" title="Request for quotation" data-bs-toggle="modal" data-bs-target="#view{{$purchase_request->id}}">
+                    Approved
+                </button>
+                @endif
+
+                @if(request('origin') == 'for_approval')
+                <a href="{{url('procurement/for-approval-pr')}}" type="button" class="btn btn-danger text-white">
+                    Close   
+                </a>
+                @else
                 <a href="{{url('procurement/purchase-request')}}" type="button" class="btn btn-danger text-white">
                     Close   
                 </a>
+                @endif
             </div>
         </div>
 
@@ -38,28 +48,28 @@
         <div class="row">
             <div class="col-md-6 mb-2">
                 <p class="m-0 fw-bold">Purchase No.:</p>
-                {{str_pad($purchase_requests->id, 6, '0', STR_PAD_LEFT)}}
+                {{str_pad($purchase_request->id, 6, '0', STR_PAD_LEFT)}}
             </div>
             <div class="col-md-6"></div>
             <div class="col-md-6 mb-2">
                 <p class="m-0 fw-bold">Requestor Name:</p>
-                {{$purchase_requests->user->name}}
+                {{$purchase_request->user->name}}
             </div>
             <div class="col-md-6">
                 <p class="m-0 fw-bold">Request Date Time:</p>
-                {{date('m/d/Y', strtotime($purchase_requests->created_at))}}
+                {{date('m/d/Y', strtotime($purchase_request->created_at))}}
             </div>
             <div class="col-md-6 mb-2">
                 <p class="m-0 fw-bold">Remarks:</p>
-                {!! nl2br(e($purchase_requests->remarks)) !!}
+                {!! nl2br(e($purchase_request->remarks)) !!}
             </div>
             <div class="col-md-6 mb-2">
                 <p class="m-0 fw-bold">Request Due Date:</p>
-                {{date('m/d/Y', strtotime($purchase_requests->due_date))}}
+                {{date('m/d/Y', strtotime($purchase_request->due_date))}}
             </div>
             <div class="col-md-6 mb-2">
                 <p class="m-0 fw-bold">Assigned To:</p>
-                {{$purchase_requests->assignedTo->name}}
+                {{optional($purchase_request->assignedTo)->name}}
             </div>
         </div>
 
@@ -68,7 +78,7 @@
         <div class="row">
             <div class="col-md-6 mb-2">
                 <p class="m-0 fw-bold">Subsidiary:</p>
-                {{$purchase_requests->subsidiary}}
+                {{$purchase_request->subsidiary}}
             </div>
             <div class="col-md-6 mb-2">
                 <p class="m-0 fw-bold">Class:</p>
@@ -76,11 +86,11 @@
             </div>
             <div class="col-md-6 mb-2">
                 <p class="m-0 fw-bold">Department:</p>
-                {{$purchase_requests->department->name}}
+                {{$purchase_request->department->name}}
             </div>
             <div class="col-md-6 mb-2">
                 <p class="m-0 fw-bold">Return Remarks:</p>
-                {!! nl2br(e($purchase_requests->return_remarks)) !!}
+                {!! nl2br(e($purchase_request->return_remarks)) !!}
             </div>
         </div>
 
@@ -98,8 +108,8 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @if($purchase_requests->purchaseItems->isNotEmpty())
-                                @foreach ($purchase_requests->purchaseItems as $item)
+                            @if($purchase_request->purchaseItems->isNotEmpty())
+                                @foreach ($purchase_request->purchaseItems as $item)
                                     <tr>
                                         <td style="padding: 5px 10px;">{{$item->inventory->item_code}}</td>
                                         <td style="padding: 5px 10px;">{{$item->inventory->item_category}}</td>
@@ -129,8 +139,8 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @if($purchase_requests->purchaseRequestFiles->isNotEmpty())
-                                @foreach ($purchase_requests->purchaseRequestFiles as $file)
+                            @if($purchase_request->purchaseRequestFiles->isNotEmpty())
+                                @foreach ($purchase_request->purchaseRequestFiles as $file)
                                     <tr>
                                         <td style="padding: 5px 10px;">
                                             <a href="{{url($file->file)}}" target="_blank">
@@ -172,6 +182,7 @@
 @include('purchase_request.edit2_purchase_request')
 @include('purchase_request.request_for_quotation')
 @include('purchase_request.return_remarks')
+@include('purchase_request.view_for_approval')
 @endsection
 
 @push('scripts')
@@ -204,6 +215,20 @@
                     hiddenInput.val(data)
                 }
             })
+        }
+    }
+
+    function actionFunction(value)
+    {
+        if (value == 'Returned')
+        {
+            document.getElementById('returnRemarksCol').removeAttribute('hidden')
+            document.getElementById('returnRemarks').setAttribute('required',true)
+        }
+        else
+        {
+            document.getElementById('returnRemarksCol').setAttribute('hidden', true)
+            document.getElementById('returnRemarks').removeAttribute('required')
         }
     }
 
