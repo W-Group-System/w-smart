@@ -53,7 +53,7 @@
                     <div class="col-lg-4 mb-2"><b>Contact Number:</b></div>
                     <div class="col-lg-8 mb-2">Sample</div>
                     <div class="col-lg-4 mb-2"><b>Shipping Address:</b></div>
-                    <div class="col-lg-8 mb-2">Sample</div>
+                    <div class="col-lg-8 mb-2">{!! nl2br(e(auth()->user()->subsidiaryId->address)) !!}</div>
                     <div class="col-lg-4 mb-2"><b>Expected Delivery Date:</b></div>
                     <div class="col-lg-8 mb-2">Sample</div>
                 </div>
@@ -67,7 +67,7 @@
                     <div class="col-lg-4 mb-2"><b>Bill To:</b></div>
                     <div class="col-lg-8 mb-2">Sample</div>
                     <div class="col-lg-4 mb-2"><b>Bill Address:</b></div>
-                    <div class="col-lg-8 mb-2">Sample</div>
+                    <div class="col-lg-8 mb-2"></div>
                     {{-- <div class="col-lg-4 mb-2"><b>Contact Person:</b></div>
                     <div class="col-lg-8 mb-2">Sample</div> --}}
                 </div>

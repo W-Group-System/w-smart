@@ -41,4 +41,8 @@ class User extends Authenticatable
     {
         return $this->belongsTo(Department::class);
     }
+    public function subsidiaryId()
+    {
+        return $this->belongsTo(Subsidiary::class,'subsidiaryid','subsidiary_id');
+    }
 }
