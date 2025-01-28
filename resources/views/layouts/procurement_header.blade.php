@@ -22,7 +22,9 @@
                         @if (Request::is('procurement/supplier-accreditation'))
                             Supplier Accreditation
                         @endif
-                        
+                        @if (Request::is('procurement/supplier-evaluation'))
+                            Supplier Evaluation
+   
                         @if (Request::is('procurement/for-approval-pr'))
                             For Approval Purchase Request
                         @endif

@@ -6,17 +6,20 @@
         <div class="card-body">
             <h4 class="card-title d-flex justify-content-between align-items-center">
             View Supplier Accreditation
-            <div align="right">
-                <a href="{{ url('procurement/edit_supplier_accreditation/' . $supplier_accreditation->id) }}" class="text-decoration-none">
-                    <button class="btn btn-warning text-white">Edit</button>
-                </a>
-                <button type="button" class="btn btn-success text-white" title="Request for quotation" data-bs-toggle="modal" data-bs-target="#rfq{{$supplier_accreditation->id}}">
-                    Approved
-                </button>
-                <a href="{{url('procprocurement/supplier_accreditation')}}" type="button" class="btn btn-danger text-white">
-                    Close   
-                </a>
-            </div>
+                <div align="right">
+                    <a href="{{ url('procurement/edit_supplier_accreditation/' . $supplier_accreditation->id) }}" class="text-decoration-none">
+                        <button class="btn btn-warning text-white">Edit</button>
+                    </a>
+                    <button type="button" class="btn btn-success text-white" title="Approved Supplier" data-bs-toggle="modal" data-bs-target="#approved{{$supplier_accreditation->id}}">
+                        Approved
+                    </button>
+                    <button type="button" class="btn btn-danger text-white" title="Request for quotation" data-bs-toggle="modal" data-bs-target="#declined{{$supplier_accreditation->id}}">
+                        Declined
+                    </button>
+                    <a href="{{url('procurement/supplier_accreditation')}}" type="button" class="btn btn-secondary text-white">
+                        Close   
+                    </a>
+                </div>
             </h4>
             <p class="h5 mt-4">Data & Classification</p>
             <hr class="mt-0">
@@ -63,12 +66,12 @@
                     {{ $supplier_accreditation->billing_address }}
                 </div>
                 <div class="col-md-6 mb-2">
-                    <p class="m-0 fw-bold">Telephone No.:</p>
-                    {{ $supplier_accreditation->billing_telephone }}
+                    <p class="m-0 fw-bold">Website:</p>
+                    {{ $supplier_accreditation->website }}
                 </div>
                 <div class="col-md-6 mb-2">
-                    <p class="m-0 fw-bold">Fax No.:</p>
-                    {{ $supplier_accreditation->billing_fax }}
+                    <p class="m-0 fw-bold">Office Phone:</p>
+                    {{ $supplier_accreditation->office_phone }}
                 </div>
                 <div class="col-md-6 mb-2">
                     <p class="m-0 fw-bold">Email Address:</p>
@@ -381,8 +384,62 @@
                     @endif
                 </div>
                 <div class="col-lg-12" align="right">
-                    <a href="{{ url('procurement/supplier_accreditation') }}" class="btn btn-danger">Close</a>
+                    <a href="{{ url('procurement/supplier_accreditation') }}" class="btn btn-secondary">Close</a>
                 </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="approved{{ $supplier_accreditation->id }}" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-md">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Approved Supplier</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form action="{{ url('procurement/approved_supplier_accreditation/' . $supplier_accreditation->id) }}" method="POST" enctype="multipart/form-data">
+                    @csrf
+                    <div class="row">
+                        <div class="col-md-12">
+                            <label for="approved_remarks_{{ $supplier_accreditation->id }}" class="form-label">Remarks:</label>
+                            <textarea class="form-control" id="approved_remarks_{{ $supplier_accreditation->id }}" rows="2" name="approved_remarks" placeholder="Enter Remarks"></textarea>
+                        </div>
+                    </div>
+                    <hr>
+                    <div align="right">
+                        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-success">Save</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="declined{{ $supplier_accreditation->id }}" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-md">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Declined Supplier</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form action="{{ url('procurement/declined_supplier_accreditation/' . $supplier_accreditation->id) }}" method="POST" enctype="multipart/form-data">
+                    @csrf
+                    <div class="row">
+                        <div class="col-md-12">
+                            <label for="declined_remarks{{ $supplier_accreditation->id }}" class="form-label">Remarks:</label>
+                            <textarea class="form-control" id="declined_remarks{{ $supplier_accreditation->id }}" rows="2" name="declined_remarks" placeholder="Enter Remarks"></textarea>
+                        </div>
+                    </div>
+                    <hr>
+                    <div align="right">
+                        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-success">Save</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>

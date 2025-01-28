@@ -98,6 +98,9 @@
                 <li class="nav-item dashboard-list" id="supplier-accreditation-item" style="display: none;">
                     <a class="nav-link {{ request()->is('procurement/supplier-accreditation') ? 'submenu-active' : '' }}" href="{{route('procurement.supplier_accreditation')}}">Supplier Accreditation</a>
                 </li>
+                <li class="nav-item dashboard-list" id="supplier-evaluation-item" style="display: none;">
+                    <a class="nav-link {{ request()->is('procurement/supplier-evaluation') ? 'submenu-active' : '' }}" href="{{route('procurement.supplier_evaluation')}}">Supplier Evaluation</a>
+                </li>
             </ul>
         </li>   
 

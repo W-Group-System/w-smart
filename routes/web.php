@@ -1,6 +1,8 @@
 <?php
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\VendorController;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -88,4 +90,13 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('procurement/view_supplier_accreditation/{id}','AccreditationController@view');
     Route::get('procurement/edit_supplier_accreditation/{id}', 'AccreditationController@edit')->name('supplier_accreditation.edit');
     Route::post('procurement/update_supplier_accreditation/{id}','AccreditationController@update');
+    Route::post('procurement/approved_supplier_accreditation/{id}','AccreditationController@approved');
+    Route::post('procurement/declined_supplier_accreditation/{id}','AccreditationController@declined');
+
+    // Supplier Evaluation
+    Route::get('procurement/supplier_evaluation', 'EvaluationController@index')->name('procurement.supplier_evaluation');
+    Route::post('procurement/store_supplier_evaluation','EvaluationController@store');
+    Route::get('procurement/view_supplier_evalutaion/{id}','EvaluationController@view');
+    Route::post('procurement/update_supplier_evalutaion/{id}','EvaluationController@update');
+    Route::post('refresh_vendor_name', [VendorController::class, 'getVendorName'])->name('refresh.vendor.name');
 });
