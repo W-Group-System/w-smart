@@ -72,6 +72,8 @@
                     <tr>
                         <th class="text-center" style="padding: 8px 10px; border: none; font-weight: 400; color: #637281;">Action<i class="bi bi-three-dots-vertical"></i>
                         </th>
+                        <th class="text-center" style="padding: 8px 10px; border: none; font-weight: 400; color: #637281;">Vendor ID<i class="bi bi-three-dots-vertical"></i>
+                        </th>
                         <th class="text-center" style="padding: 8px 10px; border: none; font-weight: 400; color: #637281;">Relationship<i class="bi bi-three-dots-vertical"></i>
                         </th>
                         <th class="text-center" style="padding: 8px 10px; border: none; font-weight: 400; color: #637281;">Name<i class="bi bi-three-dots-vertical"></i>
@@ -88,6 +90,8 @@
                         </th>
                         <th class="text-center" style="padding: 8px 10px; border: none; font-weight: 400; color: #637281;">Date Registered<i class="bi bi-three-dots-vertical"></i>
                         </th>
+                        <th class="text-center" style="padding: 8px 10px; border: none; font-weight: 400; color: #637281;">Status<i class="bi bi-three-dots-vertical"></i>
+                        </th>
                     </tr>
                 </thead>
                 <tbody>
@@ -97,11 +101,11 @@
                             <a href="{{url('procurement/view_supplier_accreditation/'.$accreditation->id)}}" class="btn btn-sm btn-info text-white">
                                 <i class="bi bi-eye"></i>
                             </a>
-                            
-                            <button type="button" class="btn btn-sm btn-warning text-white" title="Edit" data-bs-toggle="modal" data-bs-target="#editPurchaseRequest{{$accreditation->id}}">
+                            <a href="{{ url('procurement/edit_supplier_accreditation/' . $accreditation->id) }}" class="btn btn-sm btn-warning text-white">
                                 <i class="bi bi-pencil-square"></i>
-                            </button>
+                            </a>
                         </td>
+                        <td>{{ $accreditation->vendor_code }}</td>
                         <td>
                             @if($accreditation->relationship == 1)
                                 Tenant/ Lease
@@ -122,6 +126,7 @@
                         <td>{{ $accreditation->nature_business ?? 'N/A' }}</td>
                         <td>{{ $accreditation->registration_no ?? 'N/A' }}</td>
                         <td>{{ $accreditation->date_registered ? date('m/d/Y', strtotime($accreditation->date_registered)) : 'N/A' }}</td>
+                        <td>{{ $accreditation->status }}</td>
                     </tr>
                     @endforeach
                 </tbody>
@@ -130,7 +135,7 @@
 
         <hr style="border-top: 1px solid #ddd; margin-top: 10px; margin-bottom: 10px;">
 
-        {{-- <div class="d-flex justify-content-end align-items-center mt-3 border-top pt-3">
+        <div class="d-flex justify-content-end align-items-center mt-3 border-top pt-3">
             <div class="d-flex align-items-center me-3">
                 <span>Rows per page:</span>
                 <select class="form-select form-select-sm d-inline-block w-auto ms-2" style="border-radius: 5px;">
@@ -139,12 +144,11 @@
                     <option>20</option>
                 </select>
             </div>
-            <div class="me-3 dynamic-rows-info">{{$purchase_requests->firstItem()}}-{{$purchase_requests->lastItem()}} of {{$purchase_requests->total()}}</div>
-            {!! $purchase_requests->links() !!}
-        </div> --}} 
+            <div class="me-3 dynamic-rows-info">{{$supplier_accreditation->firstItem()}}-{{$supplier_accreditation->lastItem()}} of {{$supplier_accreditation->total()}}</div>
+            {!! $supplier_accreditation->links() !!}
+        </div> 
     </div>
 </div>
-
 @endsection
 
 @push('scripts')

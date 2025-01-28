@@ -40,7 +40,7 @@ class AccreditationController extends Controller
     {
         
         $supplier_accreditation = SupplierAccreditation::create($request->only([
-            'relationship', 'corporate_name', 'telephone_no', 'fax_no', 'trade_name', 'business_address', 'billing_address', 'billing_telephone', 'billing_fax', 'billing_email', 'billing_years', 'nature_business', 'registration_no', 'date_registered', 'billing_tin', 'taxpayer_classification', 'lease_date', 'handover', 'attachments', 'suppliers_terms', 'suppliers_specify'
+            'vendor_code', 'relationship', 'corporate_name', 'telephone_no', 'fax_no', 'trade_name', 'business_address', 'billing_address', 'billing_telephone', 'billing_fax', 'billing_email', 'billing_years', 'nature_business', 'registration_no', 'date_registered', 'billing_tin', 'taxpayer_classification', 'lease_date', 'handover', 'attachments', 'suppliers_terms', 'suppliers_specify', 'status'
         ]));
 
         if ($request->hasFile('attachments')) {
@@ -399,5 +399,27 @@ class AccreditationController extends Controller
 
         Alert::success('Successfully Updated')->persistent('Dismiss');
         return back();
+    }
+
+    public function approved(Request $request, $id) 
+    {
+        $supplier_accreditation = SupplierAccreditation::findOrFail($id);
+        $supplier_accreditation->approved_remarks = $request->approved_remarks;
+        $supplier_accreditation->status = 'Approved';
+        $supplier_accreditation->save();
+
+        Alert::success('Successfully Saved')->persistent('Dismiss');
+        return redirect()->back();
+    }
+
+    public function declined(Request $request, $id) 
+    {
+        $supplier_accreditation = SupplierAccreditation::findOrFail($id);
+        $supplier_accreditation->declined_remarks = $request->declined_remarks;
+        $supplier_accreditation->status = 'Declined';
+        $supplier_accreditation->save();
+
+        Alert::success('Successfully Saved')->persistent('Dismiss');
+        return redirect()->back();
     }
 }

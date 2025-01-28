@@ -10,7 +10,14 @@
             </h4>
             <form id="form_supplier_accreditation" action="{{ route('supplier_accreditation.store') }}" method="POST" enctype="multipart/form-data">
                 @csrf
+                <input type="hidden" class="form-control" id="status" name="status" value="Pending">
                 <div class="row">
+                    <div class="col-lg-6">
+                        <div class="form-group">
+                            <label class="form-label">Vendor Code:</label>
+                            <input type="text" class="form-control" id="vendor_code" name="vendor_code" placeholder="Enter Vendor Code" style="padding: 0.495rem 1.175rem" required>
+                        </div>
+                    </div>
                     <div class="col-lg-6">
                         <div class="form-group">
                             <label class="form-label">Relationship to WGI:</label>
@@ -65,14 +72,14 @@
                     </div>
                     <div class="col-lg-6">
                         <div class="form-group">
-                            <label class="form-label">Telephone No.:</label>
-                            <input type="text" class="form-control" id="billing_telephone" name="billing_telephone" placeholder="Enter Telephone No." style="padding: 0.495rem 1.175rem">
+                            <label class="form-label">Website:</label>
+                            <input type="text" class="form-control" id="website" name="website" placeholder="Enter Website" style="padding: 0.495rem 1.175rem">
                         </div>
                     </div>
                     <div class="col-lg-6">
                         <div class="form-group">
-                            <label class="form-label">Fax No.:</label>
-                            <input type="text" class="form-control" id="billing_fax" name="billing_fax" placeholder="Enter Fax No." style="padding: 0.495rem 1.175rem">
+                            <label class="form-label">Office Phone:</label>
+                            <input type="text" class="form-control" id="office_phone" name="office_phone" placeholder="Enter Office Phone" style="padding: 0.495rem 1.175rem">
                         </div>
                     </div>
                     <div class="col-lg-6">

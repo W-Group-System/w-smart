@@ -65,14 +65,14 @@
                     </div>
                     <div class="col-lg-6">
                         <div class="form-group">
-                            <label class="form-label">Telephone No.:</label>
-                            <input type="text" class="form-control" id="billing_telephone" name="billing_telephone" placeholder="Enter Telephone No." value="{{ $data->billing_telephone }}" style="padding: 0.495rem 1.175rem">
+                            <label class="form-label">Website:</label>
+                            <input type="text" class="form-control" id="website" name="website" placeholder="Enter Website" value="{{ $data->website }}" style="padding: 0.495rem 1.175rem">
                         </div>
                     </div>
                     <div class="col-lg-6">
                         <div class="form-group">
-                            <label class="form-label">Fax No.:</label>
-                            <input type="text" class="form-control" id="billing_fax" name="billing_fax" placeholder="Enter Fax No." value="{{ $data->billing_fax }}" style="padding: 0.495rem 1.175rem">
+                            <label class="form-label">Office Phone:</label>
+                            <input type="text" class="form-control" id="office_phone" name="office_phone" placeholder="Enter Office Phone" value="{{ $data->office_phone }}" style="padding: 0.495rem 1.175rem">
                         </div>
                     </div>
                     <div class="col-lg-6">

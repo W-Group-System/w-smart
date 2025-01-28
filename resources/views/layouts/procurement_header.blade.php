@@ -22,6 +22,9 @@
                         @if (Request::is('procurement/supplier-accreditation'))
                             Supplier Accreditation
                         @endif
+                        @if (Request::is('procurement/supplier-evaluation'))
+                            Supplier Evaluation
+                        @endif
                     </span>
                 </div>
             </nav>
