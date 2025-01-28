@@ -2,17 +2,12 @@
 
 @section('dashboard_content')
 <div class="container-fluid">
-    @include('layouts.procurement_header')
 
-    <!-- Main Content Section -->
-    <div class="card p-4" style="border: 1px solid #ddd; border-radius: 20px; margin-top: -25px;">
+    <div class="card p-4" style="border: 1px solid #ddd; border-radius: 20px; margin-top: 25px;">
         <div class="d-flex justify-content-between align-items-center mb-3">
             <div class="d-flex align-items-center">
-                <h6 class="fw-bold me-3"></h6>
-                <input type="hidden" id="userId" value="{{ auth()->user()->id }}">
-                <input type="hidden" id="userName" value="{{ auth()->user()->name }}">
-                <input type="hidden" id="usersubsidiary" value="{{ auth()->user()->subsidiary }}">
-                <input type="hidden" id="usersubsidiaryid" value="{{ auth()->user()->subsidiaryid }}">
+                <h6 class="fw-bold me-3">Vendors</h6>
+                
                 <div class="input-group" style="max-width: 350px; position: relative;">
                     <input type="text" class="form-control" placeholder="Search here" aria-label="Search"
                         id="searchInput" style="padding-right: 100px; border-radius: 20px; height: 35px;">
@@ -46,97 +41,92 @@
             </div>
 
             <div class="d-flex align-items-center">
-                <select class="form-select me-3" id="subsidiary"
-                    style="width: 150px; height: 35px; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); color: #6c757d; border-radius: 25px; font-size: 14px;">
-                    <option selected value="1">HO</option>
-                    <option value="2">WTCC</option>
-                    <option value="3">CITI</option>
-                    <option value="4">WCC</option>
-                    <option value="5">WFA</option>
-                    <option value="6">WOI</option>
-                    <option value="7">WGC</option>
-                </select>
-
-                {{-- <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addPurchaseRequest" id="addPR"
+                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addVendor" id="addPR"
                     style="height: 35px; padding: 0 15px; display: flex; align-items: center; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); font-size: 14px;">
-                    Add New PR
-                </button> --}}
+                    Add New Vendor
+                </button>
             </div>
 
         </div>
 
-        <!-- Table Section -->
         <div class="table-responsive">
             <table class="table table-hover table-bordered" style="border-collapse: collapse; min-width: 1000px;">
                 <thead class="table-light">
                     <tr>
                         <th
                             style="text-align: center; padding: 8px 10px; border: none; font-weight: 400; color: #637281;">
-                            Action<i class="bi bi-three-dots-vertical"></i>
+                            Action<i class="bi bi-three-dots-vertical"></i></th>
                         </th>
                         <th
                             style="text-align: center; padding: 8px 10px; border: none; font-weight: 400; color: #637281;">
-                            PR No <i class="bi bi-three-dots-vertical"></i>
-                        </th>                        
-                        <th
-                            style="text-align: center; padding: 8px 10px; border: none; font-weight: 400; color: #637281;">
-                            PR Requested Date/Time <i class="bi bi-three-dots-vertical"></i>
+                            Vendor Code <i class="bi bi-three-dots-vertical"></i></th>
                         </th>
                         <th
                             style="text-align: center; padding: 8px 10px; border: none; font-weight: 400; color: #637281;">
-                            Due Date <i class="bi bi-three-dots-vertical"></i></th>
+                            Vendor Name <i class="bi bi-three-dots-vertical"></i></th>
                         <th
                             style="text-align: center; padding: 8px 10px; border: none; font-weight: 400; color: #637281;">
-                            Requestor Name <i class="bi bi-three-dots-vertical"></i></th>
+                            Address <i class="bi bi-three-dots-vertical"></i></th>
                         <th
                             style="text-align: center; padding: 8px 10px; border: none; font-weight: 400; color: #637281;">
-                            Department <i class="bi bi-three-dots-vertical"></i></th>
+                            Email <i class="bi bi-three-dots-vertical"></i></th>
                         <th
                             style="text-align: center; padding: 8px 10px; border: none; font-weight: 400; color: #637281;">
-                            Subsidiary <i class="bi bi-three-dots-vertical"></i></th>
+                            Contact No. <i class="bi bi-three-dots-vertical"></i></th>
                         <th
                             style="text-align: center; padding: 8px 10px; border: none; font-weight: 400; color: #637281;">
-                            PO No <i class="bi bi-three-dots-vertical"></i></th>
+                            Category <i class="bi bi-three-dots-vertical"></i></th>
                         <th
                             style="text-align: center; padding: 8px 10px; border: none; font-weight: 400; color: #637281;">
-                            GR No <i class="bi bi-three-dots-vertical"></i></th>
+                            Date Created <i class="bi bi-three-dots-vertical"></i></th>
                         <th
                             style="text-align: center; padding: 8px 10px; border: none; font-weight: 400; color: #637281;">
-                            Status <i class="bi bi-three-dots-vertical"></i>
-                        </th> 
+                            Date Modified <i class="bi bi-three-dots-vertical"></i></th>
+                        <th
+                            style="text-align: center; padding: 8px 10px; border: none; font-weight: 400; color: #637281;">
+                            Vendor Status <i class="bi bi-three-dots-vertical"></i></th>
                     </tr>
                 </thead>
                 <tbody>
-                    {{-- @foreach ($purchase_requests as $pr)
-                        <tr>
-                            <td style="text-align: center; padding: 5px 10px;">
-                                <a href="{{url('procurement/show-purchase-request/'.$pr->id)}}" class="btn btn-sm btn-info text-white">
-                                    <i class="bi bi-eye"></i>
-                                </a>
-                                
-                                <button type="button" class="btn btn-sm btn-warning text-white" title="Edit" data-bs-toggle="modal" data-bs-target="#editPurchaseRequest{{$pr->id}}">
-                                    <i class="bi bi-pencil-square"></i>
-                                </button>
-                            </td>
-                            <td style="text-align: center; padding: 5px 10px;">{{date('m/d/Y', strtotime($pr->created_at))}}</td>
-                            <td style="text-align: center; padding: 5px 10px;">{{str_pad($pr->id,6,'0',STR_PAD_LEFT)}}</td>
-                            <td style="text-align: center; padding: 5px 10px;"></td>
-                            <td style="text-align: center; padding: 5px 10px;">{{date('m/d/Y', strtotime($pr->due_date))}}</td>
-                            <td style="text-align: center; padding: 5px 10px;">{{$pr->user->name}}</td>
-                            <td style="text-align: center; padding: 5px 10px;">{{$pr->department->name}}</td>
-                            <td style="text-align: center; padding: 5px 10px;">{{$pr->subsidiary}}</td>
-                            <td style="text-align: center; padding: 5px 10px;">0.00</td>
-                            <td style="text-align: center; padding: 5px 10px;">Expedited</td>
-                            <td style="text-align: center; padding: 5px 10px;">{{$pr->status}}</td>
-                            <td style="text-align: center; padding: 5px 10px;">{{$pr->assignedTo->name}}</td>
-                            <td style="text-align: center; padding: 5px 10px;">{{date('m/d/Y', strtotime($pr->created_at))}}</td>
-                        </tr>
-                    @endforeach --}}
+                    @foreach ($vendors as $vendor)
+                            <tr>
+                                <td style="text-align: center; padding: 5px 10px;">
+                                    <a href="{{url('settings/view_vendor/'.$vendor->id)}}" class="btn btn-sm btn-info text-white">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                    
+                                    <button type="button" class="btn btn-sm btn-warning text-white" title="Edit" data-bs-toggle="modal" data-bs-target="#editVendor{{$vendor->id}}">
+                                        <i class="bi bi-pencil-square"></i>
+                                    </button>
+                                </td>
+                                <td>{{ optional($vendor)->vendor_code }}</td>
+                                <td>{{ optional($vendor->vendorSupplier)->corporate_name }}</td>
+                                <td>
+                                    {{-- @foreach ($vendor->vendorContact as $contact) --}}
+                                    {{ optional($vendor->vendorSupplier)->business_address }} <br>
+                                    {{ optional($vendor->vendorSupplier)->billing_address }}
+                                    {{-- @endforeach --}}
+                                </td>
+                                <td>
+                                    @foreach ($vendor->vendorContact as $contact)
+                                        <div>{{ optional($contact)->email }}</div>
+                                    @endforeach
+                                </td>
+                                <td>
+                                    @foreach ($vendor->vendorContact as $contact)
+                                        <div>{{ optional($contact)->contact }}</div>
+                                    @endforeach
+                                </td>
+                                <td>{{ optional($vendor->vendorCategory)->name }}</td>
+                                <td>{{ optional($vendor)->created_at }}</td>
+                                <td>{{ optional($vendor)->updated_at }}</td>
+                                <td>{{ optional($vendor)->vendor_status }}</td>
+                            </tr>
+                    @endforeach
                 </tbody>
             </table>
         </div>
 
-        <!-- Pagination Section -->
         <hr style="border-top: 1px solid #ddd; margin-top: 10px; margin-bottom: 10px;">
 
         <div class="d-flex justify-content-end align-items-center mt-3 border-top pt-3">
@@ -148,9 +138,42 @@
                     <option>20</option>
                 </select>
             </div>
-            {{-- <div class="me-3 dynamic-rows-info">{{$purchase_requests->firstItem()}}-{{$purchase_requests->lastItem()}} of {{$purchase_requests->total()}}</div>
-            {!! $purchase_requests->links() !!} --}}
+            <div class="me-3 dynamic-rows-info">{{$vendors->firstItem()}}-{{$vendors->lastItem()}} of {{$vendors->total()}}</div>
+            {!! $vendors->links() !!}
         </div>
     </div>
 </div>
+
+@foreach ($vendors as $vendor)
+@include('vendor_management.edit_vendor')
+@endforeach
+
+@include('vendor_management.new_vendor')
 @endsection
+
+@push('scripts')
+    <script src="{{ asset('js/vendorManagement1.js') }}"></script>
+
+    <script>
+        
+        function vendorNameSelect(value)
+        {
+            $.ajax({
+                type: "POST",
+                url: "{{route('refreshVendorCode')}}",
+                data: {
+                    id: value
+                },
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function(data) {
+                    
+                    document.getElementById('vendor-Code').value = data.vendor_code;
+                    document.getElementById('billing-Tin').value = data.billing_tin;
+                }
+            })
+        }
+
+    </script>
+@endpush

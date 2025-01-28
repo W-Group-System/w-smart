@@ -35,6 +35,9 @@
                             Company <i class="bi bi-three-dots-vertical"></i></th>
                         <th
                             style="text-align: center; padding: 8px 10px; border: none; font-weight: 400; color: #637281;">
+                            Department Head <i class="bi bi-three-dots-vertical"></i></th>
+                        <th
+                            style="text-align: center; padding: 8px 10px; border: none; font-weight: 400; color: #637281;">
                             Status <i class="bi bi-three-dots-vertical"></i></th>
                     </tr>
                 </thead>
@@ -64,6 +67,7 @@
                             <td>{{$department->code}}</td>
                             <td>{{$department->name}}</td>
                             <td>{{$department->subsidiary->subsidiary_name}}</td>
+                            <td>{{optional($department->departmentHead)->name}}</td>
                             <td>
                                 @if($department->status == 'Active')
                                 <span class="badge bg-success">Active</span>

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Department;
+use App\Models\User;
 use App\Subsidiary;
 use Exception;
 use Illuminate\Http\Request;
@@ -18,10 +19,11 @@ class DepartmentController extends Controller
      */
     public function index(Request $request)
     {
-        $departments = Department::paginate(10);
+        $departments = Department::with('departmentHead')->paginate(10);
         $subsidiary = Subsidiary::get();
+        $dept_head = User::where('position','Department Head')->get();
 
-        return view('department', compact('departments','subsidiary'));
+        return view('department', compact('departments','subsidiary','dept_head'));
     }
 
     /**
@@ -48,6 +50,7 @@ class DepartmentController extends Controller
         $department->name = $request->dept_name;
         $department->subsidiary_id = $request->subsidiary;
         $department->status = 'Active';
+        $department->department_head = $request->department_head;
         $department->save();
 
         Alert::success('Successfully Saved')->persistent('Dismiss');
@@ -89,6 +92,7 @@ class DepartmentController extends Controller
         $department->code = $request->dept_code;
         $department->name = $request->dept_name;
         $department->subsidiary_id = $request->subsidiary;
+        $department->department_head = $request->department_head;
         $department->save();
 
         Alert::success('Successfully Updated')->persistent('Dismiss');

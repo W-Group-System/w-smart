@@ -24,6 +24,9 @@
                         @endif
                         @if (Request::is('procurement/supplier-evaluation'))
                             Supplier Evaluation
+   
+                        @if (Request::is('procurement/for-approval-pr'))
+                            For Approval Purchase Request
                         @endif
                     </span>
                 </div>
@@ -60,12 +63,17 @@
                             @if (Request::is('procurement/purchase-request'))
                                 Pending
                             @endif
-                            @if (Request::is('procurement/purchase-order'))
-                                Pending
+                            @if (Request::is('procurement/canvassing'))
+                                Canvassing
+                            @endif
+                            @if (Request::is('procurement/for-approval-pr'))
+                                For Approval
                             @endif
                         </h6>
-                        @if (Request::is('procurement/purchase-request'))
+                        @if (Request::is('procurement/purchase-request') || Request::is('procurement/for-approval-pr'))
                         <h3 class="card-text fw-bold mb-0">{{count($purchase_requests->where('status','Pending'))}}</h3>
+                        @elseif(Request::is('procurement/canvassing'))
+                        <h3 class="card-text fw-bold mb-0">{{count($purchase_request->where('status','RFQ'))}}</h3>
                         @else
                         <h3 class="card-text fw-bold mb-0">0</h3>
                         @endif
@@ -75,6 +83,7 @@
                 </div>
             </div>
 
+            @if(!Request::is('procurement/for-approval-pr'))
             <!-- Withdrawal Card -->
             <div class="card shadow-sm"
                 style="flex: 1 1 220px; padding: 15px; border-radius: 10px; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); margin-right: 15px;">
@@ -83,22 +92,30 @@
                         <h6 class="card-title mb-3">
                             @if (Request::is('procurement/purchase-request'))
                                 RFQ
+                            @elseif (Request::is('procurement/canvassing'))
+                                For Approval
                             @endif
                         </h6>
+                        @if (Request::is('procurement/purchase-request'))
+                        <h3 class="card-text fw-bold mb-0">{{count($purchase_requests->where('status','RFQ'))}}</h3>
+                        @else
                         <h3 class="card-text fw-bold mb-0">0</h3>
+                        @endif
                     </div>
                     <a href="#" id="viewTable2" class="btn btn-primary btn-sm" style="min-width: 110px; border-radius: 7px;">View
                         All</a>
                 </div>
             </div>
+            @endif
             
+            @if(!Request::is('procurement/for-approval-pr'))
             <!-- Withdrawal Card -->
             <div class="card shadow-sm"
                 style="flex: 1 1 220px; padding: 15px; border-radius: 10px; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);">
                 <div class="card-body d-flex justify-content-between align-items-center">
                     <div class="text-center">
                         <h6 class="card-title mb-3">
-                            @if (Request::is('procurement/purchase-request'))
+                            @if (Request::is('procurement/purchase-request') || Request::is('procurement/canvassing'))
                                 Closed
                             @endif
                         </h6>
@@ -108,6 +125,7 @@
                         All</a>
                 </div>
             </div>
+            @endif
         </div>
     </div>
 </div>

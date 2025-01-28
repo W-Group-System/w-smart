@@ -114,31 +114,43 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach ($purchase_requests as $pr)
-                        <tr>
-                            <td style="text-align: center; padding: 5px 10px;">
-                                <a href="{{url('procurement/show-purchase-request/'.$pr->id)}}" class="btn btn-sm btn-info text-white">
-                                    <i class="bi bi-eye"></i>
-                                </a>
-                                
-                                <button type="button" class="btn btn-sm btn-warning text-white" title="Edit" data-bs-toggle="modal" data-bs-target="#editPurchaseRequest{{$pr->id}}">
-                                    <i class="bi bi-pencil-square"></i>
-                                </button>
-                            </td>
-                            <td style="text-align: center; padding: 5px 10px;">{{date('m/d/Y', strtotime($pr->created_at))}}</td>
-                            <td style="text-align: center; padding: 5px 10px;">{{str_pad($pr->id,6,'0',STR_PAD_LEFT)}}</td>
-                            <td style="text-align: center; padding: 5px 10px;"></td>
-                            <td style="text-align: center; padding: 5px 10px;">{{date('m/d/Y', strtotime($pr->due_date))}}</td>
-                            <td style="text-align: center; padding: 5px 10px;"></td>
-                            <td style="text-align: center; padding: 5px 10px;"></td>
-                            <td style="text-align: center; padding: 5px 10px;">{{$pr->subsidiary}}</td>
-                            <td style="text-align: center; padding: 5px 10px;">0.00</td>
-                            <td style="text-align: center; padding: 5px 10px;">Expedited</td>
-                            <td style="text-align: center; padding: 5px 10px;">{{$pr->status}}</td>
-                            <td style="text-align: center; padding: 5px 10px;"></td>
-                            <td style="text-align: center; padding: 5px 10px;">{{date('m/d/Y', strtotime($pr->created_at))}}</td>
-                        </tr>
-                    @endforeach
+                    @if(count($purchase_requests) > 0)
+                        @foreach ($purchase_requests as $pr)
+                            <tr>
+                                <td style="text-align: center; padding: 5px 10px;">
+                                    <a href="{{url('procurement/show-purchase-request/'.$pr->id)}}" class="btn btn-sm btn-info text-white">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                    
+                                    @if($pr->status == 'Returned')
+                                    <button type="button" class="btn btn-sm btn-warning text-white" title="Edit" data-bs-toggle="modal" data-bs-target="#editPurchaseRequest{{$pr->id}}">
+                                        <i class="bi bi-pencil-square"></i>
+                                    </button>
+                                    @endif
+                                </td>
+                                <td style="text-align: center; padding: 5px 10px;">{{date('m/d/Y', strtotime($pr->created_at))}}</td>
+                                <td style="text-align: center; padding: 5px 10px;">{{str_pad($pr->id,6,'0',STR_PAD_LEFT)}}</td>
+                                <td style="text-align: center; padding: 5px 10px;">
+                                    @foreach ($pr->purchaseItems as $item)
+                                        {{$item->inventory->item_description}} <br>
+                                    @endforeach
+                                </td>
+                                <td style="text-align: center; padding: 5px 10px;">{{date('m/d/Y', strtotime($pr->due_date))}}</td>
+                                <td style="text-align: center; padding: 5px 10px;">{{$pr->user->name}}</td>
+                                <td style="text-align: center; padding: 5px 10px;">{{$pr->department->name}}</td>
+                                <td style="text-align: center; padding: 5px 10px;">{{$pr->subsidiary}}</td>
+                                <td style="text-align: center; padding: 5px 10px;">0.00</td>
+                                <td style="text-align: center; padding: 5px 10px;">Expedited</td>
+                                <td style="text-align: center; padding: 5px 10px;">{{$pr->status}}</td>
+                                <td style="text-align: center; padding: 5px 10px;">{{optional($pr->assignedTo)->name}}</td>
+                                <td style="text-align: center; padding: 5px 10px;">{{date('m/d/Y', strtotime($pr->created_at))}}</td>
+                            </tr>
+                        @endforeach
+                    @else
+                    <tr>
+                        <td class="text-center" colspan="13">No data available.</td>
+                    </tr>
+                    @endif
                 </tbody>
             </table>
         </div>
@@ -169,5 +181,162 @@
 @endsection
 
 @push('scripts')
-    <script src="{{ asset('js/purchaseRequest.js') }}"></script>
+    {{-- <script src="{{ asset('js/purchaseRequest.js') }}"></script> --}}
+<script src="{{asset('js/chosen.jquery.js')}}"></script>
+<script>
+function addRow(id)
+{
+    var newRow = `
+            <tr>
+                <td style="padding: 5px 10px">
+                    <p class="item_code"></p>
+                </td>
+                <td style="padding: 5px 10px">
+                    <p class="item_category"></p>
+                </td>
+                <td style="padding: 5px 10px">
+                    <select data-placeholder="Select item description" name="inventory_id[]" class="form-select chosen-select item-description" >
+                        <option value=""></option>
+                        @foreach ($inventory_list as $inventory)
+                            <option value="{{$inventory->inventory_id}}">{{$inventory->item_description}}</option>
+                        @endforeach
+                    </select>
+                </td>
+                <td style="padding: 5px 10px" >
+                    <p class="item_quantity"></p>
+                </td>
+                <td style="padding: 5px 10px">
+                    <select data-placeholder="Select unit of measurement" name="unit_of_measurement[]" class="form-select chosen-select" required>
+                        <option value=""></option>
+                        <option value="KG">KG</option>
+                        <option value="G">Grams</option>
+                    </select>
+                </td>
+            </tr>
+        `;
+
+    $('#tbodyAddRow'+id).append(newRow)
+}
+
+function deleteRow(id)
+{
+    var row = $('#tbodyAddRow'+id).children();
+        
+    if (row.length > 1) {
+        row.last().remove()
+    }
+}
+
+function removeFiles(id)
+{
+    // console.log('dasdad');
+    var form = $("#deleteForm"+id)[0];
+
+    Swal.fire({
+        title: "Are you sure?",
+        text: "The file will be deleted",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Yes, delete it!"
+    }).then((result) => {
+        if (result.isConfirmed) {
+            form.submit()
+        }
+    });
+    
+}
+
+$(document).ready(function() {
+    $("#addRowBtn").on('click', function() {
+        // console.log('sadasd');
+        
+        var newRow = `
+            <tr>
+                <td style="padding: 5px 10px">
+                    <p class="item_code"></p>
+                </td>
+                <td style="padding: 5px 10px">
+                    <p class="item_category"></p>
+                </td>
+                <td style="padding: 5px 10px">
+                    <select data-placeholder="Select item description" name="inventory_id[]" class="form-select chosen-select item-description" >
+                        <option value=""></option>
+                        @foreach ($inventory_list as $inventory)
+                            <option value="{{$inventory->inventory_id}}">{{$inventory->item_description}}</option>
+                        @endforeach
+                    </select>
+                </td>
+                <td style="padding: 5px 10px" >
+                    <p class="item_quantity"></p>
+                </td>
+                <td style="padding: 5px 10px">
+                    <select data-placeholder="Select unit of measurement" name="unit_of_measurement[]" class="form-select chosen-select" required>
+                        <option value=""></option>
+                        <option value="KG">KG</option>
+                        <option value="G">Grams</option>
+                    </select>
+                </td>
+            </tr>
+        `;
+
+        $('#tbodyAddRow').append(newRow)
+        // $('#tbodyAddRow .chosen-select').chosen();
+    })
+
+    $(document).on('change', '.item-description', function() {
+        const selectedValue = $(this).val();
+        
+        itemDescription(selectedValue);
+    });
+
+    $("#deleteRowBtn").on('click', function() {
+        
+        var row = $('#tbodyAddRow').children();
+        
+        if (row.length > 1) {
+            row.last().remove()
+        }
+        // $("#tbodyAddRow").children().last().remove()
+        
+    })
+
+    
+})
+
+function itemDescription(value)
+{
+    var itemCode = $(event.target).closest('tr').find('.item_code')
+    var itemCategory = $(event.target).closest('tr').find('.item_category')
+    var itemQuantity = $(event.target).closest('tr').find('.item_quantity')
+
+    // var hiddenItemCode = $('[name="item_code[]"]')
+    // var hiddenItemCategory = $('[name="item_category[]"]')
+    // var hiddenItemQuantity = $('[name="item_quantity[]"]')
+    // var hiddenItemDescription = $('[name="item_description[]"]')
+    
+    $.ajax({
+        type: "POST",
+        url: "{{route('refreshInventory')}}",
+        data: {
+            id: value
+        },
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        },
+        success: function(data) {
+            itemCode.text(data.item_code)
+            itemCategory.text(data.item_category)
+            itemQuantity.text(data.qty)
+
+            // hiddenItemCode.val(data.item_code)
+            // hiddenItemCategory.val(data.item_category)
+            // hiddenItemQuantity.val(data.qty)
+            // hiddenItemDescription.val(data.item_description)
+        }
+    })
+}
+
+</script>
 @endpush

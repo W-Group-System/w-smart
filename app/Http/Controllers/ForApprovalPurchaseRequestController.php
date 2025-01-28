@@ -2,13 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\PurchaseOrder;
 use App\PurchaseRequest;
-use App\RfqEmail;
 use Illuminate\Http\Request;
 use RealRashid\SweetAlert\Facades\Alert;
 
-class PurchaseOrderController extends Controller
+class ForApprovalPurchaseRequestController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -17,15 +15,13 @@ class PurchaseOrderController extends Controller
      */
     public function index(Request $request)
     {
+        //
         $start_date = $request->start_date;
         $end_date = $request->end_date;
 
-        $purchase_request = PurchaseRequest::doesntHave('purchaseOrder')->where('status','For Canvassing')->get();
-        $vendors = RfqEmail::get();
-        
-        $purchase_order = PurchaseOrder::with('purchaseRequest')->get();
-        
-        return view('purchased_order',compact('start_date','end_date','purchase_request','purchase_order','vendors'));
+        $purchase_requests = PurchaseRequest::where('status', 'Pending')->paginate(10);
+
+        return view('purchase_request.for_approval', compact('start_date','end_date','purchase_requests'));
     }
 
     /**
@@ -46,14 +42,7 @@ class PurchaseOrderController extends Controller
      */
     public function store(Request $request)
     {
-        $purchase_order = new PurchaseOrder();
-        $purchase_order->purchase_request_id = $request->purchase_request;
-        $purchase_order->rfq_email_id = $request->vendor;
-        $purchase_order->status = 'Pending';
-        $purchase_order->save();
-
-        Alert::success('Successfully Saved')->persistent('Dismiss');
-        return back();
+        //
     }
 
     /**
@@ -64,10 +53,7 @@ class PurchaseOrderController extends Controller
      */
     public function show($id)
     {
-        // $start_date = $request->start_date;
-        $po = PurchaseOrder::with('purchaseRequest.rfqItem.purchaseItem.inventory', 'rfqEmail.vendor')->findOrFail($id);
-
-        return view('purchase_orders.view_purchase_order', compact('po'));
+        //
     }
 
     /**
@@ -91,6 +77,23 @@ class PurchaseOrderController extends Controller
     public function update(Request $request, $id)
     {
         //
+        $purchase_requests = PurchaseRequest::findOrFail($id);
+        
+        if ($request->action == 'Approved')
+        {
+            $purchase_requests->status = 'For RFQ';
+            Alert::success('Successfully Approved')->persistent('Dismiss');
+        }
+        elseif($request->action == 'Returned')
+        {
+            $purchase_requests->status = 'Returned';
+            $purchase_requests->return_remarks = $request->return_remarks;
+            Alert::success('Successfully Returned')->persistent('Dismiss');
+        }
+
+        $purchase_requests->save();
+
+        return redirect('procurement/for-approval-pr');
     }
 
     /**
