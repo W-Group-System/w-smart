@@ -93,7 +93,7 @@ class ForApprovalPurchaseRequestController extends Controller
 
         $purchase_requests->save();
 
-        return redirect('for-approval-pr');
+        return redirect('procurement/for-approval-pr');
     }
 
     /**

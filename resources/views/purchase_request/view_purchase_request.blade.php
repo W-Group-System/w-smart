@@ -188,33 +188,34 @@
 @push('scripts')
 <script src="{{ asset('js/purchaseRequest.js') }}"></script>
 <script>
-    function getVendorEmail(value)
+    async function getVendorEmail(value)
     {
-        var emailDisplay = $(event.target).closest('tr').find('.vendor_email')
-        emailDisplay.html("")
+        let emailDisplay = event.target.closest('tr').querySelector('.vendor_email')
+        let hiddenInput = event.target.closest('tr').querySelector("input[name='vendor_email[]']");
         
-        var hiddenInput = $(event.target).closest('tr').find("input[name='vendor_email[]']");
-        hiddenInput.val("")
-
         if (value != null)
         {
-            $.ajax({
-                type: "POST",
-                url: "{{ url('refresh_vendor_email') }}",
-                data: {
+            const response = await axios.post("{{url('refresh_vendor_email')}}", 
+                {
                     vendor_id: value
                 },
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                },
-                success: function(data)
                 {
-                    var vendorEmail = data.join('<br>')
-                    
-                    emailDisplay.html(vendorEmail)
-                    hiddenInput.val(data)
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
                 }
+            )
+            
+            const categorySelect = response.data
+
+            emailDisplay.textContent = ""
+            hiddenInput.value = ""
+            
+            categorySelect.forEach(email => {
+                emailDisplay.textContent = email.billing_email
+                hiddenInput.value = email.id
             })
+            
         }
     }
 
@@ -232,44 +233,60 @@
         }
     }
 
-    $(document).ready(function() {
-        $("#addVendorBtn").on('click', function() {
-            var newRow = `
-                <tr>
-                    <td style="padding: 5px 10px;">
-                        <select name="vendor_name[]" class="form-select" onchange="getVendorEmail(this.value)" required>
-                            <option value="">Select vendor name</option>
-                            @foreach ($vendor_list as $key=>$vendor)
-                                <option value="{{$key}}">{{$vendor}}</option>
-                            @endforeach
-                        </select>
-                    </td>
-                    <td style="padding: 5px 10px;">
-                        <input type="hidden" name="vendor_email[]">
-                        <p class='vendor_email'></p>
-                    </td>
-                </tr>
-            `
+    document.addEventListener("DOMContentLoaded", (event) => {
+        const addVendorBtn = document.getElementById("addVendorBtn")
+        const deleteVendorBtn = document.getElementById("deleteVendorBtn")
+        const itemCheckboxAll = document.getElementById("itemCheckboxAll")
+        const fileCheckboxAll = document.getElementById('fileCheckboxAll')
+
+        addVendorBtn.addEventListener("click", () => {
+
+            const newRow = document.createElement("tr")
+            newRow.innerHTML = `
+                <td style="padding: 5px 10px;">
+                    <select name="vendor_name[]" class="form-select" onchange="getVendorEmail(this.value)" required>
+                        <option value="">Select vendor name</option>
+                        @foreach ($suppliers as $key=>$supplier)
+                            <option value="{{$supplier->id}}">{{$supplier->corporate_name}}</option>
+                        @endforeach
+                    </select>
+                </td>
+                <td style="padding: 5px 10px;">
+                    <input type="hidden" name="vendor_email[]">
+                    <p class="vendor_email"></p>
+                </td>
+            `;
             
-            $('#vendorTbodyRow').append(newRow);
+            document.getElementById("vendorTbodyRow").appendChild(newRow);
         })
 
-        $("#deleteVendorBtn").on('click', function() {
+        deleteVendorBtn.addEventListener("click", () => {
+            const childrenTbodyRow = document.getElementById('vendorTbodyRow').children
             
-            if ($("#vendorTbodyRow").children().length > 1) 
+            if (childrenTbodyRow.length > 1)
             {
-                $("#vendorTbodyRow").children().last().remove()
+                const array = Array.from(childrenTbodyRow)
+                array.pop().remove()
             }
         })
 
-        $("#itemCheckboxAll").on('click', function() {
-            $('.itemCheckbox').prop('checked', $(this).is(':checked'));
+        itemCheckboxAll.addEventListener("click", (event) => {
+            const isChecked = event.target.checked;
+            const getCheckbox = document.querySelectorAll(".itemCheckbox")
+            
+            getCheckbox.forEach((checkbox) => {
+                checkbox.checked = isChecked;
+            });
         })
 
-        $("#fileCheckboxAll").on('click', function() {
-            $('.fileCheckbox').prop('checked', $(this).is(':checked'));
-        })
+        fileCheckboxAll.addEventListener("click", (event) => {
+            const isChecked = event.target.checked
+            const getCheckbox = document.querySelectorAll(".fileCheckbox")
 
-    })
+            getCheckbox.forEach((checkbox) => {
+                checkbox.checked = isChecked
+            })
+        })
+    });
 </script>
 @endpush

@@ -44,15 +44,15 @@
                                             @foreach ($purchase_request->rfqEmail as $rfqEmail)
                                                 <tr>
                                                     <td style="padding: 5px 10px;">
-                                                        <select name="vendor_name[]" class="form-select" onchange="getVendorEmail(this.value)" required>
+                                                        {{-- <select name="vendor_name[]" class="form-select" onchange="getVendorEmail(this.value)" required>
                                                             <option value="">Select vendor name</option>
                                                             @foreach ($vendor_list as $key=>$vendor)
-                                                                <option value="{{$key}}" @if($rfqEmail->vendor_id == $key) selected @endif>{{$vendor}}</option>
+                                                                <option value="{{$vendor->id}}" @if($rfqEmail->vendor_id == $vendor->id) selected @endif>{{$vendor->vendorSupplier->corporate_name}}</option>
                                                             @endforeach
-                                                        </select>
+                                                        </select> --}}
                                                     </td>
                                                     <td style="padding: 5px 10px;">
-                                                        <input type="hidden" name="vendor_email[]" value="{{$rfqEmail->vendor_email}}">
+                                                        {{-- <input type="hidden" name="vendor_email[]" value="{{$rfqEmail->vendor_email}}">
                                                         @php
                                                             $vendor_email = $rfqEmail->vendor_email;
                                                             $display_email = explode(',', $vendor_email);
@@ -61,7 +61,7 @@
                                                             @foreach ($display_email as $item)
                                                                 {{$item}} <br>
                                                             @endforeach
-                                                        </p>
+                                                        </p> --}}
                                                     </td>
                                                 </tr>
                                             @endforeach
@@ -70,8 +70,8 @@
                                                 <td style="padding: 5px 10px;">
                                                     <select name="vendor_name[]" class="form-select" onchange="getVendorEmail(this.value)" required>
                                                         <option value="">Select vendor name</option>
-                                                        @foreach ($vendor_list as $key=>$vendor)
-                                                            <option value="{{$key}}">{{$vendor}}</option>
+                                                        @foreach ($suppliers as $key=>$supplier)
+                                                            <option value="{{$supplier->id}}">{{$supplier->corporate_name}}</option>
                                                         @endforeach
                                                     </select>
                                                 </td>
