@@ -10,8 +10,12 @@ class PurchaseOrder extends Model
     {
         return $this->belongsTo(PurchaseRequest::class);
     }
-    public function rfqEmail()
+    // public function rfqEmail()
+    // {
+    //     return $this->belongsTo(RfqEmail::class);
+    // }
+    public function supplier()
     {
-        return $this->belongsTo(RfqEmail::class);
+        return $this->belongsTo(SupplierAccreditation::class,'supplier_id');
     }
 }

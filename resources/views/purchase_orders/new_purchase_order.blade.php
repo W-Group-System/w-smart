@@ -10,7 +10,7 @@
                 <div class="modal-body">
                     <div class="form-group">
                         <label for="">Purchase Request</label>
-                        <select data-placeholder="Select purchase request" name="purchase_request" class="form-select chosen-select" required>
+                        <select data-placeholder="Select purchase request" name="purchase_request" class="form-select" required onchange="showVendorEmail(this.value)">
                             <option value=""></option>
                             @foreach ($purchase_request as $pr)
                                 <option value="{{$pr->id}}">{{str_pad($pr->id,6,'0',STR_PAD_LEFT)}}</option>
@@ -19,12 +19,16 @@
                     </div>
                     <div class="form-group">
                         <label for="">Vendor Email</label>
-                        <select data-placeholder="Select vendor" name="vendor" class="form-select chosen-select" required>
+                        <select data-placeholder="Select vendor" name="vendor" class="form-select" id="vendorEmail" required>
                             <option value=""></option>
-                            @foreach ($vendors as $vendor)
+                            {{-- @foreach ($vendors as $vendor)
                                 <option value="{{$vendor->id}}">{{$vendor->vendor->vendor_name}}</option>
-                            @endforeach
+                            @endforeach --}}
                         </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="">Expected Delivery Date</label>
+                        <input type="date" name="expected_delivery_date" class="form-control form-control-sm" min="{{date('Y-m-d')}}" required>
                     </div>
                 </div>
                 <div class="modal-footer">

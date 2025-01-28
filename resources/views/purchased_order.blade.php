@@ -131,7 +131,32 @@
 
 @push('scripts')
 <script>
-    
+    async function showVendorEmail(value)
+    {
+        try {
+            const response = await axios.post('{{url("refresh_rfq_vendor")}}', 
+                {
+                    data: value
+                },
+            )
+            const supplier = response.data;
+            const categorySelect = document.getElementById('vendorEmail');
+            
+            categorySelect.innerHTML = '';
+
+            supplier.forEach((email) => {
+                const option = document.createElement('option');
+                
+                option.value = email.id;
+                option.text = email.corporate_name+' - '+email.billing_email;
+                categorySelect.appendChild(option);
+            })
+            
+        } catch (error) {
+            console.error(error);
+        }
+        
+    }
 </script>
 @endpush
 @endsection

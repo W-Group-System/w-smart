@@ -6,8 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class RfqEmail extends Model
 {
-    public function vendor()
+    public function supplier()
     {
-        return $this->belongsTo(Vendor::class);
+        return $this->belongsTo(SupplierAccreditation::class,'supplier_id');
     }
 }

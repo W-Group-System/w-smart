@@ -45,4 +45,8 @@ class PurchaseRequest extends Model
     {
         return $this->hasOne(PurchaseOrder::class);
     }
+    public function company()
+    {
+        return $this->belongsTo(Subsidiary::class,'subsidiary','subsidiary_name');
+    }
 }

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\PurchaseOrder;
 use App\PurchaseRequest;
 use App\RfqEmail;
+use App\SupplierAccreditation;
 use Illuminate\Http\Request;
 use RealRashid\SweetAlert\Facades\Alert;
 
@@ -46,10 +47,12 @@ class PurchaseOrderController extends Controller
      */
     public function store(Request $request)
     {
+        // dd($request->all());
         $purchase_order = new PurchaseOrder();
         $purchase_order->purchase_request_id = $request->purchase_request;
-        $purchase_order->rfq_email_id = $request->vendor;
+        $purchase_order->supplier_id = $request->vendor;
         $purchase_order->status = 'Pending';
+        $purchase_order->expected_delivery_date = $request->expected_delivery_date;
         $purchase_order->save();
 
         Alert::success('Successfully Saved')->persistent('Dismiss');
@@ -65,7 +68,7 @@ class PurchaseOrderController extends Controller
     public function show($id)
     {
         // $start_date = $request->start_date;
-        $po = PurchaseOrder::with('purchaseRequest.rfqItem.purchaseItem.inventory', 'rfqEmail.vendor')->findOrFail($id);
+        $po = PurchaseOrder::with('purchaseRequest.rfqItem.purchaseItem.inventory', 'supplier')->findOrFail($id);
 
         return view('purchase_orders.view_purchase_order', compact('po'));
     }
@@ -102,5 +105,14 @@ class PurchaseOrderController extends Controller
     public function destroy($id)
     {
         //
+    }
+
+    public function refreshRfqVendor(Request $request)
+    {
+        $rfq_email = RfqEmail::where('purchase_request_id', $request->data)->pluck('supplier_id')->toArray();
+        
+        $supplier = SupplierAccreditation::whereIn('id', $rfq_email)->get();
+        
+        return response()->json($supplier);
     }
 }

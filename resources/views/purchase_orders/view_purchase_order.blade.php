@@ -29,33 +29,27 @@
                 <div class="row">
                     <div class="col-lg-4 mb-2"><b>To:</b></div>
                     <div class="col-lg-8 mb-2">
-                        @foreach ($po->rfqEmail->vendor->vendorContact as $vendor)
-                            {{$vendor->contact_person}} <br>
-                        @endforeach
+                        {{$po->supplier->corporate_name}}
                     </div>
                     <div class="col-lg-4 mb-2"><b>Supplier Address:</b></div>
                     <div class="col-lg-8 mb-2">
-                        @foreach ($po->rfqEmail->vendor->vendorContact as $vendor)
-                            {{$vendor->address}} <br>
-                        @endforeach
+                        {{$po->supplier->business_address}}
                     </div>
                     <div class="col-lg-4 mb-2"><b>Contact Information:</b></div>
                     <div class="col-lg-8 mb-2">
-                        @foreach ($po->rfqEmail->vendor->vendorContact as $vendor)
-                            {{$vendor->alternative_phone}} <br>
-                        @endforeach
+                        {{$po->supplier->telephone_no}}
                     </div>
                     
                     <div class="col-lg-4 mb-2 mt-5"><b>Ship To:</b></div>
                     <div class="col-lg-8 mb-2 mt-5">{{$po->purchaseRequest->subsidiary}}</div>
                     <div class="col-lg-4 mb-2"><b>Contact Person:</b></div>
-                    <div class="col-lg-8 mb-2">{{$po->purchaseRequest->assignedTo->name}}</div>
+                    <div class="col-lg-8 mb-2">{{$po->purchaseRequest->user->name}}</div>
                     <div class="col-lg-4 mb-2"><b>Contact Number:</b></div>
                     <div class="col-lg-8 mb-2">Sample</div>
                     <div class="col-lg-4 mb-2"><b>Shipping Address:</b></div>
-                    <div class="col-lg-8 mb-2">{!! nl2br(e(auth()->user()->subsidiaryId->address)) !!}</div>
+                    <div class="col-lg-8 mb-2">{!! nl2br(e($po->purchaseRequest->company->address)) !!}</div>
                     <div class="col-lg-4 mb-2"><b>Expected Delivery Date:</b></div>
-                    <div class="col-lg-8 mb-2">Sample</div>
+                    <div class="col-lg-8 mb-2">{{date('M. d Y', strtotime($po->expected_delivery_date))}}</div>
                 </div>
             </div>
             <div class="col-lg-6">
@@ -63,11 +57,11 @@
                     <div class="col-lg-4 mb-2"><b>PO Date:</b></div>
                     <div class="col-lg-8 mb-2">{{date('M d Y', strtotime($po->created_at))}}</div>
                     <div class="col-lg-4 mb-2"><b>Payment Terms:</b></div>
-                    <div class="col-lg-8 mb-2">Sample</div>
+                    <div class="col-lg-8 mb-2">{{$po->supplier->suppliers_terms}}</div>
                     <div class="col-lg-4 mb-2"><b>Bill To:</b></div>
-                    <div class="col-lg-8 mb-2">Sample</div>
+                    <div class="col-lg-8 mb-2">{{$po->supplier->corporate_name}}</div>
                     <div class="col-lg-4 mb-2"><b>Bill Address:</b></div>
-                    <div class="col-lg-8 mb-2"></div>
+                    <div class="col-lg-8 mb-2">{!! nl2br(e($po->supplier->billing_address)) !!}</div>
                     {{-- <div class="col-lg-4 mb-2"><b>Contact Person:</b></div>
                     <div class="col-lg-8 mb-2">Sample</div> --}}
                 </div>

@@ -53,7 +53,7 @@ class RequestForQuotationController extends Controller
             {
                 $rfq = new RfqEmail();
                 $rfq->purchase_request_id = $request->purchase_request_id;
-                $rfq->vendor_id = $vendor_name;
+                $rfq->supplier_id = $vendor_name;
                 $rfq->vendor_email = $request->vendor_email[$key];
                 $rfq->save();
 
