@@ -25,7 +25,7 @@ class VendorController extends Controller
      */
     public function index()
     {
-        $accredited_suppliers = SupplierAccreditation::all();
+        $accredited_suppliers = SupplierAccreditation::where('status', 'Approved')->whereNotIn('id', Vendor::pluck('vendor_name'))->get();
         $vendors = Vendor::paginate(10);   
         $categories = VendorCategory::get() ;
         $subsidiaries = Subsidiary::get() ;
