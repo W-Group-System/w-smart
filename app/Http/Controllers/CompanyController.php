@@ -25,9 +25,9 @@ class CompanyController extends Controller
         //     ], 500);
         // }
 
-        $company = Subsidiary::paginate(10);
+        $companies = Subsidiary::get();
 
-        return view('company', compact('company'));
+        return view('company', compact('companies'));
     }
 
     public function createCompany(Request $request)
@@ -49,6 +49,28 @@ class CompanyController extends Controller
         $company->save();
 
         Alert::success('Successfully Updated')->persistent('Dismiss');
+        return back();
+    }
+
+    public function deactivate(Request $request,$id)
+    {
+        // dd($request->all());
+        $subsidiary = Subsidiary::findOrFail($id);
+        $subsidiary->status = 'Inactive';
+        $subsidiary->save();
+
+        Alert::success('Successfully Deactivated')->persistent('Dismiss');
+        return back();
+    }
+
+    public function activate(Request $request,$id)
+    {
+        // dd($request->all());
+        $subsidiary = Subsidiary::findOrFail($id);
+        $subsidiary->status = null;
+        $subsidiary->save();
+
+        Alert::success('Successfully Activated')->persistent('Dismiss');
         return back();
     }
 }

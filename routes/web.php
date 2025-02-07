@@ -41,6 +41,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/settings/company', 'CompanyController@index')->name('settings.company');
     Route::post('create-company', 'CompanyController@createCompany')->name('create-company');
     Route::post('update-company/{id}', 'CompanyController@update');
+    Route::post('deactivate_company/{id}', 'CompanyController@deactivate');
+    Route::post('activate_company/{id}', 'CompanyController@activate');
 
     // Department
     Route::get('/settings/department','DepartmentController@index')->name('settings.department');
