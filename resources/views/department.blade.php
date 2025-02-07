@@ -1,121 +1,103 @@
-@extends('layouts.dashboard_layout')
+@extends('layouts.header')
 
-@section('dashboard_content')
-<div class="container-fluid">
-    @include('layouts.department_header')
+@section('content')
+<div class="row mb-3">
+    <div class="col-lg-3">
+        <div class="card card-tale">
+            <div class="card-body">
+                <p class="mb-4">Number of Department</p>
+                <p class="fs-30 mb-2">0</p>
+                <p>as of ({{date('M d Y')}})</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3">
+        <div class="card bg-success text-white">
+            <div class="card-body">
+                <p class="mb-4">Number of Active Department</p>
+                <p class="fs-30 mb-2">0</p>
+                <p>as of ({{date('M d Y')}})</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3">
+        <div class="card card-light-danger">
+            <div class="card-body">
+                <p class="mb-4">Number of Inactive Department</p>
+                <p class="fs-30 mb-2">0</p>
+                <p>as of ({{date('M d Y')}})</p>
+            </div>
+        </div>
+    </div>
+</div>
 
+<div class="col-12 grid-margin stretch-card">
     <!-- Main Content Section -->
-    <div class="card p-4" style="border: 1px solid #ddd; border-radius: 20px; margin-top: -25px;">
-        <h6 class="fw-bold me-3">Department</h6>
+    <div class="card">
+        <div class="card-body">
+            <h4 class="card-title">Department</h4>
 
-        <div align="right">
-            <button type="button" class="btn btn-primary mb-2" style="width: 10%;" data-bs-toggle="modal" data-bs-target="#newDepartmentModal" id="addPR">
+            <button type="button" class="btn btn-outline-success mb-4" data-toggle="modal" data-target="#newDepartmentModal">
                 Add New Department
             </button>
-        </div>
-
-        <!-- Table Section -->
-        <div class="table-responsive">
-            <table class="table table-hover table-bordered">
-                <thead class="table-light">
-                    <tr>
-                        <th
-                            style="text-align: center; padding: 8px 10px; border: none; font-weight: 400; color: #637281;">
-                            Actions <i class="bi bi-three-dots-vertical"></i></th>
-                        </th>
-                        <th
-                            style="text-align: center; padding: 8px 10px; border: none; font-weight: 400; color: #637281;">
-                            Code <i class="bi bi-three-dots-vertical"></i></th>
-                        </th>
-                        <th
-                            style="text-align: center; padding: 8px 10px; border: none; font-weight: 400; color: #637281;">
-                            Name <i class="bi bi-three-dots-vertical"></i></th>
-                        <th
-                            style="text-align: center; padding: 8px 10px; border: none; font-weight: 400; color: #637281;">
-                            Company <i class="bi bi-three-dots-vertical"></i></th>
-                        <th
-                            style="text-align: center; padding: 8px 10px; border: none; font-weight: 400; color: #637281;">
-                            Department Head <i class="bi bi-three-dots-vertical"></i></th>
-                        <th
-                            style="text-align: center; padding: 8px 10px; border: none; font-weight: 400; color: #637281;">
-                            Status <i class="bi bi-three-dots-vertical"></i></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach ($departments as $department)
+            
+            <!-- Table Section -->
+            <div class="table-responsive">
+                <table class="table table-hover table-bordered table-striped table-sm" id="tableWithSearch">
+                    <thead class="table-light">
                         <tr>
-                            <td>
-                                <button type="button" class="btn btn-warning btn-sm text-white" title="Edit" data-bs-toggle="modal" data-bs-target="#edit{{$department->id}}" >
-                                    <i class="bi bi-pencil-square"></i>
-                                </button>
-                                @if($department->status == 'Active')
-                                <form method="POST" class="d-inline-block" id="department{{$department->id}}" action="{{url('settings/deactive-department/'.$department->id)}}">
-                                    @csrf 
-                                    <button type="button" class="btn btn-danger btn-sm text-white deactivate" title="Deactivate" >
-                                        <i class="bi bi-trash"></i>
-                                    </button>
-                                </form>
-                                @else 
-                                <form method="POST" class="d-inline-block" id="department{{$department->id}}" action="{{url('settings/active-department/'.$department->id)}}">
-                                    @csrf
-                                    <button type="button" class="btn btn-info btn-sm text-white activate" title="Activate">
-                                        <i class="bi bi-check"></i>
-                                    </button>
-                                </form>
-                                @endif
-                            </td>
-                            <td>{{$department->code}}</td>
-                            <td>{{$department->name}}</td>
-                            <td>{{$department->subsidiary->subsidiary_name}}</td>
-                            <td>{{optional($department->departmentHead)->name}}</td>
-                            <td>
-                                @if($department->status == 'Active')
-                                <span class="badge bg-success">Active</span>
-                                @else
-                                <span class="badge bg-danger">Inactive</span>
-                                @endif
-                            </td>
+                            <th>Actions</th>
+                            <th>Code</th>
+                            <th>Name</th>
+                            <th>Company</th>
+                            <th>Department Head</th>
+                            <th>Status</th>
                         </tr>
+                    </thead>
+                    <tbody>
+                        @foreach ($departments as $department)
+                            <tr>
+                                <td>
+                                    <button type="button" class="btn btn-info btn-sm text-white" title="Edit" data-toggle="modal" data-target="#edit{{$department->id}}" >
+                                        <i class="ti-pencil-alt"></i>
+                                    </button>
 
-                        @include('department.edit_department')
-                    @endforeach
-                </tbody>
-            </table>
-        </div>
-        {!! $departments->links() !!}
-
-
-        <!-- Pagination Section -->
-        {{-- <hr style="border-top: 1px solid #ddd; margin-top: 10px; margin-bottom: 10px;">
-
-        <div class="d-flex justify-content-end align-items-center mt-3 border-top pt-3">
-            <div class="d-flex align-items-center me-3">
-                <span>Rows per page:</span>
-                <select class="form-select form-select-sm d-inline-block w-auto ms-2" style="border-radius: 5px;">
-                    <option>5</option>
-                    <option>10</option>
-                    <option>20</option>
-                </select>
+                                    @if($department->status == 'Active')
+                                        <form method="POST" class="d-inline-block" id="deactivateForm{{$department->id}}" action="{{url('settings/deactive-department/'.$department->id)}}" onsubmit="show()">
+                                            @csrf 
+                                            <button type="button" class="btn btn-danger btn-sm text-white" title="Deactivate" onclick="deactivate({{$department->id}})">
+                                                <i class="ti-trash"></i>
+                                            </button>
+                                        </form>
+                                    @else 
+                                        <form method="POST" class="d-inline-block" id="activateForm{{$department->id}}" action="{{url('settings/active-department/'.$department->id)}}" onsubmit="show()">
+                                            @csrf
+                                            <button type="button" class="btn btn-success btn-sm text-white" title="Activate" onclick="activate({{$department->id}})">
+                                                <i class="ti-check"></i>
+                                            </button>
+                                        </form>
+                                    @endif
+                                </td>
+                                <td>{{$department->code}}</td>
+                                <td>{{$department->name}}</td>
+                                <td>{{$department->subsidiary->subsidiary_name}}</td>
+                                <td>{{optional($department->departmentHead)->name}}</td>
+                                <td>
+                                    @if($department->status == 'Active')
+                                    <span class="badge badge-success">Active</span>
+                                    @else
+                                    <span class="badge badge-danger">Inactive</span>
+                                    @endif
+                                </td>
+                            </tr>
+    
+                            @include('department.edit_department')
+                        @endforeach
+                    </tbody>
+                </table>
             </div>
-            <div class="me-3 dynamic-rows-info">1-5 of 13</div>
-            <nav aria-label="Page navigation">
-                <ul class="pagination pagination-sm mb-0">
-                    <li class="page-item disabled">
-                        <a class="page-link" href="#" aria-label="Previous">
-                            <span aria-hidden="true">&laquo;</span>
-                        </a>
-                    </li>
-                    <li class="page-item"><a class="page-link" href="#">1</a></li>
-                    <li class="page-item"><a class="page-link" href="#">2</a></li>
-                    <li class="page-item"><a class="page-link" href="#">3</a></li>
-                    <li class="page-item">
-                        <a class="page-link" href="#" aria-label="Next">
-                            <span aria-hidden="true">&raquo;</span>
-                        </a>
-                    </li>
-                </ul>
-            </nav>
-        </div> --}}
+        </div>
+
     </div>
 </div>
 @include('department.new_department')
@@ -259,42 +241,51 @@
 
 @endsection
 
-@push('scripts')
+@section('js')
     <script>
-        $(document).ready(function() {
-            $(".deactivate").on('click', function() {
-                Swal.fire({
-                    title: "Are you sure?",
-                    text: "The department will be deactivate",
-                    icon: "warning",
-                    showCancelButton: true,
-                    confirmButtonColor: "#3085d6",
-                    cancelButtonColor: "#d33",
-                    confirmButtonText: "Yes, deactivate it!"
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        $(this).closest('form').submit()
-                    }
-                });
-                
-            })
+        function deactivate(id)
+        {
+            Swal.fire({
+                title: "Are you sure?",
+                text: "You won't be able to revert this!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#3085d6",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "Yes, deactivate it!"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById('deactivateForm'+id).submit()
+                }
+            });
+        }
+
+        function activate(id)
+        {
+            Swal.fire({
+                title: "Are you sure?",
+                text: "You won't be able to revert this!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#3085d6",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "Yes, activate it!"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById('activateForm'+id).submit()
+                }
+            });
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const companyTable = document.querySelector("#tableWithSearch")
             
-            $(".activate").on('click', function() {
-                Swal.fire({
-                    title: "Are you sure?",
-                    text: "The department will be activate",
-                    icon: "warning",
-                    showCancelButton: true,
-                    confirmButtonColor: "#3085d6",
-                    cancelButtonColor: "#d33",
-                    confirmButtonText: "Yes, activate it!"
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        $(this).closest('form').submit()
-                    }
-                });
-                
-            })
+            $(companyTable).DataTable({
+                dom: 'Bfrtip',
+                ordering: true,
+                pageLength: 25,
+                paging: true,
+            });
         })
     </script>
-@endpush
+@endsection

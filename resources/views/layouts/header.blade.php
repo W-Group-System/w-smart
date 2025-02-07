@@ -99,8 +99,8 @@
                     <span class="menu-title">Dashboard</span>
                 </a>
                 </li>
-                <li class="nav-item {{ Route::current()->getName() == "settings" || "" ? "active" : "" }}">
-                <a class="nav-link" data-toggle="collapse" href="#settings" aria-expanded="{{ Route::current()->getName() == "settings" || "" ? "true" : "" }}" aria-controls="ui-basic">
+                <li class="nav-item">
+                <a class="nav-link" data-toggle="collapse" href="#settings">
                     <i class="icon-cog menu-icon"></i>
                     <span class="menu-title">Settings</span>
                     <i class="menu-arrow"></i>
@@ -111,7 +111,7 @@
                             <a class="nav-link" href="{{url('settings/company')}}">Company</a>
                         </li>
                         <li class="nav-item dashboard-list" id="department-item">
-                            <a class="nav-link" href="">Department</a>
+                            <a class="nav-link" href="{{url('settings/department')}}">Department</a>
                         </li>
                         <li class="nav-item dashboard-list" id="user-item">
                             <a class="nav-link" href="">User Management</a>
@@ -135,7 +135,11 @@
             </ul>
             </nav>
             <!-- partial -->
-            @yield('content')
+            <div class="main-panel">
+                <div class="content-wrapper">
+                    @yield('content')
+                </div>
+            </div>
             <!-- main-panel ends -->
         </div>
         <!-- page-body-wrapper ends -->
