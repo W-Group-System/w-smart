@@ -120,7 +120,7 @@
                             <a class="nav-link" href="">Vendor Management</a>
                         </li>
                         <li class="nav-item dashboard-list" id="role-item">
-                            <a class="nav-link" href="">Role</a>
+                            <a class="nav-link" href="{{url('settings/roles')}}">Role</a>
                         </li>
                         <li class="nav-item dashboard-list" id="category-item">
                             <a class="nav-link" href="">Category</a>
