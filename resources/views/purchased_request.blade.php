@@ -132,7 +132,7 @@
                                 <td style="text-align: center; padding: 5px 10px;">{{str_pad($pr->id,6,'0',STR_PAD_LEFT)}}</td>
                                 <td style="text-align: center; padding: 5px 10px;">
                                     @foreach ($pr->purchaseItems as $item)
-                                        {{$item->inventory->item_description}} <br>
+                                        {{$item->inventory->item_description ?? ''}} <br>
                                     @endforeach
                                 </td>
                                 <td style="text-align: center; padding: 5px 10px;">{{date('m/d/Y', strtotime($pr->due_date))}}</td>

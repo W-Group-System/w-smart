@@ -15,11 +15,11 @@
                         </div>
                         <div class="col-md-6 mb-2">
                             <label class="form-label">Vendor Id:</label>
-                            <input type="text" class="form-control" id="vendor_id" name="vendor_id" style="padding: 0.495rem 1.175rem" value="{{ $evaluation->vendor_id }}" placeholder="Enter Vendor Id">
+                            <input type="text" class="form-control" id="vendor_code" name="vendor_code" style="padding: 0.495rem 1.175rem" value="{{ optional($evaluation->code->first())->vendor_code }}" placeholder="Enter Vendor Id" readonly>
                         </div>
                         <div class="col-md-6 mb-2">
                             <label class="form-label">Vendor Name:</label>
-                            <input type="text" class="form-control" id="name" name="name" style="padding: 0.495rem 1.175rem" value="{{ $evaluation->vendor_name }}" placeholder="Enter Vendor Name">
+                            <input type="text" class="form-control" id="name" name="name" style="padding: 0.495rem 1.175rem" value="{{ $evaluation->name }}" placeholder="Enter Vendor Name" readonly>
                         </div>
                         <div class="col-md-6 mb-2">
                             <label class="form-label">Type of Product:</label>
@@ -101,15 +101,15 @@
                                     </tr>
                                     <tr>
                                         <td>Quality upon delivery</td>
-                                        <td><input type="text" class="form-control" name="rating1" placeholder="Enter Rating" value="{{ optional($evaluation->results->first())->rating1 }}"></td>
-                                        <td>15.0%</td>
-                                        <td><input type="text" class="form-control score-field" name="score1" placeholder="Enter Weighted Score" value="{{ optional($evaluation->results->first())->score1 }}"></td>
+                                        <td><input type="text" class="form-control rating-field" name="rating1" placeholder="Enter Rating" value="{{ optional($evaluation->results->first())->rating1 }}"></td>
+                                        <td class="weight1" data-weight="15">15.0%</td>
+                                        <td><input type="text" class="form-control score-field" name="score1" placeholder="Enter Weighted Score" value="{{ optional($evaluation->results->first())->score1 }}" readonly></td>
                                     </tr>
                                     <tr>
                                         <td>End user feedback</td>
-                                        <td><input type="text" class="form-control" name="rating2" placeholder="Enter Rating" value="{{ optional($evaluation->results->first())->rating2 }}"></td>
-                                        <td>15.0%</td>
-                                        <td><input type="text" class="form-control score-field" name="score2" placeholder="Enter Weighted Score" value="{{ optional($evaluation->results->first())->score2 }}"></td>
+                                        <td><input type="text" class="form-control rating-field2" name="rating2" placeholder="Enter Rating" value="{{ optional($evaluation->results->first())->rating2 }}"></td>
+                                        <td class="weight2" data-weight="15">15.0%</td>
+                                        <td><input type="text" class="form-control score-field" name="score2" placeholder="Enter Weighted Score" value="{{ optional($evaluation->results->first())->score2 }}" readonly></td>
                                     </tr>
                                     <tr>
                                         <td colspan="4"><b>Price and proposal submission:</b></td>
@@ -117,41 +117,41 @@
                                     </tr>
                                     <tr>
                                         <td>Price</td>
-                                        <td><input type="text" class="form-control" name="rating3" placeholder="Enter Rating" value="{{ optional($evaluation->results->first())->rating3 }}"></td>
-                                        <td>10.0%</td>
-                                        <td><input type="text" class="form-control score-field" name="score3" placeholder="Enter Weighted Score" value="{{ optional($evaluation->results->first())->score3 }}"></td>
+                                        <td><input type="text" class="form-control rating-field3" name="rating3" placeholder="Enter Rating" value="{{ optional($evaluation->results->first())->rating3 }}"></td>
+                                        <td class="weight3" data-weight="10">10.0%</td>
+                                        <td><input type="text" class="form-control score-field" name="score3" placeholder="Enter Weighted Score" value="{{ optional($evaluation->results->first())->score3 }}" readonly></td>
                                     </tr>
                                     <tr>
                                         <td>Proposal Submission</td>
-                                        <td><input type="text" class="form-control" name="rating4" placeholder="Enter Rating" value="{{ optional($evaluation->results->first())->rating4 }}"></td>
-                                        <td>15.0%</td>
-                                        <td><input type="text" class="form-control score-field" name="score4" placeholder="Enter Weighted Score" value="{{ optional($evaluation->results->first())->score4 }}"></td>
+                                        <td><input type="text" class="form-control rating-field4" name="rating4" placeholder="Enter Rating" value="{{ optional($evaluation->results->first())->rating4 }}"></td>
+                                        <td class="weight4" data-weight="15">15.0%</td>
+                                        <td><input type="text" class="form-control score-field" name="score4" placeholder="Enter Weighted Score" value="{{ optional($evaluation->results->first())->score4 }}" readonly></td>
                                     </tr>
                                     <tr>
                                         <td><b>Timeliness of Delivery:</b></td>
-                                        <td><input type="text" class="form-control" name="rating5" placeholder="Enter Rating" value="{{ optional($evaluation->results->first())->rating5 }}"></td>
-                                        <td>25.0%</td>
-                                        <td><input type="text" class="form-control score-field" name="score5" placeholder="Enter Weighted Score" value="{{ optional($evaluation->results->first())->score5 }}"></td>
+                                        <td><input type="text" class="form-control rating-field5" name="rating5" placeholder="Enter Rating" value="{{ optional($evaluation->results->first())->rating5 }}"></td>
+                                        <td class="weight5" data-weight="25">25.0%</td>
+                                        <td><input type="text" class="form-control score-field" name="score5" placeholder="Enter Weighted Score" value="{{ optional($evaluation->results->first())->score5 }}" readonly></td>
                                         <td><input type="text" class="form-control" name="remarks2" placeholder="Enter Performance/ Remarks" value="{{ optional($evaluation->results->first())->remarks2 }}"></td>
                                     </tr>
                                     <tr>
                                         <td><b>Terms of Payment:</b></td>
-                                        <td><input type="text" class="form-control" name="rating6" placeholder="Enter Rating" value="{{ optional($evaluation->results->first())->rating6 }}"></td>
-                                        <td>10.0%</td>
-                                        <td><input type="text" class="form-control score-field" name="score6" placeholder="Enter Weighted Score" value="{{ optional($evaluation->results->first())->score6 }}"></td>
+                                        <td><input type="text" class="form-control rating-field6" name="rating6" placeholder="Enter Rating" value="{{ optional($evaluation->results->first())->rating6 }}"></td>
+                                        <td class="weight6" data-weight="10">10.0%</td>
+                                        <td><input type="text" class="form-control score-field" name="score6" placeholder="Enter Weighted Score" value="{{ optional($evaluation->results->first())->score6 }}" readonly></td>
                                         <td><input type="text" class="form-control" name="remarks3" placeholder="Enter Performance/ Remarks" value="{{ optional($evaluation->results->first())->remarks3 }}"></td>
                                     </tr>
                                     <tr>
                                         <td><b>After Sales Service:</b></td>
-                                        <td><input type="text" class="form-control" name="rating7" placeholder="Enter Rating" value="{{ optional($evaluation->results->first())->rating7 }}"></td>
-                                        <td>10.0%</td>
-                                        <td><input type="text" class="form-control score-field" name="score7" placeholder="Enter Weighted Score" value="{{ optional($evaluation->results->first())->score7 }}"></td>
+                                        <td><input type="number" class="form-control rating-field7" name="rating7" placeholder="Enter Rating" value="{{ optional($evaluation->results->first())->rating7 }}"></td>
+                                        <td class="weight7" data-weight="10">10.0%</td>
+                                        <td><input type="text" class="form-control score-field" name="score7" placeholder="Enter Weighted Score" value="{{ optional($evaluation->results->first())->score7 }}" readonly></td>
                                         <td><input type="text" class="form-control" name="remarks4" placeholder="Enter Performance/ Remarks" value="{{ optional($evaluation->results->first())->remarks4 }}"></td>
                                     </tr>
                                     <tr>
                                         <td colspan="2">Passing: 1.5 and above:</td>
                                         <td>Total:</td>
-                                        <td colspan="2"><input type="text" class="form-control" id="total-score" name="total" placeholder="Total Score" readonly></td>
+                                        <td colspan="2"><input type="text" class="form-control" id="total-score" name="total" placeholder="Total Score" value="{{ $evaluation->results->first()->total }}" readonly></td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -178,3 +178,7 @@
         </div>
     </div>
 </div>
+
+@push('scripts')
+    <script src="{{ asset('js/supplierEvaluation.js') }}"></script>
+@endpush

@@ -20,4 +20,9 @@ class SupplierEvaluation extends Model
         return $this->hasMany(SupplierEvaluationResult::class, 'evaluation_id', 'id');
     }
     
+    public function code()
+    {
+        return $this->hasMany(SupplierAccreditation::class, 'id', 'vendor_id');
+    }
+
 }

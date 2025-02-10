@@ -98,5 +98,6 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('procurement/store_supplier_evaluation','EvaluationController@store');
     Route::get('procurement/view_supplier_evalutaion/{id}','EvaluationController@view');
     Route::post('procurement/update_supplier_evalutaion/{id}','EvaluationController@update');
-    Route::post('refresh_vendor_name', [VendorController::class, 'getVendorName'])->name('refresh.vendor.name');
+    Route::post('refresh_vendor_name', 'EvaluationController@refreshVendorName')->name('refresh_vendor_name');
+    Route::post('procurement/confirmed_supplier_evaluation/{id}','EvaluationController@confirmed');
 });

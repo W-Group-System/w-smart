@@ -14,31 +14,18 @@
                             <hr>
                         </div>
                         <div class="col-md-6 mb-2">
-    <label class="form-label">Vendor ID:</label>
-    <select 
-        data-placeholder="Select Vendor ID" 
-        class="form-select" 
-        id="vendor_id" 
-        name="vendor_id" 
-        onchange="getVendorName(this.value)">
-        <option value=""></option>
-        @foreach($vendor as $vendorItem)
-            <option value="{{ $vendorItem->id }}">{{ $vendorItem->vendor_code }}</option>
-        @endforeach
-    </select>
-</div>
-<div class="col-md-6 mb-2">
-    <label class="form-label">Vendor Name:</label>
-    <input 
-        type="text" 
-        class="form-control" 
-        id="name" 
-        name="name" 
-        style="padding: 0.495rem 1.175rem" 
-        placeholder="Enter Vendor Name" 
-        readonly>
-</div>
-
+                            <label class="form-label">Vendor ID:</label>
+                            <select data-placeholder="Select Vendor ID" class="form-select" id="vendor_id" name="vendor_id" onchange="getVendorName(this.value)" required>
+                                <option value="">Select Vendor ID</option>
+                                @foreach($vendor as $vendorItem)
+                                    <option value="{{ $vendorItem->id }}" data-code="{{ $vendorItem->vendor_code }}">{{ $vendorItem->vendor_code }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-2">
+                            <label class="form-label">Vendor Name:</label>
+                            <input type="text" class="form-control" id="name" name="name" style="padding: 0.495rem 1.175rem" placeholder="Enter Vendor Name" readonly>
+                        </div>
                         <div class="col-md-6 mb-2">
                             <label class="form-label">Type of Product:</label>
                             <select data-placeholder="Select Type of Product" class="form-select chosen-select" id="type" name="type">
@@ -119,15 +106,19 @@
                                     </tr>
                                     <tr>
                                         <td>Quality upon delivery</td>
-                                        <td><input type="text" class="form-control" name="rating1" placeholder="Enter Rating"></td>
-                                        <td>15.0%</td>
-                                        <td><input type="text" class="form-control score-field" name="score1" placeholder="Enter Weighted Score"></td>
+                                        <td>
+                                            <input type="number" class="form-control rating-field" name="rating1" placeholder="Enter Rating">
+                                        </td>
+                                        <td class="weight1" data-weight="15">15.0%</td> 
+                                        <td>
+                                            <input type="text" class="form-control score-field" name="score1" placeholder="Enter Weighted Score" readonly>
+                                        </td>
                                     </tr>
                                     <tr>
                                         <td>End user feedback</td>
-                                        <td><input type="text" class="form-control" name="rating2" placeholder="Enter Rating"></td>
-                                        <td>15.0%</td>
-                                        <td><input type="text" class="form-control score-field" name="score2" placeholder="Enter Weighted Score"></td>
+                                        <td><input type="number" class="form-control rating-field2" name="rating2" placeholder="Enter Rating"></td>
+                                        <td class="weight2" data-weight="15">15.0%</td>
+                                        <td><input type="text" class="form-control score-field" name="score2" placeholder="Enter Weighted Score" readonly></td>
                                     </tr>
                                     <tr>
                                         <td colspan="4"><b>Price and proposal submission:</b></td>
@@ -135,35 +126,35 @@
                                     </tr>
                                     <tr>
                                         <td>Price</td>
-                                        <td><input type="text" class="form-control" name="rating3" placeholder="Enter Rating"></td>
-                                        <td>10.0%</td>
-                                        <td><input type="text" class="form-control score-field" name="score3" placeholder="Enter Weighted Score"></td>
+                                        <td><input type="number" class="form-control rating-field3" name="rating3" placeholder="Enter Rating"></td>
+                                        <td class="weight3" data-weight="10">10.0%</td>
+                                        <td><input type="text" class="form-control score-field" name="score3" placeholder="Enter Weighted Score" readonly></td>
                                     </tr>
                                     <tr>
                                         <td>Proposal Submission</td>
-                                        <td><input type="text" class="form-control" name="rating4" placeholder="Enter Rating"></td>
-                                        <td>15.0%</td>
-                                        <td><input type="text" class="form-control score-field" name="score4" placeholder="Enter Weighted Score"></td>
+                                        <td><input type="number" class="form-control rating-field4" name="rating4" placeholder="Enter Rating"></td>
+                                        <td class="weight4" data-weight="15">15.0%</td>
+                                        <td><input type="text" class="form-control score-field" name="score4" placeholder="Enter Weighted Score" readonly></td>
                                     </tr>
                                     <tr>
                                         <td><b>Timeliness of Delivery:</b></td>
-                                        <td><input type="text" class="form-control" name="rating5" placeholder="Enter Rating"></td>
-                                        <td>25.0%</td>
-                                        <td><input type="text" class="form-control score-field" name="score5" placeholder="Enter Weighted Score"></td>
+                                        <td><input type="number" class="form-control rating-field5" name="rating5" placeholder="Enter Rating"></td>
+                                        <td class="weight5" data-weight="25">25.0%</td>
+                                        <td><input type="text" class="form-control score-field" name="score5" placeholder="Enter Weighted Score" readonly></td>
                                         <td><input type="text" class="form-control" name="remarks2" placeholder="Enter Performance/ Remarks"></td>
                                     </tr>
                                     <tr>
                                         <td><b>Terms of Payment:</b></td>
-                                        <td><input type="text" class="form-control" name="rating6" placeholder="Enter Rating"></td>
-                                        <td>10.0%</td>
-                                        <td><input type="text" class="form-control score-field" name="score6" placeholder="Enter Weighted Score"></td>
+                                        <td><input type="number" class="form-control rating-field6" name="rating6" placeholder="Enter Rating"></td>
+                                        <td class="weight6" data-weight="10">10.0%</td>
+                                        <td><input type="text" class="form-control score-field" name="score6" placeholder="Enter Weighted Score" readonly></td>
                                         <td><input type="text" class="form-control" name="remarks3" placeholder="Enter Performance/ Remarks"></td>
                                     </tr>
                                     <tr>
                                         <td><b>After Sales Service:</b></td>
-                                        <td><input type="text" class="form-control" name="rating7" placeholder="Enter Rating"></td>
-                                        <td>10.0%</td>
-                                        <td><input type="text" class="form-control score-field" name="score7" placeholder="Enter Weighted Score"></td>
+                                        <td><input type="number" class="form-control rating-field7" name="rating7" placeholder="Enter Rating"></td>
+                                        <td class="weight7" data-weight="10">10.0%</td>
+                                        <td><input type="text" class="form-control score-field" name="score7" placeholder="Enter Weighted Score" readonly></td>
                                         <td><input type="text" class="form-control" name="remarks4" placeholder="Enter Performance/ Remarks"></td>
                                     </tr>
                                     <tr>
@@ -200,4 +191,39 @@
 
 @push('scripts')
     <script src="{{ asset('js/supplierEvaluation.js') }}"></script>
+    <script>
+        async function getVendorName(value) {
+            // Get the input field for the corporate name
+            let nameInput = document.getElementById("name");
+
+            // Clear the field if no value is selected
+            if (!value) {
+                nameInput.value = "";
+                return;
+            }
+
+            try {
+                // Make an AJAX request to fetch the vendor's corporate name
+                const response = await axios.post(
+                    "{{ url('refresh_vendor_name') }}",
+                    { vendor_id: value },
+                    {
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                        },
+                    }
+                );
+
+                // Update the name field with the corporate name
+                if (response.data.corporate_name) {
+                    nameInput.value = response.data.corporate_name;
+                } else {
+                    nameInput.value = "Corporate name not found";
+                }
+            } catch (error) {
+                console.error("Error fetching corporate name:", error);
+                nameInput.value = "Error fetching corporate name";
+            }
+        }
+    </script>
 @endpush

@@ -26,7 +26,7 @@
             <div class="row">
                 <div class="col-md-6 mb-2">
                     <p class="m-0 fw-bold">Vendor ID:</p>
-                    {{ $data->vendor_id }}
+                    {{ $data->code->first()->vendor_code }}
                 </div>
                 <div class="col-md-6 mb-2">
                     <p class="m-0 fw-bold">Vendor Name:</p>
