@@ -2,59 +2,100 @@
 
 namespace App\Http\Controllers;
 
+use App\Department;
 use App\User;
 use App\Role;
+use App\Subsidiary;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use RealRashid\SweetAlert\Facades\Alert;
 
 class UserController extends Controller
 {
     public function index(Request $request)
     {
-        try {
-            if ($request->has('role')) {
-                $role = $request->input('role');
-                $users = User::where('role', $role)->get();
-            } else {
-                $users = User::all();
-            }
+        // try {
+        //     if ($request->has('role')) {
+        //         $role = $request->input('role');
+        //         $users = User::where('role', $role)->get();
+        //     } else {
+        //         $users = User::all();
+        //     }
 
-            return response()->json([
-                'status' => 'success',
-                'data' => $users,
-            ], 200);
-        } catch (\Exception $e) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Failed to retrieve users.',
-                'error' => $e->getMessage(),
-            ], 500);
-        }
+        //     return response()->json([
+        //         'status' => 'success',
+        //         'data' => $users,
+        //     ], 200);
+        // } catch (\Exception $e) {
+        //     return response()->json([
+        //         'status' => 'error',
+        //         'message' => 'Failed to retrieve users.',
+        //         'error' => $e->getMessage(),
+        //     ], 500);
+        // }
+        $users = User::get();
+        $subsidiaries = Subsidiary::whereNull('status')->get();
+        $departments = Department::whereNull('status')->get();
+
+        return view('users', compact('users','subsidiaries','departments'));
     }
+
+    public function store(Request $request)
+    {
+        $subsidiary = Subsidiary::where('subsidiary_id', $request->subsidiary)->first();
+
+        $users = new User();
+        $users->name = $request->name;
+        $users->email = $request->email;
+        $users->position = $request->position;
+        $users->subsidiaryid = $request->subsidiary;
+        $users->subsidiary = $subsidiary->subsidiary_name;
+        $users->department_id = $request->department;
+        $users->password = bcrypt('wgroup1nc');
+        $users->save();
+
+        Alert::success('Successfully Saved')->persistent('Dismiss');
+        return back();
+    }
+
     public function update(Request $request, $id)
     {
-        $request->validate([
-            'role' => 'required|integer',
-        ]);
+        // $request->validate([
+        //     'role' => 'required|integer',
+        // ]);
 
-        $user = User::find($id);
+        // $user = User::find($id);
 
-        if (!$user) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'User not found.'
-            ], 404);
-        }
+        // if (!$user) {
+        //     return response()->json([
+        //         'status' => 'error',
+        //         'message' => 'User not found.'
+        //     ], 404);
+        // }
 
-        $user->role = $request->input('role');
-        $user->save();
+        // $user->role = $request->input('role');
+        // $user->save();
 
-        // Return a success response with the updated user
-        return response()->json([
-            'status' => 'success',
-            'message' => 'User role updated successfully.',
-            'data' => $user
-        ]);
+        // // Return a success response with the updated user
+        // return response()->json([
+        //     'status' => 'success',
+        //     'message' => 'User role updated successfully.',
+        //     'data' => $user
+        // ]);
+
+        $subsidiary = Subsidiary::where('subsidiary_id', $request->subsidiary)->first();
+
+        $users = User::findOrFail($id);
+        $users->name = $request->name;
+        $users->email = $request->email;
+        $users->position = $request->position;
+        $users->subsidiaryid = $request->subsidiary;
+        $users->subsidiary = $subsidiary->subsidiary_name;
+        $users->department_id = $request->department;
+        $users->save();
+
+        Alert::success('Successfully Updated')->persistent('Dismiss');
+        return back();
     }
     public function getUserSuggestions(Request $request)
     {
@@ -146,5 +187,27 @@ class UserController extends Controller
             'status' => 'success',
             'message' => 'User deleted successfully.'
         ]);
+    }
+
+    public function deactivate(Request $request,$id)
+    {
+        // dd($request->all());
+        $user = User::findOrFail($id);
+        $user->status = 'Inactive';
+        $user->save();
+
+        Alert::success('Successfully Deactivated')->persistent('Dismiss');
+        return back();
+    }
+
+    public function activate(Request $request,$id)
+    {
+        // dd($request->all());
+        $user = User::findOrFail($id);
+        $user->status = null;
+        $user->save();
+
+        Alert::success('Successfully Activated')->persistent('Dismiss');
+        return back();
     }
 }

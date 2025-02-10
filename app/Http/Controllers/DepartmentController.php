@@ -49,7 +49,7 @@ class DepartmentController extends Controller
         $department->code = $request->dept_code;
         $department->name = $request->dept_name;
         $department->subsidiary_id = $request->subsidiary;
-        $department->status = 'Active';
+        // $department->status = 'Active';
         $department->department_head = $request->department_head;
         $department->save();
 
@@ -123,7 +123,7 @@ class DepartmentController extends Controller
     public function active($id)
     {
         $department = Department::findOrFail($id);
-        $department->status = 'Active';
+        $department->status = null;
         $department->save();
 
         Alert::success('Successfully Activated')->persistent('Dismiss');

@@ -1,9 +1,5 @@
 @extends('layouts.header')
-@section('css')
-    <link rel="stylesheet" href="{{ asset('vendors/select2/select2.min.css')}}">
-    <link rel="stylesheet" href="{{ asset('vendors/select2-bootstrap-theme/select2-bootstrap.min.css')}}">
-@endsection
-@section('content')
+{{-- @section('content')
     <div class="main-panel">
         <div class="content-wrapper">
             <div class='row'>
@@ -89,5 +85,158 @@
 @section('js')
     <script src="{{ asset('vendors/select2/select2.min.js')}}"></script>
     <script src="{{ asset('js/select2.js')}}"></script>
+@endsection --}}
+
+@section('content')
+<div class="row mb-3">
+    <div class="col-lg-3">
+        <div class="card card-tale">
+            <div class="card-body">
+                <p class="mb-4">Number of Users</p>
+                <p class="fs-30 mb-2">0</p>
+                <p>as of ({{date('M d Y')}})</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3">
+        <div class="card bg-success text-white">
+            <div class="card-body">
+                <p class="mb-4">Number of Active Users</p>
+                <p class="fs-30 mb-2">0</p>
+                <p>as of ({{date('M d Y')}})</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3">
+        <div class="card card-light-danger">
+            <div class="card-body">
+                <p class="mb-4">Number of Inactive Users</p>
+                <p class="fs-30 mb-2">0</p>
+                <p>as of ({{date('M d Y')}})</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="col-lg-12 grid-margin strech-card">
+    <div class="card">
+        <div class="card-body">
+            <h4 class="card-title">User Management</h4>
+            <button type="button" class="btn btn-outline-success mb-4" data-toggle="modal" data-target="#newUser">
+                <i class="ti-plus"></i>
+
+                Add Users
+            </button>
+
+            <div class="table-responsive">
+                <table class="table table-striped table-bordered table-sm" id="tableWithSearch">
+                    <thead>
+                        <tr>
+                            <th>Actions</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Subsidiary</th>
+                            <th>Position</th>
+                            <th>Department</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach ($users as $user)
+                            <tr>
+                                <td>
+                                    <button type="button" class="btn btn-sm btn-info" data-toggle="modal" data-target="#edit{{$user->id}}">
+                                        <i class="ti-pencil-alt"></i>
+                                    </button>
+
+                                    @if($user->status == 'Inactive')
+                                        <form method="POST" action="{{url('activate_user/'.$user->id)}}" class="d-inline" id="activateForm{{$user->id}}" onsubmit="show()">
+                                            @csrf
+                                            <button type="button" class="btn btn-sm btn-success" onclick="activate({{$user->id}})">
+                                                <i class="ti-check"></i>
+                                            </button>
+                                        </form>
+                                    @else
+                                        <form method="POST" action="{{url('deactivate_user/'.$user->id)}}" class="d-inline" id="deactivateForm{{$user->id}}" onsubmit="show()">
+                                            @csrf
+                                            <button type="button" class="btn btn-sm btn-danger" onclick="deactivate({{$user->id}})">
+                                                <i class="ti-na"></i>
+                                            </button>
+                                        </form>
+                                    @endif
+                                    
+                                </td>
+                                <td>{{$user->name}}</td>
+                                <td>{{$user->email}}</td>
+                                <td>{{$user->subsidiary}}</td>
+                                <td>{{$user->position}}</td>
+                                <td>{{optional($user->department)->name}}</td>
+                                <td>
+                                    @if($user->status == 'Inactive')
+                                    <span class="badge badge-danger"> {{$user->status}} </span>
+                                    @else
+                                    <span class="badge badge-success"> Active </span>
+                                    @endif
+                                </td>
+                            </tr>
+
+                            @include('users.edit_user')
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@include('users.new_user')
 @endsection
 
+@section('js')
+<script>
+    function deactivate(id)
+    {
+        Swal.fire({
+            title: "Are you sure?",
+            text: "You won't be able to revert this!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes, deactivate it!"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                document.getElementById('deactivateForm'+id).submit()
+            }
+        });
+    }
+
+    function activate(id)
+    {
+        Swal.fire({
+            title: "Are you sure?",
+            text: "You won't be able to revert this!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes, activate it!"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                document.getElementById('activateForm'+id).submit()
+            }
+        });
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+        const table = document.querySelector("#tableWithSearch")
+        
+        $(table).DataTable({
+            dom: 'Bfrtip',
+            ordering: true,
+            pageLength: 25,
+            paging: true,
+        });
+    })
+</script>
+@endsection

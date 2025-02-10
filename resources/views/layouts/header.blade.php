@@ -114,7 +114,7 @@
                             <a class="nav-link" href="{{url('settings/department')}}">Department</a>
                         </li>
                         <li class="nav-item dashboard-list" id="user-item">
-                            <a class="nav-link" href="">User Management</a>
+                            <a class="nav-link" href="{{url('settings/users')}}">User Management</a>
                         </li>
                         <li class="nav-item dashboard-list" id="user-item">
                             <a class="nav-link" href="">Vendor Management</a>

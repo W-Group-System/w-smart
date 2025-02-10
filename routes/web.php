@@ -35,7 +35,13 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/settings/roles', 'RoutesController@settingsRoles')->name('settings.roles');
     Route::get('/settings/category', 'RoutesController@category')->name('category');
     Route::get('/settings/uom', 'RoutesController@uom')->name('settings.uom');
-    Route::get('/settings/users', 'RoutesController@userManagement')->name('settings.users');
+
+    // Users
+    Route::get('/settings/users', 'UserController@index')->name('settings.users');
+    Route::post('store_users', 'UserController@store');
+    Route::post('update_users/{id}','UserController@update');
+    Route::post('activate_user/{id}','UserController@activate');
+    Route::post('deactivate_user/{id}','UserController@deactivate');
 
     // Company
     Route::get('/settings/company', 'CompanyController@index')->name('settings.company');
