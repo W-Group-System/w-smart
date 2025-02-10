@@ -78,11 +78,11 @@
                                 <i class="bi bi-pencil-square"></i>
                             </button>
                         </td>
-                        <td>{{ $evaluation->vendor_id }}</td>
+                        <td>{{ optional($evaluation->code->first())->vendor_code }}</td>
                         <td>{{ $evaluation->name ?? 'N/A' }}</td>
                         <td>{{ $evaluation->type ?? 'N/A' }}</td>
                         <td>{{ $evaluation->product_services ?? 'N/A' }}</td>
-                        <td>{{ $evaluation->result ?? 'N/A' }}</td>
+                        <td>{{ $evaluation->results->first()->result ?? 'N/A' }}</td>
                         <td>{{ $evaluation->status ?? 'N/A' }}</td>
                     </tr>
                     @endforeach
