@@ -38,6 +38,7 @@
             <h4 class="card-title">Department</h4>
 
             <button type="button" class="btn btn-outline-success mb-4" data-toggle="modal" data-target="#newDepartmentModal">
+                <i class="ti-plus"></i>
                 Add New Department
             </button>
             

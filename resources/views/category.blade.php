@@ -1,4 +1,4 @@
-@extends('layouts.dashboard_layout')
+{{-- @extends('layouts.dashboard_layout')
 
 @section('dashboard_content')
 <div class="container-fluid">
@@ -98,4 +98,146 @@
 @push('scripts')
     <script src="{{ asset('js/category.js') }}"></script>
 @endpush
+@endsection --}}
+
+@extends('layouts.header')
+
+@section('content')
+    <div class="row mb-3">
+        <div class="col-lg-3">
+            <div class="card card-tale">
+                <div class="card-body">
+                    <p class="mb-4">Number of Categories</p>
+                    <p class="fs-30 mb-2">0</p>
+                    <p>as of ({{date('M d Y')}})</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <p class="mb-4">Number of Active Categories</p>
+                    <p class="fs-30 mb-2">0</p>
+                    <p>as of ({{date('M d Y')}})</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3">
+            <div class="card card-light-danger">
+                <div class="card-body">
+                    <p class="mb-4">Number of Inactive Categories</p>
+                    <p class="fs-30 mb-2">0</p>
+                    <p>as of ({{date('M d Y')}})</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-12 grid-margin stretch-card">
+        <div class="card">
+            <div class="card-body">
+                <h4 class="card-title">Category Management</h4>
+
+                <div class="mb-4">
+                    <button class="btn btn-outline-success" type="button" data-toggle="modal" data-target="#addCategoryModal">
+                        <i class="ti-plus"></i>
+                        Create Category
+                    </button>
+                </div>
+            
+                <div class="mb-4">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-bordered table-sm" id="tableWithSearch">
+                            <thead>
+                                <tr>
+                                    <th>Actions</th>
+                                    <th>Name</th>
+                                    <th>Sub Category</th>
+                                </tr>
+                            </thead>
+                            <tbody id="categoryList">
+                                @foreach ($categories as $category)
+                                    <tr>
+                                        <td>
+                                            <button type="button" class="btn btn-sm btn-info" data-toggle="modal" data-target="#editCategory{{$category->id}}">
+                                                <i class="ti-pencil-alt"></i>
+                                            </button>
+                                        </td>
+                                        <td>{{$category->name}}</td>
+                                        <td>
+                                            @foreach ($category->subCategory as $subcategory)
+                                                {{$subcategory->name}} <br>
+                                            @endforeach
+                                        </td>
+
+                                        @include('category.edit_category')
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @include('category.new_category')
+@endsection
+
+@section('js')
+<script>
+    const container = document.querySelector("#subCategoryContainer")
+
+    function addSubCategory()
+    {
+        const newInput = document.createElement("div")
+        newInput.classList.add('input-group','mb-2')
+        newInput.innerHTML = `<input type="text" name="sub_category[]" class="form-control" placeholder="Enter sub-category name" required>`
+
+        container.appendChild(newInput)
+    }
+
+    function removeSubCategory()
+    {
+        const childrenSubCategory = container.children
+
+        if (childrenSubCategory.length > 1)
+        {
+            container.removeChild(container.lastChild)
+        }
+    }
+
+    function editAddSubCategory(id)
+    {
+        const editContainer = document.querySelector("#editSubCategoryContainer"+id)
+
+        const newInput = document.createElement("div")
+        newInput.classList.add('input-group','mb-2')
+        newInput.innerHTML = `<input type="text" name="sub_category[]" class="form-control" placeholder="Enter sub-category name" required>`
+
+        editContainer.appendChild(newInput)
+    }
+
+    function editRemoveSubCategory(id)
+    {
+        const editContainer = document.querySelector("#editSubCategoryContainer"+id)
+        const childrenSubCategory = editContainer.children
+
+        if (childrenSubCategory.length > 1)
+        {
+            editContainer.removeChild(editContainer.lastChild)
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+        const table = document.querySelector("#tableWithSearch")
+        
+        $(table).DataTable({
+            dom: 'Bfrtip',
+            ordering: true,
+            pageLength: 25,
+            paging: true,
+        });
+    })
+</script>
 @endsection

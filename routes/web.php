@@ -32,8 +32,12 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/equipment/disposal', 'RoutesController@equipmentDisposal')->name('equipment.disposal');
     
     // Settings Routes
-    Route::get('/settings/category', 'RoutesController@category')->name('category');
     Route::get('/settings/uom', 'RoutesController@uom')->name('settings.uom');
+
+    // Category
+    Route::get('/settings/category', 'CategoryController@index')->name('category');
+    Route::post('store_category','CategoryController@store');
+    Route::post('update_category/{id}','CategoryController@update');
 
     // Roles and Permissions
     Route::get('/settings/roles', 'PermissionController@index')->name('settings.roles');

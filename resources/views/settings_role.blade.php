@@ -133,16 +133,45 @@
 @extends('layouts.header')
 
 @section('content')
+    <div class="row mb-3">
+        <div class="col-lg-3">
+            <div class="card card-tale">
+                <div class="card-body">
+                    <p class="mb-4">Number of Roles</p>
+                    <p class="fs-30 mb-2">0</p>
+                    <p>as of ({{date('M d Y')}})</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <p class="mb-4">Number of Active Roles</p>
+                    <p class="fs-30 mb-2">0</p>
+                    <p>as of ({{date('M d Y')}})</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3">
+            <div class="card card-light-danger">
+                <div class="card-body">
+                    <p class="mb-4">Number of Inactive Roles</p>
+                    <p class="fs-30 mb-2">0</p>
+                    <p>as of ({{date('M d Y')}})</p>
+                </div>
+            </div>
+        </div>
+    </div>
     <div class="col-lg-12 grid-margin strech-card">
         <div class="card">
             <div class="card-body">
                 <h4 class="card-title">Role and Feature Management</h4>
                 <div class="mb-4">
-                    <button class="btn btn-outline-primary" data-toggle="modal" data-target="#createRoleModal">
+                    <button class="btn btn-outline-success" data-toggle="modal" data-target="#createRoleModal">
                         <i class="ti-plus"></i>
                         Create Role
                     </button>
-                    <button class="btn btn-outline-primary" data-toggle="modal" data-target="#assignRoleModal">
+                    <button class="btn btn-outline-success" data-toggle="modal" data-target="#assignRoleModal">
                         <i class="ti-plus"></i>
                         Assign Roles
                     </button>
