@@ -1,6 +1,6 @@
-@extends('layouts.dashboard_layout')
+{{-- @extends('layouts.dashboard_layout')
 
-@section('dashboard_content')
+@section('content')
 <div class="container-fluid">
     <h4 class="mb-4 mt-4">UOM Management</h4>
 
@@ -104,4 +104,97 @@
 @push('scripts')
     <script src="{{ asset('js/uom.js') }}"></script>
 @endpush
+@endsection --}}
+
+@extends('layouts.header')
+
+@section('content')
+    <div class="row mb-3">
+        <div class="col-lg-3">
+            <div class="card card-tale">
+                <div class="card-body">
+                    <p class="mb-4">Number of UOM</p>
+                    <p class="fs-30 mb-2">0</p>
+                    <p>as of ({{date('M d Y')}})</p>
+                </div>
+            </div>
+        </div>
+        {{-- <div class="col-lg-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <p class="mb-4">Number of Active UOM</p>
+                    <p class="fs-30 mb-2">0</p>
+                    <p>as of ({{date('M d Y')}})</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3">
+            <div class="card card-light-danger">
+                <div class="card-body">
+                    <p class="mb-4">Number of Inactive UOM</p>
+                    <p class="fs-30 mb-2">0</p>
+                    <p>as of ({{date('M d Y')}})</p>
+                </div>
+            </div>
+        </div> --}}
+    </div>
+
+    <div class="col-lg-12 grid-margin stretch-card">
+        <div class="card">
+            <div class="card-body">
+                <h4 class="card-title">UOM Management</h4>
+
+                <button class="btn btn-outline-success" data-toggle="modal" data-target="#addUOMModal">
+                    <i class="ti-plus"></i>
+                    Create UOM
+                </button>
+
+                <div class="table-responsive">
+                    <table class="table table-striped table-bordered" id="tableWithSearch">
+                        <thead>
+                            <tr>
+                                <th>Actions</th>
+                                <th>Primary UOM</th>
+                                <th>Primary Value</th>
+                                <th>Secondary UOM</th>
+                                <th>Secondary Value</th>
+                                <th>Tertiary UOM</th>
+                                <th>Tertiary Value</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach ($uoms as $uom)
+                                {{-- <tr>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                </tr> --}}
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @include('uom.new_uom')
+@endsection
+
+@section('js')
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const table = document.querySelector("#tableWithSearch")
+        
+        $(table).DataTable({
+            dom: 'Bfrtip',
+            ordering: true,
+            pageLength: 25,
+            paging: true,
+        });
+    })
+</script>
 @endsection

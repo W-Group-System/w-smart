@@ -31,8 +31,9 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/equipment/transfer', 'RoutesController@equipmentTransfer')->name('equipment.transfer');
     Route::get('/equipment/disposal', 'RoutesController@equipmentDisposal')->name('equipment.disposal');
     
-    // Settings Routes
-    Route::get('/settings/uom', 'RoutesController@uom')->name('settings.uom');
+    // UOM
+    Route::get('/settings/uom', 'UomController@index')->name('settings.uom');
+    Route::post('store_uom','UomController@store');
 
     // Category
     Route::get('/settings/category', 'CategoryController@index')->name('category');

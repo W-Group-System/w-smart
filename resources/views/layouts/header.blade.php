@@ -126,7 +126,7 @@
                             <a class="nav-link" href="{{url('settings/category')}}">Category</a>
                         </li>
                         <li class="nav-item dashboard-list" id="uom-item">
-                            <a class="nav-link" href="">UOMs</a>
+                            <a class="nav-link" href="{{url('settings/uom')}}">UOMs</a>
                         </li>
                     </ul>
                 </div>
