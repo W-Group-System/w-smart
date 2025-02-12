@@ -1,13 +1,12 @@
-<div class="modal fade" id="addVendor" tabindex="-1" aria-labelledby="addVendorModalLabel"
-    aria-hidden="true" style="z-index: 1400;">
+<div class="modal fade" id="addVendor" >
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="addVendorModalLabel">Add New Vendor</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form id="addVendorForm" action="{{url('settings/store-vendor')}}" method="POST" enctype="multipart/form-data">
+                <form id="addVendorForm" action="{{url('settings/store-vendor')}}" method="POST" enctype="multipart/form-data" onsubmit="show()">
                     @csrf
 
                     <div class="row g-3">
@@ -18,8 +17,8 @@
                         </div>
                         <div class="col-md-6">
                             <label for="vendor_name" class="form-label">Vendor Name:</label>
-                            <select name="vendor_name" id="vendor-Name" class="form-select chosen-select" onchange="vendorNameSelect(this.value)">
-                                <option value="" disabled selected>Select Supplier</option>
+                            <select data-placeholder="Select Supplier" name="vendor_name" id="vendor-Name" class="form-control js-example-basic-single" onchange="vendorNameSelect(this.value)" style="position: relative; width:100%;">
+                                <option value=""></option>
                                 @foreach ($accredited_suppliers as $supplier )
                                     <option value="{{ $supplier->id }}" vendor-code="{{ $supplier->vendor_code }}">{{ $supplier->corporate_name }}</option>
                                 @endforeach
@@ -30,20 +29,24 @@
                             <label for="vendor_code" class="form-label">Vendor Code:</label>
                             <input type="text" name="vendor_code" id="vendor-Code" class="form-control form-control-sm">
                         </div>
-                        <div class="col-md-4">
-                            <label for="vendorCategory" class="form-label">Vendor Category:</label>
-                            <select name="vendorCategory" id="vendorCategory" class="form-select chosen-select">
-                                @foreach ($categories as $category )
-                                    <option value="{{ $category->id }}">{{ $category->name }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div class="col-md-2 d-flex align-items-center mt-2">
-                            <input type="checkbox" class="form-check-input" id="sole_proprietor" name="sole_proprietor"  value="1"  style="width: 30px; height: 30px; margin-right: 10px;">
-                            <label class="form-check-label" for="sole_proprietor">Sole Proprietor</label>
+                        <div class="col-md-6">
+                            <div class="row">
+                                <div class="col-lg-6">
+                                    <label for="vendorCategory" class="form-label">Vendor Category:</label>
+                                    <select name="vendorCategory" id="vendorCategory" class="form-control js-example-basic-single" style="position: relative; width:100%;" required >
+                                        @foreach ($categories as $category )
+                                            <option value="{{ $category->id }}">{{ $category->name }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="col-lg-6">
+                                    <input type="checkbox" id="sole_proprietor" name="sole_proprietor" value="1">
+                                    <label class="form-check-label" for="sole_proprietor">Sole Proprietor</label>
+                                </div>
+                            </div>
                         </div>
                         <div class="col-md-6" id="company_name">
-                            <label for="company_name" class="form-label">Company Name:</label>
+                            <label for="company_name" class="form-label" >Company Name:</label>
                             <input type="text" name="company_name"  class="form-control form-control-sm">
                         </div>
                         {{-- <div class="col-md-6" id="vendor_status">
@@ -80,14 +83,14 @@
                         </div>   --}}
                         <div class="col-md-6">
                             <label for="classification_type" class="form-label">Vendor Classification:</label>
-                            <select name="classification_type" id="classification_type" class="form-select chosen-select">
+                            <select name="classification_type" id="classification_type"  class="form-control js-example-basic-single" style="position: relative; width:100%;">
                                 <option value="Minor">Minor</option>
                                 <option value="Major">Major</option>
                             </select>
                         </div> 
                         <div class="col-md-6">
                             <label for="subsidiary" class="form-label">Vendor Subsidiary:</label>
-                            <select name="subsidiary[]" id="subsidiary" class="chosen-select" multiple>
+                            <select name="subsidiary[]" id="subsidiary"  class="form-control js-example-basic-multiple" style="position: relative; width:100%;" multiple>
                                 @foreach ($subsidiaries as $subsidiary)
                                     <option value="{{ $subsidiary->subsidiary_id }}">{{ $subsidiary->subsidiary_name }}</option>
                                 @endforeach
@@ -157,7 +160,7 @@
                         </div>
                     </div>
                     <div class="modal-footer d-flex justify-content-end">
-                        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
                         <button type="submit" class="btn btn-success" id="saveNewVendor">Save</button>
                     </div>
                 </form>

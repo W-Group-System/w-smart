@@ -1,4 +1,4 @@
-@extends('layouts.dashboard_layout')
+{{-- @extends('layouts.dashboard_layout')
 
 @section('dashboard_content')
 <div class="container-fluid">
@@ -102,10 +102,8 @@
                                 <td>{{ optional($vendor)->vendor_code }}</td>
                                 <td>{{ optional($vendor->vendorSupplier)->corporate_name }}</td>
                                 <td>
-                                    {{-- @foreach ($vendor->vendorContact as $contact) --}}
                                     {{ optional($vendor->vendorSupplier)->business_address }} <br>
                                     {{ optional($vendor->vendorSupplier)->billing_address }}
-                                    {{-- @endforeach --}}
                                 </td>
                                 <td>
                                     @foreach ($vendor->vendorContact as $contact)
@@ -176,4 +174,148 @@
         }
 
     </script>
-@endpush
+@endpush --}}
+
+@extends('layouts.header')
+
+@section('content')
+<div class="row mb-3">
+    <div class="col-lg-3">
+        <div class="card card-tale">
+            <div class="card-body">
+                <p class="mb-4">Number of Vendor</p>
+                <p class="fs-30 mb-2">0</p>
+                <p>as of ({{date('M d Y')}})</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3">
+        <div class="card bg-success text-white">
+            <div class="card-body">
+                <p class="mb-4">Number of Active Vendor</p>
+                <p class="fs-30 mb-2">0</p>
+                <p>as of ({{date('M d Y')}})</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3">
+        <div class="card card-light-danger">
+            <div class="card-body">
+                <p class="mb-4">Number of Inactive Vendor</p>
+                <p class="fs-30 mb-2">0</p>
+                <p>as of ({{date('M d Y')}})</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+    <div class="col-lg-12 grid-margin stretch-card">
+        <div class="card">
+            <div class="card-body">
+                <h4 class="card-title">Vendors</h4>
+                <button type="button" class="btn btn-outline-success mb-4" data-toggle="modal" data-target="#addVendor">
+                    <i class="ti-plus"></i>
+                    Add New Vendor
+                </button>
+
+                <div class="table-responsive">
+                    <table class="table table-sm table-hover table-bordered" id="tableWithSearch">
+                        <thead>
+                            <tr>
+                                <th>Action</th>
+                                <th>Vendor Code</th>
+                                <th>Vendor Name</th>
+                                <th>Address</th>
+                                <th>Email</th>
+                                <th>Contact No.</th>
+                                <th>Category</th>
+                                <th>Date Created</th>
+                                <th>Date Modified</th>
+                                <th>Vendor Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach ($vendors as $vendor)
+                                <tr>
+                                    <td>
+                                        <a href="{{url('settings/view_vendor/'.$vendor->id)}}" class="btn btn-sm btn-info text-white">
+                                            <i class="ti-eye"></i>
+                                        </a>
+                                        
+                                        <button type="button" class="btn btn-sm btn-warning text-white" title="Edit" data-toggle="modal" data-target="#editVendor{{$vendor->id}}">
+                                            <i class="ti-pencil-alt"></i>
+                                        </button>
+                                    </td>
+                                    <td>{{ optional($vendor)->vendor_code }}</td>
+                                    <td>{{ optional($vendor->vendorSupplier)->corporate_name }}</td>
+                                    <td>
+                                        {!! nl2br(e(optional($vendor->vendorSupplier)->business_address)) !!}
+                                        {{-- <br>
+                                        <br> --}}
+                                        <hr>
+                                        {!! nl2br(e(optional($vendor->vendorSupplier)->billing_address)) !!}
+                                    </td>
+                                    <td>
+                                        @foreach ($vendor->vendorContact as $contact)
+                                            <div>{{ optional($contact)->email }}</div> <hr>
+                                        @endforeach
+                                    </td>
+                                    <td>
+                                        @foreach ($vendor->vendorContact as $contact)
+                                            <div>{{ optional($contact)->contact }}</div> <hr>
+                                        @endforeach
+                                    </td>
+                                    <td>{{ optional($vendor->vendorCategory)->name }}</td>
+                                    <td>{{ date('M d Y', strtotime($vendor->created_at)) }}</td>
+                                    <td>{{ date('M d Y', strtotime($vendor->updated_at)) }}</td>
+                                    <td>{{ optional($vendor)->vendor_status }}</td>
+                                </tr>
+
+                                @include('vendor_management.edit_vendor')
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @include('vendor_management.new_vendor')
+@endsection
+
+@section('js')
+<script src="{{ asset('js/vendorManagement1.js') }}"></script>
+
+<script>
+    
+    function vendorNameSelect(value)
+    {
+        $.ajax({
+            type: "POST",
+            url: "{{route('refreshVendorCode')}}",
+            data: {
+                id: value
+            },
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            success: function(data) {
+                
+                document.getElementById('vendor-Code').value = data.vendor_code;
+                document.getElementById('billing-Tin').value = data.billing_tin;
+            }
+        })
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+        const table = document.querySelector("#tableWithSearch")
+        
+        $(table).DataTable({
+            dom: 'Bfrtip',
+            ordering: true,
+            pageLength: 25,
+            paging: true,
+        });
+    })
+</script>
+@endsection

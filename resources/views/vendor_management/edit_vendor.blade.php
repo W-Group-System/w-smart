@@ -3,12 +3,12 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="editVendorModalLabel">Edit Vendor</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body">
-                <form id="editVendorForm" action="{{url('settings/edit-vendor/' . $vendor->id)}}" method="POST" enctype="multipart/form-data">
-                    @csrf
+            <form id="editVendorForm" action="{{url('settings/edit-vendor/' . $vendor->id)}}" method="POST" enctype="multipart/form-data" onsubmit="show()">
+                @csrf
 
+                <div class="modal-body">
                     <div class="row g-3">
                         <div class="col-md-6">
                             <label for="requestorName" class="form-label" >Requestor Name:</label>
@@ -17,26 +17,28 @@
                         </div>
                         <div class="col-md-6">
                             <label for="vendor_name" class="form-label">Vendor Name:</label>
-                            <input type="text" name="vendor_name"id="vendor_name" class="form-control form-control-sm" value="{{ $vendor->vendorSupplier->corporate_name }}" readonly>
+                            <input type="text" name="vendor_name" id="vendor_name" class="form-control form-control-sm" value="{{ $vendor->vendorSupplier->corporate_name }}" readonly>
                         </div>
                         <div class="col-md-6">
                             <label for="vendor_code" class="form-label">Vendor Code:</label>
-                            <input type="text" name="vendor_code"id="vendor_code" class="form-control form-control-sm" value="{{ $vendor->vendor_code }}" readonly>
+                            <input type="text" name="vendor_code" id="vendor_code" class="form-control form-control-sm" value="{{ $vendor->vendor_code }}" readonly>
                         </div>
-                        <div class="col-md-4">
-                            <label for="vendorCategory" class="form-label">Vendor Category:</label>
-                            <select name="vendorCategory" id="vendorCategory" class="form-select chosen-select">
-                                @foreach ($categories as $category )
-                                    <option value="{{ $category->id }}" @if($category->id == $vendor->category) selected @endif>{{ $category->name }}</option>
-                                @endforeach
-                            </select>
+                        <div class="col-md-6">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <label for="vendorCategory" class="form-label">Vendor Category:</label>
+                                    <select name="vendorCategory" class="form-control js-example-basic-single" style="position: relative; width:100%;" required>
+                                        @foreach ($categories as $category )
+                                            <option value="{{ $category->id }}" @if($category->id == $vendor->category) selected @endif>{{ $category->name }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <input type="checkbox" data-vendor-id="{{ $vendor->id }}" name="sole_proprietor" value="1" @if($vendor->sole_proprietor == 1) checked @endif>
+                                    <label class="form-check-label" for="sole_proprietor">Sole Proprietor</label>
+                                </div>
+                            </div>
                         </div>
-                        <div class="col-md-2 d-flex align-items-center mt-2">
-                            <input type="checkbox" class="form-check-input sole_proprietor" data-vendor-id="{{ $vendor->id }}" name="sole_proprietor" value="1" 
-                                   @if($vendor->sole_proprietor == 1) checked @endif 
-                                   style="width: 30px; height: 30px; margin-right: 10px;">
-                            <label class="form-check-label" for="sole_proprietor">Sole Proprietor</label>
-                        </div>                        
                         <div class="col-md-6 company_name" data-vendor-id="{{ $vendor->id }}">
                             <label for="company_name" class="form-label">Company Name:</label>
                             <input type="text" name="company_name" class="form-control form-control-sm" value="{{ $vendor->company_name }}">
@@ -78,14 +80,15 @@
                         </div>   --}}
                         <div class="col-md-6">
                             <label for="classification_type" class="form-label">Vendor Classification:</label>
-                            <select name="classification_type" id="classification_type" class="form-select chosen-select">
+                            <select data-placeholder="Select classification" name="classification_type" class="form-control js-example-basic-single"  style="position: relative; width:100%;" required>
+                                <option value=""></option>
                                 <option value="Minor" {{$vendor->classification_type == "Minor" ? 'selected' : '' }}>Minor</option>
                                 <option value="Major" {{$vendor->classification_type == "Major" ? 'selected' : '' }}>Major</option>
                             </select>
                         </div> 
                         <div class="col-md-6">
                             <label for="subsidiary" class="form-label">Vendor Subsidiary:</label>
-                            <select name="subsidiary[]" id="subsidiary" class="chosen-select" multiple>
+                            <select name="subsidiary[]" class="form-control js-example-basic-multiple"  style="position: relative; width:100%;" multiple>
                                 @php
                                     $selectedSubsidiaries = json_decode($vendor->subsidiary, true);
                                 @endphp
@@ -159,12 +162,12 @@
                             <textarea class="form-control" name="remarks" cols="30" rows="10" style="height: 50%;">{{ $vendor->remarks }}</textarea>
                         </div>
                     </div>
-                    <div class="modal-footer d-flex justify-content-end">
-                        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-success" id="saveNewVendor">Save</button>
-                    </div>
-                </form>
-            </div>
+                </div>
+                <div class="modal-footer d-flex justify-content-end">
+                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-success" id="saveNewVendor">Save</button>
+                </div>
+            </form>
 
         </div>
     </div>
