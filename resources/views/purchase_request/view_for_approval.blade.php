@@ -4,7 +4,7 @@
             <div class="modal-header">
                 <h5 class="modal-title">View for approval</h5>
             </div>
-            <form method="POST" action="{{url('procurement/action/'.$purchase_request->id)}}">
+            <form method="POST" action="{{url('procurement/action/'.$purchase_request->id)}}" onsubmit="show()">
                 @csrf
 
                 <div class="modal-body">
@@ -130,7 +130,7 @@
                     <div class="row">
                         <div class="col-lg-12">
                             Select action
-                            <select data-placeholder="Select action" name="action" class="form-control chosen-select" onchange="actionFunction(this.value)">
+                            <select data-placeholder="Select action" name="action" class="form-control js-example-basic-single" style="width: 100%;" onchange="actionFunction(this.value)">
                                 <option value=""></option>
                                 <option value="Approved">Approved</option>
                                 <option value="Returned">Returned</option>
@@ -151,3 +151,19 @@
         </div>
     </div>
 </div>
+
+<script>
+    function actionFunction(value)
+    {
+        if (value == 'Returned')
+        {
+            document.getElementById('returnRemarksCol').removeAttribute('hidden')
+            document.getElementById('returnRemarks').setAttribute('required',true)
+        }
+        else
+        {
+            document.getElementById('returnRemarksCol').setAttribute('hidden', true)
+            document.getElementById('returnRemarks').removeAttribute('required')
+        }
+    }
+</script>

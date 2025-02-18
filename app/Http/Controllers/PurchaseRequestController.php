@@ -47,7 +47,9 @@ class PurchaseRequestController extends Controller
      */
     public function create()
     {
-        //
+        $inventory_list = Inventory::get();
+
+        return view('purchase_request.new_purchase_request', compact('inventory_list'));
     }
 
     /**
@@ -98,7 +100,9 @@ class PurchaseRequestController extends Controller
         }
 
         Alert::success('Successfully Saved')->persistent('Dismiss');
-        return back();
+        // return back();
+
+        return redirect('procurement/purchase-request');
     }
 
     /**
@@ -110,8 +114,8 @@ class PurchaseRequestController extends Controller
     public function show($id)
     {
         $purchase_request = PurchaseRequest::with('user','department','assignedTo','purchaseItems','purchaseRequestFiles')->findOrFail($id);
-        $users = User::where('status','Active')->pluck('name','id');
-        $suppliers = SupplierAccreditation::where('status','Active')->get();
+        $users = User::where('status',null)->pluck('name','id');
+        $suppliers = SupplierAccreditation::where('status','Approved')->get();
         
         return view('purchase_request.view_purchase_request', compact('purchase_request','users','suppliers'));
     }

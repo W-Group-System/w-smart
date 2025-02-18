@@ -1,4 +1,4 @@
-@extends('layouts.dashboard_layout')
+{{-- @extends('layouts.dashboard_layout')
 
 @section('dashboard_content')
 <div class="container-fluid">
@@ -181,7 +181,6 @@
 @endsection
 
 @push('scripts')
-    {{-- <script src="{{ asset('js/purchaseRequest.js') }}"></script> --}}
 <script src="{{asset('js/chosen.jquery.js')}}"></script>
 <script>
 function addRow(id)
@@ -339,4 +338,225 @@ function itemDescription(value)
 }
 
 </script>
-@endpush
+@endpush --}}
+
+@extends('layouts.header')
+
+@section('content')
+    <div class="row">
+        <div class="col-lg-6 grid-margin stretch-card">
+            <div class="card">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="row">
+                                <div class="col-lg-4">
+                                    From
+                                    <input type="date" name="" class="form-control" required>
+                                </div>
+                                <div class="col-lg-4">
+                                    To
+                                    <input type="date" name="" class="form-control" required>
+                                </div>
+                                <div class="col-lg-4">
+                                    <button type="button" class="btn btn-primary">Submit</button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="row">
+                <div class="col-lg-4">
+                    <div class="card card-tale">
+                        <div class="card-body">
+                            <h4 class="mb-4">Pending</h4>
+                            0
+                            
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="card text-success">
+                        <div class="card-body">
+                            <h4 class="mb-4">RFQ</h4>
+                            0
+                            
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4" >
+                    <div class="card card-light-danger" >
+                        <div class="card-body">
+                            <h4 class="mb-4">Closed</h4>
+                            0
+                            
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-12">
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="card-title">Purchase Request</h4>
+                    <form method="GET" action="{{url('create_purchase_request')}}">
+    
+                        <button type="submit" class="btn btn-outline-success">
+                            <i class="ti-plus"></i>
+                            Add New PR
+                        </button>
+                    </form>
+    
+                    <div class="row mt-3 d-flex justify-content-end">
+                        <div class="col-lg-3">
+                            <form action="" method="get">
+                                <input type="search" name="search" class="form-control" placeholder="Search">
+                            </form>
+                        </div>
+                    </div>
+    
+                    <div class="table-responsive mt-2">
+                        <table class="table table-hover table-bordered table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Action</th>
+                                    <th>Request Date </th>
+                                    <th>PR Number </th>
+                                    <th>Item Description </th>
+                                    <th>Due Date </th>
+                                    <th>Requestor Name </th>
+                                    <th>Department </th>
+                                    <th>Subsidiary </th>
+                                    <th>Amount </th>
+                                    <th>Expedited </th>
+                                    <th>Status </th>
+                                    <th>Assigned to (Buyer) </th>
+                                    <th>Assigned Date/Time </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if(count($purchase_requests) > 0)
+                                    @foreach ($purchase_requests as $pr)
+                                        <tr>
+                                            <td>
+                                                <a href="{{url('procurement/show-purchase-request/'.$pr->id)}}" class="btn btn-sm btn-info text-white">
+                                                    <i class="ti-eye"></i>
+                                                </a>
+                                                
+                                                @if($pr->status == 'Returned')
+                                                <button type="button" class="btn btn-sm btn-warning text-white" title="Edit" data-bs-toggle="modal" data-bs-target="#editPurchaseRequest{{$pr->id}}">
+                                                    <i class="ti-pencil-alt"></i>
+                                                </button>
+                                                @endif
+                                            </td>
+                                            <td>{{date('m/d/Y', strtotime($pr->created_at))}}</td>
+                                            <td>{{str_pad($pr->id,6,'0',STR_PAD_LEFT)}}</td>
+                                            <td>
+                                                @foreach ($pr->purchaseItems as $item)
+                                                    {{$item->inventory->item_description ?? ''}} <br>
+                                                @endforeach
+                                            </td>
+                                            <td>{{date('m/d/Y', strtotime($pr->due_date))}}</td>
+                                            <td>{{$pr->user->name}}</td>
+                                            <td>{{$pr->department->name}}</td>
+                                            <td>{{$pr->subsidiary}}</td>
+                                            <td>0.00</td>
+                                            <td>Expedited</td>
+                                            <td>{{$pr->status}}</td>
+                                            <td>{{optional($pr->assignedTo)->name}}</td>
+                                            <td>{{date('m/d/Y', strtotime($pr->created_at))}}</td>
+                                        </tr>
+                                    @endforeach
+                                @else
+                                <tr>
+                                    <td class="text-center" colspan="13">No data available.</td>
+                                </tr>
+                                @endif
+                            </tbody>
+                        </table>
+                    </div>        
+                </div>
+            </div>
+        </div>
+    </div>
+
+{{-- @include('purchase_request.new_purchase_request') --}}
+@endsection
+
+@section('js')
+<script>
+function addRow(id)
+{
+    var newRow = `
+            <tr>
+                <td>
+                    <p class="item_code"></p>
+                </td>
+                <td>
+                    <p class="item_category"></p>
+                </td>
+                <td>
+                    <select data-placeholder="Select item description" name="inventory_id[]" class="form-control js-example-basic-single" style="width: 100%; position: relative;" onchange="itemDescription(this.value)">
+                        <option value=""></option>
+                        @foreach ($inventory_list as $inventory)
+                            <option value="{{$inventory->inventory_id}}">{{$inventory->item_description}}</option>
+                        @endforeach
+                    </select>
+                </td>
+                <td>
+                    <p class="item_quantity"></p>
+                </td>
+                <td>
+                    <select data-placeholder="Select unit of measurement" name="unit_of_measurement[]" class="form-control js-example-basic-single" style="width: 100%; position: relative;" required>
+                        <option value=""></option>
+                        <option value="KG">KG</option>
+                        <option value="G">Grams</option>
+                    </select>
+                </td>
+            </tr>
+        `;
+
+    $('#tbodyAddRow'+id).append(newRow)
+    $('.js-example-basic-single').select2()
+}
+
+function deleteRow(id)
+{
+    var row = $('#tbodyAddRow'+id).children();
+        
+    if (row.length > 1) {
+        row.last().remove()
+    }
+}
+
+function removeFiles(id)
+{
+    // console.log('dasdad');
+    var form = $("#deleteForm"+id)[0];
+
+    Swal.fire({
+        title: "Are you sure?",
+        text: "The file will be deleted",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Yes, delete it!"
+    }).then((result) => {
+        if (result.isConfirmed) {
+            form.submit()
+        }
+    });
+    
+}
+
+
+
+
+</script>
+@endsection

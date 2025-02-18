@@ -71,6 +71,7 @@ Route::group(['middleware' => 'auth'], function () {
     // Purchased Request
     Route::get('procurement/purchase-request', 'PurchaseRequestController@index')->name('procurement.purchase_request');
     Route::get('procurement/show-purchase-request/{id}','PurchaseRequestController@show');
+    Route::get('create_purchase_request','PurchaseRequestController@create');
     Route::post('procurement/store-purchase-request','PurchaseRequestController@store');
     Route::post('procurement/update-purchase-request/{id}','PurchaseRequestController@update');
     Route::post('procurement/update-files/{id}','PurchaseRequestController@updateFiles');

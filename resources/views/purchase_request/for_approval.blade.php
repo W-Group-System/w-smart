@@ -1,4 +1,4 @@
-@extends('layouts.dashboard_layout')
+{{-- @extends('layouts.dashboard_layout')
 
 @section('dashboard_content')
 <div class="container-fluid">
@@ -57,10 +57,6 @@
                     <option value="7">WGC</option>
                 </select>
 
-                {{-- <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addPurchaseRequest" id="addPR"
-                    style="height: 35px; padding: 0 15px; display: flex; align-items: center; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); font-size: 14px;">
-                    Add New PR
-                </button> --}}
             </div>
 
         </div>
@@ -134,11 +130,6 @@
         </div>
     </div>
 </div>
-
-{{-- @foreach ($purchase_requests as $purchase_request) --}}
-{{-- @include('purchase_request.view_for_approval') --}}
-{{-- @include('purchase_request.view_purchase_request') --}}
-{{-- @endforeach --}}
 @endsection
 
 @push('scripts')
@@ -146,4 +137,95 @@
     
     
 </script>
-@endpush
+@endpush --}}
+
+@extends('layouts.header')
+@section('content')
+<div class="row">
+    <div class="col-lg-6 grid-margin stretch-card">
+        <div class="card">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="row">
+                            <div class="col-lg-4">
+                                From
+                                <input type="date" name="" class="form-control" required>
+                            </div>
+                            <div class="col-lg-4">
+                                To
+                                <input type="date" name="" class="form-control" required>
+                            </div>
+                            <div class="col-lg-4">
+                                <button type="button" class="btn btn-primary">Submit</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="row">
+            <div class="col-lg-4">
+                <div class="card card-tale">
+                    <div class="card-body">
+                        <h4 class="mb-4">Pending</h4>
+                        0
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-12">
+        <div class="card">
+            <div class="card-body">
+                <h4 class="card-title">For approval</h4>
+                <div class="table-responsive">
+                    <table class="table table-hover table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Action</th>
+                                <th>PR Number</th>
+                                <th>PR Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if(count($purchase_requests) > 0)
+                                @foreach ($purchase_requests as $pr)
+                                    <tr>
+                                        <td>
+                                            <a href="{{url('procurement/show-purchase-request/'.$pr->id.'/'.'?origin=for_approval')}}" title="View" class="btn btn-sm btn-info text-white" >
+                                                <i class="ti-eye"></i>
+                                            </a>
+                                            
+                                            @if($pr->status == 'Returned')
+                                            <button type="button" class="btn btn-sm btn-warning text-white" title="Edit" data-bs-toggle="modal" data-bs-target="#editPurchaseRequest{{$pr->id}}">
+                                                <i class="bi bi-pencil-square"></i>
+                                            </button>
+                                            @endif
+                                        </td>
+                                        <td>{{str_pad($pr->id,6,'0',STR_PAD_LEFT)}}</td>
+                                        <td>
+                                            @foreach ($pr->purchaseItems as $item)
+                                                {{$item->inventory->item_description}} <br>
+                                            @endforeach
+                                        </td>
+                                    </tr>
+        
+                                @endforeach
+                            @else
+                                <tr>
+                                    <td colspan="3" class="text-center">No data available.</td>
+                                </tr>
+                            @endif
+                        </tbody>
+                    </table>
+                </div>        
+            </div>
+        </div>
+    </div>
+</div>
+@endsection

@@ -1,21 +1,13 @@
-@extends('layouts.dashboard_layout')
+{{-- @extends('layouts.dashboard_layout')
 
 @section('dashboard_content')
 <div class="container-fluid">
-    {{-- @include('layouts.procurement_header') --}}
-
     <!-- Main Content Section -->
     <div class="card p-4 mt-3" style="border: 1px solid #ddd; border-radius: 20px; margin-top: -25px;">
         <div class="d-flex justify-content-between align-items-center">
             <h4>{{str_pad($purchase_request->id, 6, '0', STR_PAD_LEFT)}} - {{$purchase_request->status}}</h4>
 
             <div>
-                {{-- <button>
-                    Save    
-                </button>
-                <button>
-                    Save    
-                </button> --}}
                 <button type="button" class="btn btn-warning text-white" title="Edit" data-bs-toggle="modal" data-bs-target="#editPr{{$purchase_request->id}}">
                     Edit
                 </button>
@@ -179,96 +171,257 @@
     </div>
 </div>
 
+--}}
+
+@extends('layouts.header')
+
+@section('content')
+    <div class="col-lg-12 grid-margin stretch-card">
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h4 class="card-title">{{str_pad($purchase_request->id, 6, '0', STR_PAD_LEFT)}} - {{$purchase_request->status}}</h4>
+        
+                    <div>
+                        <button type="button" class="btn btn-outline-warning" title="Edit" data-toggle="modal" data-target="#editPr{{$purchase_request->id}}">
+                            <i class="ti-pencil-alt"></i>
+                            Edit
+                        </button>
+                        @if($purchase_request->status == 'For RFQ')
+                        <button type="button" class="btn btn-outline-info" title="Request for quotation" data-toggle="modal" data-target="#rfq{{$purchase_request->id}}">
+                            <i class="ti-receipt"></i>
+                            Request For Quotation (RFQ)
+                        </button>
+                        @endif
+        
+                        @if($purchase_request->status == 'Pending'  && request('origin') == 'for_approval')
+                        <button type="button" class="btn btn-outline-success" title="Request for quotation" data-toggle="modal" data-target="#view{{$purchase_request->id}}">
+                            <i class="ti-check"></i>
+                            Approved
+                        </button>
+                        @endif
+        
+                        @if(request('origin') == 'for_approval')
+                        <a href="{{url('procurement/for-approval-pr')}}" type="button" class="btn btn-outline-secondary">
+                            <i class="ti-arrow-left"></i>
+                            Back   
+                        </a>
+                        @else
+                        <a href="{{url('procurement/purchase-request')}}" type="button" class="btn btn-outline-secondary">
+                            <i class="ti-arrow-left"></i>
+                            Back   
+                        </a>
+                        @endif
+                    </div>
+                </div>
+
+                <h4 class="card-title">Primary Information</h4>
+                <hr>
+                <div class="row">
+                    <div class="col-lg-6">
+                        <dl class="row">
+                            <dt class="col-sm-3 text-right">
+                                Purchase No. :
+                            </dt>
+                            <dd class="col-sm-9">
+                                {{str_pad($purchase_request->id, 6, '0', STR_PAD_LEFT)}}
+                            </dd>
+                            <dt class="col-sm-3 text-right">
+                                Request Date Time :
+                            </dt>
+                            <dd class="col-sm-9">
+                                {{date('m/d/Y', strtotime($purchase_request->created_at))}}
+                            </dd>
+                            <dt class="col-sm-3 text-right">
+                                Request Due Date :
+                            </dt>
+                            <dd class="col-sm-9">
+                                {{date('m/d/Y', strtotime($purchase_request->due_date))}}
+                            </dd>
+                        </dl>
+                    </div>
+                    <div class="col-lg-6">
+                        <dl class="row">
+                            <dt class="col-sm-3 text-right">Requestor Name :</dt>
+                            <dd class="col-sm-9">{{$purchase_request->user->name}}</dd>
+                            <dt class="col-sm-3 text-right">Remarks :</dt>
+                            <dd class="col-sm-9">{!! nl2br(e($purchase_request->remarks)) !!}</dd>
+                            <dt class="col-sm-3 text-right">Assigned To :</dt>
+                            <dd class="col-sm-9">{{optional($purchase_request->assignedTo)->name}}</dd>
+                        </dl>
+                    </div>
+                </div>
+
+                <h4 class="card-title">Classification</h4>
+                <hr>
+                <div class="row">
+                    <div class="col-lg-6">
+                        <dl class="row">
+                            <dt class="col-sm-3 text-right">Subsidiary :</dt>
+                            <dd class="col-sm-9">{{$purchase_request->subsidiary}}</dd>
+                            <dt class="col-sm-3 text-right">Department :</dt>
+                            <dd class="col-sm-9">{{$purchase_request->department->name}}</dd>
+                        </dl>
+                    </div>
+                    <div class="col-lg-6">
+                        <dl class="row">
+                            <dt class="col-sm-3 text-right">Class :</dt>
+                            <dd class="col-sm-9">&nbsp;</dd>
+                            <dt class="col-sm-3 text-right">Remarks</dt>
+                            <dd class="col-sm-9">{!! nl2br(e($purchase_request->return_remarks)) !!}</dd>
+                        </dl>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12 mb-4">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Item Code</th>
+                                        <th>Item Category</th>
+                                        <th>Item Description</th>
+                                        <th>Quantity</th>
+                                        <th>Unit of Measurement</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if($purchase_request->purchaseItems->isNotEmpty())
+                                        @foreach ($purchase_request->purchaseItems as $item)
+                                            <tr>
+                                                <td>{{$item->inventory->item_code}}</td>
+                                                <td>{{$item->inventory->item_category}}</td>
+                                                <td>{{$item->inventory->item_description}}</td>
+                                                <td>{{number_format($item->inventory->qty,2)}}</td>
+                                                <td>{{$item->unit_of_measurement}}</td>
+                                            </tr>
+                                        @endforeach
+                                    @else
+                                    <tr>
+                                        <td class="text-center" colspan="5">No data available.</td>
+                                    </tr>
+                                    @endif
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th style="padding:5px 10px;">Attachments</th>
+                                        <th style="padding:5px 10px;">Document Type</th>
+                                        <th style="padding:5px 10px;">Remove</th>
+                                        <th style="padding:5px 10px;">Edit</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if($purchase_request->purchaseRequestFiles->isNotEmpty())
+                                        @foreach ($purchase_request->purchaseRequestFiles as $file)
+                                            <tr>
+                                                <td style="padding: 5px 10px;">
+                                                    <a href="{{url($file->file)}}" target="_blank">
+                                                        <i class="bi bi-files"></i>
+                                                    </a>
+                                                </td>
+                                                <td style="padding: 5px 10px;">{{$file->document_type}}</td>
+                                                <td style="padding: 5px 10px;">
+                                                    <form method="POST" action="{{url('procurement/delete-files/'.$file->id)}}" class="d-inline-block" id="deleteForm{{$file->id}}">
+                                                        @csrf 
+        
+                                                        <button type="button" class="btn btn-sm btn-danger" title="Remove File" onclick="removeFiles({{$file->id}})">
+                                                            <i class="ti-trash"></i>
+                                                        </button>
+                                                    </form>
+                                                </td>
+                                                <td style="padding: 5px 10px;">
+                                                    <button type="button" class="btn btn-sm btn-warning" title="Edit File" data-bs-toggle="modal" data-bs-target="#editFile{{$file->id}}">
+                                                        <i class="ti-pencil-alt"></i>
+                                                    </button>
+                                                </td>
+                                            </tr>
+        
+                                            @include('purchase_request.edit_file')
+                                        @endforeach
+                                    @else
+                                    <tr>
+                                        <td class="text-center" colspan="5" style="padding:5px 10px;">No data available.</td>
+                                    </tr>
+                                    @endif
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+@endsection
+
 @include('purchase_request.edit2_purchase_request')
 @include('purchase_request.request_for_quotation')
 @include('purchase_request.return_remarks')
 @include('purchase_request.view_for_approval')
-@endsection
 
-@push('scripts')
+@section('js')
 <script src="{{ asset('js/purchaseRequest.js') }}"></script>
 <script>
-    async function getVendorEmail(value)
-    {
-        let emailDisplay = event.target.closest('tr').querySelector('.vendor_email')
-        let hiddenInput = event.target.closest('tr').querySelector("input[name='vendor_email[]']");
-        
-        if (value != null)
-        {
-            const response = await axios.post("{{url('refresh_vendor_email')}}", 
-                {
-                    vendor_id: value
+    $(document).ready(function() {
+        $(document).on('change', "[name='vendor_name[]']", function() {
+            var emailDisplay = $(this).closest('tr').find('.vendor_email')
+            var hiddenInput = $(this).closest('tr').find("input[name='vendor_email[]']");
+
+            emailDisplay.text("")
+            hiddenInput.val("")
+
+            $.ajax({
+                type: "POST",
+                url: "{{url('refresh_vendor_email')}}",
+                data: {
+                    vendor_id: $(this).val()
                 },
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function(res)
                 {
-                    headers: {
-                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                    },
+                    $.each(res, function(key, data) {
+                        emailDisplay.text(data.billing_email)
+                        hiddenInput.val(data.id)
+                    })
                 }
-            )
-            
-            const categorySelect = response.data
-
-            emailDisplay.textContent = ""
-            hiddenInput.value = ""
-            
-            categorySelect.forEach(email => {
-                emailDisplay.textContent = email.billing_email
-                hiddenInput.value = email.id
             })
-            
-        }
-    }
+        })
 
-    function actionFunction(value)
-    {
-        if (value == 'Returned')
-        {
-            document.getElementById('returnRemarksCol').removeAttribute('hidden')
-            document.getElementById('returnRemarks').setAttribute('required',true)
-        }
-        else
-        {
-            document.getElementById('returnRemarksCol').setAttribute('hidden', true)
-            document.getElementById('returnRemarks').removeAttribute('required')
-        }
-    }
+        $("#addVendorBtn").on('click', function() {
+            var newRow = `
+                <tr>
+                    <td>
+                        <select data-placeholder="Select vendor name" name="vendor_name[]" class="form-control js-example-basic-single" style="width: 100%;" required>
+                            <option value=""></option>
+                            @foreach ($suppliers as $key=>$supplier)
+                                <option value="{{$supplier->id}}">{{$supplier->corporate_name}}</option>
+                            @endforeach
+                        </select>
+                    </td>
+                    <td>
+                        <input type="hidden" name="vendor_email[]">
+                        <p class="vendor_email"></p>
+                    </td>
+                </tr>
+            `
 
+            $("#vendorTbodyRow").append(newRow)
+            $('.js-example-basic-single').select2()
+        })
+    })
+</script>
+<script>
     document.addEventListener("DOMContentLoaded", (event) => {
-        const addVendorBtn = document.getElementById("addVendorBtn")
-        const deleteVendorBtn = document.getElementById("deleteVendorBtn")
         const itemCheckboxAll = document.getElementById("itemCheckboxAll")
         const fileCheckboxAll = document.getElementById('fileCheckboxAll')
-
-        addVendorBtn.addEventListener("click", () => {
-
-            const newRow = document.createElement("tr")
-            newRow.innerHTML = `
-                <td style="padding: 5px 10px;">
-                    <select name="vendor_name[]" class="form-select" onchange="getVendorEmail(this.value)" required>
-                        <option value="">Select vendor name</option>
-                        @foreach ($suppliers as $key=>$supplier)
-                            <option value="{{$supplier->id}}">{{$supplier->corporate_name}}</option>
-                        @endforeach
-                    </select>
-                </td>
-                <td style="padding: 5px 10px;">
-                    <input type="hidden" name="vendor_email[]">
-                    <p class="vendor_email"></p>
-                </td>
-            `;
-            
-            document.getElementById("vendorTbodyRow").appendChild(newRow);
-        })
-
-        deleteVendorBtn.addEventListener("click", () => {
-            const childrenTbodyRow = document.getElementById('vendorTbodyRow').children
-            
-            if (childrenTbodyRow.length > 1)
-            {
-                const array = Array.from(childrenTbodyRow)
-                array.pop().remove()
-            }
-        })
 
         itemCheckboxAll.addEventListener("click", (event) => {
             const isChecked = event.target.checked;
@@ -289,4 +442,4 @@
         })
     });
 </script>
-@endpush
+@endsection

@@ -94,42 +94,71 @@
             <nav class="sidebar sidebar-offcanvas" id="sidebar">
             <ul class="nav">
                 <li class="nav-item {{ Route::current()->getName() == "home" || "" ? "active" : "" }}"  >
-                <a class="nav-link"  href="{{url('/')}}" onclick='show()'>
-                    <i class="icon-grid menu-icon"></i>
-                    <span class="menu-title">Dashboard</span>
-                </a>
+                    <a class="nav-link"  href="{{url('/')}}" onclick='show()'>
+                        <i class="icon-grid menu-icon"></i>
+                        <span class="menu-title">Dashboard</span>
+                    </a>
                 </li>
                 <li class="nav-item">
-                <a class="nav-link" data-toggle="collapse" href="#settings">
-                    <i class="icon-cog menu-icon"></i>
-                    <span class="menu-title">Settings</span>
-                    <i class="menu-arrow"></i>
-                </a>
-                <div class="collapse" id="settings">
-                    <ul class="nav flex-column sub-menu">
-                        <li class="nav-item dashboard-list" id="company-item">
-                            <a class="nav-link" href="{{url('settings/company')}}">Company</a>
-                        </li>
-                        <li class="nav-item dashboard-list" id="department-item">
-                            <a class="nav-link" href="{{url('settings/department')}}">Department</a>
-                        </li>
-                        <li class="nav-item dashboard-list" id="user-item">
-                            <a class="nav-link" href="{{url('settings/users')}}">User Management</a>
-                        </li>
-                        <li class="nav-item dashboard-list" id="user-item">
-                            <a class="nav-link" href="{{url('settings/vendors')}}">Vendor Management</a>
-                        </li>
-                        <li class="nav-item dashboard-list" id="role-item">
-                            <a class="nav-link" href="{{url('settings/roles')}}">Role</a>
-                        </li>
-                        <li class="nav-item dashboard-list" id="category-item">
-                            <a class="nav-link" href="{{url('settings/category')}}">Category</a>
-                        </li>
-                        <li class="nav-item dashboard-list" id="uom-item">
-                            <a class="nav-link" href="{{url('settings/uom')}}">UOMs</a>
-                        </li>
-                    </ul>
-                </div>
+                    <a class="nav-link" data-toggle="collapse" href="#procurement">
+                        <i class="ti-briefcase menu-icon"></i>
+                        <span class="menu-title">Procurements</span>
+                        <i class="menu-arrow"></i>
+                    </a>
+                    <div class="collapse" id="procurement">
+                        <ul class="nav flex-column sub-menu">
+                            <li class="nav-item dashboard-list">
+                                <a class="nav-link" href="{{url('procurement/purchase-request')}}">Purchased Request</a>
+                            </li>
+                            <li class="nav-item dashboard-list">
+                                <a class="nav-link" href="{{url('procurement/for-approval-pr')}}">For Approval Purchase Request</a>
+                            </li>
+                            {{-- <li class="nav-item dashboard-list" id="canvassing-item">
+                                <a class="nav-link {{ request()->is('procurement/canvassing') ? 'submenu-active' : '' }}" href="{{route('procurement.canvassing')}}">Canvassing</a>
+                            </li> --}}
+                            <li class="nav-item dashboard-list">
+                                <a class="nav-link" href="">Purchased Order</a>
+                            </li>
+                            <li class="nav-item dashboard-list">
+                                <a class="nav-link" href="">Supplier Accreditation</a>
+                            </li>
+                            <li class="nav-item dashboard-list" id="supplier-evaluation-item">
+                                <a class="nav-link" href="">Supplier Evaluation</a>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-toggle="collapse" href="#settings">
+                        <i class="icon-cog menu-icon"></i>
+                        <span class="menu-title">Settings</span>
+                        <i class="menu-arrow"></i>
+                    </a>
+                    <div class="collapse" id="settings">
+                        <ul class="nav flex-column sub-menu">
+                            <li class="nav-item dashboard-list" id="company-item">
+                                <a class="nav-link" href="{{url('settings/company')}}">Company</a>
+                            </li>
+                            <li class="nav-item dashboard-list" id="department-item">
+                                <a class="nav-link" href="{{url('settings/department')}}">Department</a>
+                            </li>
+                            <li class="nav-item dashboard-list" id="user-item">
+                                <a class="nav-link" href="{{url('settings/users')}}">User Management</a>
+                            </li>
+                            <li class="nav-item dashboard-list" id="user-item">
+                                <a class="nav-link" href="{{url('settings/vendors')}}">Vendor Management</a>
+                            </li>
+                            <li class="nav-item dashboard-list" id="role-item">
+                                <a class="nav-link" href="{{url('settings/roles')}}">Role</a>
+                            </li>
+                            <li class="nav-item dashboard-list" id="category-item">
+                                <a class="nav-link" href="{{url('settings/category')}}">Category</a>
+                            </li>
+                            <li class="nav-item dashboard-list" id="uom-item">
+                                <a class="nav-link" href="{{url('settings/uom')}}">UOMs</a>
+                            </li>
+                        </ul>
+                    </div>
                 </li>
 
             </ul>

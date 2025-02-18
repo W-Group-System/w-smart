@@ -4,14 +4,14 @@
             <div class="modal-header">
                 <h5 class="modal-title">Edit purchase request</h5>
             </div>
-            <form method="POST" action="{{url('procurement/edit-assigned/'.$purchase_request->id)}}">
+            <form method="POST" action="{{url('procurement/edit-assigned/'.$purchase_request->id)}}" onsubmit="show()">
                 @csrf 
                 
                 <div class="modal-body">
                     <div class="form-group">
                         <label for="assignedTo" class="form-label">Assigned To:</label>
-                        <select class="form-select chosen-select" id="assignedTo" name="assigned_to" required>
-                            <option value="">Assigned To</option>
+                        <select data-placeholder="Select assigned to" class="form-control js-example-basic-single" name="assigned_to" style="width: 100%;" required>
+                            <option value=""></option>
                             @foreach ($users as $key=>$user)
                                 <option value="{{$key}}">{{$user}}</option>
                             @endforeach

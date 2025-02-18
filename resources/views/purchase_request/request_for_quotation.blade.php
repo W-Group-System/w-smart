@@ -4,7 +4,7 @@
             <div class="modal-header">
                 <h5 class="modal-title">Request For Quotation (RFQ)</h5>
             </div>
-            <form method="POST" action="{{url('store-request-for-quotation')}}">
+            <form method="POST" action="{{url('store-request-for-quotation')}}" onsubmit="show()">
                 @csrf 
                 
                 <input type="hidden" name="purchase_request_id" value="{{$purchase_request->id}}">
@@ -34,8 +34,8 @@
                                 <table class="table table-bordered" style="table-layout: fixed;">
                                     <thead>
                                         <tr>
-                                            <th style="padding: 5px 10px;">Vendor Name</th>
-                                            <th style="padding: 5px 10px;">Vendor Email</th>
+                                            <th>Vendor Name</th>
+                                            <th>Vendor Email</th>
                                         </tr>
                                     </thead>
                                     {{-- {{dd($purchase_request->rfqEmail)}} --}}
@@ -43,7 +43,7 @@
                                         @if($purchase_request->rfqEmail->isNotEmpty())
                                             @foreach ($purchase_request->rfqEmail as $rfqEmail)
                                                 <tr>
-                                                    <td style="padding: 5px 10px;">
+                                                    <td>
                                                         {{-- <select name="vendor_name[]" class="form-select" onchange="getVendorEmail(this.value)" required>
                                                             <option value="">Select vendor name</option>
                                                             @foreach ($vendor_list as $key=>$vendor)
@@ -51,7 +51,7 @@
                                                             @endforeach
                                                         </select> --}}
                                                     </td>
-                                                    <td style="padding: 5px 10px;">
+                                                    <td>
                                                         {{-- <input type="hidden" name="vendor_email[]" value="{{$rfqEmail->vendor_email}}">
                                                         @php
                                                             $vendor_email = $rfqEmail->vendor_email;
@@ -67,15 +67,15 @@
                                             @endforeach
                                         @else
                                             <tr>
-                                                <td style="padding: 5px 10px;">
-                                                    <select name="vendor_name[]" class="form-select" onchange="getVendorEmail(this.value)" required>
-                                                        <option value="">Select vendor name</option>
+                                                <td>
+                                                    <select data-placeholder="Select vendor name" name="vendor_name[]" class="form-control js-example-basic-single" style="width: 100%;" required>
+                                                        <option value=""></option>
                                                         @foreach ($suppliers as $key=>$supplier)
                                                             <option value="{{$supplier->id}}">{{$supplier->corporate_name}}</option>
                                                         @endforeach
                                                     </select>
                                                 </td>
-                                                <td style="padding: 5px 10px;">
+                                                <td>
                                                     <input type="hidden" name="vendor_email[]">
                                                     <p class="vendor_email"></p>
                                                 </td>
@@ -85,10 +85,10 @@
                                 </table>
     
                                 <button type="button" class="btn btn-sm btn-success mt-2" id="addVendorBtn">
-                                    Add row
+                                    <i class="ti-plus"></i>
                                 </button>
                                 <button type="button" class="btn btn-sm btn-danger mt-2" id="deleteVendorBtn">
-                                    Delete row
+                                    <i class="ti-minus"></i>
                                 </button>
                             </div>
                         </div>
@@ -98,14 +98,14 @@
                                 <table class="table table-bordered">
                                     <thead>
                                         <tr>
-                                            <th style="padding: 5px 10px" class="text-center">
+                                            <th class="text-center">
                                                 <input type="checkbox" name="all" id="itemCheckboxAll">
                                             </th>
-                                            <th style="padding: 5px 10px;">Item Code</th>
-                                            <th style="padding: 5px 10px;">Item Category</th>
-                                            <th style="padding: 5px 10px;">Item Description</th>
-                                            <th style="padding: 5px 10px;">Item Quantity</th>
-                                            <th style="padding: 5px 10px;">Unit of Measurement</th>
+                                            <th>Item Code</th>
+                                            <th>Item Category</th>
+                                            <th>Item Description</th>
+                                            <th>Item Quantity</th>
+                                            <th>Unit of Measurement</th>
                                         </tr>
                                     </thead>
                                     <tbody id="vendorTbodyRow">
@@ -115,19 +115,19 @@
                                                     $rfq_item = ($purchase_request->rfqItem)->pluck('purchase_item_id')->toArray();
                                                 @endphp
                                                 <tr>
-                                                    <td style="padding: 5px 10px" class="text-center">
+                                                    <td class="text-center">
                                                         <input type="checkbox" name="item_checkbox[]" class="itemCheckbox" @if(in_array($item->id, $rfq_item)) checked @endif value="{{$item->id}}">
                                                     </td>
-                                                    <td style="padding: 5px 10px;">{{$item->inventory->item_code}}</td>
-                                                    <td style="padding: 5px 10px;">{{$item->inventory->item_category}}</td>
-                                                    <td style="padding: 5px 10px;">{{$item->inventory->item_description}}</td>
-                                                    <td style="padding: 5px 10px;">{{$item->inventory->qty}}</td>
-                                                    <td style="padding: 5px 10px;">{{$item->unit_of_measurement}}</td>
+                                                    <td>{{$item->inventory->item_code}}</td>
+                                                    <td>{{$item->inventory->item_category}}</td>
+                                                    <td>{{$item->inventory->item_description}}</td>
+                                                    <td>{{$item->inventory->qty}}</td>
+                                                    <td>{{$item->unit_of_measurement}}</td>
                                                 </tr>
                                             @endforeach
                                         @else
                                             <tr>
-                                                <td style="padding: 5px 10px;" class="text-center" colspan="6">No data available.</td>
+                                                <td class="text-center" colspan="6">No data available.</td>
                                             </tr>
                                         @endif
                                     </tbody>
@@ -143,10 +143,10 @@
                                             <th style="padding: 5px 10px" class="text-center">
                                                 <input type="checkbox" name="all" id="fileCheckboxAll">
                                             </th>
-                                            <th style="padding: 5px 10px;">Attachments</th>
-                                            <th style="padding: 5px 10px;">Document Type</th>
-                                            <th style="padding: 5px 10px;">Remove</th>
-                                            <th style="padding: 5px 10px;">Edit</th>
+                                            <th>Attachments</th>
+                                            <th>Document Type</th>
+                                            <th>Remove</th>
+                                            <th>Edit</th>
                                         </tr>
                                     </thead>
                                     <tbody id="vendorTbodyRow">
@@ -159,27 +159,27 @@
                                                     <td style="padding: 5px 10px" class="text-center">
                                                         <input type="checkbox" name="file_checkbox[]" value="{{$item->id}}" @if(in_array($item->id, $rfq_files)) checked @endif class="fileCheckbox">
                                                     </td>
-                                                    <td style="padding: 5px 10px;">
-                                                        <a href="{{url($item->file)}}">
-                                                            <i class="bi bi-files"></i>
+                                                    <td>
+                                                        <a href="{{url($item->file)}}" target="_blank">
+                                                            <i class="ti-files"></i>
                                                         </a>
                                                     </td>
-                                                    <td style="padding: 5px 10px;">{{$item->document_type}}</td>
-                                                    <td style="padding: 5px 10px;">
+                                                    <td>{{$item->document_type}}</td>
+                                                    <td>
                                                         <button type="button" class="btn btn-sm btn-danger text-white" title="Remove File">
-                                                            <i class="bi bi-x"></i>
+                                                            <i class="ti-trash"></i>
                                                         </button>
                                                     </td>
-                                                    <td style="padding: 5px 10px;">
+                                                    <td>
                                                         <button type="button" class="btn btn-sm btn-warning text-white" title="Edit File">
-                                                            <i class="bi bi-pencil-square"></i>
+                                                            <i class="ti-pencil-alt"></i>
                                                         </button>
                                                     </td>
                                                 </tr>
                                             @endforeach
                                         @else
                                         <tr>
-                                            <td style="padding: 5px 10px;" class="text-center" colspan="5">No data available.</td>
+                                            <td class="text-center" colspan="5">No data available.</td>
                                         </tr>
                                         @endif
                                     </tbody>
