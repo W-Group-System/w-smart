@@ -111,8 +111,13 @@ class PurchaseOrderController extends Controller
     {
         $rfq_email = RfqEmail::where('purchase_request_id', $request->data)->pluck('supplier_id')->toArray();
         
-        $supplier = SupplierAccreditation::whereIn('id', $rfq_email)->get();
+        $suppliers = SupplierAccreditation::whereIn('id', $rfq_email)->get();
+
+        $options = '<option value="">Select Vendor</option>'; // Default option
+        foreach ($suppliers as $supplier) {
+            $options .= '<option value="' . $supplier->id . '">' . $supplier->corporate_name. ' - '. $supplier->billing_email . '</option>';
+        }
         
-        return response()->json($supplier);
+        return response()->json($options);
     }
 }

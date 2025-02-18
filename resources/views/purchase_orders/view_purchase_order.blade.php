@@ -1,8 +1,7 @@
-@extends('layouts.dashboard_layout')
+{{-- @extends('layouts.dashboard_layout')
 
 @section('dashboard_content')
 <div class="container-fluid">
-    {{-- @include('layouts.procurement_header') --}}
 
     <!-- Main Content Section -->
     <div class="card p-4 mt-3" style="border: 1px solid #ddd; border-radius: 20px; margin-top: -25px;">
@@ -10,14 +9,6 @@
             <h4>PO-{{str_pad($po->id, 6, '0', STR_PAD_LEFT)}} - {{$po->status}}</h4>
 
             <div>
-                {{-- <button type="button" class="btn btn-warning text-white" title="Edit" data-bs-toggle="modal" data-bs-target="#editPr{{$purchase_requests->id}}">
-                    Edit
-                </button>
-                @if($purchase_requests->status == 'For RFQ')
-                <button type="button" class="btn btn-info text-white" title="Request for quotation" data-bs-toggle="modal" data-bs-target="#rfq{{$purchase_requests->id}}">
-                    Request For Quotation (RFQ)
-                </button>
-                @endif --}}
                 <a href="{{url('procurement/purchase-order')}}" type="button" class="btn btn-danger text-white">
                     Close   
                 </a>
@@ -62,8 +53,6 @@
                     <div class="col-lg-8 mb-2">{{$po->supplier->corporate_name}}</div>
                     <div class="col-lg-4 mb-2"><b>Bill Address:</b></div>
                     <div class="col-lg-8 mb-2">{!! nl2br(e($po->supplier->billing_address)) !!}</div>
-                    {{-- <div class="col-lg-4 mb-2"><b>Contact Person:</b></div>
-                    <div class="col-lg-8 mb-2">Sample</div> --}}
                 </div>
             </div>
         </div>
@@ -123,7 +112,6 @@
                                         <td style="padding: 5px 10px;">{{$file->document_type}}</td>
                                     </tr>
 
-                                    {{-- @include('purchase_request.edit_file') --}}
                                 @endforeach
                             @else
                             <tr>
@@ -142,4 +130,126 @@
 
 @push('scripts')
 
-@endpush
+@endpush --}}
+
+@extends('layouts.header')
+
+@section('content')
+    <div class="col-lg-12 grid-margin stretch-card">
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <h4 class="card-title">PO-{{str_pad($po->id, 6, '0', STR_PAD_LEFT)}} - {{$po->status}}</h4>
+    
+                    <div>
+                        <a href="{{url('procurement/purchase-order')}}" type="button" class="btn btn-outline-danger">
+                            Close   
+                        </a>
+                    </div>
+                </div>
+                <hr>
+                <div class="row mb-4">
+                    <div class="col-lg-6">
+                        <dl class="row">
+                            <dt class="col-sm-3 text-right">To :</dt>
+                            <dd class="col-sm-9">{{$po->supplier->corporate_name}}</dd>
+                            <dt class="col-sm-3 text-right">Supplier Address :</dt>
+                            <dd class="col-sm-9">{{$po->supplier->business_address}}</dd>
+                            <dt class="col-sm-3 text-right">Contact Information :</dt>
+                            <dd class="col-sm-9">{{$po->supplier->telephone_no}}</dd>
+                            <dt class="col-sm-3 text-right"><b>Ship To:</b></dt>
+                            <dd class="col-sm-9">{{$po->purchaseRequest->subsidiary}}</dd>
+                            <dt class="col-sm-3 text-right">Contact Person :</dt>
+                            <dd class="col-sm-9">{{$po->purchaseRequest->user->name}}</dd>
+                            <dt class="col-sm-3 text-right">Contact Number :</dt>
+                            <dd class="col-sm-9">&nbsp;</dd>
+                            <dt class="col-sm-3 text-right">Shipping Address :</dt>
+                            <dd class="col-sm-9">{!! nl2br(e($po->purchaseRequest->company->address)) !!}</dd>
+                            <dt class="col-sm-3 text-right"><b>Expected Delivery Date:</b></dt>
+                            <dd class="col-sm-9">{{date('M. d Y', strtotime($po->expected_delivery_date))}}</dd>
+                        </dl>
+                    </div>
+                    <div class="col-lg-6">
+                        <dl class="row">
+                            <dt class="col-sm-3">PO Date :</dt>
+                            <dd class="col-sm-9">{{date('M d Y', strtotime($po->created_at))}}</dd>
+                            <dt class="col-sm-3">Payment Terms :</dt>
+                            <dd class="col-sm-9">{{$po->supplier->suppliers_terms}}</dd>
+                            <dt class="col-sm-3">Bill To :</dt>
+                            <dd class="col-sm-9">{{$po->supplier->corporate_name}}</dd>
+                            <dt class="col-sm-3">Bill Address :</dt>
+                            <dd class="col-sm-9">{!! nl2br(e($po->supplier->billing_address)) !!}</dd>
+                        </dl>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12 mb-4">
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Item Code</th>
+                                        <th>Item Category</th>
+                                        <th>Item Description</th>
+                                        <th>Quantity</th>
+                                        <th>Unit of Measurement</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if($po->purchaseRequest->rfqItem->isNotEmpty())
+                                        @foreach ($po->purchaseRequest->rfqItem as $item)
+                                            <tr>
+                                                <td>{{$item->purchaseItem->inventory->item_code}}</td>
+                                                <td>{{$item->purchaseItem->inventory->item_category}}</td>
+                                                <td>{{$item->purchaseItem->inventory->item_description}}</td>
+                                                <td>{{number_format($item->purchaseItem->inventory->qty,2)}}</td>
+                                                <td>{{$item->purchaseItem->unit_of_measurement}}</td>
+                                            </tr>
+                                        @endforeach
+                                    @else
+                                    <tr>
+                                        <td class="text-center" colspan="5">No data available.</td>
+                                    </tr>
+                                    @endif
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="col-md-12">
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Attachments</th>
+                                        <th>Document Type</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if($po->purchaseRequest->purchaseRequestFiles->isNotEmpty())
+                                        @foreach ($po->purchaseRequest->purchaseRequestFiles as $file)
+                                            <tr>
+                                                <td>
+                                                    <a href="{{url($file->file)}}" target="_blank">
+                                                        <i class="ti-file"></i>
+                                                    </a>
+                                                </td>
+                                                <td>{{$file->document_type}}</td>
+                                            </tr>
+        
+                                        @endforeach
+                                    @else
+                                    <tr>
+                                        <td class="text-center" colspan="5">No data available.</td>
+                                    </tr>
+                                    @endif
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+@endsection

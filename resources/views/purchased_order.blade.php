@@ -1,4 +1,4 @@
-@extends('layouts.dashboard_layout')
+{{-- @extends('layouts.dashboard_layout')
 
 @section('dashboard_content')
 <div class="container-fluid">
@@ -121,8 +121,6 @@
                     <option>20</option>
                 </select>
             </div>
-            {{-- <div class="me-3 dynamic-rows-info">{{$purchase_requests->firstItem()}}-{{$purchase_requests->lastItem()}} of {{$purchase_requests->total()}}</div>
-            {!! $purchase_requests->links() !!} --}}
         </div>
     </div>
 </div>
@@ -159,4 +157,163 @@
     }
 </script>
 @endpush
+@endsection --}}
+
+@extends('layouts.header')
+
+@section('content')
+<div class="row">
+    <div class="col-lg-6 grid-margin stretch-card">
+        <div class="card">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="row">
+                            <div class="col-lg-4">
+                                From
+                                <input type="date" name="" class="form-control" required>
+                            </div>
+                            <div class="col-lg-4">
+                                To
+                                <input type="date" name="" class="form-control" required>
+                            </div>
+                            <div class="col-lg-4">
+                                <button type="button" class="btn btn-primary">Submit</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="row">
+            <div class="col-lg-4">
+                <div class="card card-tale">
+                    <div class="card-body">
+                        <h4 class="mb-4">Pending</h4>
+                        0
+                        
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="card text-success">
+                    <div class="card-body">
+                        <h4 class="mb-4">RFQ</h4>
+                        0
+                        
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4" >
+                <div class="card card-light-danger" >
+                    <div class="card-body">
+                        <h4 class="mb-4">Closed</h4>
+                        0
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-12">
+        <div class="card">
+            <div class="card-body">
+                <h4 class="card-title">Purchase Order</h4>
+
+                <button type="button" class="btn btn-outline-success mb-3" data-toggle="modal" data-target="#new" id="addPR">
+                    <i class="ti-plus"></i>
+                    Add PO
+                </button>
+
+                <!-- Table Section -->
+                <div class="table-responsive">
+                    <table class="table table-hover table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Action</th>
+                                <th>PR Number</th>                        
+                                <th>GRN Number</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if(count($purchase_order) > 0)
+                                @foreach ($purchase_order as $po)
+                                    <tr>
+                                        <td>
+                                            <a href="{{url('procurement/show_purchase_order/'.$po->id)}}" class="btn btn-sm btn-info">
+                                                <i class="ti-eye"></i>
+                                            </a>
+                                            
+                                            {{-- <button type="button" class="btn btn-sm btn-warning" title="Edit" data-toggle="modal" data-target="#editPurchaseRequest{{$po->id}}">
+                                                <i class="ti-pencil-alt"></i>
+                                            </button> --}}
+                                        </td>
+                                        <td>{{str_pad($po->purchaseRequest->id,6,'0',STR_PAD_LEFT)}}</td>
+                                        <td></td>
+                                        <td>{{$po->status}}</td>
+                                    </tr>
+                                @endforeach
+                            @else
+                                <tr>
+                                    <td class="text-center" colspan="4">No data available.</td>
+                                </tr>
+                            @endif
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@include('purchase_orders.new_purchase_order')
+
+@endsection
+
+@section('js')
+<script>
+    function showVendorEmail(value)
+    {
+        // try {
+        //     const response = await axios.post('{{url("refresh_rfq_vendor")}}', 
+        //         {
+        //             data: value
+        //         },
+        //     )
+        //     const supplier = response.data;
+        //     const categorySelect = document.getElementById('vendorEmail');
+            
+        //     categorySelect.innerHTML = '';
+
+        //     supplier.forEach((email) => {
+        //         const option = document.createElement('option');
+                
+        //         option.value = email.id;
+        //         option.text = email.corporate_name+' - '+email.billing_email;
+        //         categorySelect.appendChild(option);
+        //     })
+            
+        // } catch (error) {
+        //     console.error(error);
+        // }
+        
+        $.ajax({
+            type: "POST",
+            url: "{{url('refresh_rfq_vendor')}}",
+            data: {
+                data: value
+            },
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            },
+            success: function(response) {
+                $("[name='vendor']").html(response)
+            }
+        })
+    }
+</script>
 @endsection

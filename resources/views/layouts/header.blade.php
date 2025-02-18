@@ -117,7 +117,7 @@
                                 <a class="nav-link {{ request()->is('procurement/canvassing') ? 'submenu-active' : '' }}" href="{{route('procurement.canvassing')}}">Canvassing</a>
                             </li> --}}
                             <li class="nav-item dashboard-list">
-                                <a class="nav-link" href="">Purchased Order</a>
+                                <a class="nav-link" href="{{url('procurement/purchase-order')}}">Purchased Order</a>
                             </li>
                             <li class="nav-item dashboard-list">
                                 <a class="nav-link" href="">Supplier Accreditation</a>
