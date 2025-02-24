@@ -1,4 +1,4 @@
-@extends('layouts.dashboard_layout')
+{{-- @extends('layouts.dashboard_layout')
 
 @section('dashboard_content')
 <div class="container-fluid">
@@ -380,4 +380,133 @@
 
 @push('scripts')
     <script src="{{ asset('js/returns.js') }}"></script>
-@endpush
+@endpush --}}
+
+@extends('layouts.header')
+
+@section('content')
+    <div class="row">
+        <div class="col-lg-6 grid-margin stretch-card">
+            <div class="card">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="row">
+                                <div class="col-lg-4">
+                                    From
+                                    <input type="date" name="" class="form-control" required>
+                                </div>
+                                <div class="col-lg-4">
+                                    To
+                                    <input type="date" name="" class="form-control" required>
+                                </div>
+                                <div class="col-lg-4">
+                                    <button type="button" class="btn btn-primary">Submit</button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="row">
+                <div class="col-lg-6">
+                    <div class="card card-tale">
+                        <div class="card-body">
+                            <h4 class="mb-4">Pending</h4>
+                            0
+                            
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="card text-success">
+                        <div class="card-body">
+                            <h4 class="mb-4">Approved</h4>
+                            0
+                            
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-12 grid-margin stretch-card">
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="card-title">Returned Inventory</h4>
+
+                    <div class="table-responsive">
+                        <table class="table table-hover table-bordered" id="tablewithSearch">
+                            <thead>
+                                <tr>
+                                    <th>
+                                        Date of Request
+                                    </th>
+                                    <th>
+                                        Requestor Name
+                                    </th>
+                                    <th>
+                                        Request Number
+                                    </th>
+                                    <th>
+                                        Subsidiary
+                                    </th>
+                                    <th>
+                                        Item Code
+                                    </th>
+                                    <th>
+                                        Item Description
+                                    </th>
+                                    <th>
+                                        Withdraw QTY
+                                    </th>
+                                    <th>
+                                        Returned QTY
+                                    </th>
+                                    <th>
+                                        UOM
+                                    </th>
+                                    <th>
+                                        Status
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($returned_inventories as $return_inventory)
+                                    <tr>
+                                        <td>{{date('M d Y', strtotime($return_inventory->created_at))}}</td>
+                                        <td>{{$return_inventory->requestor->name}}</td>
+                                        <td>{{$return_inventory->request_number}}</td>
+                                        <td>{{$return_inventory->subsidiary->subsidiary_name}}</td>
+                                        <td>{{$return_inventory->item_code}}</td>
+                                        <td>{{$return_inventory->item_description}}</td>
+                                        <td>{{$return_inventory->withdraw_qty}}</td>
+                                        <td>{{$return_inventory->returned_qty}}</td>
+                                        <td>{{$return_inventory->uom->uomp}}</td>
+                                        <td>{{$return_inventory->status}}</td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+@endsection
+
+@section('js')
+<script>
+    $(document).ready(function() {
+        $("#tablewithSearch").DataTable({
+            dom: 'Bfrtip',
+            ordering: true,
+            pageLength: 25,
+            paging: true,
+        });
+    })
+</script>
+@endsection

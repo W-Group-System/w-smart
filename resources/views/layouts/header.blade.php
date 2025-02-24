@@ -125,7 +125,7 @@
                             </li>
                             <li class="nav-item dashboard-list" id="returned-inventory-item">
                                 <a class="nav-link"
-                                    href="">
+                                    href="{{url('inventory/returned')}}">
                                     Returned Inventory
                                 </a>
                             </li>

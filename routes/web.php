@@ -33,7 +33,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/inventory/withdrawal', 'WithdrawalRequestController@index')->name('inventory.withdrawal');
 
     // Inventory Returned
-    Route::get('/inventory/returned', 'RoutesController@inventoryReturned')->name('inventory.returned');
+    Route::get('/inventory/returned', 'ReturnedInventoryController@index')->name('inventory.returned');
 
     // Equipment & Asset Management Routes
     Route::get('/equipment/list', 'RoutesController@equipmentList')->name('equipment.list');
