@@ -118,7 +118,15 @@
     <div class="col-lg-12 grid-margin stretch-card">
         <div class="card">
             <div class="card-body">
-                <h4 class="card-title">Create Purchase Request</h4>
+                <div class="d-flex justify-content-between">
+                    <h4 class="card-title">Create Purchase Request</h4>
+                    <div>
+                        <a href="{{url('procurement/purchase-request')}}" class="btn btn-outline-secondary">
+                            <i class="ti-arrow-left"></i>
+                            Back
+                        </a>
+                    </div>
+                </div>
     
                 <form method="POST" action="{{url('procurement/store-purchase-request')}}" onsubmit="show()" enctype="multipart/form-data">
                     @csrf 
