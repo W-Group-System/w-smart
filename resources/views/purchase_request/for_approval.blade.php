@@ -184,7 +184,7 @@
             <div class="card-body">
                 <h4 class="card-title">For approval</h4>
                 <div class="table-responsive">
-                    <table class="table table-hover table-bordered">
+                    <table class="table table-hover table-bordered" id="tablewithSearch">
                         <thead>
                             <tr>
                                 <th>Action</th>
@@ -193,34 +193,28 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @if(count($purchase_requests) > 0)
-                                @foreach ($purchase_requests as $pr)
-                                    <tr>
-                                        <td>
-                                            <a href="{{url('procurement/show-purchase-request/'.$pr->id.'/'.'?origin=for_approval')}}" title="View" class="btn btn-sm btn-info text-white" >
-                                                <i class="ti-eye"></i>
-                                            </a>
-                                            
-                                            @if($pr->status == 'Returned')
-                                            <button type="button" class="btn btn-sm btn-warning text-white" title="Edit" data-bs-toggle="modal" data-bs-target="#editPurchaseRequest{{$pr->id}}">
-                                                <i class="bi bi-pencil-square"></i>
-                                            </button>
-                                            @endif
-                                        </td>
-                                        <td>{{str_pad($pr->id,6,'0',STR_PAD_LEFT)}}</td>
-                                        <td>
-                                            @foreach ($pr->purchaseItems as $item)
-                                                {{$item->inventory->item_description}} <br>
-                                            @endforeach
-                                        </td>
-                                    </tr>
-        
-                                @endforeach
-                            @else
+                            @foreach ($purchase_requests as $pr)
                                 <tr>
-                                    <td colspan="3" class="text-center">No data available.</td>
+                                    <td>
+                                        <a href="{{url('procurement/show-purchase-request/'.$pr->id.'/'.'?origin=for_approval')}}" title="View" class="btn btn-sm btn-info text-white" >
+                                            <i class="ti-eye"></i>
+                                        </a>
+                                        
+                                        @if($pr->status == 'Returned')
+                                        <button type="button" class="btn btn-sm btn-warning text-white" title="Edit" data-bs-toggle="modal" data-bs-target="#editPurchaseRequest{{$pr->id}}">
+                                            <i class="bi bi-pencil-square"></i>
+                                        </button>
+                                        @endif
+                                    </td>
+                                    <td>{{str_pad($pr->id,6,'0',STR_PAD_LEFT)}}</td>
+                                    <td>
+                                        @foreach ($pr->purchaseItems as $item)
+                                            {{$item->inventory->item_description}} <br>
+                                        @endforeach
+                                    </td>
                                 </tr>
-                            @endif
+    
+                            @endforeach
                         </tbody>
                     </table>
                 </div>        
@@ -228,4 +222,15 @@
         </div>
     </div>
 </div>
+@endsection
+
+@section('js')
+<script>
+    $("#tablewithSearch").DataTable({
+        dom: 'Bfrtip',
+        ordering: true,
+        pageLength: 25,
+        paging: true,
+    });
+</script>
 @endsection

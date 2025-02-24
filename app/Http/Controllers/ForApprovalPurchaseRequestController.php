@@ -19,7 +19,7 @@ class ForApprovalPurchaseRequestController extends Controller
         $start_date = $request->start_date;
         $end_date = $request->end_date;
 
-        $purchase_requests = PurchaseRequest::where('status', 'Pending')->paginate(10);
+        $purchase_requests = PurchaseRequest::where('status', 'Pending')->get();
 
         return view('purchase_request.for_approval', compact('start_date','end_date','purchase_requests'));
     }

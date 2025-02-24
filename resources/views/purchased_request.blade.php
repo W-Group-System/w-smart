@@ -411,17 +411,9 @@ function itemDescription(value)
                             Add New PR
                         </button>
                     </form>
-    
-                    <div class="row mt-3 d-flex justify-content-end">
-                        <div class="col-lg-3">
-                            <form action="" method="get">
-                                <input type="search" name="search" class="form-control" placeholder="Search">
-                            </form>
-                        </div>
-                    </div>
-    
+
                     <div class="table-responsive mt-2">
-                        <table class="table table-hover table-bordered table-striped">
+                        <table class="table table-hover table-bordered table-striped tablewithSearch">
                             <thead>
                                 <tr>
                                     <th>Action</th>
@@ -490,6 +482,13 @@ function itemDescription(value)
 
 @section('js')
 <script>
+$(".tablewithSearch").DataTable({
+    dom: 'Bfrtip',
+    ordering: true,
+    pageLength: 25,
+    paging: true,
+});
+
 function addRow(id)
 {
     var newRow = `

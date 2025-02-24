@@ -33,7 +33,8 @@ class PurchaseRequestController extends Controller
             ->when($start_date || $end_date, function($query) use ($start_date,$end_date){
                 $query->whereBetween('created_at',[$start_date.' 00:00:01',$end_date.' 23:59:59']);
             })
-            ->paginate(10);
+            // ->paginate(10);
+            ->get();
         $get_pr_no = PurchaseRequest::orderBy('id','desc')->first();
         $inventory_list = Inventory::get();
         

@@ -230,7 +230,7 @@
 
                 <!-- Table Section -->
                 <div class="table-responsive">
-                    <table class="table table-hover table-bordered">
+                    <table class="table table-hover table-bordered" id="tablewithSearch">
                         <thead>
                             <tr>
                                 <th>Action</th>
@@ -315,5 +315,12 @@
             }
         })
     }
+
+    $("#tablewithSearch").DataTable({
+        dom: 'Bfrtip',
+        ordering: true,
+        pageLength: 25,
+        paging: true,
+    });
 </script>
 @endsection
