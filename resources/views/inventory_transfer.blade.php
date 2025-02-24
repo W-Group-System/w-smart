@@ -1,4 +1,4 @@
-@extends('layouts.dashboard_layout')
+{{-- @extends('layouts.dashboard_layout')
 
 @section('dashboard_content')
 <meta name="requester-id" content="{{ auth()->user()->id }}">
@@ -437,4 +437,105 @@
 @push('scripts')
     <script src="{{ asset('js/inventory_transfer.js') }}"></script>
     <script src="{{ asset('js/inventory.js') }}"></script>
-@endpush
+@endpush --}}
+
+@extends('layouts.header')
+
+@section('content')
+    <div class="row">
+        <div class="col-lg-6 grid-margin stretch-card">
+            <div class="card">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="row">
+                                <div class="col-lg-4">
+                                    From
+                                    <input type="date" name="" class="form-control" required>
+                                </div>
+                                <div class="col-lg-4">
+                                    To
+                                    <input type="date" name="" class="form-control" required>
+                                </div>
+                                <div class="col-lg-4">
+                                    <button type="button" class="btn btn-primary">Submit</button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="row">
+                <div class="col-lg-6">
+                    <div class="card card-tale">
+                        <div class="card-body">
+                            <h4 class="mb-4">Pending</h4>
+                            0
+                            
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="card text-success">
+                        <div class="card-body">
+                            <h4 class="mb-4">Approved</h4>
+                            0
+                            
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-12 grid-margin stretch-card">
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="card-title">Inventory Transfer</h4>
+
+                    <button type="button" class="btn btn-outline-success" data-toggle="modal" data-target="#requestTransferModal">
+                        <i class="ti-plus"></i>
+                        Request Transfer
+                    </button>
+
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover" id="tablewithSearch">
+                            <thead>
+                                <tr>
+                                    <th>Transfer From</th>
+                                    <th>Transfer To</th>
+                                    <th>Item Code</th>
+                                    <th>Description</th>
+                                    <th>Category</th>
+                                    <th>Requested QTY</th>
+                                    <th>UOM</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @include('inventory_transfer.new_inventory_transfer')
+@endsection
+
+@section('js')
+<script>
+    $(document).ready(function() {
+        $("#tablewithSearch").DataTable({
+            dom: 'Bfrtip',
+            ordering: true,
+            pageLength: 25,
+            paging: true,
+        });
+    })
+</script>
+@endsection

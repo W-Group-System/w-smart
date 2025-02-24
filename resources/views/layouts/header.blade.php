@@ -113,13 +113,13 @@
                             </li>
                             <li class="nav-item dashboard-list">
                                 <a class="nav-link"
-                                    href="">
+                                    href="{{url('inventory/transfer')}}">
                                     Inventory Transfer
                                 </a>
                             </li>
                             <li class="nav-item dashboard-list" id="withdrawal-request-item">
                                 <a class="nav-link"
-                                    href="">
+                                    href="{{url('inventory/withdrawal')}}">
                                     Withdrawal Request
                                 </a>
                             </li>

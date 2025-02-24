@@ -1,4 +1,4 @@
-@extends('layouts.dashboard_layout')
+{{-- @extends('layouts.dashboard_layout')
 
 @section('dashboard_content')
 <div class="container-fluid">
@@ -520,4 +520,122 @@
 
 @push('scripts')
     <script src="{{ asset('js/withdrawal.js') }}"></script>
-@endpush
+@endpush --}}
+
+@extends('layouts.header')
+
+@section('content')
+    <div class="row">
+        <div class="col-lg-6 grid-margin stretch-card">
+            <div class="card">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="row">
+                                <div class="col-lg-4">
+                                    From
+                                    <input type="date" name="" class="form-control" required>
+                                </div>
+                                <div class="col-lg-4">
+                                    To
+                                    <input type="date" name="" class="form-control" required>
+                                </div>
+                                <div class="col-lg-4">
+                                    <button type="button" class="btn btn-primary">Submit</button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="row">
+                <div class="col-lg-6">
+                    <div class="card card-tale">
+                        <div class="card-body">
+                            <h4 class="mb-4">Pending</h4>
+                            0
+                            
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="card text-success">
+                        <div class="card-body">
+                            <h4 class="mb-4">Approved</h4>
+                            0
+                            
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-12 grid-margin stretch-card">
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="card-title">Withdrawal Request</h4>
+
+                    <button type="button" class="btn btn-outline-success" data-toggle="modal" data-target="#inventoryWithdrawalModal">
+                        <i class="ti-plus"></i>
+                        Withdrawal Request
+                    </button>
+
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover" id="tablewithSearch">
+                            <thead>
+                                <tr>
+                                    <th>Date Request</th>
+                                    <th>Requestor Name</th>
+                                    <th>Requestor Number</th>
+                                    <th>Item Code</th>
+                                    <th>Item Description</th>
+                                    <th>Requested QTY</th>
+                                    <th>Released QTY</th>
+                                    <th>UOM</th>
+                                    <th>Date Released</th>
+                                    <th>Reason</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($withdrawals as $withdrawal)
+                                    <tr>
+                                        <td>{{date('M d Y', strtotime($withdrawal->created_at))}}</td>
+                                        <td>{{$withdrawal->requestor->name}}</td>
+                                        <td>{{$withdrawal->request_number}}</td>
+                                        <td>{{$withdrawal->withdrawalItem->item_code}}</td>
+                                        <td>{{$withdrawal->withdrawalItem->item_description}}</td>
+                                        <td>{{$withdrawal->withdrawalItem->requested_qty}}</td>
+                                        <td>{{$withdrawal->withdrawalItem->released_qty}}</td>
+                                        <td></td>
+                                        <td></td>
+                                        <td>{{$withdrawal->withdrawalItem->reason}}</td>
+                                        <td>{{$withdrawal->withdrawalItem->status}}</td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @include('withdrawal_request.new_withdrawal_request')
+@endsection
+
+@section('js')
+<script>
+    $(document).ready(function() {
+        $("#tablewithSearch").DataTable({
+            dom: 'Bfrtip',
+            ordering: true,
+            pageLength: 25,
+            paging: true,
+        });
+    })
+</script>
+@endsection

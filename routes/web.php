@@ -26,8 +26,13 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/inventory/list', 'InventoryListController@index')->name('inventory.list');
     Route::post('store_inventory', 'InventoryListController@store');
     
-    Route::get('/inventory/transfer', 'RoutesController@inventoryTransfer')->name('inventory.transfer');
-    Route::get('/inventory/withdrawal', 'RoutesController@inventoryWithdrawal')->name('inventory.withdrawal');
+    // Inventory Transfer
+    Route::get('/inventory/transfer', 'InventoryTransferController@index')->name('inventory.transfer');
+
+    // Inventory Withdrawal
+    Route::get('/inventory/withdrawal', 'WithdrawalRequestController@index')->name('inventory.withdrawal');
+
+    // Inventory Returned
     Route::get('/inventory/returned', 'RoutesController@inventoryReturned')->name('inventory.returned');
 
     // Equipment & Asset Management Routes
