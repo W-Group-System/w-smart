@@ -1,4 +1,4 @@
-@extends('layouts.dashboard_layout')
+{{-- @extends('layouts.dashboard_layout')
 
 @section('dashboard_content')
 <div class="container-fluid">
@@ -394,4 +394,124 @@
 
 @push('scripts')
     <script src="{{ asset('js/inventory.js') }}"></script>
-@endpush
+@endpush --}}
+
+@extends('layouts.header')
+
+@section('content')
+    <div class="row">
+        <div class="col-lg-6 grid-margin stretch-card">
+            <div class="card">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="row">
+                                <div class="col-lg-4">
+                                    From
+                                    <input type="date" name="" class="form-control" required>
+                                </div>
+                                <div class="col-lg-4">
+                                    To
+                                    <input type="date" name="" class="form-control" required>
+                                </div>
+                                <div class="col-lg-4">
+                                    <button type="button" class="btn btn-primary">Submit</button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="row">
+                <div class="col-lg-6">
+                    <div class="card card-tale">
+                        <div class="card-body">
+                            <h4 class="mb-4">Transfer</h4>
+                            0
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="card text-success">
+                        <div class="card-body">
+                            <h4 class="mb-4">Withdrawal</h4>
+                            0
+                            
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-12 grid-margin stretch-card">
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="card-title">Inventory List</h4>
+
+                    <button type="button" class="btn btn-outline-success" data-toggle="modal" data-target="#addInventoryModal">
+                        <i class="ti-plus"></i>
+                        Add new inventory
+                    </button>
+
+                    <div class="table-responsive">
+                        <table class="table table-striped table-bordered" id="tablewithSearch">
+                            <thead>
+                                <tr>
+                                    <th>Action</th>
+                                    {{-- <th>ID</th> --}}
+                                    <th>Date</th>
+                                    <th>Item Code</th>
+                                    <th>Item Description</th>
+                                    <th>Item Category</th>
+                                    <th>QTY</th>
+                                    <th>UOM</th>
+                                    <th>Cost</th>
+                                    <th>Usage</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($inventories as $inventory)
+                                    <tr>
+                                        <td>
+                                            <button type="button" class="btn btn-warning btn-sm" data-toggle="modal" data-target="#editInventoryModal{{$inventory->inventory_id}}">
+                                                <i class="ti-pencil-alt"></i>
+                                            </button>
+                                        </td>
+                                        {{-- <td>ID</td> --}}
+                                        <td>{{date('M d Y', strtotime($inventory->created_at))}}</td>
+                                        <td>{{$inventory->item_code}}</td>
+                                        <td>{{$inventory->item_description}}</td>
+                                        <td>{{$inventory->item_category}}</td>
+                                        <td>{{$inventory->qty}}</td>
+                                        <td>{{$inventory->uom->uoms}}</td>
+                                        <td>{{$inventory->cost}}</td>
+                                        <td>{{$inventory->usage}}</td>
+                                    </tr>
+
+                                    @include('inventory_list.edit_inventory')
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @include('inventory_list.new_inventory')
+@endsection
+
+@section('js')
+<script>
+    $("#tablewithSearch").DataTable({
+        dom: 'Bfrtip',
+        ordering: true,
+        pageLength: 25,
+        paging: true,
+    });
+</script>
+@endsection

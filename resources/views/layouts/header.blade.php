@@ -100,6 +100,39 @@
                     </a>
                 </li>
                 <li class="nav-item">
+                    <a class="nav-link" data-toggle="collapse" href="#inventory">
+                        <i class="ti-clipboard menu-icon"></i>
+                        <span class="menu-title">Inventory</span>
+                        <i class="menu-arrow"></i>
+                    </a>
+                    <div class="collapse" id="inventory">
+                        <ul class="nav flex-column sub-menu">
+                            <li class="nav-item dashboard-list">
+                                <a class="nav-link"
+                                    href="{{url('inventory/list')}}">Inventory List</a>
+                            </li>
+                            <li class="nav-item dashboard-list">
+                                <a class="nav-link"
+                                    href="">
+                                    Inventory Transfer
+                                </a>
+                            </li>
+                            <li class="nav-item dashboard-list" id="withdrawal-request-item">
+                                <a class="nav-link"
+                                    href="">
+                                    Withdrawal Request
+                                </a>
+                            </li>
+                            <li class="nav-item dashboard-list" id="returned-inventory-item">
+                                <a class="nav-link"
+                                    href="">
+                                    Returned Inventory
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
+                <li class="nav-item">
                     <a class="nav-link" data-toggle="collapse" href="#procurement">
                         <i class="ti-briefcase menu-icon"></i>
                         <span class="menu-title">Procurements</span>
@@ -123,7 +156,7 @@
                                 <a class="nav-link" href="{{url('procurement/supplier_accreditation')}}">Supplier Accreditation</a>
                             </li>
                             <li class="nav-item dashboard-list" id="supplier-evaluation-item">
-                                <a class="nav-link" href="">Supplier Evaluation</a>
+                                <a class="nav-link" href="{{url('procurement/supplier_evaluation')}}">Supplier Evaluation</a>
                             </li>
                         </ul>
                     </div>

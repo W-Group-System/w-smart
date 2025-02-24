@@ -27,4 +27,9 @@ class Inventory extends Model
         'date',
         'remarks',
     ];
+
+    public function uom()
+    {
+        return $this->belongsTo(Uoms::class,'uom_id');
+    }
 }
