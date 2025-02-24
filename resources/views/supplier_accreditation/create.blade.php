@@ -1,12 +1,12 @@
-@extends('layouts.dashboard_layout')
+@extends('layouts.header')
 
-@section('dashboard_content')
+@section('content')
 <div class="col-12 grid-margin stretch-card">
     <div class="card mt-3">
         <div class="card-body">
             <h4 class="card-title d-flex justify-content-between align-items-center">
             New Supplier Accreditation
-            <a href="{{ url('procurement/supplier_accreditation') }}" class="btn  btn-secondary"><i class="icon-arrow-left"></i>&nbsp;Back</a> 
+            <a href="{{ url('procurement/supplier_accreditation') }}" class="btn  btn-outline-secondary"><i class="icon-arrow-left"></i>&nbsp;Back</a> 
             </h4>
             <form id="form_supplier_accreditation" action="{{ route('supplier_accreditation.store') }}" method="POST" enctype="multipart/form-data">
                 @csrf
@@ -21,7 +21,7 @@
                     <div class="col-lg-6">
                         <div class="form-group">
                             <label class="form-label">Relationship to WGI:</label>
-                            <select data-placeholder="Select Relationship to WGI" class="form-select chosen-select" id="relationship" name="relationship">
+                            <select data-placeholder="Select Relationship to WGI" class="form-select js-example-basic-single" id="relationship" name="relationship" style="width: 100%;">
                                 <option value=""></option>
                                 <option value="1">Tenant/ Lease</option>
                                 <option value="2">Supplier</option>
@@ -121,7 +121,7 @@
                     <div class="col-lg-6">
                         <div class="form-group">
                             <label class="form-label">Taxpayer Classification:</label>
-                            <select data-placeholder="Select Taxpayer Classification" class="form-select chosen-select" id="taxpayer_classification" name="taxpayer_classification">
+                            <select data-placeholder="Select Taxpayer Classification" class="form-select js-example-basic-single" style="width: 100%;" id="taxpayer_classification" name="taxpayer_classification">
                                 <option value=""></option>
                                 <option value="1">VAT</option>
                                 <option value="2">Non-VAT</option>
@@ -156,11 +156,11 @@
                                 </tr>
                             </tbody>
                         </table>
-                        <button type="button" class="btn btn-success mt-2 mb-2" id="addRowBtnSupp">
-                            Add Row
+                        <button type="button" class="btn btn-sm btn-success mt-2 mb-2" id="addRowBtnSupp">
+                            <i class="ti-plus"></i>
                         </button>
-                        <button type="button" class="btn btn-danger mt-2 mb-2" id="deleteRowBtnSupp">
-                            Delete Row
+                        <button type="button" class="btn btn-sm btn-danger mt-2 mb-2" id="deleteRowBtnSupp">
+                            <i class="ti-trash"></i>
                         </button>
                     </div>
                     <div class="col-md-12">
@@ -186,11 +186,11 @@
                                 </tr>
                             </tbody>
                         </table>
-                        <button type="button" class="btn btn-success mt-2 mb-2" id="addRowBtnSupp1">
-                            Add Row
+                        <button type="button" class="btn btn-sm btn-success mt-2 mb-2" id="addRowBtnSupp1">
+                            <i class="ti-plus"></i>
                         </button>
-                        <button type="button" class="btn btn-danger mt-2 mb-2" id="deleteRowBtnSupp1">
-                            Delete Row
+                        <button type="button" class="btn btn-sm btn-danger mt-2 mb-2" id="deleteRowBtnSupp1">
+                            <i class="ti-trash"></i>
                         </button>
                     </div>
                     <div class="col-md-12 mb-3">
@@ -220,11 +220,11 @@
                                 </tr>
                             </tbody>
                         </table>
-                        <button type="button" class="btn btn-success mt-2 mb-2" id="addRowBtnSupp2">
-                            Add Row
+                        <button type="button" class="btn btn-sm btn-success mt-2 mb-2" id="addRowBtnSupp2">
+                            <i class="ti-plus"></i>
                         </button>
-                        <button type="button" class="btn btn-danger mt-2 mb-2" id="deleteRowBtnSupp2">
-                            Delete Row
+                        <button type="button" class="btn btn-sm btn-danger mt-2 mb-2" id="deleteRowBtnSupp2">
+                            <i class="ti-trash"></i>
                         </button>
                     </div>
                     <h4 class="mb-3">Tenants</h4>
@@ -293,11 +293,11 @@
                                 </tr>
                             </tbody>
                         </table>
-                        <button type="button" class="btn btn-success mt-2 mb-2" id="addRowBtnSupp3">
-                            Add Row
+                        <button type="button" class="btn btn-sm btn-success mt-2 mb-2" id="addRowBtnSupp3">
+                            <i class="ti-plus"></i>
                         </button>
-                        <button type="button" class="btn btn-danger mt-2 mb-2" id="deleteRowBtnSupp3">
-                            Delete Row
+                        <button type="button" class="btn btn-sm btn-danger mt-2 mb-2" id="deleteRowBtnSupp3">
+                            <i class="ti-trash"></i>
                         </button>
                     </div>
                     <h4 class="mb-3">Customer's Reference (List of customers with whom you transacted in the last six months)</h4>
@@ -328,11 +328,11 @@
                                 </tr>
                             </tbody>
                         </table>
-                        <button type="button" class="btn btn-success mt-2 mb-2" id="addRowBtnSupp4">
-                            Add Row
+                        <button type="button" class="btn btn-sm btn-success mt-2 mb-2" id="addRowBtnSupp4">
+                            <i class="ti-plus"></i>
                         </button>
-                        <button type="button" class="btn btn-danger mt-2 mb-2" id="deleteRowBtnSupp4">
-                            Delete Row
+                        <button type="button" class="btn btn-sm btn-danger mt-2 mb-2" id="deleteRowBtnSupp4">
+                            <i class="ti-trash"></i>
                         </button>
                     </div>
                     <h4 class="mb-3">Applicants (Required Attachments)</h4>
@@ -401,6 +401,6 @@
 </div>
 @endsection
 
-@push('scripts')
+@section('js')
     <script src="{{ asset('js/supplierAccreditation.js') }}"></script>
-@endpush
+@endsection

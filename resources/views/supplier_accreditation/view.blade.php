@@ -1,4 +1,4 @@
-@extends('layouts.dashboard_layout')
+{{-- @extends('layouts.dashboard_layout')
 
 @section('dashboard_content')
 <div class="col-12 grid-margin stretch-card">
@@ -445,4 +445,457 @@
     </div>
 </div>
 
+@endsection --}}
+
+@extends('layouts.header')
+
+@section('content')
+<div class="col-12 grid-margin stretch-card">
+    <div class="card">
+        <div class="card-body">
+            <h4 class="card-title d-flex justify-content-between align-items-center">
+            View Supplier Accreditation
+                <div align="right">
+                    <a href="{{ url('procurement/edit_supplier_accreditation/' . $supplier_accreditation->id) }}" class="btn btn-outline-warning">
+                        <i class="ti-pencil"></i>
+                        Edit
+                    </a>
+                    <button type="button" class="btn btn-outline-success" title="Approved Supplier" data-toggle="modal" data-target="#approved{{$supplier_accreditation->id}}">
+                        <i class="ti-check"></i>
+                        Approved
+                    </button>
+                    <button type="button" class="btn btn-outline-danger" title="Request for quotation" data-toggle="modal" data-target="#declined{{$supplier_accreditation->id}}">
+                        <i class="ti-na"></i>
+                        Declined
+                    </button>
+                    <a href="{{url('procurement/supplier_accreditation')}}" type="button" class="btn btn-outline-secondary">
+                        <i class="ti-arrow-left"></i>
+                        Close   
+                    </a>
+                </div>
+            </h4>
+            <h4 class="card-title">Data & Classification</h4>
+            <hr>
+            <div class="row">
+                <div class="col-lg-6">
+                    <dl class="row">
+                        <dt class="col-sm-3 text-right">Relationship to WGI :</dt>
+                        <dd class="col-sm-9">
+                            @if($supplier_accreditation->relationship == 1)
+                                Tenant/ Lease
+                            @elseif($supplier_accreditation->relationship == 2)
+                                Supplier
+                            @elseif($supplier_accreditation->relationship == 3)
+                                Service Provider   
+                            @elseif($supplier_accreditation->relationship == 4)
+                                Others 
+                            @else 
+                                N/A
+                            @endif
+                        </dd>
+                        <dt class="col-sm-3 text-right">
+                            Name/ Corporate Name of Applicant :
+                        </dt>
+                        <dd class="col-sm-9">
+                            {{ $supplier_accreditation->corporate_name }}
+                        </dd>
+                        <dt class="col-sm-3 text-right">Fax No. :</dt>
+                        <dd class="col-sm-9">
+                            {{ $supplier_accreditation->fax_no }}
+                        </dd>
+                        <dt class="col-sm-3 text-right">Business Address :</dt>
+                        <dd class="col-sm-9">
+                            {{ $supplier_accreditation->business_address }}
+                        </dd>
+                    </dl>
+                </div>
+                <div class="col-lg-6">
+                    <dl class="row">
+                        <dt class="col-sm-3 text-right">Telephone No. :</dt>
+                        <dd class="col-sm-9">
+                            {{ $supplier_accreditation->telephone_no }}
+                        </dd>
+                        <dt class="col-sm-3">Trade Name (if different from Corporate Name) :</dt>
+                        <dd class="col-sm-9">
+                            {{ $supplier_accreditation->trade_name }}
+                        </dd>
+                    </dl>
+                </div>
+            </div>
+            <h4 class="card-title">Billing Details</h4>
+            <hr>
+            <div class="row">
+                <div class="col-lg-6">
+                    <dl class="row">
+                        <dt class="col-sm-3 text-right">Billing Address (complete if different from business address) :</dt>
+                        <dd class="col-sm-9">{!! nl2br(e($supplier_accreditation->billing_address)) !!}</dd>
+                        <dt class="col-sm-3 text-right">Office Phone :</dt>
+                        <dd class="col-sm-9">{{$supplier_accreditation->office_phone}}</dd>
+                        <dt class="col-sm-3 text-right">Years in business :</dt>
+                        <dd class="col-sm-9">{{$supplier_accreditation->billing_years}}</dd>
+                        <dt class="col-sm-3 text-right">SEC/DTI Registration No :</dt>
+                        <dd class="col-sm-9">{{$supplier_accreditation->registration_no}}</dd>
+                        <dt class="col-sm-3 text-right">TIN No. :</dt>
+                        <dd class="col-sm-9">{{$supplier_accreditation->billing_tin}}</dd>
+                    </dl>
+                </div>
+                <div class="col-lg-6">
+                    <dl class="row">
+                        <dt class="col-sm-3 text-right">Website :</dt>
+                        <dd class="col-sm-9">{{$supplier_accreditation->website}}</dd>
+                        <dt class="col-sm-3 text-right">Email Address :</dt>
+                        <dd class="col-sm-9">{{$supplier_accreditation->billing_email}}</dd>
+                        <dt class="col-sm-3 text-right">Nature in business :</dt>
+                        <dd class="col-sm-9">{{$supplier_accreditation->nature_business}}</dd>
+                        <dt class="col-sm-3 text-right">Date Registered :</dt>
+                        <dd class="col-sm-9">{{date('M d Y', strtotime($supplier_accreditation->date_registered))}}</dd>
+                        <dt class="col-sm-3 text-right">Taxpayer Classification :</dt>
+                        <dd class="col-sm-9">
+                            @if($supplier_accreditation->taxpayer_classification == 1)
+                                VAT
+                            @elseif($supplier_accreditation->taxpayer_classification == 2)
+                                Non-VAT
+                            @elseif($supplier_accreditation->taxpayer_classification == 3)
+                                Exempt   
+                            @else 
+                                N/A
+                            @endif
+                        </dd>
+                    </dl>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-12 mb-3">
+                    <div class="table-responsive">
+                        <table class="table table-hover table-sm" width="100%">
+                            <thead>
+                                <tr>
+                                    <th width="25%">Name of Official Representatives</th>
+                                    <th width="25%">Designation</th>
+                                    <th width="20%">Contact Number</th>
+                                    <th width="30%">Email Address</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if($supplier_accreditation->representative->count() > 0)
+                                    @foreach($supplier_accreditation->representative as $representative)
+                                    <tr>
+                                        <td>{{ $representative->name }}</td>
+                                        <td>{{ $representative->designation }}</td>
+                                        <td>{{ $representative->contact }}</td>
+                                        <td>{{ $representative->email }}</td>
+                                    </tr>
+                                    @endforeach
+                                @else 
+                                    <tr>
+                                        <td colspan="4" class="text-center">No matching records found</td>
+                                    </tr>
+                                @endif
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="col-lg-12 mb-2">
+                    <div class="table-responsive">
+                        <table class="table table-hover table-sm" width="100%">
+                            <thead>
+                                <tr>
+                                    <th width="25%">Owners/ Officers of the Company</th>
+                                    <th width="25%">Designation</th>
+                                    <th width="50%">Address</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if($supplier_accreditation->owners->count() > 0)
+                                    @foreach($supplier_accreditation->owners as $owner)
+                                    <tr>
+                                        <td>{{ $owner->owners }}</td>
+                                        <td>{{ $owner->owners_designation }}</td>
+                                        <td>{{ $owner->address }}</td>
+                                    </tr>
+                                    @endforeach
+                                @else 
+                                    <tr>
+                                        <td colspan="3" class="text-center">No matching records found</td>
+                                    </tr>
+                                @endif
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="col-lg-12 mb-2">
+                    <div class="table-responsive">
+                        <table class="table table-hover table-sm" width="100%">
+                            <thead>
+                                <tr>
+                                    <th width="25%">Contacts-Finance/ Accounting</th>
+                                    <th width="25%">Designation</th>
+                                    <th width="20%">Contact Number</th>
+                                    <th width="30%">Email Address</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if($supplier_accreditation->contacts->count() > 0)
+                                    @foreach($supplier_accreditation->contacts as $contact)
+                                    <tr>
+                                        <td>{{ $contact->contacts }}</td>
+                                        <td>{!! nl2br(e($contact->contacts_designation)) !!}</td>
+                                        <td>{{ $contact->contact_number }}</td>
+                                        <td>{{ $contact->contacts_email }}</td>
+                                    </tr>
+                                    @endforeach
+                                @else 
+                                    <tr>
+                                        <td colspan="4" class="text-center">No matching records found</td>
+                                    </tr>
+                                @endif
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <h4 class="card-title">Tenants</h4>
+            <hr>
+            <div class="row">
+                <div class="col-lg-6">
+                    <dl class="row">
+                        <dt class="col-sm-3 text-right">Lease Commencement Date :</dt>
+                        <dd class="col-sm-9">
+                            @if(!empty($supplier_accreditation->lease_date))
+                            {{date('M d Y', strtotime($supplier_accreditation->lease_date))}}
+                            @else
+                            N/A
+                            @endif
+                        </dd>
+                        <dt class="col-sm-3 text-right"> Corporate Secretary's Certificate certifying to the authorized signatory on the Contract of Lessee :</dt>
+                        <dd class="col-sm-9">
+                            @if(!empty($supplier_accreditation->attachments))
+                                <a href="{{ asset('storage/' . $supplier_accreditation->attachments) }}" target="_blank">
+                                    <i class="ti-files"></i> {{ basename($supplier_accreditation->attachments) }}
+                                </a>
+                            @else
+                                <span>No File Available</span>
+                            @endif
+                        </dd> 
+                    </dl>
+                </div>
+                <div class="col-lg-6">
+                    <dl class="row">
+                        <dt class="col-sm-3 text-right">Handover Date :</dt>
+                        <dd class="col-sm-9">
+                            @if(!empty($supplier_accreditation->handover))
+                            {{ date('m/d/Y', strtotime($supplier_accreditation->handover)) }}
+                            @else
+                            N/A
+                            @endif
+                        </dd>
+                    </dl>
+                </div>
+            </div>
+            <h4 class="card-title">Suppliers Applying for Accreditation</h4>
+            <hr>
+            <div class="row">
+                <div class="col-lg-6">
+                    <dl class="row">
+                        <dt class="col-sm-3 text-right">Sample Official Receipt and/ or Sales Invoice :</dt>
+                        <dd class="col-sm-9">
+                            @if(!empty($supplier_accreditation->suppliers_attachments))
+                                <a href="{{ asset('storage/' . $supplier_accreditation->suppliers_attachments) }}" target="_blank">
+                                    <i class="ti-files"></i> {{ basename($supplier_accreditation->suppliers_attachments) }}
+                                </a>
+                            @else
+                                <span>No File Available</span>
+                            @endif
+                        </dd>
+                        <dt class="col-sm-3 text-right">Products/ Services for Accreditation (please specify) :</dt>
+                        <dd class="col-sm-9">
+                            {{ $supplier_accreditation->suppliers_specify ?? 'N/A' }}
+                        </dd>
+                    </dl>
+                </div>
+                <div class="col-lg-6">
+                    <dl class="row">
+                        <dt class="col-sm-3 text-right">Terms of Payment Offered :</dt>
+                        <dd class="col-sm-9">
+                            {{ $supplier_accreditation->suppliers_terms ?? 'N/A' }}
+                        </dd>
+                    </dl>
+                </div>
+            </div>
+            <h4 class="card-title">Suppliers Reference (List of supplier with whom you transacted in the last six months)</h4>
+            <hr>
+            <div class="row">
+                <div class="col-lg-12">
+                    <table class="table table-hover table-sm" width="100%">
+                        <thead>
+                            <tr>
+                                <th>Company Name</th>
+                                <th>Contact Person</th>
+                                <th>Telephone Number</th>
+                                <th>Terms</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if($supplier_accreditation->references->count() > 0)
+                                @foreach($supplier_accreditation->references as $reference)
+                                <tr>
+                                    <td>{{ $reference->company_name }}</td>
+                                    <td>{{ $reference->contact_person }}</td>
+                                    <td>{{ $reference->tel_no }}</td>
+                                    <td>{{ $reference->terms }}</td>
+                                </tr>
+                                @endforeach
+                            @else 
+                                <tr>
+                                    <td colspan="4" class="text-center">No matching records found</td>
+                                </tr>
+                            @endif
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <h4 class="card-title">Customer's Reference (List of customer with whom you transacted in the last six months)</h4>
+            <hr>
+            <div class="row">
+                <div class="col-md-12">
+                    <table class="table table-hover table-sm" width="100%">
+                        <thead>
+                            <tr>
+                                <th>Company Name</th>
+                                <th>Contact Person</th>
+                                <th>Telephone Number</th>
+                                <th>Terms</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if($supplier_accreditation->customers->count() > 0)
+                                @foreach($supplier_accreditation->customers as $customer)
+                                <tr>
+                                    <td>{{ $customer->customer_company_name }}</td>
+                                    <td>{{ $customer->customer_contact_person }}</td>
+                                    <td>{{ $customer->customer_tel_no }}</td>
+                                    <td>{{ $customer->customer_terms }}</td>
+                                </tr>
+                                @endforeach
+                            @else 
+                                <tr>
+                                    <td colspan="4" class="text-center">No matching records found</td>
+                                </tr>
+                            @endif
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <h4 class="card-title">Required Attachments</h4>
+            <hr>
+            <div class="row">
+                <div class="col-lg-6">
+                    <dl class="row">
+                        <dt class="col-sm-3 text-right">Company Profile :</dt>
+                        <dd class="col-sm-9">
+                            @if(!empty($supplier_accreditation->company_profile))
+                                <a href="{{ asset('storage/' . $supplier_accreditation->company_profile) }}" target="_blank">
+                                    <i class="ti-files"></i> {{ basename($supplier_accreditation->company_profile) }}
+                                </a>
+                            @else
+                                <span>No File Available</span>
+                            @endif
+                        </dd>
+                        <dt class="col-sm-3 text-right">Office Location :</dt>
+                        <dd class="col-sm-9">
+                            @if(!empty($supplier_accreditation->office_location))
+                                <a href="{{ asset('storage/' . $supplier_accreditation->office_location) }}" target="_blank">
+                                    <i class="ti-files"></i> {{ basename($supplier_accreditation->office_location) }}
+                                </a>
+                            @else
+                                <span>No File Available</span>
+                            @endif
+                        </dd>
+                        <dt class="col-sm-3 text-right">SEC Registration or DTI Registration for Sole Proprietorship :</dt>
+                        <dd class="col-sm-9">
+                            @if(!empty($supplier_accreditation->sec_registration))
+                                <a href="{{ asset('storage/' . $supplier_accreditation->sec_registration) }}" target="_blank">
+                                    <i class="ti-files"></i> {{ basename($supplier_accreditation->sec_registration) }}
+                                </a>
+                            @else
+                                <span>No File Available</span>
+                            @endif
+                        </dd>
+                        <dt class="col-sm-3 text-right">Articles of Incoporation :</dt>
+                        <dd class="col-sm-9">
+                            @if(!empty($supplier_accreditation->articles))
+                                <a href="{{ asset('storage/' . $supplier_accreditation->articles) }}" target="_blank">
+                                    <i class="ti-files"></i> {{ basename($supplier_accreditation->articles) }}
+                                </a>
+                            @else
+                                <span>No File Available</span>
+                            @endif
+                        </dd>
+                        <dt class="col-sm-3 text-right">Latest General Information Sheet (GIS) :</dt>
+                        <dd class="col-sm-9">
+                            @if(!empty($supplier_accreditation->information_sheet))
+                                <a href="{{ asset('storage/' . $supplier_accreditation->information_sheet) }}" target="_blank">
+                                    <i class="ti-files"></i> {{ basename($supplier_accreditation->information_sheet) }}
+                                </a>
+                            @else
+                                <span>No File Available</span>
+                            @endif
+                        </dd>
+                    </dl>
+                </div>
+                <div class="col-lg-6">
+                    <dl class="row">
+                        <dt class="col-sm-3 text-right">Latest (3 years) Audited Financial Statement w/ BIR Receipt :</dt>
+                        <dd class="col-sm-9">
+                            @if(!empty($supplier_accreditation->audited_financial))
+                                <a href="{{ asset('storage/' . $supplier_accreditation->audited_financial) }}" target="_blank">
+                                    <i class="ti-files"></i> {{ basename($supplier_accreditation->audited_financial) }}
+                                </a>
+                            @else
+                                <span>No File Available</span>
+                            @endif
+                        </dd>
+                        <dt class="col-sm-3 text-right">Business Permit :</dt>
+                        <dd class="col-sm-9">
+                            @if(!empty($supplier_accreditation->business_permit))
+                                <a href="{{ asset('storage/' . $supplier_accreditation->business_permit) }}" target="_blank">
+                                    <i class="ti-files"></i> {{ basename($supplier_accreditation->business_permit) }}
+                                </a>
+                            @else
+                                <span>No File Available</span>
+                            @endif
+                        </dd>
+                        <dt class="col-sm-3 text-right">Tax Incentive Certificate/ Top 20,000 or Large Taxpayer Notice :</dt>
+                        <dd class="col-sm-9">
+                            @if(!empty($supplier_accreditation->tax_incentive))
+                                <a href="{{ asset('storage/' . $supplier_accreditation->tax_incentive) }}" target="_blank">
+                                    <i class="ti-files"></i> {{ basename($supplier_accreditation->tax_incentive) }}
+                                </a>
+                            @else
+                                <span>No File Available</span>
+                            @endif
+                        </dd>
+                        <dt class="col-sm-3 text-right">BIR Documents - BIR Form 2303 :</dt>
+                        <dd class="col-sm-9">
+                            @if(!empty($supplier_accreditation->bir_documents))
+                                <a href="{{ asset('storage/' . $supplier_accreditation->bir_documents) }}" target="_blank">
+                                    <i class="ti-files"></i> {{ basename($supplier_accreditation->bir_documents) }}
+                                </a>
+                            @else
+                                <span>No File Available</span>
+                            @endif
+                        </dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@endsection
+
+@section('js')
+    
 @endsection

@@ -120,7 +120,7 @@
                                 <a class="nav-link" href="{{url('procurement/purchase-order')}}">Purchased Order</a>
                             </li>
                             <li class="nav-item dashboard-list">
-                                <a class="nav-link" href="">Supplier Accreditation</a>
+                                <a class="nav-link" href="{{url('procurement/supplier_accreditation')}}">Supplier Accreditation</a>
                             </li>
                             <li class="nav-item dashboard-list" id="supplier-evaluation-item">
                                 <a class="nav-link" href="">Supplier Evaluation</a>

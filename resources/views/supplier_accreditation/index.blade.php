@@ -1,4 +1,4 @@
-@extends('layouts.dashboard_layout')
+{{-- @extends('layouts.dashboard_layout')
 
 @section('dashboard_content')
 <div class="container-fluid">
@@ -153,4 +153,90 @@
 
 @push('scripts')
     <script src="{{ asset('js/supplierAccreditation.js') }}"></script>
-@endpush
+@endpush --}}
+
+@extends('layouts.header')
+
+@section('content')
+    <div class="col-lg-12">
+        <div class="card">
+            <div class="card-body">
+                <h4 class="card-title">Supplier Accreditation</h4>
+                
+                <a href="{{ url('supplier_accreditation/create') }}" class="text-decoration-none btn btn-outline-success" id="newAccreditation">
+                    <i class="ti-plus"></i>
+                    Add New Supplier Accreditation
+                </a>
+
+                <div class="table-responsive mt-3">
+                    <table class="table table-hover table-bordered" id="tablewithSearch">
+                        <thead>
+                            <tr>
+                                <th>Action</th>
+                                <th>Vendor ID</th>
+                                <th>Relationship</th>
+                                <th>Name</th>
+                                <th>Telephone No.</th>
+                                <th>Trade Name</th>
+                                <th>Years in Business</th>
+                                <th>Nature of Business</th>
+                                <th>SEC/DTI Registration No.</th>
+                                <th>Date Registered</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($supplier_accreditation as $accreditation)
+                            <tr>
+                                <td style="text-align: center; padding: 5px 10px;">
+                                    <a href="{{url('procurement/view_supplier_accreditation/'.$accreditation->id)}}" class="btn btn-sm btn-info">
+                                        <i class="ti-eye"></i>
+                                    </a>
+                                    <a href="{{ url('procurement/edit_supplier_accreditation/' . $accreditation->id) }}" class="btn btn-sm btn-warning">
+                                        <i class="ti-pencil-alt"></i>
+                                    </a>
+                                </td>
+                                <td>{{ $accreditation->vendor_code }}</td>
+                                <td>
+                                    @if($accreditation->relationship == 1)
+                                        Tenant/ Lease
+                                    @elseif($accreditation->relationship == 2)
+                                        Supplier
+                                    @elseif($accreditation->relationship == 3)
+                                        Service Provider   
+                                    @elseif($accreditation->relationship == 4)
+                                        Others 
+                                    @else 
+                                        N/A
+                                    @endif
+                                </td>
+                                <td>{{ $accreditation->corporate_name }}</td>
+                                <td>{{ $accreditation->telephone_no ?? 'N/A' }}</td>
+                                <td>{{ $accreditation->trade_name ?? 'N/A' }}</td>
+                                <td>{{ $accreditation->trade_name ?? 'N/A' }}</td>
+                                <td>{{ $accreditation->nature_business ?? 'N/A' }}</td>
+                                <td>{{ $accreditation->registration_no ?? 'N/A' }}</td>
+                                <td>{{ $accreditation->date_registered ? date('m/d/Y', strtotime($accreditation->date_registered)) : 'N/A' }}</td>
+                                <td>{{ $accreditation->status }}</td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+        
+            </div>
+        </div>
+    </div>
+@endsection
+
+@section('js')
+<script src="{{asset('js/supplierAccreditation.js')}}"></script>
+<script>
+    $("#tablewithSearch").DataTable({
+        dom: 'Bfrtip',
+        ordering: true,
+        pageLength: 25,
+        paging: true,
+    });
+</script>
+@endsection
