@@ -142,8 +142,19 @@
                     <h4 class="card-title">PO-{{str_pad($po->id, 6, '0', STR_PAD_LEFT)}} - {{$po->status}}</h4>
     
                     <div>
-                        <a href="{{url('procurement/purchase-order')}}" type="button" class="btn btn-outline-danger">
-                            Close   
+                        <form method="POST" class="d-inline-block" action="{{url('approved_po')}}" onsubmit="show()">
+                            @csrf 
+                            <input type="hidden" name="id" value="{{$po->id}}">
+                            
+                            <button type="submit" class="btn btn-outline-success">
+                                <i class="ti-check"></i>
+                                Approved
+                            </button>
+                        </form>
+
+                        <a href="{{url('procurement/purchase-order')}}" type="button" class="btn btn-outline-secondary">
+                            <i class="ti-arrow-left"></i>
+                            Back   
                         </a>
                     </div>
                 </div>
@@ -153,17 +164,17 @@
                         <dl class="row">
                             <dt class="col-sm-3 text-right">To :</dt>
                             <dd class="col-sm-9">{{$po->supplier->corporate_name}}</dd>
-                            <dt class="col-sm-3 text-right">Supplier Address :</dt>
+                            <dt class="col-sm-3 text-right">Supplier Address:</dt>
                             <dd class="col-sm-9">{{$po->supplier->business_address}}</dd>
-                            <dt class="col-sm-3 text-right">Contact Information :</dt>
+                            <dt class="col-sm-3 text-right">Contact Information:</dt>
                             <dd class="col-sm-9">{{$po->supplier->telephone_no}}</dd>
                             <dt class="col-sm-3 text-right"><b>Ship To:</b></dt>
                             <dd class="col-sm-9">{{$po->purchaseRequest->subsidiary}}</dd>
-                            <dt class="col-sm-3 text-right">Contact Person :</dt>
+                            <dt class="col-sm-3 text-right">Contact Person:</dt>
                             <dd class="col-sm-9">{{$po->purchaseRequest->user->name}}</dd>
-                            <dt class="col-sm-3 text-right">Contact Number :</dt>
+                            <dt class="col-sm-3 text-right">Contact Number:</dt>
                             <dd class="col-sm-9">&nbsp;</dd>
-                            <dt class="col-sm-3 text-right">Shipping Address :</dt>
+                            <dt class="col-sm-3 text-right">Shipping Address:</dt>
                             <dd class="col-sm-9">{!! nl2br(e($po->purchaseRequest->company->address)) !!}</dd>
                             <dt class="col-sm-3 text-right"><b>Expected Delivery Date:</b></dt>
                             <dd class="col-sm-9">{{date('M. d Y', strtotime($po->expected_delivery_date))}}</dd>
@@ -171,13 +182,13 @@
                     </div>
                     <div class="col-lg-6">
                         <dl class="row">
-                            <dt class="col-sm-3">PO Date :</dt>
+                            <dt class="col-sm-3">PO Date:</dt>
                             <dd class="col-sm-9">{{date('M d Y', strtotime($po->created_at))}}</dd>
-                            <dt class="col-sm-3">Payment Terms :</dt>
+                            <dt class="col-sm-3">Payment Terms:</dt>
                             <dd class="col-sm-9">{{$po->supplier->suppliers_terms}}</dd>
-                            <dt class="col-sm-3">Bill To :</dt>
+                            <dt class="col-sm-3">Bill To:</dt>
                             <dd class="col-sm-9">{{$po->supplier->corporate_name}}</dd>
-                            <dt class="col-sm-3">Bill Address :</dt>
+                            <dt class="col-sm-3">Bill Address:</dt>
                             <dd class="col-sm-9">{!! nl2br(e($po->supplier->billing_address)) !!}</dd>
                         </dl>
                     </div>

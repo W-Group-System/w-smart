@@ -93,6 +93,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('procurement/store_purchase_order', 'PurchaseOrderController@store');
     Route::get('procurement/show_purchase_order/{id}','PurchaseOrderController@show');
     Route::post('refresh_rfq_vendor', 'PurchaseOrderController@refreshRfqVendor');
+    Route::post('approved_po','PurchaseOrderController@approved');
 
     // Vendors
     Route::get('/settings/vendors', 'VendorController@index')->name('settings.vendors');

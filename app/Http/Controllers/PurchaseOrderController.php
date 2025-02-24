@@ -6,6 +6,9 @@ use App\PurchaseOrder;
 use App\PurchaseRequest;
 use App\RfqEmail;
 use App\SupplierAccreditation;
+use GuzzleHttp\Client;
+use GuzzleHttp\HandlerStack;
+use GuzzleHttp\Subscriber\Oauth\Oauth1;
 use Illuminate\Http\Request;
 use RealRashid\SweetAlert\Facades\Alert;
 
@@ -119,5 +122,94 @@ class PurchaseOrderController extends Controller
         }
         
         return response()->json($options);
+    }
+
+    public function approved(Request $request)
+    {
+        try {
+            $purchase_order = PurchaseOrder::with('purchaseRequest.rfqItem.purchaseItem.inventory', 'supplier')->findOrFail($request->id);
+            
+            $data = [
+                "tranDate" => date('Y-m-d'),
+                "dueDate" => date('Y-m-d', strtotime($purchase_order->expected_delivery_date)),
+                "entity" => [
+                    "id" => "1217",
+                    "refName" => "H-0002 Hi-Advance Philippines Incorporated (NCA Labs)"
+                ],
+                "location" => [
+                    "id" => "1",
+                    "refName" => "Head Office"
+                ],
+                "department" => [
+                    "id" => "111",
+                    "refName" => "Operations : Building Management"
+                ],
+                "class" => [
+                    "id" => "1",
+                    "refName" => "Developer"
+                ],
+                "custbody8" => "Generate GRN upon completion.",
+                "custbody36" => [
+                    "id" => "14348",
+                    "refName" => "Reynaldo H Agot"
+                ],
+                // Requestor
+                "custbody38" => [
+                    "id" => "16253",
+                    "refName" => "Jude L Ulan"
+                ],
+                "employee" => [
+                    "id" => "14348",
+                    "refName" => "Reynaldo H Agot"
+                ],
+                "currency" => [
+                    "id" => "1",
+                    "refName" => "Philippine Peso"
+                ],
+                "exchangeRate" => 1.0,
+                "shippingAddress" => $purchase_order->purchaseRequest->company->address,
+                "item" => [
+                    "items" => [
+                        [
+                            "item" => [
+                                "id" => "7927",
+                                "refName" => "027-270108"
+                            ]
+                        ]
+                    ]
+                ]
+            ];
+            
+            $stack = HandlerStack::create();
+            
+            $middleware = new Oauth1([
+                'consumer_key'    => env('CONSUMER_KEY'),
+                'consumer_secret' => env('CONSUMER_SECRET'),
+                'token'           => env('TOKEN'),
+                'token_secret'    => env('TOKEN_SECRET'),
+                'realm' => env('REALM_ID'),
+                'signature_method' => 'HMAC-SHA256'
+            ]);
+            
+            $stack->push($middleware);
+
+            $client = new Client([
+                'base_uri' => 'https://4242377-sb1.suitetalk.api.netsuite.com/services/rest/record/v1/',
+                'handler' => $stack,
+                'auth' => 'oauth',
+            ]);
+
+            $client->post('purchaseOrder', [
+                // 'headers' => $headers,
+                'json' => $data,
+            ]);
+
+            Alert::success('Successfully Approved')->persistent('Dismiss');
+            return back();
+
+        } catch (\Exception $e) {
+            dd($e->getMessage());
+        }
+
     }
 }
