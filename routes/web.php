@@ -36,8 +36,17 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/inventory/returned', 'ReturnedInventoryController@index')->name('inventory.returned');
 
     // Equipment & Asset Management Routes
-    Route::get('/equipment/list', 'RoutesController@equipmentList')->name('equipment.list');
+
+    // Asset List
+    Route::get('/equipment/asset_list', 'AssetListController@index')->name('equipment.list');
+    Route::post('store_asset_list', 'AssetListController@store');
+    Route::get('view_asset_list/{id}', 'AssetListController@show');
+    Route::post('update_asset_list/{id}', 'AssetListController@update');
+
+    // Transfer Asset
     Route::get('/equipment/transfer', 'RoutesController@equipmentTransfer')->name('equipment.transfer');
+
+    // Disposal Asset
     Route::get('/equipment/disposal', 'RoutesController@equipmentDisposal')->name('equipment.disposal');
     
     // UOM

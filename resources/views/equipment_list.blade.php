@@ -1,4 +1,4 @@
-@extends('layouts.dashboard_layout')
+{{-- @extends('layouts.dashboard_layout')
 
 @section('dashboard_content')
 <div class="container-fluid">
@@ -378,4 +378,104 @@
 </div>
 
 <script src="{{ asset('js/equipment_list.js') }}"></script>
+@endsection --}}
+
+@extends('layouts.header')
+
+@section('content')
+    <div class="row">
+        <div class="col-lg-6 grid-margin stretch-card">
+            <div class="card">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="row">
+                                <div class="col-lg-4">
+                                    From
+                                    <input type="date" name="" class="form-control" required>
+                                </div>
+                                <div class="col-lg-4">
+                                    To
+                                    <input type="date" name="" class="form-control" required>
+                                </div>
+                                <div class="col-lg-4">
+                                    <button type="button" class="btn btn-primary">Submit</button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-12 grid-margin stretch-card">
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="card-title">Asset List</h4>
+                    <button type="button" class="btn btn-outline-success" data-toggle="modal" data-target="#addAssetModal">
+                        <i class="ti-plus"></i>
+                        Add new asset
+                    </button>
+                    <div class="table-responsive">
+                        <table class="table table-hover table-bordered" id="tablewithSearch">
+                            <thead>
+                                <tr>
+                                    <th>Action</th>
+                                    <th>Date Purchased</th>
+                                    <th>Asset Name</th>
+                                    <th>Asset Code</th>
+                                    <th>Type</th>
+                                    <th>Category</th>
+                                    <th>Status</th>
+                                    <th>Subsidiary</th>
+                                    <th>Remarks</th>
+                                    <th>Value</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($equipments as $equipment)
+                                <tr>
+                                    <td>
+                                        <a href="{{url('view_asset_list/'.$equipment->id)}}" class="btn btn-sm btn-info">
+                                            <i class="ti-eye"></i>
+                                        </a>
+
+                                        <button type="button" class="btn btn-sm btn-warning" data-toggle="modal" data-target="#editAssetModal{{$equipment->id}}">
+                                            <i class="ti-pencil-alt"></i>
+                                        </button>
+                                    </td>
+                                    <td>{{date('M d Y', strtotime($equipment->date_purchased))}}</td>
+                                    <td>{{$equipment->asset_name}}</td>
+                                    <td>{{$equipment->asset_code}}</td>
+                                    <td>{{$equipment->type}}</td>
+                                    <td>{{$equipment->category->name}}</td>
+                                    <td>{{$equipment->status}}</td>
+                                    <td>{{$equipment->subsidiary->subsidiary_name}}</td>
+                                    <td>{!! nl2br(e($equipment->remarks)) !!}</td>
+                                    <td>{{$equipment->asset_value}}</td>
+                                </tr>
+
+                                @include('asset_list.edit_asset_list')
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @include('asset_list.new_asset_list')
+@endsection
+
+@section('js')
+    <script>
+        $("#tablewithSearch").DataTable({
+            dom: 'Bfrtip',
+            ordering: true,
+            pageLength: 25,
+            paging: true,
+        });
+    </script>
 @endsection

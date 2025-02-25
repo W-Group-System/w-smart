@@ -133,6 +133,33 @@
                     </div>
                 </li>
                 <li class="nav-item">
+                    <a class="nav-link" data-toggle="collapse" href="#equipmentAndAssets">
+                        <i class="ti-panel menu-icon"></i>
+                        <span class="menu-title">Equipments & Assets</span>
+                        <i class="menu-arrow"></i>
+                    </a>
+                    <div class="collapse" id="equipmentAndAssets">
+                        <ul class="nav flex-column sub-menu">
+                            <li class="nav-item">
+                                <a class="nav-link"
+                                    href="{{url('equipment/asset_list')}}">Asset List</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link"
+                                    href="">
+                                    Transfer Asset
+                                </a>
+                            </li>
+                            <li class="nav-item" id="withdrawal-request-item">
+                                <a class="nav-link"
+                                    href="">
+                                    Disposal Asset
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
+                <li class="nav-item">
                     <a class="nav-link" data-toggle="collapse" href="#procurement">
                         <i class="ti-briefcase menu-icon"></i>
                         <span class="menu-title">Procurements</span>
