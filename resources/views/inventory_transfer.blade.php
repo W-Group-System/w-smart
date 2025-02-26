@@ -504,6 +504,7 @@
                         <table class="table table-bordered table-hover" id="tablewithSearch">
                             <thead>
                                 <tr>
+                                    <th>Action</th>
                                     <th>Transfer From</th>
                                     <th>Transfer To</th>
                                     <th>Item Code</th>
@@ -515,7 +516,58 @@
                                 </tr>
                             </thead>
                             <tbody>
+                                @foreach ($transfers as $transfer)
+                                    <tr>
+                                        <td>
+                                            <button type="button" class="btn btn-info btn-sm" title="Approvers" data-toggle="modal" data-target="#viewApprovers{{$transfer->id}}">
+                                                <i class="ti-user"></i>
+                                            </button>
+                                            {{-- <button type="button" class="btn btn-warning btn-sm" data-toggle="modal" data-target="#edit{{$transfer->id}}">
+                                                <i class="ti-pencil-alt"></i>
+                                            </button> --}}
+                                        </td>
+                                        <td>{{$transfer->transferFrom->subsidiary_name}}</td>
+                                        <td>{{$transfer->transferTo->subsidiary_name}}</td>
+                                        <td>
+                                            @foreach ($transfer->inventoryTransfer as $item)
+                                                {{$item->inventory->item_code}} <br>
+                                                <hr>
+                                            @endforeach
+                                        </td>
+                                        <td>
+                                            @foreach ($transfer->inventoryTransfer as $item)
+                                                {{$item->inventory->item_description}} <br>
+                                                <hr>
+                                            @endforeach
+                                        </td>
+                                        <td>
+                                            @foreach ($transfer->inventoryTransfer as $item)
+                                                {{$item->inventory->category->name}} <br>
+                                                <hr>
+                                            @endforeach
+                                        </td>
+                                        <td>
+                                            @foreach ($transfer->inventoryTransfer as $item)
+                                                {{$item->request_qty}} <br>
+                                                <hr>
+                                            @endforeach
+                                        </td>
+                                        <td>
+                                            @foreach ($transfer->inventoryTransfer as $item)
+                                                {{$item->uom->uomp}} <br>
+                                                <hr>
+                                            @endforeach
+                                        </td>
+                                        <td>
+                                            @if($transfer->status)
+                                            @else
+                                            <span class="badge badge-warning">Pending</span>
+                                            @endif
+                                        </td>
+                                    </tr>
 
+                                    @include('inventory_transfer.view_approvers')
+                                @endforeach
                             </tbody>
                         </table>
                     </div>
@@ -529,6 +581,12 @@
 
 @section('js')
 <script>
+    function requestQtyValue(element)
+    {
+        var requestValue = $(element).closest('tr').find('#requestQty')
+        requestValue.val(element.innerText)
+    }
+
     $(document).ready(function() {
         $("#tablewithSearch").DataTable({
             dom: 'Bfrtip',
@@ -536,6 +594,81 @@
             pageLength: 25,
             paging: true,
         });
+
+        $(document).on('change', "[name='item_code[]']", function() {
+            var inventory_id = $(this).val()
+
+            var itemDescription = $(this).closest('tr').find('.itemDescriptionTd')
+            var category = $(this).closest('tr').find('.categoryTd')
+            var itemDescriptionValue = $("[name='item_description[]']")
+            var categoryValue = $("[name='category[]']")
+            
+            itemDescription.text("")
+            category.text("")
+            itemDescriptionValue.val("")
+            categoryValue.val("")
+
+            $.ajax({
+                type: "POST",
+                url: "{{url('refresh_inventory')}}",
+                data: {
+                    id: inventory_id
+                },
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function(response) {
+                    itemDescription.text(response.item_description)
+                    category.text(response.category.name)
+
+                    itemDescriptionValue.val(response.item_description)
+                    categoryValue.val(response.category_id)
+                }
+            })
+        })
+        
+        $("#addMoreItems").on('click', function() {
+            var newRow = `
+                <tr>
+                    <td>
+                        <select data-placeholder="Select item code" name="item_code[]" class="form-control js-example-basic-single" style="width: 100%;" required>
+                            <option value=""></option>
+                            @foreach ($inventories as $inventory)
+                                <option value="{{$inventory->inventory_id}}">{{$inventory->item_code}}</option>
+                            @endforeach
+                        </select>
+                    </td>
+                    <td class="itemDescriptionTd">
+                        <input type="hidden" name="item_description[]">
+                    </td>
+                    <td class="categoryTd">
+                        <input type="hidden" name="category[]">
+                    </td>
+                    <td>
+                        <select data-placeholder="Select item uoms" name="uom[]" class="form-control js-example-basic-single" style="width: 100%;" required>
+                            <option value=""></option>
+                            @foreach ($uoms as $uom)
+                                <option value="{{$uom->id}}">{{$uom->uomp}}</option>
+                            @endforeach
+                        </select>
+                    </td>
+                    <td contenteditable="true" id="tdRequestQty" oninput="requestQtyValue(this)">
+                        <input type="hidden" name="request_qty[]" id="requestQty">
+                    </td>
+                </tr>
+            `
+
+            $("#inventoryTable tbody").append(newRow)
+            $(".js-example-basic-single").select2()
+        })
+
+        $("#removeItems").on('click', function() {
+            
+            if ($("#inventoryTable tbody").children().length > 1)
+            {
+                $("#inventoryTable tbody").children().last().remove()
+            }
+        })
     })
 </script>
 @endsection

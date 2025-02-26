@@ -32,6 +32,7 @@ Route::group(['middleware' => 'auth'], function () {
     
     // Inventory Transfer
     Route::get('/inventory/transfer', 'InventoryTransferController@index')->name('inventory.transfer');
+    Route::post('store_inventory_transfer', 'InventoryTransferController@store');
 
     // Inventory Withdrawal
     Route::get('/inventory/withdrawal', 'WithdrawalRequestController@index')->name('inventory.withdrawal');

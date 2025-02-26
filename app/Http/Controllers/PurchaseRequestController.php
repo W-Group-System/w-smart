@@ -256,8 +256,11 @@ class PurchaseRequestController extends Controller
 
     public function refreshInventory(Request $request)
     {
-        $inventory = Inventory::findOrFail($request->id);
+        $inventory = Inventory::with('category')->findOrFail($request->id);
         
-        return $inventory;
+        return response()->json([
+            'item_description' => $inventory->item_description,
+            'category' => $inventory->category
+        ]);
     }
 }

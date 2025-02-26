@@ -6,21 +6,23 @@
                 <h5 class="modal-title" id="requestTransferModalLabel">Inventory Transfer</h5>
                 {{-- <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button> --}}
             </div>
-            <form id="requestTransferForm">
+            <form action="{{url('store_inventory_transfer')}}" method="POST" onsubmit="show()">
+                @csrf 
+
                 <div class="modal-body">
                     <!-- Transaction Information -->
                     <div class="row g-2 mb-3">
-                        <div class="col-md-6">
+                        {{-- <div class="col-md-6">
                             <label for="transactionDate" class="form-label">Transaction Date</label>
                             <input type="text" class="form-control form-control-sm" id="transactionDate" readonly>
-                        </div>
-                        <div class="col-md-6">
+                        </div> --}}
+                        {{-- <div class="col-md-6">
                             <label for="transactionNumber" class="form-label">Transaction Number</label>
                             <input type="text" class="form-control form-control-sm" id="transactionNumber" readonly>
-                        </div>
+                        </div> --}}
                         <div class="col-md-6">
                             <label for="transferFrom" class="form-label">Transfer From</label>
-                            <select class="form-control js-example-basic-single" style="width: 100%;" id="transferFrom">
+                            <select class="form-control js-example-basic-single" name="transfer_from" style="width: 100%;">
                                 @if(auth()->user()->subsidiary != 'HO')
                                     <option value="1">HO</option>
                                 @endif
@@ -46,30 +48,33 @@
                         </div>
                         <div class="col-md-6">
                             <label for="transferTo" class="form-label">Transfer To</label>
-                            <select class="form-control js-example-basic-single" style="width: 100%;" id="transferTo" disabled>
-                                <option value="1" {{ auth()->user()->subsidiary == 'HO' ? 'selected' : '' }}>HO</option>
-                                <option value="2" {{ auth()->user()->subsidiary == 'WTCC' ? 'selected' : '' }}>WTCC
-                                </option>
-                                <option value="3" {{ auth()->user()->subsidiary == 'CITI' ? 'selected' : '' }}>CITI
-                                </option>
-                                <option value="4" {{ auth()->user()->subsidiary == 'WCC' ? 'selected' : '' }}>WCC</option>
-                                <option value="5" {{ auth()->user()->subsidiary == 'WFA' ? 'selected' : '' }}>WFA</option>
-                                <option value="6" {{ auth()->user()->subsidiary == 'WOI' ? 'selected' : '' }}>WOI</option>
-                                <option value="7" {{ auth()->user()->subsidiary == 'WGC' ? 'selected' : '' }}>WGC</option>
+                            <select class="form-control js-example-basic-single" style="width: 100%;" name="transfer_to">
+                                @foreach ($subsidiaries->where('subsidiary_name', auth()->user()->subsidiary) as $subsidiary)
+                                    <option value="{{$subsidiary->subsidiary_id}}">{{$subsidiary->subsidiary_name}}</option>
+                                @endforeach
+                                {{-- <option value="1" {{ auth()->user()->subsidiary == 'HO' ? 'selected' : '' }}>HO</option> --}}
+                                {{-- <option value="2" {{ auth()->user()->subsidiary == 'WTCC' ? 'selected' : '' }}>WTCC
+                                </option> --}}
+                                {{-- <option value="3" {{ auth()->user()->subsidiary == 'CITI' ? 'selected' : '' }}>CITI
+                                </option> --}}
+                                {{-- <option value="4" {{ auth()->user()->subsidiary == 'WCC' ? 'selected' : '' }}>WCC</option> --}}
+                                {{-- <option value="5" {{ auth()->user()->subsidiary == 'WFA' ? 'selected' : '' }}>WFA</option> --}}
+                                {{-- <option value="6" {{ auth()->user()->subsidiary == 'WOI' ? 'selected' : '' }}>WOI</option> --}}
+                                {{-- <option value="7" {{ auth()->user()->subsidiary == 'WGC' ? 'selected' : '' }}>WGC</option> --}}
                             </select>
                         </div>
                     </div>
 
                     <!-- Item Information Table -->
                     <div class="table-responsive mb-3">
-                        <button type="button" class="btn btn-success btn-sm" id="addMoreItems">
+                        <button type="button" class="btn btn-success btn-sm mb-2" id="addMoreItems">
                             <i class="ti-plus"></i>
                         </button>
-                        <button type="button" class="btn btn-danger btn-sm" id="addMoreItems">
+                        <button type="button" class="btn btn-danger btn-sm mb-2" id="removeItems">
                             <i class="ti-minus"></i>
                         </button>
 
-                        <table class="table table-bordered table-sm">
+                        <table class="table table-bordered table-sm" id="inventoryTable">
                             <thead>
                                 <tr>
                                     <th>Item Code</th>
@@ -81,25 +86,31 @@
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td contenteditable="false">
-                                        <div style="position: relative;">
-                                            <input type="text" id="itemCodeInput" list="itemSuggestions"
-                                                class="form-control form-control-sm" placeholder="Enter Item Code"
-                                                style="width: 100%; max-width: 200px; padding: 6px; border-radius: 5px; border: 1px solid #ced4da;">
-                                            <datalist id="itemSuggestions"></datalist>
-                                        </div>
-                                    </td>
-                                    <td contenteditable="false" id="itemDescription"
-                                        style="background-color: #E9ECEF; color: #999; pointer-events: none;"></td>
-                                    <td contenteditable="false" id="itemCategory"
-                                        style="background-color: #E9ECEF; color: #999; pointer-events: none;"></td>
                                     <td>
-                                        <select data-placeholder="Select uom" class="form-control js-example-basic-single" style="width: 100%;">
+                                        <select data-placeholder="Select item code" name="item_code[]" class="form-control js-example-basic-single" style="width: 100%;" required>
                                             <option value=""></option>
+                                            @foreach ($inventories as $inventory)
+                                                <option value="{{$inventory->inventory_id}}">{{$inventory->item_code}}</option>
+                                            @endforeach
                                         </select>
                                     </td>
-                                    <td contenteditable="true" class="qty"
-                                        style="background-color: #FFFFFF; color: #000; pointer-events: auto;"></td>
+                                    <td class="itemDescriptionTd">
+                                        <input type="hidden" name="item_description[]">
+                                    </td>
+                                    <td class="categoryTd">
+                                        <input type="hidden" name="category[]">
+                                    </td>
+                                    <td>
+                                        <select data-placeholder="Select item uoms" name="uom[]" class="form-control js-example-basic-single" style="width: 100%;" required>
+                                            <option value=""></option>
+                                            @foreach ($uoms as $uom)
+                                                <option value="{{$uom->id}}">{{$uom->uomp}}</option>
+                                            @endforeach
+                                        </select>
+                                    </td>
+                                    <td contenteditable="true" id="tdRequestQty" oninput="requestQtyValue(this)">
+                                        <input type="hidden" name="request_qty[]" id="requestQty">
+                                    </td>
                                 </tr>
                             </tbody>
                         </table>
@@ -107,16 +118,12 @@
 
                     <div class="mb-3">
                         <label for="remarks" class="form-label">Remarks</label>
-                        <textarea class="form-control form-control-sm" id="remarks"></textarea>
+                        <textarea class="form-control form-control-sm" id="remarks" name="remarks"></textarea>
                     </div>
 
                     <!-- Approver Section -->
                     <div class="table-responsive mb-3">
-                        <button type="button" class="btn btn-sm btn-success" id="addMoreApprover">
-                            <i class="ti-plus"></i>
-                        </button>
-
-                        <table class="table table-bordered table-sm" id="approversTable">
+                        {{-- <table class="table table-bordered table-sm" id="approversTable">
                             <thead>
                                 <tr>
                                     <th>Approver Name</th>
@@ -153,7 +160,40 @@
                                     <td contenteditable="true"></td>
                                 </tr>
                             </tbody>
-                        </table>
+                        </table> --}}
+                        <div class="card border border-1 border-primary rounded-0">
+                            <div class="card-header bg-primary rounded-0 text-white">
+                                Approvers
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-lg-4 border border-1 border-top-bottom border-left-right">
+                                        <b>Hierarchy</b>
+                                    </div>
+                                    <div class="col-lg-4 border border-1 border-top-bottom border-left-right">
+                                        <b>Name</b>
+                                    </div>
+                                    <div class="col-lg-4 border border-1 border-top-bottom border-left-right">
+                                        <b>Role</b>
+                                    </div>
+                                </div>
+                                @foreach ($subsidiaries->where('subsidiary_id', auth()->user()->subsidiaryid) as $subsidiary)
+                                    @foreach ($subsidiary->approvers as $approver)
+                                        <div class="row">
+                                            <div class="col-lg-4 border border-1 border-top-bottom border-left-right">
+                                                {{$approver->hierarchy}}
+                                            </div>
+                                            <div class="col-lg-4 border border-1 border-top-bottom border-left-right">
+                                                {{$approver->name}}
+                                            </div>
+                                            <div class="col-lg-4 border border-1 border-top-bottom border-left-right">
+                                                {{$approver->role}}
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                @endforeach
+                            </div>
+                        </div>
                     </div>
 
                     {{-- <input type="hidden" id="userIdInput">
