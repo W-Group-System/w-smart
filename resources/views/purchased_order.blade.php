@@ -240,28 +240,22 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @if(count($purchase_order) > 0)
-                                @foreach ($purchase_order as $po)
-                                    <tr>
-                                        <td>
-                                            <a href="{{url('procurement/show_purchase_order/'.$po->id)}}" class="btn btn-sm btn-info">
-                                                <i class="ti-eye"></i>
-                                            </a>
-                                            
-                                            {{-- <button type="button" class="btn btn-sm btn-warning" title="Edit" data-toggle="modal" data-target="#editPurchaseRequest{{$po->id}}">
-                                                <i class="ti-pencil-alt"></i>
-                                            </button> --}}
-                                        </td>
-                                        <td>{{str_pad($po->purchaseRequest->id,6,'0',STR_PAD_LEFT)}}</td>
-                                        <td></td>
-                                        <td>{{$po->status}}</td>
-                                    </tr>
-                                @endforeach
-                            @else
+                            @foreach ($purchase_order as $po)
                                 <tr>
-                                    <td class="text-center" colspan="4">No data available.</td>
+                                    <td>
+                                        <a href="{{url('procurement/show_purchase_order/'.$po->id)}}" class="btn btn-sm btn-info">
+                                            <i class="ti-eye"></i>
+                                        </a>
+                                        
+                                        {{-- <button type="button" class="btn btn-sm btn-warning" title="Edit" data-toggle="modal" data-target="#editPurchaseRequest{{$po->id}}">
+                                            <i class="ti-pencil-alt"></i>
+                                        </button> --}}
+                                    </td>
+                                    <td>{{str_pad($po->purchaseRequest->id,6,'0',STR_PAD_LEFT)}}</td>
+                                    <td></td>
+                                    <td>{{$po->status}}</td>
                                 </tr>
-                            @endif
+                            @endforeach
                         </tbody>
                     </table>
                 </div>

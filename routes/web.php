@@ -31,7 +31,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('deactivate_inventory/{id}', 'InventoryListController@deactivate');
     
     // Inventory Transfer
-    Route::get('/inventory/transfer', 'InventoryTransferController@index')->name('inventory.transfer');
+    Route::get('/inventory/inventory_transfer', 'InventoryTransferController@index')->name('inventory.transfer');
     Route::post('store_inventory_transfer', 'InventoryTransferController@store');
 
     // Inventory Withdrawal
@@ -52,7 +52,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/equipment/transfer_asset', 'TransferAssetController@index')->name('equipment.transfer');
 
     // Disposal Asset
-    Route::get('/equipment/disposal', 'RoutesController@equipmentDisposal')->name('equipment.disposal');
+    Route::get('/equipment/disposal_asset', 'DisposalAssetController@index')->name('equipment.disposal');
     
     // UOM
     Route::get('/settings/uom', 'UomController@index')->name('settings.uom');

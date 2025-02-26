@@ -413,7 +413,7 @@ function itemDescription(value)
                     </form>
 
                     <div class="table-responsive mt-2">
-                        <table class="table table-hover table-bordered table-striped tablewithSearch">
+                        <table class="table table-hover table-bordered table-striped " id="tablewithSearch">
                             <thead>
                                 <tr>
                                     <th>Action</th>
@@ -432,43 +432,37 @@ function itemDescription(value)
                                 </tr>
                             </thead>
                             <tbody>
-                                @if(count($purchase_requests) > 0)
-                                    @foreach ($purchase_requests as $pr)
-                                        <tr>
-                                            <td>
-                                                <a href="{{url('procurement/show-purchase-request/'.$pr->id)}}" class="btn btn-sm btn-info text-white">
-                                                    <i class="ti-eye"></i>
-                                                </a>
-                                                
-                                                @if($pr->status == 'Returned')
-                                                <button type="button" class="btn btn-sm btn-warning text-white" title="Edit" data-bs-toggle="modal" data-bs-target="#editPurchaseRequest{{$pr->id}}">
-                                                    <i class="ti-pencil-alt"></i>
-                                                </button>
-                                                @endif
-                                            </td>
-                                            <td>{{date('m/d/Y', strtotime($pr->created_at))}}</td>
-                                            <td>{{str_pad($pr->id,6,'0',STR_PAD_LEFT)}}</td>
-                                            <td>
-                                                @foreach ($pr->purchaseItems as $item)
-                                                    {{$item->inventory->item_description ?? ''}} <br>
-                                                @endforeach
-                                            </td>
-                                            <td>{{date('m/d/Y', strtotime($pr->due_date))}}</td>
-                                            <td>{{$pr->user->name}}</td>
-                                            <td>{{$pr->department->name}}</td>
-                                            <td>{{$pr->subsidiary}}</td>
-                                            <td>0.00</td>
-                                            <td>Expedited</td>
-                                            <td>{{$pr->status}}</td>
-                                            <td>{{optional($pr->assignedTo)->name}}</td>
-                                            <td>{{date('m/d/Y', strtotime($pr->created_at))}}</td>
-                                        </tr>
-                                    @endforeach
-                                @else
-                                <tr>
-                                    <td class="text-center" colspan="13">No data available.</td>
-                                </tr>
-                                @endif
+                                @foreach ($purchase_requests as $pr)
+                                    <tr>
+                                        <td>
+                                            <a href="{{url('procurement/show-purchase-request/'.$pr->id)}}" class="btn btn-sm btn-info text-white">
+                                                <i class="ti-eye"></i>
+                                            </a>
+                                            
+                                            @if($pr->status == 'Returned')
+                                            <button type="button" class="btn btn-sm btn-warning text-white" title="Edit" data-bs-toggle="modal" data-bs-target="#editPurchaseRequest{{$pr->id}}">
+                                                <i class="ti-pencil-alt"></i>
+                                            </button>
+                                            @endif
+                                        </td>
+                                        <td>{{date('m/d/Y', strtotime($pr->created_at))}}</td>
+                                        <td>{{str_pad($pr->id,6,'0',STR_PAD_LEFT)}}</td>
+                                        <td>
+                                            @foreach ($pr->purchaseItems as $item)
+                                                {{$item->inventory->item_description ?? ''}} <br>
+                                            @endforeach
+                                        </td>
+                                        <td>{{date('m/d/Y', strtotime($pr->due_date))}}</td>
+                                        <td>{{$pr->user->name}}</td>
+                                        <td>{{$pr->department->name}}</td>
+                                        <td>{{$pr->subsidiary}}</td>
+                                        <td>0.00</td>
+                                        <td>Expedited</td>
+                                        <td>{{$pr->status}}</td>
+                                        <td>{{optional($pr->assignedTo)->name}}</td>
+                                        <td>{{date('m/d/Y', strtotime($pr->created_at))}}</td>
+                                    </tr>
+                                @endforeach
                             </tbody>
                         </table>
                     </div>        
@@ -482,13 +476,6 @@ function itemDescription(value)
 
 @section('js')
 <script>
-$(".tablewithSearch").DataTable({
-    dom: 'Bfrtip',
-    ordering: true,
-    pageLength: 25,
-    paging: true,
-});
-
 function addRow(id)
 {
     var newRow = `
@@ -554,8 +541,14 @@ function removeFiles(id)
     
 }
 
+$(document).ready(function() {
+    $("#tablewithSearch").DataTable({
+        dom: 'Bfrtip',
+        ordering: false,
+        pageLength: 25,
+        paging: true,
+    });
 
-
-
+})
 </script>
 @endsection

@@ -113,7 +113,7 @@
                             </li>
                             <li class="nav-item dashboard-list">
                                 <a class="nav-link"
-                                    href="{{url('inventory/transfer')}}">
+                                    href="{{url('inventory/inventory_transfer')}}">
                                     Inventory Transfer
                                 </a>
                             </li>
@@ -152,7 +152,7 @@
                             </li>
                             <li class="nav-item" id="withdrawal-request-item">
                                 <a class="nav-link"
-                                    href="">
+                                    href="{{url('equipment/disposal_asset')}}">
                                     Disposal Asset
                                 </a>
                             </li>
