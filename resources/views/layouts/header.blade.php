@@ -146,7 +146,7 @@
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link"
-                                    href="">
+                                    href="{{url('equipment/transfer_asset')}}">
                                     Transfer Asset
                                 </a>
                             </li>

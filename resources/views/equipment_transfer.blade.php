@@ -1,4 +1,4 @@
-@extends('layouts.dashboard_layout')
+{{-- @extends('layouts.dashboard_layout')
 
 @section('dashboard_content')
 <div class="container-fluid">
@@ -189,4 +189,91 @@
     </div>
 </div>
 
+@endsection --}}
+
+@extends('layouts.header')
+
+@section('content')
+    <div class="row">
+        <div class="col-lg-6 grid-margin stretch-card">
+            <div class="card">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="row">
+                                <div class="col-lg-4">
+                                    From
+                                    <input type="date" name="" class="form-control" required>
+                                </div>
+                                <div class="col-lg-4">
+                                    To
+                                    <input type="date" name="" class="form-control" required>
+                                </div>
+                                <div class="col-lg-4">
+                                    <button type="button" class="btn btn-primary">Submit</button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-12 grid-margin stretch-card">
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="card-title">Transfer Asset</h4>
+                    <button type="button" class="btn btn-outline-success" data-toggle="modal" data-target="#new">
+                        <i class="ti-plus"></i>
+                        Add Transfer Asset
+                    </button>
+
+                    <div class="table-responsive">
+                        <table class="table table-bordered" id="tablewithSearch">
+                            <thead>
+                                <tr>
+                                    <th>Action</th>
+                                    <th>Asset Name</th>
+                                    <th>Asset Code</th>
+                                    <th>Date Acquired</th>
+                                    <th>Type</th>
+                                    <th>Category</th>
+                                    <th>Status</th>
+                                    <th>Subsidiary</th>
+                                    <th>Remarks</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {{-- <tr>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                </tr> --}}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @include('equipment_list.new_equipment_list')
+@endsection
+
+@section('js')
+<script>
+    $("#tablewithSearch").DataTable({
+        dom: 'Bfrtip',
+        ordering: false,
+        pageLength: 25,
+        paging: true,
+    });
+</script>
 @endsection
