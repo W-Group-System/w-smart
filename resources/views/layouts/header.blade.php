@@ -109,7 +109,7 @@
                         <ul class="nav flex-column sub-menu">
                             <li class="nav-item dashboard-list">
                                 <a class="nav-link"
-                                    href="{{url('inventory/list')}}">Inventory List</a>
+                                    href="{{url('inventory/inventory_list')}}">Inventory List</a>
                             </li>
                             <li class="nav-item dashboard-list">
                                 <a class="nav-link"

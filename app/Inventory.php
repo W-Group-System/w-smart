@@ -32,4 +32,12 @@ class Inventory extends Model
     {
         return $this->belongsTo(Uoms::class,'uom_id');
     }
+    public function category()
+    {
+        return $this->belongsTo(Categories::class);
+    }
+    public function subcategory()
+    {
+        return $this->belongsTo(Subcategories::class);
+    }
 }

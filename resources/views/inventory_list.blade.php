@@ -398,6 +398,15 @@
 
 @extends('layouts.header')
 
+@section('css')
+<style>
+    .select2-container.select2-container-disabled .select2-choice {
+        background-color: #ddd;
+        border-color: #a8a8a8;
+    }
+</style>
+@endsection
+
 @section('content')
     <div class="row">
         <div class="col-lg-6 grid-margin stretch-card">
@@ -471,6 +480,7 @@
                                     <th>UOM</th>
                                     <th>Cost</th>
                                     <th>Usage</th>
+                                    <th>Status</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -480,16 +490,41 @@
                                             <button type="button" class="btn btn-warning btn-sm" data-toggle="modal" data-target="#editInventoryModal{{$inventory->inventory_id}}">
                                                 <i class="ti-pencil-alt"></i>
                                             </button>
+                                            
+                                            @if($inventory->status)
+                                            <form method="POST" action="{{url('activate_inventory/'.$inventory->inventory_id)}}" class="d-inline-block" id="activateForm{{$inventory->inventory_id}}" onsubmit="show()">
+                                                @csrf 
+
+                                                <button type="button" class="btn btn-info btn-sm" onclick="activate({{$inventory->inventory_id}})">
+                                                    <i class="ti-check"></i>
+                                                </button>
+                                            </form>
+                                            @else
+                                            <form method="POST" action="{{url('deactivate_inventory/'.$inventory->inventory_id)}}" class="d-inline-block" id="deactivateForm{{$inventory->inventory_id}}" onsubmit="show()">
+                                                @csrf
+
+                                                <button type="button" class="btn btn-danger btn-sm" onclick="deactivate({{$inventory->inventory_id}})">
+                                                    <i class="ti-na"></i>
+                                                </button>
+                                            </form>
+                                            @endif
                                         </td>
                                         {{-- <td>ID</td> --}}
                                         <td>{{date('M d Y', strtotime($inventory->created_at))}}</td>
                                         <td>{{$inventory->item_code}}</td>
                                         <td>{{$inventory->item_description}}</td>
-                                        <td>{{$inventory->item_category}}</td>
+                                        <td>{{$inventory->category->name}}</td>
                                         <td>{{$inventory->qty}}</td>
                                         <td>{{$inventory->uom->uoms}}</td>
                                         <td>{{$inventory->cost}}</td>
                                         <td>{{$inventory->usage}}</td>
+                                        <td>
+                                            @if($inventory->status)
+                                            <span class="badge badge-danger">Deactivate</span>
+                                            @else
+                                            <span class="badge badge-success">Active</span>
+                                            @endif
+                                        </td>
                                     </tr>
 
                                     @include('inventory_list.edit_inventory')
@@ -507,11 +542,67 @@
 
 @section('js')
 <script>
-    $("#tablewithSearch").DataTable({
-        dom: 'Bfrtip',
-        ordering: true,
-        pageLength: 25,
-        paging: true,
-    });
+    function deactivate(id)
+    {
+        Swal.fire({
+            title: "Are you sure?",
+            text: "You won't be able to revert this!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes, deactivate it!"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                document.getElementById('deactivateForm'+id).submit()
+            }
+        });
+    }
+
+    function activate(id)
+    {
+        Swal.fire({
+            title: "Are you sure?",
+            text: "You won't be able to revert this!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes, activate it!"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                document.getElementById('activateForm'+id).submit()
+            }
+        });
+    }
+
+    $(document).ready(function() {
+        $("#tablewithSearch").DataTable({
+            dom: 'Bfrtip',
+            ordering: false,
+            pageLength: 25,
+            paging: true,
+        });
+
+        $("[name='category']").on('change', function() {
+            var value = $(this).val()
+            
+            $("[name='sub_category']").html("<option value=''>Select a sub-category</option>");
+            
+            $.ajax({
+                type: "POST",
+                url: "{{url('refresh_subcategory')}}",
+                data: {
+                    category_id: value
+                },
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function(response) {
+                    $("[name='sub_category']").html(response)
+                }
+            })
+        })
+    })
 </script>
 @endsection

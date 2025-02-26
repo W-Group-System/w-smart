@@ -23,8 +23,12 @@ Route::group(['middleware' => 'auth'], function () {
     // Inventory Management Routes
 
     // Inventory List
-    Route::get('/inventory/list', 'InventoryListController@index')->name('inventory.list');
+    Route::get('/inventory/inventory_list', 'InventoryListController@index')->name('inventory.list');
     Route::post('store_inventory', 'InventoryListController@store');
+    Route::post('update_inventory/{id}', 'InventoryListController@update');
+    Route::post('refresh_subcategory', 'InventoryListController@refreshSubCategory');
+    Route::post('activate_inventory/{id}', 'InventoryListController@activate');
+    Route::post('deactivate_inventory/{id}', 'InventoryListController@deactivate');
     
     // Inventory Transfer
     Route::get('/inventory/transfer', 'InventoryTransferController@index')->name('inventory.transfer');
