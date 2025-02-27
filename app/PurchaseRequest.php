@@ -49,4 +49,8 @@ class PurchaseRequest extends Model
     {
         return $this->belongsTo(Subsidiary::class,'subsidiary','subsidiary_name');
     }
+    public function classification()
+    {
+        return $this->belongsTo(Classification::class);
+    }
 }

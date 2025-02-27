@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Classification;
 use App\Department;
 use App\Inventory;
 use App\Models\User;
@@ -28,7 +29,10 @@ class PurchaseRequestController extends Controller
         $start_date = $request->start_date;
         $end_date = $request->end_date;
 
+        // Dropdown
         $users = User::where('status','Active')->pluck('name','id');
+        $inventory_list = Inventory::where('status',null)->get();
+
         $purchase_requests = PurchaseRequest::with('user','department','assignedTo')
             ->when($start_date || $end_date, function($query) use ($start_date,$end_date){
                 $query->whereBetween('created_at',[$start_date.' 00:00:01',$end_date.' 23:59:59']);
@@ -36,9 +40,8 @@ class PurchaseRequestController extends Controller
             // ->paginate(10);
             ->get();
         $get_pr_no = PurchaseRequest::orderBy('id','desc')->first();
-        $inventory_list = Inventory::get();
         
-        return view('purchased_request', compact('users','purchase_requests','get_pr_no','start_date','end_date', 'inventory_list'));
+        return view('purchased_request', compact('users','purchase_requests','get_pr_no','start_date','end_date','inventory_list'));
     }
 
     /**
@@ -48,9 +51,10 @@ class PurchaseRequestController extends Controller
      */
     public function create()
     {
-        $inventory_list = Inventory::get();
+        $inventory_list = Inventory::where('status',null)->get();
+        $classifications = Classification::where('status', null)->get();
 
-        return view('purchase_request.new_purchase_request', compact('inventory_list'));
+        return view('purchase_request.new_purchase_request', compact('inventory_list', 'classifications'));
     }
 
     /**
@@ -70,6 +74,7 @@ class PurchaseRequestController extends Controller
         $purchase_request->status = 'Pending';
         $purchase_request->department_id = $request->department;
         $purchase_request->remarks = $request->remarks;
+        $purchase_request->classification_id = $request->classification;
         $purchase_request->save();
 
         foreach($request->inventory_id as $key=>$inventory)
@@ -150,6 +155,7 @@ class PurchaseRequestController extends Controller
         $purchase_request->status = 'Pending';
         $purchase_request->department_id = $request->department;
         $purchase_request->remarks = $request->remarks;
+        $purchase_request->classification_id = $request->classification;
         $purchase_request->save();
 
         if ($request->has('inventory_id'))
@@ -260,6 +266,8 @@ class PurchaseRequestController extends Controller
         
         return response()->json([
             'item_description' => $inventory->item_description,
+            'item_code' => $inventory->item_code,
+            'qty' => $inventory->qty,
             'category' => $inventory->category
         ]);
     }

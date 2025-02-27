@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Department;
+use App\Subsidiary;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -43,4 +44,9 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+    public function subsidiaryId()
+    {
+        return $this->belongsTo(Subsidiary::class,'subsidiaryid','subsidiary_id');
+    }
 }

@@ -128,39 +128,51 @@ class PurchaseOrderController extends Controller
     {
         try {
             $purchase_order = PurchaseOrder::with('purchaseRequest.rfqItem.purchaseItem.inventory', 'supplier')->findOrFail($request->id);
+
+            $items_array = [];
+            foreach($purchase_order->purchaseRequest->rfqItem as $rfq_item)
+            {
+                $items_array[] = [
+                    'item' => [
+                        'id' => $rfq_item->purchaseItem->inventory->inventory_id,
+                        'refName' => $rfq_item->purchaseItem->inventory->item_code
+                    ]
+                ];
+            }
             
             $data = [
                 "tranDate" => date('Y-m-d'),
                 "dueDate" => date('Y-m-d', strtotime($purchase_order->expected_delivery_date)),
+                // Vendor
                 "entity" => [
-                    "id" => "1217",
-                    "refName" => "H-0002 Hi-Advance Philippines Incorporated (NCA Labs)"
+                    "id" => $purchase_order->supplier->id,
+                    "refName" =>  $purchase_order->supplier->corporate_name
                 ],
                 "location" => [
                     "id" => "1",
                     "refName" => "Head Office"
                 ],
                 "department" => [
-                    "id" => "111",
-                    "refName" => "Operations : Building Management"
+                    "id" => $purchase_order->purchaseRequest->department->id,
+                    "refName" => $purchase_order->purchaseRequest->department->name
                 ],
                 "class" => [
-                    "id" => "1",
-                    "refName" => "Developer"
+                    "id" => $purchase_order->purchaseRequest->classification->id,
+                    "refName" => $purchase_order->purchaseRequest->classification->name
                 ],
                 "custbody8" => "Generate GRN upon completion.",
                 "custbody36" => [
-                    "id" => "14348",
-                    "refName" => "Reynaldo H Agot"
+                    "id" => $purchase_order->purchaseRequest->assignedTo->id,
+                    "refName" => $purchase_order->purchaseRequest->assignedTo->name
                 ],
                 // Requestor
                 "custbody38" => [
-                    "id" => "16253",
-                    "refName" => "Jude L Ulan"
+                    "id" => auth()->user()->id,
+                    "refName" => auth()->user()->name
                 ],
                 "employee" => [
-                    "id" => "14348",
-                    "refName" => "Reynaldo H Agot"
+                    "id" => $purchase_order->purchaseRequest->assignedTo->id,
+                    "refName" => $purchase_order->purchaseRequest->assignedTo->name
                 ],
                 "currency" => [
                     "id" => "1",
@@ -169,14 +181,7 @@ class PurchaseOrderController extends Controller
                 "exchangeRate" => 1.0,
                 "shippingAddress" => $purchase_order->purchaseRequest->company->address,
                 "item" => [
-                    "items" => [
-                        [
-                            "item" => [
-                                "id" => "7927",
-                                "refName" => "027-270108"
-                            ]
-                        ]
-                    ]
+                    "items" => $items_array
                 ]
             ];
             
@@ -194,7 +199,7 @@ class PurchaseOrderController extends Controller
             $stack->push($middleware);
 
             $client = new Client([
-                'base_uri' => 'https://4242377-sb1.suitetalk.api.netsuite.com/services/rest/record/v1/',
+                'base_uri' => env('NETSUITE_URL'),
                 'handler' => $stack,
                 'auth' => 'oauth',
             ]);

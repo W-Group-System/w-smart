@@ -150,16 +150,19 @@
                             <label for="requestDueDate" class="form-label">Request Due-Date:</label>
                             <input type="date" name="requestDueDate" name="request_due_date" id="requestDueDate" class="form-control form-control-sm" required>
                         </div>
-        
+                        
                         <div class="col-md-6 mb-2">
                             <label for="subsidiary" class="form-label">Subsidiary:</label>
-                            <input type="text" name="subsidiary" value="{{auth()->user()->subsidiary}}" class="form-control form-control-sm" readonly>
+                            <input type="text" name="subsidiary" value="{{auth()->user()->subsidiaryId->subsidiary_name}}" class="form-control form-control-sm" readonly>
                         </div>
         
                         <div class="col-md-6 mb-2">
                             <label for="class" class="form-label" >Class:</label>
-                            <select data-placeholder="Select class" class="form-control js-example-basic-single" style="width: 100%; position: relative;" >
+                            <select data-placeholder="Select class" class="form-control js-example-basic-single" name="classification" style="width: 100%; position: relative;" >
                                 <option value=""></option>
+                                @foreach ($classifications as $class)
+                                    <option value="{{$class->id}}">{{$class->name}}</option>
+                                @endforeach
                             </select>
                         </div>
         
@@ -255,7 +258,7 @@ function itemDescription(element)
         },
         success: function(data) {
             itemCode.text(data.item_code)
-            itemCategory.text(data.item_category)
+            itemCategory.text(data.category.name)
             itemQuantity.text(data.qty)
         }
     })
