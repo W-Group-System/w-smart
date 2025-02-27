@@ -1,4 +1,4 @@
-@extends('layouts.header_admin')
+{{-- @extends('layouts.header_admin')
 @section('css')
 @endsection
 @section('content')
@@ -102,4 +102,9 @@
 @section('js')
 <script src="{{ asset('admin/js/inspinia.js')}}"></script>
 <script src="{{ asset('admin/js/plugins/pace/pace.min.js')}}"></script>
+@endsection --}}
+
+@extends('layouts.header')
+@section('content')
+    
 @endsection
