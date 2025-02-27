@@ -416,6 +416,13 @@
             $("#vendorTbodyRow").append(newRow)
             $('.js-example-basic-single').select2()
         })
+
+        $("#deleteVendorBtn").on('click', function() {
+            
+            if($('#vendorTbodyRow').children().length > 1) {
+                $('#vendorTbodyRow').children().last().remove()
+            }
+        })
     })
 </script>
 <script>

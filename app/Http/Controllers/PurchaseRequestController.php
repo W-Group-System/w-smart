@@ -121,7 +121,7 @@ class PurchaseRequestController extends Controller
     {
         $purchase_request = PurchaseRequest::with('user','department','assignedTo','purchaseItems','purchaseRequestFiles')->findOrFail($id);
         $users = User::where('status',null)->pluck('name','id');
-        $suppliers = SupplierAccreditation::where('status','Approved')->get();
+        $suppliers = SupplierAccreditation::get();
         
         return view('purchase_request.view_purchase_request', compact('purchase_request','users','suppliers'));
     }

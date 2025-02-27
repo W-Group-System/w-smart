@@ -148,6 +148,10 @@ class PurchaseOrderController extends Controller
                     "id" => $purchase_order->supplier->id,
                     "refName" =>  $purchase_order->supplier->corporate_name
                 ],
+                // "entity" => [
+                //     "id" => 16150,
+                //     "refName" =>  'DPLUS SIGN ADVERTISING CORPORATION'
+                // ],
                 "location" => [
                     "id" => "1",
                     "refName" => "Head Office"
@@ -160,7 +164,9 @@ class PurchaseOrderController extends Controller
                     "id" => $purchase_order->purchaseRequest->classification->id,
                     "refName" => $purchase_order->purchaseRequest->classification->name
                 ],
+                // Task Memo
                 "custbody8" => "Generate GRN upon completion.",
+                // Task Assigned To
                 "custbody36" => [
                     "id" => $purchase_order->purchaseRequest->assignedTo->id,
                     "refName" => $purchase_order->purchaseRequest->assignedTo->name
@@ -170,6 +176,14 @@ class PurchaseOrderController extends Controller
                     "id" => auth()->user()->id,
                     "refName" => auth()->user()->name
                 ],
+                // Approver
+                "custbody41" => [
+                    "id" => "15566",
+                    "refName" => "Jemirald D Cerilla"
+                ],
+                // Special Instruction
+                "custbody39" => "*** IMPORTANT! PAYMENT INSTRUCTIONS ***\r\n\r\nCOMPANY NAME: W Tower Condominium Corporation\r\nADDRESS: 0001 W Tower, 39th Street, North Bonifacio Triangle, Bonifacio Global City, Taguig City\r\nT.I.N. No.: 008-019-430-000\r\nBUSINESS STYLE: W Tower Condominium Corporation",
+                // Assigned To
                 "employee" => [
                     "id" => $purchase_order->purchaseRequest->assignedTo->id,
                     "refName" => $purchase_order->purchaseRequest->assignedTo->name
@@ -179,7 +193,7 @@ class PurchaseOrderController extends Controller
                     "refName" => "Philippine Peso"
                 ],
                 "exchangeRate" => 1.0,
-                "shippingAddress" => $purchase_order->purchaseRequest->company->address,
+                "shippingAddress" => $purchase_order->purchaseRequest->company->shipping_address,
                 "item" => [
                     "items" => $items_array
                 ]

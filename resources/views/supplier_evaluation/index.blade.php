@@ -1,4 +1,4 @@
-@extends('layouts.dashboard_layout')
+{{-- @extends('layouts.dashboard_layout')
 
 
 @section('dashboard_content')
@@ -102,4 +102,112 @@
 
 @push('scripts')
     <script src="{{ asset('js/supplierEvaluation.js') }}"></script>
-@endpush
+@endpush --}}
+
+@extends('layouts.header')
+
+@section('content')
+    <div class="col-lg-12 grid-margin stretch-card">
+        <div class="card">
+            <div class="card-body">
+                <h4 class="card-title">Supplier Evaluation</h4>
+
+                <button type="button" class="btn btn-outline-success" data-toggle="modal" data-target="#addEvaluation">
+                    <i class="ti-plus"></i>
+                    Add supplier evaluation
+                </button>
+
+                <div class="table-responsive">
+                    <table class="table table-hover table-bordered" width="100%" style="border-collapse: collapse" id="tablewithSearch">
+                        <thead>
+                            <tr>
+                                <th>Action
+                                </th>
+                                <th>Vendor ID
+                                </th>
+                                <th>Vendor Name
+                                </th>
+                                <th>Type
+                                </th>
+                                <th>Product/ Services
+                                </th>
+                                <th>Result
+                                </th>
+                                <th>Status
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($supplier_evaluation as $evaluation)
+                            <tr>
+                                <td style="text-align: center; padding: 5px 10px;">
+                                    <a href="{{url('procurement/view_supplier_evalutaion/'.$evaluation->id)}}" class="btn btn-sm btn-info text-white">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                    <button type="button" class="btn btn-sm btn-warning text-white" title="Edit" data-bs-toggle="modal" data-bs-target="#editEvaluation{{$evaluation->id}}">
+                                        <i class="bi bi-pencil-square"></i>
+                                    </button>
+                                </td>
+                                <td>{{ optional($evaluation->code->first())->vendor_code }}</td>
+                                <td>{{ $evaluation->name ?? 'N/A' }}</td>
+                                <td>{{ $evaluation->type ?? 'N/A' }}</td>
+                                <td>{{ $evaluation->product_services ?? 'N/A' }}</td>
+                                <td>{{ $evaluation->results->first()->result ?? 'N/A' }}</td>
+                                <td>{{ $evaluation->status ?? 'N/A' }}</td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @include('supplier_evaluation.create')
+@endsection
+
+@section('js')
+    <script src="{{ asset('js/supplierEvaluation.js') }}"></script>
+    <script>
+        async function getVendorName(value) {
+            // Get the input field for the corporate name
+            let nameInput = document.getElementById("name");
+
+            // Clear the field if no value is selected
+            if (!value) {
+                nameInput.value = "";
+                return;
+            }
+
+            try {
+                // Make an AJAX request to fetch the vendor's corporate name
+                const response = await axios.post(
+                    "{{ url('refresh_vendor_name') }}",
+                    { vendor_id: value },
+                    {
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                        },
+                    }
+                );
+
+                // Update the name field with the corporate name
+                if (response.data.corporate_name) {
+                    nameInput.value = response.data.corporate_name;
+                } else {
+                    nameInput.value = "Corporate name not found";
+                }
+            } catch (error) {
+                console.error("Error fetching corporate name:", error);
+                nameInput.value = "Error fetching corporate name";
+            }
+        }
+        
+        $("#tablewithSearch").DataTable({
+            dom: 'Bfrtip',
+            ordering: true,
+            pageLength: 25,
+            paging: true,
+        });
+    </script>
+@endsection

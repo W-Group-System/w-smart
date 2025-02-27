@@ -1,9 +1,9 @@
-<div class="modal fade" id="addEvaluation" tabindex="-1" aria-hidden="true" style="z-index: 1400;">
+<div class="modal fade" id="addEvaluation" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">Add New Supplier Evaluation</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                {{-- <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button> --}}
             </div>
             <div class="modal-body">
                 <form action="{{ url('procurement/store_supplier_evaluation') }}" method="POST" enctype="multipart/form-data">
@@ -15,8 +15,8 @@
                         </div>
                         <div class="col-md-6 mb-2">
                             <label class="form-label">Vendor ID:</label>
-                            <select data-placeholder="Select Vendor ID" class="form-select" id="vendor_id" name="vendor_id" onchange="getVendorName(this.value)" required>
-                                <option value="">Select Vendor ID</option>
+                            <select data-placeholder="Select Vendor ID" class="form-control js-example-basic-single" style="width: 100%;" name="vendor_id" onchange="getVendorName(this.value)" required>
+                                <option value=""></option>
                                 @foreach($vendor as $vendorItem)
                                     <option value="{{ $vendorItem->id }}" data-code="{{ $vendorItem->vendor_code }}">{{ $vendorItem->vendor_code }}</option>
                                 @endforeach
@@ -28,7 +28,7 @@
                         </div>
                         <div class="col-md-6 mb-2">
                             <label class="form-label">Type of Product:</label>
-                            <select data-placeholder="Select Type of Product" class="form-select chosen-select" id="type" name="type">
+                            <select data-placeholder="Select Type of Product" class="form-control js-example-basic-single" style="width: 100%;" name="type">
                                 <option value=""></option>
                                 <option value="Imported">Imported</option>
                                 <option value="Local">Local</option>
@@ -179,7 +179,7 @@
                         </div>
                     </div>
                     <div class="col-md-12 mt-3" align="right">
-                        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
                         <button type="submit" class="btn btn-success">Save</button>
                     </div>
                 </form>
@@ -189,7 +189,7 @@
 </div>
 
 
-@push('scripts')
+{{-- @section('js')
     <script src="{{ asset('js/supplierEvaluation.js') }}"></script>
     <script>
         async function getVendorName(value) {
@@ -226,4 +226,4 @@
             }
         }
     </script>
-@endpush
+@endsection --}}
