@@ -6,7 +6,7 @@
             </div>
             <form method="POST" action="{{url('procurement/store_purchase_order')}}" onsubmit="show()">
                 @csrf 
-                
+                <input type="hidden" name="purchase_order_no" value="{{$po_number}}">
                 <div class="modal-body">
                     <div class="form-group">
                         <label for="">Purchase Request</label>

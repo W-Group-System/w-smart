@@ -234,7 +234,7 @@
                         <thead>
                             <tr>
                                 <th>Action</th>
-                                <th>PR Number</th>                        
+                                <th>PO Number</th>                        
                                 <th>GRN Number</th>
                                 <th>Status</th>
                             </tr>
@@ -251,7 +251,7 @@
                                             <i class="ti-pencil-alt"></i>
                                         </button> --}}
                                     </td>
-                                    <td>{{str_pad($po->purchaseRequest->id,6,'0',STR_PAD_LEFT)}}</td>
+                                    <td>{{$po->purchase_order_no}}</td>
                                     <td></td>
                                     <td>{{$po->status}}</td>
                                 </tr>

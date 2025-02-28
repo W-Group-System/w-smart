@@ -28,8 +28,31 @@ class PurchaseOrderController extends Controller
         $vendors = RfqEmail::get();
         
         $purchase_order = PurchaseOrder::with('purchaseRequest')->get();
+
+        $stack = HandlerStack::create();
+            
+        $middleware = new Oauth1([
+            'consumer_key'    => env('CONSUMER_KEY'),
+            'consumer_secret' => env('CONSUMER_SECRET'),
+            'token'           => env('TOKEN'),
+            'token_secret'    => env('TOKEN_SECRET'),
+            'realm' => env('REALM_ID'),
+            'signature_method' => 'HMAC-SHA256'
+        ]);
         
-        return view('purchased_order',compact('start_date','end_date','purchase_request','purchase_order','vendors'));
+        $stack->push($middleware);
+
+        $client = new Client([
+            'base_uri' => env('NETSUITE_URL'),
+            'handler' => $stack,
+            'auth' => 'oauth',
+        ]);
+
+        $response = $client->get('purchaseOrder/4068198');
+        $po_data = json_decode($response->getBody()->getContents());
+        $po_number = $po_data->tranId;
+
+        return view('purchased_order',compact('start_date','end_date','purchase_request','purchase_order','vendors','po_number'));
     }
 
     /**
@@ -51,11 +74,29 @@ class PurchaseOrderController extends Controller
     public function store(Request $request)
     {
         // dd($request->all());
+        
+        $purchase_order = PurchaseOrder::orderBy('id','desc')->first();
+        if ($purchase_order) 
+        {
+            $get_number = substr($purchase_order->purchase_order_no, 3);
+            $number = $get_number + 1;
+            
+            $purchase_order_no = 'PO'.str_pad($number, 6, '0', STR_PAD_LEFT);
+        }
+        else
+        {
+            $get_number = substr($request->purchase_order_no, 3);
+            $number = $get_number + 1;
+            
+            $purchase_order_no = 'PO'.str_pad($number, 6, '0', STR_PAD_LEFT);
+        }
+        
         $purchase_order = new PurchaseOrder();
+        $purchase_order->purchase_order_no = $purchase_order_no;
         $purchase_order->purchase_request_id = $request->purchase_request;
         $purchase_order->supplier_id = $request->vendor;
         $purchase_order->status = 'Pending';
-        $purchase_order->expected_delivery_date = $request->expected_delivery_date;
+        $purchase_order->expected_delivery_date = $request->expected_delivery_date; 
         $purchase_order->save();
 
         Alert::success('Successfully Saved')->persistent('Dismiss');
@@ -73,7 +114,42 @@ class PurchaseOrderController extends Controller
         // $start_date = $request->start_date;
         $po = PurchaseOrder::with('purchaseRequest.rfqItem.purchaseItem.inventory', 'supplier')->findOrFail($id);
 
-        return view('purchase_orders.view_purchase_order', compact('po'));
+        $middleware = new Oauth1([
+            'consumer_key'    => env('CONSUMER_KEY'),
+            'consumer_secret' => env('CONSUMER_SECRET'),
+            'token'           => env('TOKEN'),
+            'token_secret'    => env('TOKEN_SECRET'),
+            'realm' => env('REALM_ID'),
+            'signature_method' => 'HMAC-SHA256'
+        ]);
+
+        $stack = HandlerStack::create();
+        
+        $stack->push($middleware);
+
+        $client = new Client([
+            'base_uri' => env('NETSUITE_URL'),
+            'handler' => $stack,
+            'auth' => 'oauth',
+        ]);
+
+        $response = $client->get('itemReceipt/4068197');
+        $data = $response->getBody()->getContents();
+        $item_receipt = json_decode($data);
+        $latest_grn = $item_receipt->tranId;
+
+        $po_response = $client->get('purchaseOrder',[
+            'query' => [
+                'limit' => 1,
+                'orderBy' => 'id',
+                'sortOrder' => 'DESC'
+            ]
+        ]);
+        $po_data = json_decode($po_response->getBody()->getContents());
+        // $po_number = $po_data->tranId;
+        dd($po_data);
+
+        return view('purchase_orders.view_purchase_order', compact('po', 'latest_grn'));
     }
 
     /**
@@ -128,6 +204,8 @@ class PurchaseOrderController extends Controller
     {
         try {
             $purchase_order = PurchaseOrder::with('purchaseRequest.rfqItem.purchaseItem.inventory', 'supplier')->findOrFail($request->id);
+            $purchase_order->status = 'Approved';
+            $purchase_order->save();
 
             $items_array = [];
             foreach($purchase_order->purchaseRequest->rfqItem as $rfq_item)
@@ -230,5 +308,95 @@ class PurchaseOrderController extends Controller
             dd($e->getMessage());
         }
 
+    }
+
+    public function received(Request $request,$id)
+    {
+        // dd($request->all(), $id);
+        $grn = substr($request->grn_no,4);
+        $number = $grn+1;
+        $grn_display = "GRN".str_pad($number, 6, '0', STR_PAD_LEFT);
+        // dd($grn_display);
+
+        $purchase_order = PurchaseOrder::findOrFail($id);
+        $purchase_order->grn_no = $grn_display;
+        // $purchase_order->save();
+
+        $items_array = [];
+        foreach($purchase_order->purchaseRequest->rfqItem as $rfq_item)
+        {
+            $items_array[] = [
+                'item' => [
+                    'id' => $rfq_item->purchaseItem->inventory->inventory_id,
+                    'refName' => $rfq_item->purchaseItem->inventory->item_code
+                ]
+            ];
+        }
+        
+        $data = [
+            "class" => [
+                "id" => $purchase_order->purchaseRequest->id,
+                "refName" => $purchase_order->purchaseRequest->name
+            ],
+            "createdFrom" => [
+                // 'id' =>,
+                // "refName" => "Purchase Order #PO010932"
+            ],
+            "currency" => [
+                "id" => 1,
+                "refName" => "Philippine Peso"
+            ],
+            "department" => [
+                "id" => $purchase_order->purchaseRequest->department_id,
+                'refName' => $purchase_order->purchaseRequest->department->name
+            ],
+            "employee" => [
+                "id" => $purchase_order->purchaseRequest->assignedTo->id,
+                "refName" => $purchase_order->purchaseRequest->assignedTo->name
+            ],
+            "entity" => [
+                "id" => $purchase_order->supplier->id,
+                "refName" =>  $purchase_order->supplier->corporate_name
+            ],
+            "exchangeRate" => 1.0,
+            "item" => [
+                "items" => $items_array
+            ],
+            "location" => [
+                "id" => "1",
+                "refName" => "Head Office"
+            ],
+            "tranDate" => date('Y-m-d'),
+            "subsidiary" => [
+                "id" => $purchase_order->purchaseRequest->company->subsidiary_id,
+                'refName' => $purchase_order->purchaseRequest->company->subsidiary_name
+            ]
+        ];
+
+        // $stack = HandlerStack::create();
+            
+        // $middleware = new Oauth1([
+        //     'consumer_key'    => env('CONSUMER_KEY'),
+        //     'consumer_secret' => env('CONSUMER_SECRET'),
+        //     'token'           => env('TOKEN'),
+        //     'token_secret'    => env('TOKEN_SECRET'),
+        //     'realm' => env('REALM_ID'),
+        //     'signature_method' => 'HMAC-SHA256'
+        // ]);
+        
+        // $stack->push($middleware);
+
+        // $client = new Client([
+        //     'base_uri' => env('NETSUITE_URL'),
+        //     'handler' => $stack,
+        //     'auth' => 'oauth',
+        // ]);
+
+        // $client->post('purchaseOrder', [
+        //     // 'headers' => $headers,
+        //     'json' => $data,
+        // ]);
+
+        dd($data);
     }
 }

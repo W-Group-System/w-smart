@@ -142,15 +142,24 @@
                     <h4 class="card-title">PO-{{str_pad($po->id, 6, '0', STR_PAD_LEFT)}} - {{$po->status}}</h4>
     
                     <div>
-                        <form method="POST" class="d-inline-block" action="{{url('approved_po')}}" onsubmit="show()">
-                            @csrf 
-                            <input type="hidden" name="id" value="{{$po->id}}">
-                            
-                            <button type="submit" class="btn btn-outline-success">
+                        @if($po->status == 'Approved')
+                            <button type="button" class="btn btn-outline-warning" data-toggle="modal" data-target="#received{{$po->id}}">
                                 <i class="ti-check"></i>
-                                Approved
+                                Received
                             </button>
-                        </form>
+
+                            @include('purchase_orders.received_po')
+                        @else
+                            <form method="POST" class="d-inline-block" action="{{url('approved_po')}}" onsubmit="show()">
+                                @csrf 
+                                <input type="hidden" name="id" value="{{$po->id}}">
+                                
+                                <button type="submit" class="btn btn-outline-success">
+                                    <i class="ti-check"></i>
+                                    Approved
+                                </button>
+                            </form>
+                        @endif
 
                         <a href="{{url('procurement/purchase-order')}}" type="button" class="btn btn-outline-secondary">
                             <i class="ti-arrow-left"></i>
