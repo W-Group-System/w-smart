@@ -1,10 +1,10 @@
-<div class="modal fade" id="new">
+<div class="modal fade" id="edit{{$transfer_asset->id}}">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Transfer Asset</h5>
+                <h5 class="modal-title">Edit Transfer Asset</h5>
             </div>
-            <form method="POST" action="{{url('store_transfer_asset')}}" onsubmit="show()" enctype="multipart/form-data">
+            <form method="POST" action="{{url('update_transfer_asset/'.$transfer_asset->id)}}" onsubmit="show()" enctype="multipart/form-data">
                 @csrf
 
                 <div class="modal-body">
@@ -15,35 +15,35 @@
                         </div> --}}
                         <div class="col-md-6">
                             <label for="transferFromLocation" class="form-label">Transfer From Location</label>
-                            <input type="text" name="transfer_from" class="form-control" required>
+                            <input type="text" name="transfer_from" class="form-control" value="{{$transfer_asset->transfer_from}}" required>
                         </div>
                         <div class="col-md-6">
                             <label for="transferToLocation" class="form-label">Transfer To Location</label>
-                            <input type="text" class="form-control" name="transfer_to" required>
+                            <input type="text" class="form-control" name="transfer_to" value="{{$transfer_asset->transfer_to}}" required>
                         </div>
                         <div class="col-md-6">
                             <label for="transferFromName" class="form-label">Transfer From Name</label>
-                            <input type="text" name="transfer_from_name" class="form-control" required>
+                            <input type="text" name="transfer_from_name" class="form-control" value="{{$transfer_asset->transfer_from_name}}" required>
                         </div>
                         <div class="col-md-6">
                             <label for="transferToName" class="form-label">Transfer To Name</label>
-                            <input type="text" name="transfer_to_name" class="form-control" required>
+                            <input type="text" name="transfer_to_name" class="form-control" value="{{$transfer_asset->transfer_to_name}}" required>
                         </div>
                         <div class="col-md-6">
                             <label for="purpose" class="form-label">Purpose</label>
-                            <input type="text" name="purpose" class="form-control" required>
+                            <input type="text" name="purpose" class="form-control" value="{{$transfer_asset->purpose}}" required>
                         </div>
                         <div class="col-md-6">
                             <label for="dateOfTransfer" class="form-label">Date of Transfer</label>
-                            <input type="date" name="date_of_transfer" class="form-control" required>
+                            <input type="date" name="date_of_transfer" class="form-control" value="{{$transfer_asset->date_of_transfer}}" required>
                         </div>
                         <div class="col-md-6">
                             <label for="assetName" class="form-label">Asset Name</label>
-                            <input type="text" name="asset_name" class="form-control" required>
+                            <input type="text" name="asset_name" class="form-control" value="{{$transfer_asset->asset_name}}" required>
                         </div>
                         <div class="col-md-6">
                             <label for="assetCode" class="form-label">Asset Code</label>
-                            <input type="text" name="asset_code" class="form-control" required>
+                            <input type="text" name="asset_code" class="form-control" value="{{$transfer_asset->asset_code}}" required>
                         </div>
                         {{-- <div class="col-md-6 d-flex align-items-end">
                             <button type="button" class="btn btn-outline-primary" id="viewSpecsButton"
@@ -57,11 +57,11 @@
                         </div>
                         <div class="col-md-6">
                             <label for="remarks" class="form-label">Remarks</label>
-                            <input type="text" name="remarks" class="form-control" required>
+                            <input type="text" name="remarks" class="form-control" value="{{$transfer_asset->remarks}}" required>
                         </div>
                         <div class="col-md-6">
                             <label for="photo" class="form-label">Photo</label>
-                            <input type="file" name="files[]" class="form-control" multiple required>
+                            <input type="file" name="files[]" class="form-control" multiple >
                         </div>
                     </div>
                 </div>

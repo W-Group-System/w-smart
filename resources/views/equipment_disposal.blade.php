@@ -215,7 +215,7 @@
             <div class="card">
                 <div class="card-body">
                     <h4 class="card-title">Disposal Asset</h4>
-                    <button type="button" class="btn btn-outline-success" data-toggle="modal" data-target="#addAssetModal">
+                    <button type="button" class="btn btn-outline-success" data-toggle="modal" data-target="#addDisposalModal">
                         <i class="ti-plus"></i>
                         Add disposal asset
                     </button>
@@ -267,7 +267,7 @@
         </div>
     </div>
 
-    {{-- @include('asset_list.new_asset_list') --}}
+    @include('equipment_disposal.new_equipment_disposal')
 @endsection
 
 @section('js')

@@ -50,6 +50,8 @@ Route::group(['middleware' => 'auth'], function () {
 
     // Transfer Asset
     Route::get('/equipment/transfer_asset', 'TransferAssetController@index')->name('equipment.transfer');
+    Route::post('store_transfer_asset', 'TransferAssetController@store');
+    Route::post('update_transfer_asset/{id}', 'TransferAssetController@update');
 
     // Disposal Asset
     Route::get('/equipment/disposal_asset', 'DisposalAssetController@index')->name('equipment.disposal');

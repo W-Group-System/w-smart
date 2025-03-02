@@ -234,28 +234,40 @@
                             <thead>
                                 <tr>
                                     <th>Action</th>
+                                    <th>Transfer From</th>
+                                    <th>Transfer To</th>
+                                    <th>Transfer From Name</th>
+                                    <th>Transfer To Name</th>
+                                    <th>Purpose</th>
+                                    <th>Date of Transfer</th>
                                     <th>Asset Name</th>
                                     <th>Asset Code</th>
-                                    <th>Date Acquired</th>
-                                    <th>Type</th>
-                                    <th>Category</th>
-                                    <th>Status</th>
-                                    <th>Subsidiary</th>
+                                    <th>Approver</th>
                                     <th>Remarks</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {{-- <tr>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                </tr> --}}
+                                @foreach ($transfer_assets as $transfer_asset)
+                                    <tr>
+                                        <td>
+                                            <button type="button" class="btn btn-warning btn-sm" data-toggle="modal" data-target="#edit{{$transfer_asset->id}}">
+                                                <i class="ti-pencil-alt"></i>
+                                            </button>
+                                        </td>
+                                        <td>{{$transfer_asset->transfer_from}}</td>
+                                        <td>{{$transfer_asset->transfer_to}}</td>
+                                        <td>{{$transfer_asset->transfer_from_name}}</td>
+                                        <td>{{$transfer_asset->transfer_to_name}}</td>
+                                        <td>{{$transfer_asset->purpose}}</td>
+                                        <td>{{date('M d Y', strtotime($transfer_asset->date_of_transfer))}}</td>
+                                        <td>{{$transfer_asset->asset_name}}</td>
+                                        <td>{{$transfer_asset->asset_code}}</td>
+                                        <td>{{$transfer_asset->type}}</td>
+                                        <td>{{$transfer_asset->remarks}}</td>
+                                    </tr>
+
+                                    @include('equipment_list.edit_equipment_list')
+                                @endforeach
                             </tbody>
                         </table>
                     </div>

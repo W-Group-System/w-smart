@@ -49,7 +49,7 @@
                         <div class="col-md-6">
                             <label for="transferTo" class="form-label">Transfer To</label>
                             <select class="form-control js-example-basic-single" style="width: 100%;" name="transfer_to">
-                                @foreach ($subsidiaries->where('subsidiary_name', auth()->user()->subsidiary) as $subsidiary)
+                                @foreach ($subsidiaries->where('subsidiary_id', auth()->user()->subsidiaryid) as $subsidiary)
                                     <option value="{{$subsidiary->subsidiary_id}}">{{$subsidiary->subsidiary_name}}</option>
                                 @endforeach
                                 {{-- <option value="1" {{ auth()->user()->subsidiary == 'HO' ? 'selected' : '' }}>HO</option> --}}

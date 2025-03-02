@@ -1,0 +1,67 @@
+<div class="modal fade" id="addDisposalModal" tabindex="-1" aria-labelledby="addDisposalModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addDisposalModalLabel">Disposal of Asset</h5>
+                {{-- <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button> --}}
+            </div>
+            <form action="" method="POST">
+                @csrf
+                <div class="modal-body">
+                    <div class="row g-3">
+                        {{-- <div class="col-md-6">
+                            <label for="requestedBy" class="form-label">Requested By</label>
+                            <input type="text" class="form-control" name="requestedBy" required>
+                        </div> --}}
+                        <div class="col-md-6">
+                            <label for="transferFrom" class="form-label">Transfer From</label>
+                            <input type="text" class="form-control" name="transferFrom" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="transferTo" class="form-label">Transfer To</label>
+                            <input type="text" class="form-control" name="transferTo" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="purpose" class="form-label">Purpose</label>
+                            <input type="text" class="form-control" name="purpose" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="dateOfTransfer" class="form-label">Date of Transfer</label>
+                            <input type="date" class="form-control" name="dateOfTransfer" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="assetName" class="form-label">Asset Name</label>
+                            <input type="text" class="form-control" name="assetName" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="assetCode" class="form-label">Asset Code</label>
+                            <input type="text" class="form-control" name="assetCode" required>
+                        </div>
+                        {{-- <div class="col-md-6 d-flex align-items-end">
+                            <button type="button" class="btn btn-outline-primary" name="viewSpecsButton"
+                                style="width: 100%;">View Specs</button>
+                        </div> --}}
+                        <div class="col-md-6">
+                            <label for="approver" class="form-label">Approver</label>
+                            <select class="form-control js-example-basic-single" style="width: 100%;" >
+                                <option value="" disabled selected>Select Approver</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="remarks" class="form-label">Remarks</label>
+                            <input type="text" class="form-control" name="remarks" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="photo" class="form-label">Photo</label>
+                            <input type="file" class="form-control" name="files[]" multiple required>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-success">Submit</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
