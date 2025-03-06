@@ -183,10 +183,12 @@
                     <h4 class="card-title">{{str_pad($purchase_request->id, 6, '0', STR_PAD_LEFT)}} - {{$purchase_request->status}}</h4>
         
                     <div>
+                        @if(!$purchase_request->assigned_to)
                         <button type="button" class="btn btn-outline-warning" title="Edit" data-toggle="modal" data-target="#editPr{{$purchase_request->id}}">
                             <i class="ti-pencil-alt"></i>
                             Edit
                         </button>
+                        @endif
                         @if($purchase_request->status == 'For RFQ')
                         <button type="button" class="btn btn-outline-info" title="Request for quotation" data-toggle="modal" data-target="#rfq{{$purchase_request->id}}">
                             <i class="ti-receipt"></i>
