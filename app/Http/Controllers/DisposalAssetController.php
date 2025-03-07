@@ -99,7 +99,35 @@ class DisposalAssetController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $equipment_disposal = DisposalAsset::findOrFail($id);
+        $equipment_disposal->transfer_from = $request->transfer_from;
+        $equipment_disposal->transfer_to = $request->transfer_to;
+        $equipment_disposal->purpose = $request->purpose;
+        $equipment_disposal->date_of_transfer = $request->date_of_transfer;
+        $equipment_disposal->asset_name = $request->asset_name;
+        $equipment_disposal->asset_code = $request->asset_code;
+        $equipment_disposal->remarks = $request->remarks;
+        $equipment_disposal->requested_by = auth()->user()->id;
+        $equipment_disposal->save();
+
+        if ($request->has('files'))
+        {
+            $equipment_disposal_files = $request->file('files');
+            foreach($equipment_disposal_files as $file)
+            {
+                $name = time().'_'.$file->getClientOriginalName();
+                $file->move(public_path('disposal_asset_files'), $name);
+                $file_name = '/disposal_asset_files/'.$name;
+    
+                $transfer_asset_file = new DisposalAssetFile();
+                $transfer_asset_file->disposal_asset_id = $equipment_disposal->id;
+                $transfer_asset_file->file = $file_name;
+                $transfer_asset_file->save();
+            }
+        }
+
+        Alert::success('Successfully Saved')->persistent('Dismiss');
+        return back();
     }
 
     /**

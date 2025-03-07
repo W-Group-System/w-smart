@@ -236,7 +236,7 @@
                                 @foreach ($disposal_assets as $disposal_asset)
                                 <tr>
                                     <td>
-                                        <button type="button" class="btn btn-sm btn-warning" data-toggle="modal" data-target="#editDisposal{{$disposal_asset->id}}">
+                                        <button type="button" class="btn btn-sm btn-warning" data-toggle="modal" data-target="#editDisposalAsset{{$disposal_asset->id}}">
                                             <i class="ti-pencil-alt"></i>
                                         </button>
                                     </td>
@@ -248,7 +248,7 @@
                                     <td>{!! nl2br(e($disposal_asset->remarks)) !!}</td>
                                 </tr>
 
-                                {{-- @include('asset_list.edit_asset_list') --}}
+                                @include('equipment_disposal.edit_equipment_disposal')
                                 @endforeach
                             </tbody>
                         </table>
