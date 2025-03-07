@@ -224,41 +224,32 @@
                             <thead>
                                 <tr>
                                     <th>Action</th>
+                                    <th>Transfer From</th>
+                                    <th>Transfer To</th>
                                     <th>Asset Name</th>
                                     <th>Asset Code</th>
-                                    <th>Date Acquired</th>
-                                    <th>Type</th>
-                                    <th>Category</th>
-                                    <th>Status</th>
-                                    <th>Subsidiary</th>
+                                    <th>Date of Transfer</th>
                                     <th>Remarks</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {{-- @foreach ($equipments as $equipment)
+                                @foreach ($disposal_assets as $disposal_asset)
                                 <tr>
                                     <td>
-                                        <a href="{{url('view_asset_list/'.$equipment->id)}}" class="btn btn-sm btn-info">
-                                            <i class="ti-eye"></i>
-                                        </a>
-
-                                        <button type="button" class="btn btn-sm btn-warning" data-toggle="modal" data-target="#editAssetModal{{$equipment->id}}">
+                                        <button type="button" class="btn btn-sm btn-warning" data-toggle="modal" data-target="#editDisposal{{$disposal_asset->id}}">
                                             <i class="ti-pencil-alt"></i>
                                         </button>
                                     </td>
-                                    <td>{{date('M d Y', strtotime($equipment->date_purchased))}}</td>
-                                    <td>{{$equipment->asset_name}}</td>
-                                    <td>{{$equipment->asset_code}}</td>
-                                    <td>{{$equipment->type}}</td>
-                                    <td>{{$equipment->category->name}}</td>
-                                    <td>{{$equipment->status}}</td>
-                                    <td>{{$equipment->subsidiary->subsidiary_name}}</td>
-                                    <td>{!! nl2br(e($equipment->remarks)) !!}</td>
-                                    <td>{{$equipment->asset_value}}</td>
+                                    <td>{{ $disposal_asset->transfer_from }}</td>
+                                    <td>{{ $disposal_asset->transfer_to }}</td>
+                                    <td>{{$disposal_asset->asset_name}}</td>
+                                    <td>{{$disposal_asset->asset_code}}</td>
+                                    <td>{{ date('M d Y', strtotime($disposal_asset->date_of_transfer)) }}</td>
+                                    <td>{!! nl2br(e($disposal_asset->remarks)) !!}</td>
                                 </tr>
 
-                                @include('asset_list.edit_asset_list')
-                                @endforeach --}}
+                                {{-- @include('asset_list.edit_asset_list') --}}
+                                @endforeach
                             </tbody>
                         </table>
                     </div>

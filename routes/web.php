@@ -55,6 +55,8 @@ Route::group(['middleware' => 'auth'], function () {
 
     // Disposal Asset
     Route::get('/equipment/disposal_asset', 'DisposalAssetController@index')->name('equipment.disposal');
+    Route::post('store_disposal_asset', 'DisposalAssetController@store');
+    Route::post('update_disposal_asset/{id}', 'DisposalAssetController@update');
     
     // UOM
     Route::get('/settings/uom', 'UomController@index')->name('settings.uom');

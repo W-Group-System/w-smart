@@ -1,4 +1,4 @@
-<div class="modal fade" id="addDisposalModal" tabindex="-1" aria-labelledby="addDisposalModalLabel" aria-hidden="true">
+<div class="modal fade" id="editDisposal{{ $disposal_asset->id }}" tabindex="-1" aria-labelledby="addDisposalModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
