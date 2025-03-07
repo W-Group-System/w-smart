@@ -48,9 +48,19 @@ class PurchaseOrderController extends Controller
             'auth' => 'oauth',
         ]);
 
-        $response = $client->get('purchaseOrder/4068198');
+        $response = $client->post(env('NETSUITE_QUERY_URL'), [
+            'headers' => [
+                'Prefer' => 'transient'
+            ],
+            'json' => [
+                'q' => "SELECT tranid FROM transaction WHERE abbrevtype = 'PURCHORD' ORDER BY id DESC", 
+            ],
+            'query' => [
+                'limit' => 1
+            ]
+        ]);
         $po_data = json_decode($response->getBody()->getContents());
-        $po_number = $po_data->tranId;
+        $po_number = collect($po_data->items)->first()->tranid;
 
         return view('purchased_order',compact('start_date','end_date','purchase_request','purchase_order','vendors','po_number'));
     }
@@ -73,8 +83,6 @@ class PurchaseOrderController extends Controller
      */
     public function store(Request $request)
     {
-        // dd($request->all());
-        
         $purchase_order = PurchaseOrder::orderBy('id','desc')->first();
         if ($purchase_order) 
         {
@@ -133,23 +141,36 @@ class PurchaseOrderController extends Controller
             'auth' => 'oauth',
         ]);
 
-        $response = $client->get('itemReceipt/4068197');
-        $data = $response->getBody()->getContents();
-        $item_receipt = json_decode($data);
-        $latest_grn = $item_receipt->tranId;
-
-        $po_response = $client->get('purchaseOrder',[
+        $response = $client->post(env('NETSUITE_QUERY_URL'), [
+            'headers' => [
+                'Prefer' => 'transient'
+            ],
+            'json' => [
+                'q' => "SELECT tranid FROM transaction WHERE abbrevtype = 'ITEM RCP' ORDER BY id DESC", 
+            ],
             'query' => [
-                'limit' => 1,
-                'orderBy' => 'id',
-                'sortOrder' => 'DESC'
+                'limit' => 1
             ]
         ]);
-        $po_data = json_decode($po_response->getBody()->getContents());
-        // $po_number = $po_data->tranId;
-        dd($po_data);
+        $data = $response->getBody()->getContents();
+        $item_receipt = json_decode($data);
+        $latest_grn = collect($item_receipt->items)->first();
 
-        return view('purchase_orders.view_purchase_order', compact('po', 'latest_grn'));
+        $po_response = $client->post(env('NETSUITE_QUERY_URL'),[
+            'headers' => [
+                'Prefer' => 'transient'
+            ],
+            'json' => [
+                'q' => "SELECT id, tranId FROM transaction WHERE abbrevtype = 'PURCHORD' AND tranId='".$po->purchase_order_no."' ORDER BY id DESC", 
+            ],
+            'query' => [
+                'limit' => 1
+            ]
+        ]);
+        $response = json_decode($po_response->getBody()->getContents());
+        $po_data = collect($response->items)->first();
+        
+        return view('purchase_orders.view_purchase_order', compact('po', 'latest_grn', 'po_data'));
     }
 
     /**
@@ -312,91 +333,111 @@ class PurchaseOrderController extends Controller
 
     public function received(Request $request,$id)
     {
-        // dd($request->all(), $id);
-        $grn = substr($request->grn_no,4);
-        $number = $grn+1;
-        $grn_display = "GRN".str_pad($number, 6, '0', STR_PAD_LEFT);
-        // dd($grn_display);
+        try {
+             // dd($request->all(), $id);
+            $grn = substr($request->grn_no,4);
+            $number = $grn+1;
+            $grn_display = "GRN".str_pad($number, 6, '0', STR_PAD_LEFT);
 
-        $purchase_order = PurchaseOrder::findOrFail($id);
-        $purchase_order->grn_no = $grn_display;
-        // $purchase_order->save();
+            $purchase_order = PurchaseOrder::findOrFail($id);
+            $purchase_order->grn_no = $grn_display;
+            // $purchase_order->save();
 
-        $items_array = [];
-        foreach($purchase_order->purchaseRequest->rfqItem as $rfq_item)
-        {
-            $items_array[] = [
-                'item' => [
-                    'id' => $rfq_item->purchaseItem->inventory->inventory_id,
-                    'refName' => $rfq_item->purchaseItem->inventory->item_code
+            $items_array = [];
+            foreach($purchase_order->purchaseRequest->rfqItem as $rfq_item)
+            {
+                $items_array[] = [
+                    'item' => [
+                        'id' => $rfq_item->purchaseItem->inventory->inventory_id,
+                        'refName' => $rfq_item->purchaseItem->inventory->item_code,
+                        'rate' => 0.0,
+                        'quantity' => 1,
+                        'itemReceive' => true
+                    ]
+                ];
+            }
+            
+            $data = [
+                "class" => [
+                    "id" => $purchase_order->purchaseRequest->id,
+                    "refName" => $purchase_order->purchaseRequest->name
+                ],
+                "createdFrom" => [
+                    'id' => $request->po_id,
+                    "refName" => "Purchase Order #".$purchase_order->purchase_order_no
+                ],
+                "currency" => [
+                    "id" => 1,
+                    "refName" => "Philippine Peso"
+                ],
+                "department" => [
+                    "id" => $purchase_order->purchaseRequest->department_id,
+                    'refName' => $purchase_order->purchaseRequest->department->name
+                ],
+                "employee" => [
+                    "id" => $purchase_order->purchaseRequest->assignedTo->id,
+                    "refName" => $purchase_order->purchaseRequest->assignedTo->name
+                ],
+                "entity" => [
+                    "id" => $purchase_order->supplier->id,
+                    "refName" =>  $purchase_order->supplier->corporate_name
+                ],
+                "exchangeRate" => 1.0,
+                "item" => [
+                    "items" => $items_array
+                ],
+                "location" => [
+                    "id" => "1",
+                    "refName" => "Head Office"
+                ],
+                "tranDate" => date('Y-m-d'),
+                "subsidiary" => [
+                    "id" => $purchase_order->purchaseRequest->company->subsidiary_id,
+                    'refName' => $purchase_order->purchaseRequest->company->subsidiary_name
                 ]
             ];
-        }
-        
-        $data = [
-            "class" => [
-                "id" => $purchase_order->purchaseRequest->id,
-                "refName" => $purchase_order->purchaseRequest->name
-            ],
-            "createdFrom" => [
-                // 'id' =>,
-                // "refName" => "Purchase Order #PO010932"
-            ],
-            "currency" => [
-                "id" => 1,
-                "refName" => "Philippine Peso"
-            ],
-            "department" => [
-                "id" => $purchase_order->purchaseRequest->department_id,
-                'refName' => $purchase_order->purchaseRequest->department->name
-            ],
-            "employee" => [
-                "id" => $purchase_order->purchaseRequest->assignedTo->id,
-                "refName" => $purchase_order->purchaseRequest->assignedTo->name
-            ],
-            "entity" => [
-                "id" => $purchase_order->supplier->id,
-                "refName" =>  $purchase_order->supplier->corporate_name
-            ],
-            "exchangeRate" => 1.0,
-            "item" => [
-                "items" => $items_array
-            ],
-            "location" => [
-                "id" => "1",
-                "refName" => "Head Office"
-            ],
-            "tranDate" => date('Y-m-d'),
-            "subsidiary" => [
-                "id" => $purchase_order->purchaseRequest->company->subsidiary_id,
-                'refName' => $purchase_order->purchaseRequest->company->subsidiary_name
-            ]
-        ];
-
-        // $stack = HandlerStack::create();
             
-        // $middleware = new Oauth1([
-        //     'consumer_key'    => env('CONSUMER_KEY'),
-        //     'consumer_secret' => env('CONSUMER_SECRET'),
-        //     'token'           => env('TOKEN'),
-        //     'token_secret'    => env('TOKEN_SECRET'),
-        //     'realm' => env('REALM_ID'),
-        //     'signature_method' => 'HMAC-SHA256'
-        // ]);
-        
-        // $stack->push($middleware);
+            $stack = HandlerStack::create();
+                
+            $middleware = new Oauth1([
+                'consumer_key'    => env('CONSUMER_KEY'),
+                'consumer_secret' => env('CONSUMER_SECRET'),
+                'token'           => env('TOKEN'),
+                'token_secret'    => env('TOKEN_SECRET'),
+                'realm' => env('REALM_ID'),
+                'signature_method' => 'HMAC-SHA256'
+            ]);
+            
+            $stack->push($middleware);
 
-        // $client = new Client([
-        //     'base_uri' => env('NETSUITE_URL'),
-        //     'handler' => $stack,
-        //     'auth' => 'oauth',
-        // ]);
+            $client = new Client([
+                'base_uri' => env('NETSUITE_URL'),
+                'handler' => $stack,
+                'auth' => 'oauth',
+            ]);
 
-        // $client->post('purchaseOrder', [
-        //     // 'headers' => $headers,
-        //     'json' => $data,
-        // ]);
+            $client->post('purchaseOrder', [
+                // 'headers' => $headers,
+                'json' => $data,
+            ]);
 
-        dd($data);
+            return back();
+
+            Alert::success('Successfully Received')->persistent('Dismiss');
+            return back();
+
+        } catch (\Exception $e) {
+            dd($e->getMessage());
+        }
+    }
+
+    public function cancelled($id)
+    {
+        $purchase_order = PurchaseOrder::findOrFail($id);
+        $purchase_order->status = 'Cancelled';
+        $purchase_order->save();
+
+        Alert::success("Successfully Cancelled")->persistent('Dismiss');
+        return back();
     }
 }

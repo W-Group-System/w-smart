@@ -252,7 +252,7 @@
                                         </button> --}}
                                     </td>
                                     <td>{{$po->purchase_order_no}}</td>
-                                    <td></td>
+                                    <td>{{$po->grn_no}}</td>
                                     <td>{{$po->status}}</td>
                                 </tr>
                             @endforeach

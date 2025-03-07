@@ -7,7 +7,10 @@
             <form method="POST" class="d-inline-block" action="{{url('received_po/'.$po->id)}}" onsubmit="show()">
                 @csrf 
                 
-                <input type="hidden" name="grn_no" value="{{$latest_grn}}">
+                <input type="hidden" name="grn_no" value="{{$latest_grn->tranid}}">
+                <input type="hidden" name="po_number" value="{{$po_data->tranid}}">
+                <input type="hidden" name="po_id" value="{{$po_data->id}}">
+
                 <div class="modal-body py-3">
                     Primary Information
                     <hr>

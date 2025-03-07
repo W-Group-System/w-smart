@@ -138,8 +138,8 @@
     <div class="col-lg-12 grid-margin stretch-card">
         <div class="card">
             <div class="card-body">
-                <div class="d-flex justify-content-between">
-                    <h4 class="card-title">PO-{{str_pad($po->id, 6, '0', STR_PAD_LEFT)}} - {{$po->status}}</h4>
+                <div class="d-flex justify-content-between align-items-center">
+                    <h4 class="card-title mb-0">{{$po->purchase_order_no}} - {{$po->status}}</h4>
     
                     <div>
                         @if($po->status == 'Approved')
@@ -149,7 +149,7 @@
                             </button>
 
                             @include('purchase_orders.received_po')
-                        @else
+                        @elseif($po->status == 'Pending')
                             <form method="POST" class="d-inline-block" action="{{url('approved_po')}}" onsubmit="show()">
                                 @csrf 
                                 <input type="hidden" name="id" value="{{$po->id}}">
@@ -157,6 +157,14 @@
                                 <button type="submit" class="btn btn-outline-success">
                                     <i class="ti-check"></i>
                                     Approved
+                                </button>
+                            </form>
+
+                            <form method="POST" class="d-inline-block" action="{{url('cancel_po/'.$po->id)}}" onsubmit="show()">
+                                @csrf 
+                                <button type="submit" class="btn btn-outline-danger">
+                                    <i class="ti-na"></i>
+                                    Cancel
                                 </button>
                             </form>
                         @endif
