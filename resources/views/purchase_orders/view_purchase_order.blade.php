@@ -304,18 +304,18 @@
                 })
             }
         })
-        $("[name='receive_item[]']").each(function(key, value) {
-            $(value).on('click', function () {
-                if ($(value).is(":checked")) 
-                {
-                    $(this).closest('tr').find("[name='qty[]']").prop('disabled', false);
-                } 
-                else 
-                {
-                    $(this).closest('tr').find("[name='qty[]']").prop('disabled', true);
-                }
-            })
-        });
+        // $("[name='receive_item[]']").each(function(key, value) {
+        //     $(value).on('click', function () {
+        //         if ($(value).is(":checked")) 
+        //         {
+        //             $(this).closest('tr').find("[name='qty[]']").prop('disabled', false);
+        //         } 
+        //         else 
+        //         {
+        //             $(this).closest('tr').find("[name='qty[]']").prop('disabled', true);
+        //         }
+        //     })
+        // });
     })
 </script>
 @endsection
