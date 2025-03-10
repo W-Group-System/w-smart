@@ -185,8 +185,8 @@
                     <div>
                         @if(!$purchase_request->assigned_to)
                         <button type="button" class="btn btn-outline-warning" title="Edit" data-toggle="modal" data-target="#editPr{{$purchase_request->id}}">
-                            <i class="ti-pencil-alt"></i>
-                            Edit
+                            <i class="ti-check"></i>
+                            Assign
                         </button>
                         @endif
                         @if($purchase_request->status == 'For RFQ')
@@ -325,7 +325,7 @@
                                             <tr>
                                                 <td style="padding: 5px 10px;">
                                                     <a href="{{url($file->file)}}" target="_blank">
-                                                        <i class="bi bi-files"></i>
+                                                        <i class="ti-files"></i>
                                                     </a>
                                                 </td>
                                                 <td style="padding: 5px 10px;">{{$file->document_type}}</td>

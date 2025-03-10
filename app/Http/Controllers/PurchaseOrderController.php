@@ -50,7 +50,7 @@ class PurchaseOrderController extends Controller
 
         $response = $client->post(env('NETSUITE_QUERY_URL'), [
             'headers' => [
-                'Prefer' => 'transient'
+                'prefer' => 'transient'
             ],
             'json' => [
                 'q' => "SELECT tranid FROM transaction WHERE abbrevtype = 'PURCHORD' ORDER BY id DESC", 
@@ -293,6 +293,9 @@ class PurchaseOrderController extends Controller
                 ],
                 "exchangeRate" => 1.0,
                 "shippingAddress" => $purchase_order->purchaseRequest->company->shipping_address,
+                "approvalStatus" => [
+                    "id" => "2"
+                ],
                 "item" => [
                     "items" => $items_array
                 ]
@@ -333,70 +336,67 @@ class PurchaseOrderController extends Controller
 
     public function received(Request $request,$id)
     {
+        // dd($request->all());
         try {
-             // dd($request->all(), $id);
             $grn = substr($request->grn_no,4);
             $number = $grn+1;
             $grn_display = "GRN".str_pad($number, 6, '0', STR_PAD_LEFT);
-
+            
             $purchase_order = PurchaseOrder::findOrFail($id);
             $purchase_order->grn_no = $grn_display;
-            // $purchase_order->save();
+            $purchase_order->status = 'Received';
+            $purchase_order->save();
 
             $items_array = [];
-            foreach($purchase_order->purchaseRequest->rfqItem as $rfq_item)
+            foreach($request->line as $lineKey => $line)
             {
                 $items_array[] = [
-                    'item' => [
-                        'id' => $rfq_item->purchaseItem->inventory->inventory_id,
-                        'refName' => $rfq_item->purchaseItem->inventory->item_code,
-                        'rate' => 0.0,
-                        'quantity' => 1,
-                        'itemReceive' => true
-                    ]
+                    'orderLine' => (int)$line,
+                    'quantity' => isset($request->qty[$lineKey]) ? (int)$request->qty[$lineKey] : 0,
+                    'itemReceive' => isset($request->receive_item[$lineKey]) ? true : false
                 ];
             }
             
             $data = [
-                "class" => [
-                    "id" => $purchase_order->purchaseRequest->id,
-                    "refName" => $purchase_order->purchaseRequest->name
-                ],
-                "createdFrom" => [
-                    'id' => $request->po_id,
-                    "refName" => "Purchase Order #".$purchase_order->purchase_order_no
-                ],
-                "currency" => [
-                    "id" => 1,
-                    "refName" => "Philippine Peso"
-                ],
-                "department" => [
-                    "id" => $purchase_order->purchaseRequest->department_id,
-                    'refName' => $purchase_order->purchaseRequest->department->name
-                ],
-                "employee" => [
-                    "id" => $purchase_order->purchaseRequest->assignedTo->id,
-                    "refName" => $purchase_order->purchaseRequest->assignedTo->name
-                ],
-                "entity" => [
-                    "id" => $purchase_order->supplier->id,
-                    "refName" =>  $purchase_order->supplier->corporate_name
-                ],
-                "exchangeRate" => 1.0,
+                // "class" => [
+                //     "id" => $purchase_order->purchaseRequest->id,
+                //     // "refName" => $purchase_order->purchaseRequest->name
+                // ],
+                // // "createdFrom" => [
+                // //     'id' => $request->po_id,
+                // //     // "refName" => "Purchase Order #".$purchase_order->purchase_order_no
+                // // ],
+                // "currency" => [
+                //     "id" => 1,
+                //     "refName" => "Philippine Peso"
+                // ],
+                // "department" => [
+                //     "id" => $purchase_order->purchaseRequest->department_id,
+                //     // 'refName' => $purchase_order->purchaseRequest->department->name
+                // ],
+                // "employee" => [
+                //     "id" => $purchase_order->purchaseRequest->assignedTo->id,
+                //     // "refName" => $purchase_order->purchaseRequest->assignedTo->name
+                // ],
+                // "entity" => [
+                //     "id" => $purchase_order->supplier->id,
+                //     // "refName" =>  $purchase_order->supplier->corporate_name
+                // ],
+                // "exchangeRate" => 1.0,
                 "item" => [
-                    "items" => $items_array
+                    'items' => $items_array
                 ],
-                "location" => [
-                    "id" => "1",
-                    "refName" => "Head Office"
-                ],
-                "tranDate" => date('Y-m-d'),
-                "subsidiary" => [
-                    "id" => $purchase_order->purchaseRequest->company->subsidiary_id,
-                    'refName' => $purchase_order->purchaseRequest->company->subsidiary_name
-                ]
+                // "location" => [
+                //     "id" => "1",
+                //     "refName" => "Head Office"
+                // ],
+                // "tranDate" => date('Y-m-d'),
+                // "subsidiary" => [
+                //     "id" => $purchase_order->purchaseRequest->company->subsidiary_id,
+                //     'refName' => $purchase_order->purchaseRequest->company->subsidiary_name
+                // ]
             ];
-            
+            // dd($data);
             $stack = HandlerStack::create();
                 
             $middleware = new Oauth1([
@@ -416,12 +416,9 @@ class PurchaseOrderController extends Controller
                 'auth' => 'oauth',
             ]);
 
-            $client->post('purchaseOrder', [
-                // 'headers' => $headers,
+            $client->post('purchaseOrder/'.$request->po_id.'/!transform/itemReceipt', [
                 'json' => $data,
             ]);
-
-            return back();
 
             Alert::success('Successfully Received')->persistent('Dismiss');
             return back();

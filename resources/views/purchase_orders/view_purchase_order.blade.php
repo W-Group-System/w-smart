@@ -143,12 +143,15 @@
     
                     <div>
                         @if($po->status == 'Approved')
-                            <button type="button" class="btn btn-outline-warning" data-toggle="modal" data-target="#received{{$po->id}}">
-                                <i class="ti-check"></i>
-                                Received
-                            </button>
 
-                            @include('purchase_orders.received_po')
+                            @if($po->status != 'Received')
+                                <button type="button" class="btn btn-outline-warning" data-toggle="modal" data-target="#received{{$po->id}}">
+                                    <i class="ti-check"></i>
+                                    Received
+                                </button>
+
+                                @include('purchase_orders.received_po')
+                            @endif
                         @elseif($po->status == 'Pending')
                             <form method="POST" class="d-inline-block" action="{{url('approved_po')}}" onsubmit="show()">
                                 @csrf 
@@ -280,4 +283,39 @@
             </div>
         </div>
     </div>
+@endsection
+
+@section('js')
+<script>
+    $(document).ready(function() {
+        $("#receive_all").on('click', function() {
+            if($(this).is(":checked"))
+            {
+                $("[name='receive_item[]']").each(function(key, value) {
+                    $(value).prop('checked', true)
+                    $(this).closest('tr').find("[name='qty[]']").prop('disabled', false)
+                })
+            }
+            else
+            {
+                $("[name='receive_item[]']").each(function(key, value) {
+                    $(value).prop('checked', false)
+                    $(this).closest('tr').find("[name='qty[]']").prop('disabled', true)
+                })
+            }
+        })
+        $("[name='receive_item[]']").each(function(key, value) {
+            $(value).on('click', function () {
+                if ($(value).is(":checked")) 
+                {
+                    $(this).closest('tr').find("[name='qty[]']").prop('disabled', false);
+                } 
+                else 
+                {
+                    $(this).closest('tr').find("[name='qty[]']").prop('disabled', true);
+                }
+            })
+        });
+    })
+</script>
 @endsection

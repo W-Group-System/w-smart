@@ -66,15 +66,28 @@
                                 <table class="table table-hover">
                                     <thead>
                                         <tr>
+                                            <th>
+                                                <input type="checkbox" id="receive_all">
+                                            </th>
                                             <th>Item Code</th>
                                             <th>Item Description</th>
+                                            <th>Remaining</th>
+                                            <th>Quantity</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        @foreach ($po->purchaseRequest->rfqItem as $item)
+                                        @foreach ($po->purchaseRequest->rfqItem as $key => $item)
                                             <tr>
+                                                <td>
+                                                    <input type="checkbox" name="receive_item[]" value="1" checked>
+                                                    <input type="hidden" name="line[]" value="{{ $key+1 }}">
+                                                </td>
                                                 <td>{{$item->purchaseItem->inventory->item_code}}</td>
                                                 <td>{{$item->purchaseItem->inventory->item_description}}</td>
+                                                <td>{{ $item->purchaseItem->inventory->qty }}</td>
+                                                <td>
+                                                    <input type="text" class="form-control form-control-sm" name="qty[]" value="{{ $item->purchaseItem->inventory->qty }}" required>
+                                                </td>
                                             </tr>
                                         @endforeach
                                     </tbody>
