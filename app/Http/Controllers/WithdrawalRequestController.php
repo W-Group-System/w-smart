@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Inventory;
+use App\Uoms;
 use App\Withdrawal;
 use App\WithdrawalItems;
 use Illuminate\Http\Request;
+use RealRashid\SweetAlert\Facades\Alert;
 
 class WithdrawalRequestController extends Controller
 {
@@ -15,8 +18,9 @@ class WithdrawalRequestController extends Controller
      */
     public function index()
     {
+        // Dropdown
         $withdrawals = Withdrawal::with('requestor', 'withdrawalItem')->get();
-
+        
         return view('inventory_withdrawal', compact('withdrawals'));
     }
 
@@ -27,7 +31,10 @@ class WithdrawalRequestController extends Controller
      */
     public function create()
     {
-        //
+        $uoms = Uoms::get();
+        $inventories = Inventory::where('status',null)->get();
+
+        return view('withdrawal_request.new_withdrawal_request', compact('inventories', 'uoms'));
     }
 
     /**
@@ -38,7 +45,27 @@ class WithdrawalRequestController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        // dd($request->all());
+        $withdrawals = new Withdrawal;
+        $withdrawals->requestor_id = $request->request_name;
+        $withdrawals->subsidiary_id = $request->subsidiary;
+        $withdrawals->remarks = $request->remarks;
+        $withdrawals->status = 'Pending';
+        $withdrawals->save();
+
+        foreach($request->item as $key => $item)
+        {
+            $withdrawals_items = new WithdrawalItems;
+            $withdrawals_items->withdrawal_id = $withdrawals->id;
+            $withdrawals_items->inventory_id = $item;
+            $withdrawals_items->uom_id = $request->uom[$key];
+            $withdrawals_items->reason = $request->reason[$key];
+            $withdrawals_items->request_qty = $request->requestQty[$key];
+            $withdrawals_items->save();
+        }
+
+        Alert::success('Successfully Saved')->persistent('Dismiss');
+        return redirect('inventory/withdrawal');
     }
 
     /**

@@ -578,10 +578,10 @@
                 <div class="card-body">
                     <h4 class="card-title">Withdrawal Request</h4>
 
-                    <button type="button" class="btn btn-outline-success" data-toggle="modal" data-target="#inventoryWithdrawalModal">
+                    <a href="{{ url('new_withdrawal_request') }}" class="btn btn-outline-success" >
                         <i class="ti-plus"></i>
                         Withdrawal Request
-                    </button>
+                    </a>
 
                     <div class="table-responsive">
                         <table class="table table-bordered table-hover" id="tablewithSearch">
@@ -593,7 +593,7 @@
                                     <th>Item Code</th>
                                     <th>Item Description</th>
                                     <th>Requested QTY</th>
-                                    <th>Released QTY</th>
+                                    {{-- <th>Released QTY</th> --}}
                                     <th>UOM</th>
                                     <th>Date Released</th>
                                     <th>Reason</th>
@@ -605,15 +605,25 @@
                                     <tr>
                                         <td>{{date('M d Y', strtotime($withdrawal->created_at))}}</td>
                                         <td>{{$withdrawal->requestor->name}}</td>
-                                        <td>{{$withdrawal->request_number}}</td>
-                                        <td>{{$withdrawal->withdrawalItem->item_code}}</td>
-                                        <td>{{$withdrawal->withdrawalItem->item_description}}</td>
-                                        <td>{{$withdrawal->withdrawalItem->requested_qty}}</td>
-                                        <td>{{$withdrawal->withdrawalItem->released_qty}}</td>
-                                        <td></td>
-                                        <td></td>
-                                        <td>{{$withdrawal->withdrawalItem->reason}}</td>
-                                        <td>{{$withdrawal->withdrawalItem->status}}</td>
+                                        <td>WITHDRAWAL-{{str_pad($withdrawal->id, 3, "0", STR_PAD_LEFT)}}</td>
+                                        <td>{{$withdrawal->withdrawalItem->inventory->item_code}}</td>
+                                        <td>{{$withdrawal->withdrawalItem->inventory->item_description}}</td>
+                                        <td>{{$withdrawal->withdrawalItem->request_qty}}</td>
+                                        {{-- <td>{{$withdrawal->withdrawalItem->inventory->item_code}}</td> --}}
+                                        <td>{{ $withdrawal->withdrawalItem->uom->uomp }}</td>
+                                        <td>No data released</td>
+                                        <td>{!! nl2br(e($withdrawal->withdrawalItem->reason)) !!}</td>
+                                        <td>
+                                            @if($withdrawal->status == 'Pending')
+                                            <span class="badge badge-warning">
+                                            @elseif($withdrawal->status == 'Declined')
+                                            <span class="badge badge-danger">
+                                            @elseif($withdrawal->status == 'Approved')
+                                            <span class="badge badge-success">
+                                            @endif
+                                                {{$withdrawal->status}}
+                                            </span>
+                                        </td>
                                     </tr>
                                 @endforeach
                             </tbody>
@@ -623,8 +633,6 @@
             </div>
         </div>
     </div>
-
-    @include('withdrawal_request.new_withdrawal_request')
 @endsection
 
 @section('js')
@@ -636,6 +644,8 @@
             pageLength: 25,
             paging: true,
         });
+
+        
     })
 </script>
 @endsection

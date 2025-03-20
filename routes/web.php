@@ -20,7 +20,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/', 'HomeController@index')->name('home');
     Route::get('/home', 'HomeController@index')->name('home');
 
-    // Inventory Management Routes
+    # Inventory Management Routes
 
     // Inventory List
     Route::get('/inventory/inventory_list', 'InventoryListController@index')->name('inventory.list');
@@ -36,11 +36,13 @@ Route::group(['middleware' => 'auth'], function () {
 
     // Inventory Withdrawal
     Route::get('/inventory/withdrawal', 'WithdrawalRequestController@index')->name('inventory.withdrawal');
+    Route::get('new_withdrawal_request', 'WithdrawalRequestController@create');
+    Route::post('store_withdrawal', 'WithdrawalRequestController@store');
 
     // Inventory Returned
     Route::get('/inventory/returned', 'ReturnedInventoryController@index')->name('inventory.returned');
 
-    // Equipment & Asset Management Routes
+    # Equipment & Asset Management Routes
 
     // Asset List
     Route::get('/equipment/asset_list', 'AssetListController@index')->name('equipment.list');
@@ -58,6 +60,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('store_disposal_asset', 'DisposalAssetController@store');
     Route::post('update_disposal_asset/{id}', 'DisposalAssetController@update');
     
+    # Settings
+
     // UOM
     Route::get('/settings/uom', 'UomController@index')->name('settings.uom');
     Route::post('store_uom','UomController@store');
@@ -94,6 +98,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('/settings/update-department/{id}','DepartmentController@update');
     Route::post('/settings/active-department/{id}','DepartmentController@active');
     Route::post('/settings/deactive-department/{id}','DepartmentController@deactive');
+
+    # Procurement 
 
     // Purchased Request
     Route::get('procurement/purchase-request', 'PurchaseRequestController@index')->name('procurement.purchase_request');
