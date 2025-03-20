@@ -437,6 +437,11 @@
             <div class="card">
                 <div class="card-body">
                     <h4 class="card-title">Returned Inventory</h4>
+                    
+                    <a href="{{ url('new_returned_request') }}" class="btn btn-outline-success" >
+                        <i class="ti-plus"></i>
+                        Return Inventory
+                    </a>
 
                     <div class="table-responsive">
                         <table class="table table-hover table-bordered" id="tablewithSearch">

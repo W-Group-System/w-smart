@@ -5,10 +5,10 @@
             <div class="card">
                 <div class="card-body">
                     <div class="d-flex justify-content-between mb-4 align-items-center">
-                        <h4 class="card-title mb-0">Add new withdrawal transfer</h4>
+                        <h4 class="card-title mb-0">Add new returned transfer</h4>
 
                         <div>
-                            <a href="{{ url('inventory/withdrawal') }}" class="btn btn-outline-secondary">
+                            <a href="{{ url('inventory/returned') }}" class="btn btn-outline-secondary">
                                 <i class="ti-arrow-left"></i>
                                 Back
                             </a>
@@ -17,7 +17,7 @@
                     <hr>
                     <div class="row">
                         <div class="col-lg-12">
-                            <form action="{{ url('store_withdrawal') }}" method="POST" onsubmit="show()">
+                            <form action="{{ url('store_return_inventory') }}" method="POST" onsubmit="show()">
                                 @csrf 
 
                                 {{-- <div class="form-group row">

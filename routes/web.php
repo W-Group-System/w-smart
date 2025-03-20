@@ -41,6 +41,8 @@ Route::group(['middleware' => 'auth'], function () {
 
     // Inventory Returned
     Route::get('/inventory/returned', 'ReturnedInventoryController@index')->name('inventory.returned');
+    Route::get('new_returned_request', 'ReturnedInventoryController@create');
+    Route::get('store_return_inventory', 'ReturnedInventoryController@store');
 
     # Equipment & Asset Management Routes
 

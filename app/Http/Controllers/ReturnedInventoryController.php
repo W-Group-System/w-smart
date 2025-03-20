@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Inventory;
 use App\Returns;
+use App\Uoms;
 use Illuminate\Http\Request;
 
 class ReturnedInventoryController extends Controller
@@ -26,7 +28,10 @@ class ReturnedInventoryController extends Controller
      */
     public function create()
     {
-        //
+        $uoms = Uoms::get();
+        $inventories = Inventory::where('status',null)->get();
+
+        return view('returned_inventory.new_return_inventory', compact('uoms', 'inventories'));
     }
 
     /**
