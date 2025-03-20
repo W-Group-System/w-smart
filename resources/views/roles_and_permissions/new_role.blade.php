@@ -13,11 +13,20 @@
                             <input type="text" class="form-control" id="role" name="role" required>
                         </div>
                         <div class="form-group">
-                            <label for="features">Assign Permission</label>
-                            <select data-placeholder="Choose permission" class="form-control js-example-basic-multiple" name="permission[]" style="position: relative; width:100%;" multiple required>
+                            <label for="features">Module</label>
+                            <select data-placeholder="Choose feature" class="form-control js-example-basic-multiple" name="feature[]" style="position: relative; width:100%;" multiple required>
                                 <option value=""></option>
                                 @foreach ($features as $feature)
                                     <option value="{{$feature->id}}">{{$feature->feature}}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="features">Sub-Module</label>
+                            <select data-placeholder="Choose subfeature" class="form-control js-example-basic-multiple" name="subfeature[]" style="position: relative; width:100%;" multiple required>
+                                <option value=""></option>
+                                @foreach ($subfeatures as $subfeature)
+                                    <option value="{{$subfeature->id}}">{{$subfeature->subfeature_name}}</option>
                                 @endforeach
                             </select>
                         </div>

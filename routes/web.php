@@ -74,11 +74,11 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('update_category/{id}','CategoryController@update');
 
     // Roles and Permissions
-    Route::get('/settings/roles', 'PermissionController@index')->name('settings.roles');
-    Route::post('store_role','PermissionController@storeRole');
-    Route::post('update_role/{id}','PermissionController@updateRole');
-    Route::post('activate_role/{id}','PermissionController@activateRole');
-    Route::post('deactivate_role/{id}','PermissionController@deactivateRole');
+    Route::get('/settings/roles', 'RoleController@index')->name('settings.roles');
+    Route::post('store_role','RoleController@store');
+    Route::post('update_role/{id}','RoleController@update');
+    Route::post('activate_role/{id}','RoleController@activateRole');
+    Route::post('deactivate_role/{id}','RoleController@deactivateRole');
 
     // Users
     Route::get('/settings/users', 'UserController@index')->name('settings.users');
