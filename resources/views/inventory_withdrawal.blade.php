@@ -606,13 +606,34 @@
                                         <td>{{date('M d Y', strtotime($withdrawal->created_at))}}</td>
                                         <td>{{$withdrawal->requestor->name}}</td>
                                         <td>WITHDRAWAL-{{str_pad($withdrawal->id, 3, "0", STR_PAD_LEFT)}}</td>
-                                        <td>{{$withdrawal->withdrawalItem->inventory->item_code}}</td>
-                                        <td>{{$withdrawal->withdrawalItem->inventory->item_description}}</td>
-                                        <td>{{$withdrawal->withdrawalItem->request_qty}}</td>
+                                        <td>
+                                            @foreach ($withdrawal->withdrawalItem as $withdrawalItem)
+                                                {{ $withdrawalItem->inventory->item_code }} <br>
+                                            @endforeach
+                                        </td>
+                                        <td>
+                                            @foreach ($withdrawal->withdrawalItem as $withdrawalItem)
+                                                {{ $withdrawalItem->inventory->item_description }} <br>
+                                            @endforeach
+                                        </td>
+                                        <td>
+                                            @foreach ($withdrawal->withdrawalItem as $withdrawalItem)
+                                                {{ $withdrawalItem->request_qty }} <br>
+                                            @endforeach
+                                        </td>
                                         {{-- <td>{{$withdrawal->withdrawalItem->inventory->item_code}}</td> --}}
-                                        <td>{{ $withdrawal->withdrawalItem->uom->uomp }}</td>
-                                        <td>No data released</td>
-                                        <td>{!! nl2br(e($withdrawal->withdrawalItem->reason)) !!}</td>
+                                        <td>
+                                            @foreach ($withdrawal->withdrawalItem as $withdrawalItem)
+                                                {{ $withdrawalItem->uom->uomp }} <br>
+                                            @endforeach
+                                        </td>
+                                        <td>No date released</td>
+                                        <td>
+                                            @foreach ($withdrawal->withdrawalItem as $withdrawalItem)
+                                            {!! nl2br(e($withdrawalItem->reason)) !!} <br>
+                                            <hr>
+                                            @endforeach
+                                        </td>
                                         <td>
                                             @if($withdrawal->status == 'Pending')
                                             <span class="badge badge-warning">

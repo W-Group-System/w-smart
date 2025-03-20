@@ -12,6 +12,6 @@ class Withdrawal extends Model
     }
     public function withdrawalItem()
     {
-        return $this->hasOne(WithdrawalItems::class);
+        return $this->hasMany(WithdrawalItems::class);
     }
 }
