@@ -144,7 +144,7 @@
                     </div>
                 </li>
                 <li class="nav-item">
-                    @if(checkModule(auth()->user()->role, 'Equipments & Assets'))
+                    @if(checkModule(auth()->user()->role, 'Equipment & Asset'))
                     <a class="nav-link" data-toggle="collapse" href="#equipmentAndAssets">
                         <i class="ti-panel menu-icon"></i>
                         <span class="menu-title">Equipments & Assets</span>
