@@ -5,7 +5,9 @@
                 <div class="modal-header">
                     <h5 class="modal-title" id="assignRoleModalLabel">Assign Role to Employee</h5>
                 </div>
-                <form id="assignRoleForm">
+                <form action="{{ url('assign_role') }}" method="POST" onsubmit="show()">
+                    @csrf
+
                     <div class="modal-body">
                         <div class="form-group">
                             <label for="employee">Employee</label>
@@ -27,8 +29,8 @@
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-primary" form="assignRoleForm">Assign Role</button>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Assign Role</button>
                     </div>
                 </form>
             </div>

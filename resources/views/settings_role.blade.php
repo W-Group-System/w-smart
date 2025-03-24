@@ -189,7 +189,7 @@
                                     <tr>
                                         <th>Actions</th>
                                         <th>Role</th>
-                                        <th>Features</th>
+                                        <th>Permissions</th>
                                         <th>Status</th>
                                     </tr>
                                 </thead>
@@ -222,9 +222,7 @@
                                             </td>
                                             <td>{{$role->role}}</td>
                                             <td>
-                                                @foreach($role->permission as $key=>$permission)
-                                                    {{$key+1}}. {{$permission->feature->feature}} <br>
-                                                @endforeach
+                                                
                                             </td>
                                             <td>
                                                 @if($role->status == 'Inactive')
@@ -250,11 +248,25 @@
                             <table class="table table-striped table-bordered tableWithSearch">
                                 <thead>
                                     <tr>
+                                        <th>Action</th>
                                         <th>Employee</th>
                                         <th>Role</th>
                                     </tr>
                                 </thead>
-                                <tbody id="userList">
+                                <tbody>
+                                    @foreach ($user_has_roles as $employee)
+                                        <tr>
+                                            <td>
+                                                <button type="button" class="btn btn-sm btn-info" data-toggle="modal" data-target="#editAssign{{ $employee->id }}">
+                                                    <i class="ti-pencil-alt"></i>
+                                                </button>
+                                            </td>
+                                            <td>{{ $employee->name }}</td>
+                                            <td>{{ $employee->role_name->role }}</td>
+                                        </tr>
+
+                                        @include('roles_and_permissions.edit_assign_role')
+                                    @endforeach
                                 </tbody>
                             </table>
                         </div>

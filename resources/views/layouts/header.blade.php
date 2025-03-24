@@ -100,123 +100,170 @@
                     </a>
                 </li>
                 <li class="nav-item">
+                    @if(checkModule(auth()->user()->role, 'Inventory Management'))
                     <a class="nav-link" data-toggle="collapse" href="#inventory">
                         <i class="ti-clipboard menu-icon"></i>
-                        <span class="menu-title">Inventory</span>
+                        <span class="menu-title">Inventory Management</span>
                         <i class="menu-arrow"></i>
                     </a>
+                    @endif
+                    {{-- @dd(checkRoles(auth()->user()->role, 'Inventory List')) --}}
                     <div class="collapse" id="inventory">
                         <ul class="nav flex-column sub-menu">
+                            @if(checkRoles(auth()->user()->role, 'Inventory List'))
                             <li class="nav-item dashboard-list">
                                 <a class="nav-link"
                                     href="{{url('inventory/inventory_list')}}">Inventory List</a>
                             </li>
+                            @endif
+                            @if(checkRoles(auth()->user()->role, 'Inventory Transfer'))
                             <li class="nav-item dashboard-list">
                                 <a class="nav-link"
                                     href="{{url('inventory/inventory_transfer')}}">
                                     Inventory Transfer
                                 </a>
                             </li>
+                            @endif
+                            @if(checkRoles(auth()->user()->role, 'Withdrawal Request'))
                             <li class="nav-item dashboard-list" id="withdrawal-request-item">
                                 <a class="nav-link"
                                     href="{{url('inventory/withdrawal')}}">
                                     Withdrawal Request
                                 </a>
                             </li>
+                            @endif
+                            @if(checkRoles(auth()->user()->role, 'Returned Inventory'))
                             <li class="nav-item dashboard-list" id="returned-inventory-item">
                                 <a class="nav-link"
                                     href="{{url('inventory/returned')}}">
                                     Returned Inventory
                                 </a>
                             </li>
+                            @endif
                         </ul>
                     </div>
                 </li>
                 <li class="nav-item">
+                    @if(checkModule(auth()->user()->role, 'Equipments & Assets'))
                     <a class="nav-link" data-toggle="collapse" href="#equipmentAndAssets">
                         <i class="ti-panel menu-icon"></i>
                         <span class="menu-title">Equipments & Assets</span>
                         <i class="menu-arrow"></i>
                     </a>
+                    @endif
                     <div class="collapse" id="equipmentAndAssets">
                         <ul class="nav flex-column sub-menu">
+                            @if(checkRoles(auth()->user()->role, 'Asset List'))
                             <li class="nav-item">
                                 <a class="nav-link"
                                     href="{{url('equipment/asset_list')}}">Asset List</a>
                             </li>
+                            @endif
+                            @if(checkRoles(auth()->user()->role, 'Transfer Asset'))
                             <li class="nav-item">
                                 <a class="nav-link"
                                     href="{{url('equipment/transfer_asset')}}">
                                     Transfer Asset
                                 </a>
                             </li>
+                            @endif
+                            @if(checkRoles(auth()->user()->role,'Disposal Asset'))
                             <li class="nav-item" id="withdrawal-request-item">
                                 <a class="nav-link"
                                     href="{{url('equipment/disposal_asset')}}">
                                     Disposal Asset
                                 </a>
                             </li>
+                            @endif
                         </ul>
                     </div>
                 </li>
                 <li class="nav-item">
+                    @if(checkModule(auth()->user()->role, 'Procurement'))
                     <a class="nav-link" data-toggle="collapse" href="#procurement">
                         <i class="ti-briefcase menu-icon"></i>
-                        <span class="menu-title">Procurements</span>
+                        <span class="menu-title">Procurement</span>
                         <i class="menu-arrow"></i>
                     </a>
+                    @endif
                     <div class="collapse" id="procurement">
                         <ul class="nav flex-column sub-menu">
+                            @if(checkRoles(auth()->user()->role, 'Purchased Request'))
                             <li class="nav-item dashboard-list">
                                 <a class="nav-link" href="{{url('procurement/purchase-request')}}">Purchased Request</a>
                             </li>
+                            @endif
+                            @if(checkRoles(auth()->user()->role, 'For Approval'))
                             <li class="nav-item dashboard-list">
-                                <a class="nav-link" href="{{url('procurement/for-approval-pr')}}">For Approval Purchase Request</a>
+                                <a class="nav-link" href="{{url('procurement/for-approval-pr')}}">For Approval</a>
                             </li>
+                            @endif
                             {{-- <li class="nav-item dashboard-list" id="canvassing-item">
                                 <a class="nav-link {{ request()->is('procurement/canvassing') ? 'submenu-active' : '' }}" href="{{route('procurement.canvassing')}}">Canvassing</a>
                             </li> --}}
+                            @if(checkRoles(auth()->user()->role, 'Purchased Order'))
                             <li class="nav-item dashboard-list">
                                 <a class="nav-link" href="{{url('procurement/purchase-order')}}">Purchased Order</a>
                             </li>
+                            @endif
+                            @if(checkRoles(auth()->user()->role, 'Supplier Accreditation'))
                             <li class="nav-item dashboard-list">
                                 <a class="nav-link" href="{{url('procurement/supplier_accreditation')}}">Supplier Accreditation</a>
                             </li>
+                            @endif
+                            @if(checkRoles(auth()->user()->role, 'Supplier Evaluation'))
                             <li class="nav-item dashboard-list" id="supplier-evaluation-item">
                                 <a class="nav-link" href="{{url('procurement/supplier_evaluation')}}">Supplier Evaluation</a>
                             </li>
+                            @endif
                         </ul>
                     </div>
                 </li>
                 <li class="nav-item">
+                    @if(checkModule(auth()->user()->role, 'Settings'))
                     <a class="nav-link" data-toggle="collapse" href="#settings">
                         <i class="icon-cog menu-icon"></i>
                         <span class="menu-title">Settings</span>
                         <i class="menu-arrow"></i>
                     </a>
+                    @endif
                     <div class="collapse" id="settings">
                         <ul class="nav flex-column sub-menu">
+                            @if(checkRoles(auth()->user()->role, 'Company'))
                             <li class="nav-item dashboard-list" id="company-item">
                                 <a class="nav-link" href="{{url('settings/company')}}">Company</a>
                             </li>
+                            @endif
+                            @if(checkRoles(auth()->user()->role, 'Department'))
                             <li class="nav-item dashboard-list" id="department-item">
                                 <a class="nav-link" href="{{url('settings/department')}}">Department</a>
                             </li>
+                            @endif
+                            @if(checkRoles(auth()->user()->role, 'User Management'))
                             <li class="nav-item dashboard-list" id="user-item">
                                 <a class="nav-link" href="{{url('settings/users')}}">User Management</a>
                             </li>
+                            @endif
+                            @if(checkRoles(auth()->user()->role, 'Vendor Management'))
                             <li class="nav-item dashboard-list" id="user-item">
                                 <a class="nav-link" href="{{url('settings/vendors')}}">Vendor Management</a>
                             </li>
+                            @endif
+                            @if(checkRoles(auth()->user()->role, 'Role'))
                             <li class="nav-item dashboard-list" id="role-item">
                                 <a class="nav-link" href="{{url('settings/roles')}}">Role</a>
                             </li>
+                            @endif
+                            @if(checkRoles(auth()->user()->role, 'Category'))
                             <li class="nav-item dashboard-list" id="category-item">
                                 <a class="nav-link" href="{{url('settings/category')}}">Category</a>
                             </li>
+                            @endif
+                            @if(checkRoles(auth()->user()->role, 'UOMs'))
                             <li class="nav-item dashboard-list" id="uom-item">
                                 <a class="nav-link" href="{{url('settings/uom')}}">UOMs</a>
                             </li>
+                            @endif
                         </ul>
                     </div>
                 </li>

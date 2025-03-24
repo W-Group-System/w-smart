@@ -6,7 +6,9 @@ use App\Features;
 use App\Models\User;
 use App\Roles;
 use App\Subfeatures;
+use App\UserAccessModule;
 use Illuminate\Http\Request;
+use RealRashid\SweetAlert\Facades\Alert;
 
 class RoleController extends Controller
 {
@@ -17,12 +19,13 @@ class RoleController extends Controller
      */
     public function index()
     {
-        $roles = Roles::with('permission','permission.feature')->get();
-        $features = Features::get();
-        $subfeatures = Subfeatures::get();
-        $employees = User::whereNull('status')->get();
+        $roles = Roles::get();
+        $features = Features::with('subfeature')->get();
+        $employees = User::doesntHave('role_name')->whereNull('status')->get();
 
-        return view('settings_role', compact('roles','features','employees', 'subfeatures'));
+        $user_has_roles = User::has('role_name')->whereNull('status')->get();
+
+        return view('settings_role', compact('roles','features','employees', 'user_has_roles'));
     }
 
     /**
@@ -43,22 +46,25 @@ class RoleController extends Controller
      */
     public function store(Request $request)
     {
-        dd($request->all());
-        // $role = new Roles();
-        // $role->role = $request->role;
-        // $role->save();
+        // dd($request->all());
+        $role = new Roles();
+        $role->role = $request->role;
+        $role->save();
 
-        // foreach($request->permission as $key=>$permission)
-        // {
-        //     $role_permission = new Permissions();
-        //     $role_permission->roleid = $role->id;
-        //     $role_permission->role = $role->role;
-        //     $role_permission->featureid = $permission;
-        //     $role_permission->save();
-        // }
+        foreach($request->subfeature as $key=>$subfeature)
+        {
+            foreach($subfeature as $sub)
+            {
+                $user_access_modules = new UserAccessModule;
+                $user_access_modules->role_id = $role->id;
+                $user_access_modules->feature_id = $key;
+                $user_access_modules->subfeature_id = $sub;
+                $user_access_modules->save();
+            }
+        }
 
-        // Alert::success('Successfully Saved')->persistent('Dismiss');
-        // return back();
+        Alert::success('Successfully Saved')->persistent('Dismiss');
+        return back();
     }
 
     /**
@@ -92,7 +98,26 @@ class RoleController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        // dd($request->all(), $id);
+        $role = Roles::findOrFail($id);
+        $role->role = $request->role;
+        $role->save();
+
+        $user_access_modules = UserAccessModule::where('role_id', $id)->delete();
+        foreach($request->subfeature as $key=>$subfeature)
+        {
+            foreach($subfeature as $sub)
+            {
+                $user_access_modules = new UserAccessModule;
+                $user_access_modules->role_id = $role->id;
+                $user_access_modules->feature_id = $key;
+                $user_access_modules->subfeature_id = $sub;
+                $user_access_modules->save();
+            }
+        }
+
+        Alert::success('Successfully Updated')->persistent('Dismiss');
+        return back();
     }
 
     /**
@@ -104,5 +129,15 @@ class RoleController extends Controller
     public function destroy($id)
     {
         //
+    }
+
+    public function assign(Request $request)
+    {
+        $user = User::findOrFail($request->employee);
+        $user->role = $request->role;
+        $user->save();
+
+        Alert::success('Successfully Assigned')->persistent('Dismiss');
+        return back();
     }
 }

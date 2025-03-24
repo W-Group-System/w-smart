@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Department;
+use App\Roles;
 use App\Subsidiary;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -48,5 +49,9 @@ class User extends Authenticatable
     public function subsidiaryId()
     {
         return $this->belongsTo(Subsidiary::class,'subsidiaryid','subsidiary_id');
+    }
+    public function role_name()
+    {
+        return $this->belongsTo(Roles::class,'role');
     }
 }

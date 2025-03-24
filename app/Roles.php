@@ -6,8 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class Roles extends Model
 {
-    public function permission()
+    public function user_access_module()
     {
-        return $this->hasMany(Permissions::class,'roleid');
+        return $this->hasMany(UserAccessModule::class,'role_id');
     }
 }

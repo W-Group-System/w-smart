@@ -79,6 +79,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('update_role/{id}','RoleController@update');
     Route::post('activate_role/{id}','RoleController@activateRole');
     Route::post('deactivate_role/{id}','RoleController@deactivateRole');
+    Route::post('assign_role', 'RoleController@assign');
 
     // Users
     Route::get('/settings/users', 'UserController@index')->name('settings.users');
