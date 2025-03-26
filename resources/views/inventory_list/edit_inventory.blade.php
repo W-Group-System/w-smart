@@ -23,14 +23,21 @@
                         </div>
                         <div class="col-md-6">
                             <label for="newSubsidiary" class="form-label">Subsidiary</label>
-                            <select data-placeholder="Select subsidiary" class="form-control js-example-basic-single" style="width: 100%;" name="subsidiary" required>
-                                <option value="1" @if($inventory->subsidiary == "HO") selected @endif>HO</option>
+                            <select data-placeholder="Select subsidiary" class="form-control js-example-basic-multiple" style="width: 100%;" name="subsidiary[]" multiple required>
+                                <option value=""></option>
+                                @php
+                                    $inventory_subsidiary_array = $inventory->inventory_subsidiary->pluck('subsidiary_id')->toArray();
+                                @endphp
+                                @foreach ($subsidiaries as $subsidiary)
+                                    <option value="{{ $subsidiary->subsidiary_id }}" @if(in_array($subsidiary->subsidiary_id, $inventory_subsidiary_array)) selected @endif>{{ $subsidiary->subsidiary_name }}</option>
+                                @endforeach
+                                {{-- <option value="1" @if($inventory->subsidiary == "HO") selected @endif>HO</option>
                                 <option value="2" @if($inventory->subsidiary == "WTCC") selected @endif>WTCC</option>
                                 <option value="3" @if($inventory->subsidiary == "CITI") selected @endif>CITI</option>
                                 <option value="4" @if($inventory->subsidiary == "WCC") selected @endif>WCC</option>
                                 <option value="5" @if($inventory->subsidiary == "WFA") selected @endif>WFA</option>
                                 <option value="6" @if($inventory->subsidiary == "WOI") selected @endif>WOI</option>
-                                <option value="7" @if($inventory->subsidiary == "WGC") selected @endif>WGC</option>
+                                <option value="7" @if($inventory->subsidiary == "WGC") selected @endif>WGC</option> --}}
                             </select>
                         </div>
 
@@ -74,21 +81,21 @@
                             </select>
                         </div>
 
-                        <div class="col-md-6">
+                        {{-- <div class="col-md-6">
                             <label for="newSecondaryUOM" class="form-label">Secondary UOM</label>
                             <!-- <input type="text" id="secondaryUOMSearch" placeholder="Search Secondary UOM" class="form-control"> -->
                             <select data-placeholder="Select Secondary UOM" class="form-control js-example-basic-single" style="width: 100%;" name="secondary_uom">
                                 <option value=""></option>
                             </select>
-                        </div>
+                        </div> --}}
 
-                        <div class="col-md-6">
+                        {{-- <div class="col-md-6">
                             <label for="newTertiaryUOM" class="form-label">Tertiary UOM</label>
                             <!-- <input type="text" id="tertiaryUOMSearch" placeholder="Search Tertiary UOM" class="form-control"> -->
                             <select data-placeholder="Select Tertiary UOM" class="form-control js-example-basic-single" style="width: 100%;" name="tertiary_uom">
                                 <option value=""></option>
                             </select>
-                        </div>
+                        </div> --}}
 
                         <div class="col-md-6">
                             <label for="newCost" class="form-label" >Cost</label>

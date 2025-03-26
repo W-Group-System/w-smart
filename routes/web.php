@@ -29,6 +29,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('refresh_subcategory', 'InventoryListController@refreshSubCategory');
     Route::post('activate_inventory/{id}', 'InventoryListController@activate');
     Route::post('deactivate_inventory/{id}', 'InventoryListController@deactivate');
+    Route::get('view_inventory/{id}', 'InventoryListController@show');
     
     // Inventory Transfer
     Route::get('/inventory/inventory_transfer', 'InventoryTransferController@index')->name('inventory.transfer');

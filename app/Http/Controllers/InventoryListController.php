@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Categories;
 use App\Inventory;
+use App\InventorySubsidiary;
 use App\Subcategories;
+use App\Subsidiary;
 use App\Uoms;
 use Illuminate\Http\Request;
 use RealRashid\SweetAlert\Facades\Alert;
@@ -23,8 +25,9 @@ class InventoryListController extends Controller
         // Dropdown
         $categories = Categories::with('subCategory')->get();
         $uoms = Uoms::get();
+        $subsidiaries = Subsidiary::where('status', null)->get();
 
-        return view('inventory_list', compact('inventories','categories','uoms'));
+        return view('inventory_list', compact('inventories','categories','uoms','subsidiaries'));
     }
 
     /**
@@ -63,7 +66,7 @@ class InventoryListController extends Controller
         $inventory = new Inventory();
         $inventory->item_code = $item_code;
         $inventory->item_description = $request->item_description;
-        $inventory->subsidiary = $request->subsidiary;
+        // $inventory->subsidiary = $request->subsidiary;
         // $inventory->uomp = $request->primary_uom;
         // $inventory->uoms = $request->secondary_uom;
         // $inventory->uomt = $request->tertiary_uom;
@@ -75,6 +78,14 @@ class InventoryListController extends Controller
         $inventory->category_id = $request->category;
         $inventory->subcategory_id = $request->sub_category;
         $inventory->save();
+
+        foreach($request->subsidiary as $subsidiary)
+        {
+            $inventory_subsidiary = new InventorySubsidiary;
+            $inventory_subsidiary->subsidiary_id = $subsidiary;
+            $inventory_subsidiary->inventory_id = $inventory->inventory_id;
+            $inventory_subsidiary->save();
+        }
 
         Alert::success('Successfully Saved')->persistent('Dismiss');
         return back();
@@ -88,7 +99,9 @@ class InventoryListController extends Controller
      */
     public function show($id)
     {
-        //
+        $inventory = Inventory::findOrFail($id);
+
+        return view('inventory_list.view_inventory', compact('inventory'));
     }
 
     /**

@@ -487,6 +487,10 @@
                                 @foreach ($inventories as $inventory)
                                     <tr>
                                         <td>
+                                            <a href={{ url('view_inventory/'.$inventory->inventory_id) }} class="btn btn-sm btn-info">
+                                                <i class="ti-eye"></i>
+                                            </a>
+
                                             <button type="button" class="btn btn-warning btn-sm" data-toggle="modal" data-target="#editInventoryModal{{$inventory->inventory_id}}">
                                                 <i class="ti-pencil-alt"></i>
                                             </button>
@@ -495,7 +499,7 @@
                                             <form method="POST" action="{{url('activate_inventory/'.$inventory->inventory_id)}}" class="d-inline-block" id="activateForm{{$inventory->inventory_id}}" onsubmit="show()">
                                                 @csrf 
 
-                                                <button type="button" class="btn btn-info btn-sm" onclick="activate({{$inventory->inventory_id}})">
+                                                <button type="button" class="btn btn-success btn-sm" onclick="activate({{$inventory->inventory_id}})">
                                                     <i class="ti-check"></i>
                                                 </button>
                                             </form>

@@ -173,7 +173,13 @@
                         </div>
         
                         <div class="col-md-12 mb-2">
-                            <div class="table-responsive">
+                            <button type="button" class="btn btn-sm btn-success" id="addRowBtn">
+                                <i class="ti-plus"></i>
+                            </button>
+                            <button type="button" class="btn btn-sm btn-danger" id="deleteRowBtn">
+                                <i class="ti-minus"></i>
+                            </button>
+                            <div class="table-responsive mt-3">
                                 <table class="table table-bordered" width="100%" style="table-layout: fixed;">
                                     <thead>
                                         <tr>
@@ -214,12 +220,6 @@
                                     </tbody>
                                 </table>
                             </div>    
-                            <button type="button" class="btn btn-sm btn-success" id="addRowBtn">
-                                <i class="ti-plus"></i>
-                            </button>
-                            <button type="button" class="btn btn-sm btn-danger" id="deleteRowBtn">
-                                <i class="ti-minus"></i>
-                            </button>
                         </div>
                         <div class="col-md-6">
                             <label for="attachments" class="form-label">Attachments:</label>

@@ -40,4 +40,8 @@ class Inventory extends Model
     {
         return $this->belongsTo(Subcategories::class);
     }
+    public function inventory_subsidiary()
+    {
+        return $this->hasMany(InventorySubsidiary::class,'inventory_id');
+    }
 }
