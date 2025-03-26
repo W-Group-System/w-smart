@@ -264,6 +264,11 @@
                                 <a class="nav-link" href="{{url('settings/uom')}}">UOMs</a>
                             </li>
                             @endif
+                            {{-- @if(checkRoles(auth()->user()->role, 'UOMs')) --}}
+                            <li class="nav-item dashboard-list" id="uom-item">
+                                <a class="nav-link" href="{{url('settings/purchase_approver')}}">Purchase Approvers</a>
+                            </li>
+                            {{-- @endif --}}
                         </ul>
                     </div>
                 </li>

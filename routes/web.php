@@ -103,6 +103,10 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('/settings/active-department/{id}','DepartmentController@active');
     Route::post('/settings/deactive-department/{id}','DepartmentController@deactive');
 
+    // PR/PO Approvers
+    Route::get('settings/purchase_approver', 'PurchaseApproverController@index');
+    Route::post('store_purchase_approver', 'PurchaseApproverController@store');
+
     # Procurement 
 
     // Purchased Request
