@@ -165,4 +165,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('procurement/update_supplier_evalutaion/{id}','EvaluationController@update');
     Route::post('refresh_vendor_name', 'EvaluationController@refreshVendorName')->name('refresh_vendor_name');
     Route::post('procurement/confirmed_supplier_evaluation/{id}','EvaluationController@confirmed');
+
+    // Assign Analyst
+    Route::get('procurement/assign_analyst', 'AssignAnalystController@index');
 });

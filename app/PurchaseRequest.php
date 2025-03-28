@@ -53,4 +53,8 @@ class PurchaseRequest extends Model
     {
         return $this->belongsTo(Classification::class);
     }
+    public function purchaseRequestApprovers()
+    {
+        return $this->hasMany(PurchaseRequestApprover::class);
+    }
 }

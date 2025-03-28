@@ -193,9 +193,18 @@
                                 <a class="nav-link" href="{{url('procurement/purchase-request')}}">Purchased Request</a>
                             </li>
                             @endif
+                            {{-- @if(checkRoles(auth()->user()->role, 'Assign Analyst')) --}}
+                            <li class="nav-item dashboard-list">
+                                <a class="nav-link" href="{{url('procurement/assign_analyst')}}" >Assigned Analyst
+                                    <span class="badge badge-danger">0</span>
+                                </a>
+                            </li>
+                            {{-- @endif --}}
                             @if(checkRoles(auth()->user()->role, 'For Approval'))
                             <li class="nav-item dashboard-list">
-                                <a class="nav-link" href="{{url('procurement/for-approval-pr')}}">For Approval</a>
+                                <a class="nav-link" href="{{url('procurement/for-approval-pr')}}" >For Approval 
+                                    <span class="badge badge-danger">{{ for_approval_count() }}</span>
+                                </a>
                             </li>
                             @endif
                             {{-- <li class="nav-item dashboard-list" id="canvassing-item">
@@ -264,11 +273,11 @@
                                 <a class="nav-link" href="{{url('settings/uom')}}">UOMs</a>
                             </li>
                             @endif
-                            {{-- @if(checkRoles(auth()->user()->role, 'UOMs')) --}}
+                            @if(checkRoles(auth()->user()->role, 'Purchase Approvers'))
                             <li class="nav-item dashboard-list" id="uom-item">
                                 <a class="nav-link" href="{{url('settings/purchase_approver')}}">Purchase Approvers</a>
                             </li>
-                            {{-- @endif --}}
+                            @endif
                         </ul>
                     </div>
                 </li>

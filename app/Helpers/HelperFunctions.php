@@ -1,6 +1,7 @@
 <?php
 
 use App\Features;
+use App\PurchaseRequestApprover;
 use App\Subfeatures;
 use App\UserAccessModule;
 
@@ -33,4 +34,10 @@ function checkModule($role_id, $name="")
     }
     
     return false;
+}
+function for_approval_count()
+{
+    $count = PurchaseRequestApprover::with('purchase_request')->where('status','Pending')->where('user_id', auth()->user()->id)->count();
+    
+    return $count;
 }

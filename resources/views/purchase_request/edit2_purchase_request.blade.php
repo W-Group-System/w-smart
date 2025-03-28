@@ -2,7 +2,7 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Edit purchase request</h5>
+                <h5 class="modal-title">Assign Analyst</h5>
             </div>
             <form method="POST" action="{{url('procurement/edit-assigned/'.$purchase_request->id)}}" onsubmit="show()">
                 @csrf 
@@ -12,8 +12,8 @@
                         <label for="assignedTo" class="form-label">Assigned To:</label>
                         <select data-placeholder="Select assigned to" class="form-control js-example-basic-single" name="assigned_to" style="width: 100%;" required>
                             <option value=""></option>
-                            @foreach ($users as $key=>$user)
-                                <option value="{{$key}}">{{$user}}</option>
+                            @foreach ($users->where('role', 3) as $key=>$user)
+                                <option value="{{$key}}">{{$user->name}}</option>
                             @endforeach
                         </select>
                     </div>

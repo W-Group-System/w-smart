@@ -183,7 +183,7 @@
                     <h4 class="card-title">{{str_pad($purchase_request->id, 6, '0', STR_PAD_LEFT)}} - {{$purchase_request->status}}</h4>
         
                     <div>
-                        @if(!$purchase_request->assigned_to)
+                        @if(auth()->user()->role == 1)
                         <button type="button" class="btn btn-outline-warning" title="Edit" data-toggle="modal" data-target="#editPr{{$purchase_request->id}}">
                             <i class="ti-check"></i>
                             Assign
@@ -196,12 +196,16 @@
                         </button>
                         @endif
         
-                        @if($purchase_request->status == 'Pending'  && request('origin') == 'for_approval')
-                        <button type="button" class="btn btn-outline-success" title="Request for quotation" data-toggle="modal" data-target="#view{{$purchase_request->id}}">
-                            <i class="ti-check"></i>
-                            Approved
-                        </button>
+                        {{-- @if($purchase_request->status == 'Pending'  && request('origin') == 'for_approval') --}}
+                        @if($purchase_request->assigned_to)
+                            @foreach ($purchase_request->purchaseRequestApprovers->where('status', 'Pending')->where('user_id', auth()->user()->id) as $pr_approver)
+                            <button type="button" class="btn btn-outline-success" title="Request for quotation" data-toggle="modal" data-target="#view{{$purchase_request->id}}">
+                                <i class="ti-check"></i>
+                                Approved
+                            </button>
+                            @endforeach
                         @endif
+                        {{-- @endif --}}
         
                         @if(request('origin') == 'for_approval')
                         <a href="{{url('procurement/for-approval-pr')}}" type="button" class="btn btn-outline-secondary">
@@ -354,6 +358,34 @@
                                     @endif
                                 </tbody>
                             </table>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="col-md-12">
+                        <div class="card border border-1 border-primary rounded-0">
+                            <div class="card-header bg-primary rounded-0">
+                                <p class="m-0 text-white font-weight-bold">Approver</p>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-lg-3 border border-1 border-top-bottom border-left-right font-weight-bold">Name</div>
+                                    <div class="col-lg-3 border border-1 border-top-bottom border-left-right font-weight-bold">Status</div>
+                                    <div class="col-lg-3 border border-1 border-top-bottom border-left-right font-weight-bold">Date</div>
+                                    <div class="col-lg-3 border border-1 border-top-bottom border-left-right font-weight-bold">Remarks</div>
+                                </div>
+                                @foreach ($purchase_request->purchaseRequestApprovers as $pr_approver)
+                                    <div class="row">
+                                        <div class="col-lg-3 border border-1 border-top-bottom border-left-right">{{ $pr_approver->user->name }}</div>
+                                        <div class="col-lg-3 border border-1 border-top-bottom border-left-right">{{ $pr_approver->status }}</div>
+                                        <div class="col-lg-3 border border-1 border-top-bottom border-left-right">
+                                            @if($pr_approver->status == 'Approved')
+                                                {{ date('Y-m-d', strtotime($pr_approver->updated_at)) }}
+                                            @endif
+                                        </div>
+                                        <div class="col-lg-3 border border-1 border-top-bottom border-left-right">{!! nl2br(e($pr_approver->remarks)) !!}</div>
+                                    </div>
+                                @endforeach
+                            </div>
                         </div>
                     </div>
                 </div>

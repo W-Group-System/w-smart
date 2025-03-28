@@ -3,27 +3,20 @@
 namespace App\Http\Controllers;
 
 use App\PurchaseRequest;
-use App\PurchaseRequestApprover;
 use Illuminate\Http\Request;
-use RealRashid\SweetAlert\Facades\Alert;
 
-class ForApprovalPurchaseRequestController extends Controller
+class AssignAnalystController extends Controller
 {
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(Request $request)
+    public function index()
     {
-        //
-        $start_date = $request->start_date;
-        $end_date = $request->end_date;
+        $purchase_requests = PurchaseRequest::whereNull('assigned_to')->get();
 
-        // $purchase_requests = PurchaseRequest::where('status', 'Pending')->get();
-        $purchase_request_approval = PurchaseRequestApprover::with('purchase_request')->where('status','Pending')->where('user_id', auth()->user()->id)->get();
-
-        return view('purchase_request.for_approval', compact('start_date','end_date','purchase_request_approval'));
+        return view('assign_analyst.index',compact('purchase_requests'));
     }
 
     /**
@@ -79,23 +72,6 @@ class ForApprovalPurchaseRequestController extends Controller
     public function update(Request $request, $id)
     {
         //
-        $purchase_requests = PurchaseRequest::findOrFail($id);
-        
-        if ($request->action == 'Approved')
-        {
-            $purchase_requests->status = 'For RFQ';
-            Alert::success('Successfully Approved')->persistent('Dismiss');
-        }
-        elseif($request->action == 'Returned')
-        {
-            $purchase_requests->status = 'Returned';
-            $purchase_requests->return_remarks = $request->return_remarks;
-            Alert::success('Successfully Returned')->persistent('Dismiss');
-        }
-
-        $purchase_requests->save();
-
-        return redirect('procurement/for-approval-pr');
     }
 
     /**

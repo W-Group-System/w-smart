@@ -179,12 +179,12 @@
         </div>
     </div>
 
-    <div class="col-lg-12">
+    <div class="col-lg-6">
         <div class="card">
             <div class="card-body">
-                <h4 class="card-title">For approval</h4>
+                <h4 class="card-title">purchased request</h4>
                 <div class="table-responsive">
-                    <table class="table table-hover table-bordered" id="tablewithSearch">
+                    <table class="table table-hover table-bordered tables">
                         <thead>
                             <tr>
                                 <th>Action</th>
@@ -193,7 +193,53 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach ($purchase_requests as $pr)
+                            @foreach ($purchase_request_approval as $approval)
+                                @php
+                                    $pr = $approval->purchase_request;
+                                @endphp
+                                <tr>
+                                    <td>
+                                        <a href="{{url('procurement/show-purchase-request/'.$pr->id.'/'.'?origin=for_approval')}}" title="View" class="btn btn-sm btn-info text-white" >
+                                            <i class="ti-eye"></i>
+                                        </a>
+                                        
+                                        {{-- @if($pr->status == 'Returned')
+                                        <button type="button" class="btn btn-sm btn-warning text-white" title="Edit" data-bs-toggle="modal" data-bs-target="#editPurchaseRequest{{$pr->id}}">
+                                            <i class="bi bi-pencil-square"></i>
+                                        </button>
+                                        @endif --}}
+                                    </td>
+                                    <td>{{str_pad($pr->id,6,'0',STR_PAD_LEFT)}}</td>
+                                    <td>
+                                        @foreach ($pr->purchaseItems as $item)
+                                            {{$item->inventory->item_description}} <br>
+                                        @endforeach
+                                    </td>
+                                </tr>
+    
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>        
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-body">
+                <h4 class="card-title">purchased order</h4>
+                <div class="table-responsive">
+                    <table class="table table-hover table-bordered tables">
+                        <thead>
+                            <tr>
+                                <th>Action</th>
+                                <th>PO Number</th>
+                                <th>PO Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {{-- @foreach ($purchase_requests as $pr)
                                 <tr>
                                     <td>
                                         <a href="{{url('procurement/show-purchase-request/'.$pr->id.'/'.'?origin=for_approval')}}" title="View" class="btn btn-sm btn-info text-white" >
@@ -214,7 +260,7 @@
                                     </td>
                                 </tr>
     
-                            @endforeach
+                            @endforeach --}}
                         </tbody>
                     </table>
                 </div>        
@@ -226,7 +272,7 @@
 
 @section('js')
 <script>
-    $("#tablewithSearch").DataTable({
+    $(".tables").DataTable({
         dom: 'Bfrtip',
         ordering: true,
         pageLength: 25,

@@ -225,7 +225,27 @@
                             <label for="attachments" class="form-label">Attachments:</label>
                             <input type="file" name="attachments[]" class="form-control" multiple required>
                         </div>
-        
+
+                        <div class="col-lg-12 mt-3">
+                            <div class="card border border-1 border-primary rounded-0">
+                                <div class="card-header bg-primary rounded-0">
+                                    <p class="m-0 text-white font-weight-bold">Approver</p>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-lg-6 border border-1 border-top-bottom border-left-right font-weight-bold">Level</div>
+                                        <div class="col-lg-6 border border-1 border-top-bottom border-left-right font-weight-bold">Name</div>
+                                    </div>
+                                    @foreach ($purchase_approvers as $purchase_approver)
+                                        <div class="row">
+                                            <div class="col-lg-6 border border-1 border-top-bottom border-left-right">{{ $purchase_approver->level }}</div>
+                                            <div class="col-lg-6 border border-1 border-top-bottom border-left-right">{{ $purchase_approver->user->name }}</div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6"></div>
                         <div class="col-md-6">
                             <button type="submit" class="btn btn-success float-right mt-5">
                                 Submit

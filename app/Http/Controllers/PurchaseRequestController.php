@@ -6,8 +6,10 @@ use App\Classification;
 use App\Department;
 use App\Inventory;
 use App\Models\User;
+use App\PurchaseApprover;
 use App\PurchaseItem;
 use App\PurchaseRequest;
+use App\PurchaseRequestApprover;
 use App\PurchaseRequestFile;
 use App\Subsidiary;
 use App\SupplierAccreditation;
@@ -40,7 +42,7 @@ class PurchaseRequestController extends Controller
             // ->paginate(10);
             ->get();
         $get_pr_no = PurchaseRequest::orderBy('id','desc')->first();
-        
+
         return view('purchased_request', compact('users','purchase_requests','get_pr_no','start_date','end_date','inventory_list'));
     }
 
@@ -53,8 +55,9 @@ class PurchaseRequestController extends Controller
     {
         $inventory_list = Inventory::where('status',null)->get();
         $classifications = Classification::where('status', null)->get();
+        $purchase_approvers = PurchaseApprover::orderBy('level','asc')->get();
 
-        return view('purchase_request.new_purchase_request', compact('inventory_list', 'classifications'));
+        return view('purchase_request.new_purchase_request', compact('inventory_list', 'classifications', 'purchase_approvers'));
     }
 
     /**
@@ -105,6 +108,24 @@ class PurchaseRequestController extends Controller
             }
         }
 
+        $purchase_approvers = PurchaseApprover::orderBy('level','asc')->get();
+        foreach($purchase_approvers as $key=>$purchase_approver)
+        {
+            $pr_approver = new PurchaseRequestApprover();
+            $pr_approver->purchase_request_id = $purchase_request->id;
+            $pr_approver->user_id = $purchase_approver->user_id;
+            $pr_approver->level = $purchase_approver->level;
+            if ($key == 0)
+            {
+                $pr_approver->status = 'Pending';
+            }
+            else
+            {
+                $pr_approver->status = 'Waiting';
+            }
+            $pr_approver->save();
+        }
+
         Alert::success('Successfully Saved')->persistent('Dismiss');
         // return back();
 
@@ -119,8 +140,8 @@ class PurchaseRequestController extends Controller
      */
     public function show($id)
     {
-        $purchase_request = PurchaseRequest::with('user','department','assignedTo','purchaseItems','purchaseRequestFiles')->findOrFail($id);
-        $users = User::where('status',null)->pluck('name','id');
+        $purchase_request = PurchaseRequest::with('user','department','assignedTo','purchaseItems','purchaseRequestFiles', 'purchaseRequestApprovers')->findOrFail($id);
+        $users = User::where('status',null)->get();
         $suppliers = SupplierAccreditation::get();
         
         return view('purchase_request.view_purchase_request', compact('purchase_request','users','suppliers'));
