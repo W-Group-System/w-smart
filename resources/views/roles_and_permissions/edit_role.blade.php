@@ -34,7 +34,7 @@
                                     <hr>
 
                                     <div class="row">
-                                        @foreach ($feature->subfeature as $subfeature)
+                                        @foreach ($feature->subfeature->where('status', null) as $subfeature)
                                             <div class="col-lg-12">
                                                 <input type="checkbox" name="subfeature[{{ $feature->id }}][]" value="{{ $subfeature->id }}" @if(in_array($subfeature->id, $module)) checked @endif> {{ $subfeature->subfeature_name }}
                                             </div>

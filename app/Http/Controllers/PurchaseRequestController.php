@@ -155,7 +155,12 @@ class PurchaseRequestController extends Controller
      */
     public function edit($id)
     {
-        //
+        $purchase_request = PurchaseRequest::with('user','department','assignedTo','purchaseItems','purchaseRequestFiles', 'purchaseRequestApprovers')->findOrFail($id);
+        $inventory_list = Inventory::where('status',null)->get();
+        $classifications = Classification::where('status', null)->get();
+        $purchase_approvers = PurchaseApprover::orderBy('level','asc')->get();
+        
+        return view('purchase_request.edit_purchase_request',compact('purchase_request','inventory_list','classifications','purchase_approvers'));
     }
 
     /**
@@ -211,8 +216,12 @@ class PurchaseRequestController extends Controller
             }
         }
 
+        $purchase_request_approvers = PurchaseRequestApprover::orderBy('level','asc')->first();
+        $purchase_request_approvers->status = 'Pending';
+        $purchase_request_approvers->save();
+
         Alert::success('Successfully Updated')->persistent('Dismiss');
-        return back();
+        return redirect('procurement/purchase-request');
     }
 
     /**

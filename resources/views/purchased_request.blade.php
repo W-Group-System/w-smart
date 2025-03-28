@@ -425,7 +425,7 @@ function itemDescription(value)
                                     <th>Department </th>
                                     <th>Subsidiary </th>
                                     <th>Amount </th>
-                                    <th>Expedited </th>
+                                    {{-- <th>Expedited </th> --}}
                                     <th>Status </th>
                                     <th>Assigned to (Buyer) </th>
                                     <th>Assigned Date/Time </th>
@@ -435,14 +435,14 @@ function itemDescription(value)
                                 @foreach ($purchase_requests as $pr)
                                     <tr>
                                         <td>
-                                            <a href="{{url('procurement/show-purchase-request/'.$pr->id)}}" class="btn btn-sm btn-info text-white">
+                                            <a href="{{url('procurement/show-purchase-request/'.$pr->id)}}" class="btn btn-sm btn-info">
                                                 <i class="ti-eye"></i>
                                             </a>
                                             
                                             @if($pr->status == 'Returned')
-                                            <button type="button" class="btn btn-sm btn-warning text-white" title="Edit" data-bs-toggle="modal" data-bs-target="#editPurchaseRequest{{$pr->id}}">
+                                            <a href="{{ url('edit_purchase_request/'.$pr->id) }}" class="btn btn-sm btn-warning">
                                                 <i class="ti-pencil-alt"></i>
-                                            </button>
+                                            </a>
                                             @endif
                                         </td>
                                         <td>{{date('m/d/Y', strtotime($pr->created_at))}}</td>
@@ -457,7 +457,7 @@ function itemDescription(value)
                                         <td>{{$pr->department->name}}</td>
                                         <td>{{$pr->subsidiary}}</td>
                                         <td>0.00</td>
-                                        <td>Expedited</td>
+                                        {{-- <td>Expedited</td> --}}
                                         <td>{{$pr->status}}</td>
                                         <td>{{optional($pr->assignedTo)->name}}</td>
                                         <td>{{date('m/d/Y', strtotime($pr->created_at))}}</td>

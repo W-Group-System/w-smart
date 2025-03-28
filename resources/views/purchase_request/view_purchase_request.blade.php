@@ -183,7 +183,7 @@
                     <h4 class="card-title">{{str_pad($purchase_request->id, 6, '0', STR_PAD_LEFT)}} - {{$purchase_request->status}}</h4>
         
                     <div>
-                        @if(auth()->user()->role == 1)
+                        @if(auth()->user()->role == 1 && $purchase_request->status == 'Pending')
                         <button type="button" class="btn btn-outline-warning" title="Edit" data-toggle="modal" data-target="#editPr{{$purchase_request->id}}">
                             <i class="ti-check"></i>
                             Assign
@@ -200,8 +200,8 @@
                         @if($purchase_request->assigned_to)
                             @foreach ($purchase_request->purchaseRequestApprovers->where('status', 'Pending')->where('user_id', auth()->user()->id) as $pr_approver)
                             <button type="button" class="btn btn-outline-success" title="Request for quotation" data-toggle="modal" data-target="#view{{$purchase_request->id}}">
-                                <i class="ti-check"></i>
-                                Approved
+                                <i class="ti-control-play"></i>
+                                Action
                             </button>
                             @endforeach
                         @endif

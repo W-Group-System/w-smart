@@ -12,8 +12,8 @@
                         <label for="assignedTo" class="form-label">Assigned To:</label>
                         <select data-placeholder="Select assigned to" class="form-control js-example-basic-single" name="assigned_to" style="width: 100%;" required>
                             <option value=""></option>
-                            @foreach ($users->where('role', 3) as $key=>$user)
-                                <option value="{{$key}}">{{$user->name}}</option>
+                            @foreach ($users->where('role', 3) as $user)
+                                <option value="{{$user->id}}">{{$user->name}}</option>
                             @endforeach
                         </select>
                     </div>

@@ -1,6 +1,7 @@
 <?php
 
 use App\Features;
+use App\PurchaseRequest;
 use App\PurchaseRequestApprover;
 use App\Subfeatures;
 use App\UserAccessModule;
@@ -40,4 +41,8 @@ function for_approval_count()
     $count = PurchaseRequestApprover::with('purchase_request')->where('status','Pending')->where('user_id', auth()->user()->id)->count();
     
     return $count;
+}
+function assign_count()
+{
+    return PurchaseRequest::whereNull('assigned_to')->count();
 }

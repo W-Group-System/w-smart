@@ -83,13 +83,46 @@ class ForApprovalPurchaseRequestController extends Controller
         
         if ($request->action == 'Approved')
         {
-            $purchase_requests->status = 'For RFQ';
+            $purchase_requests_approvers = PurchaseRequestApprover::where('purchase_request_id', $id)->where('status','Pending')->first();
+            $purchase_requests_approvers->status = 'Approved';
+            $purchase_requests_approvers->save();
+
+            $pr_approvers = PurchaseRequestApprover::where('status', 'Waiting')->orderBy('level','asc')->get();
+            if($pr_approvers->isNotEmpty())
+            {
+                foreach($pr_approvers as $key=>$pr_approver)
+                {
+                    if ($key == 0)
+                    {
+                        $pr_approver->status = 'Pending';
+                    }
+                    else
+                    {
+                        $pr_approver->status = 'Waiting';
+                    }
+    
+                    $pr_approver->save();
+                }
+            }
+            else
+            {
+                $purchase_requests->status = 'For RFQ';
+            }
+            
             Alert::success('Successfully Approved')->persistent('Dismiss');
         }
         elseif($request->action == 'Returned')
         {
+            $purchase_requests_approvers = PurchaseRequestApprover::where('purchase_request_id', $id)->whereIn('status',['Pending', 'Approved'])->get();
+            foreach($purchase_requests_approvers as $key=>$pr_approver)
+            {
+                $pr_approver->status = 'Waiting';
+                $pr_approver->save();
+            }
+
             $purchase_requests->status = 'Returned';
-            $purchase_requests->return_remarks = $request->return_remarks;
+            $purchase_requests->is_returned = 1;
+
             Alert::success('Successfully Returned')->persistent('Dismiss');
         }
 

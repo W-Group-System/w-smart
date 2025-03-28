@@ -193,13 +193,13 @@
                                 <a class="nav-link" href="{{url('procurement/purchase-request')}}">Purchased Request</a>
                             </li>
                             @endif
-                            {{-- @if(checkRoles(auth()->user()->role, 'Assign Analyst')) --}}
+                            @if(checkRoles(auth()->user()->role, 'Assign Analyst'))
                             <li class="nav-item dashboard-list">
-                                <a class="nav-link" href="{{url('procurement/assign_analyst')}}" >Assigned Analyst
-                                    <span class="badge badge-danger">0</span>
+                                <a class="nav-link" href="{{url('procurement/assign_analyst')}}" >Assign Analyst
+                                    <span class="badge badge-danger">{{ assign_count() }}</span>
                                 </a>
                             </li>
-                            {{-- @endif --}}
+                            @endif
                             @if(checkRoles(auth()->user()->role, 'For Approval'))
                             <li class="nav-item dashboard-list">
                                 <a class="nav-link" href="{{url('procurement/for-approval-pr')}}" >For Approval 
