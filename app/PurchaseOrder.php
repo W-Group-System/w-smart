@@ -10,10 +10,10 @@ class PurchaseOrder extends Model
     {
         return $this->belongsTo(PurchaseRequest::class);
     }
-    // public function rfqEmail()
-    // {
-    //     return $this->belongsTo(RfqEmail::class);
-    // }
+    public function purchaseOrderItem()
+    {
+        return $this->hasMany(PurchaseOrderItem::class);
+    }
     public function supplier()
     {
         return $this->belongsTo(SupplierAccreditation::class,'supplier_id');

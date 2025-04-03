@@ -163,13 +163,13 @@
                                 </button>
                             </form>
 
-                            <form method="POST" class="d-inline-block" action="{{url('cancel_po/'.$po->id)}}" onsubmit="show()">
+                            {{-- <form method="POST" class="d-inline-block" action="{{url('cancel_po/'.$po->id)}}" onsubmit="show()">
                                 @csrf 
                                 <button type="submit" class="btn btn-outline-danger">
                                     <i class="ti-na"></i>
                                     Cancel
                                 </button>
-                            </form>
+                            </form> --}}
                         @endif
 
                         <a href="{{url('procurement/purchase-order')}}" type="button" class="btn btn-outline-secondary">
@@ -202,13 +202,13 @@
                     </div>
                     <div class="col-lg-6">
                         <dl class="row">
-                            <dt class="col-sm-3">PO Date:</dt>
+                            <dt class="col-sm-3 text-right">PO Date:</dt>
                             <dd class="col-sm-9">{{date('M d Y', strtotime($po->created_at))}}</dd>
-                            <dt class="col-sm-3">Payment Terms:</dt>
+                            <dt class="col-sm-3 text-right">Payment Terms:</dt>
                             <dd class="col-sm-9">{{$po->supplier->suppliers_terms}}</dd>
-                            <dt class="col-sm-3">Bill To:</dt>
+                            <dt class="col-sm-3 text-right">Bill To:</dt>
                             <dd class="col-sm-9">{{$po->supplier->corporate_name}}</dd>
-                            <dt class="col-sm-3">Bill Address:</dt>
+                            <dt class="col-sm-3 text-right">Bill Address:</dt>
                             <dd class="col-sm-9">{!! nl2br(e($po->supplier->billing_address)) !!}</dd>
                         </dl>
                     </div>
@@ -228,14 +228,14 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @if($po->purchaseRequest->rfqItem->isNotEmpty())
-                                        @foreach ($po->purchaseRequest->rfqItem as $item)
+                                    @if($po->purchaseOrderItem->isNotEmpty())
+                                        @foreach ($po->purchaseOrderItem as $item)
                                             <tr>
-                                                <td>{{$item->purchaseItem->inventory->item_code}}</td>
-                                                <td>{{$item->purchaseItem->inventory->item_category}}</td>
-                                                <td>{{$item->purchaseItem->inventory->item_description}}</td>
-                                                <td>{{number_format($item->purchaseItem->inventory->qty,2)}}</td>
-                                                <td>{{$item->purchaseItem->unit_of_measurement}}</td>
+                                                <td>{{$item->inventory->item_code}}</td>
+                                                <td>{{$item->inventory->item_category}}</td>
+                                                <td>{{$item->inventory->item_description}}</td>
+                                                <td>{{number_format($item->inventory->qty,2)}}</td>
+                                                <td>{{$item->unit_of_measurement}}</td>
                                             </tr>
                                         @endforeach
                                     @else

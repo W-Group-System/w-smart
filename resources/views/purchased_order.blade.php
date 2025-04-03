@@ -272,29 +272,6 @@
 <script>
     function showVendorEmail(value)
     {
-        // try {
-        //     const response = await axios.post('{{url("refresh_rfq_vendor")}}', 
-        //         {
-        //             data: value
-        //         },
-        //     )
-        //     const supplier = response.data;
-        //     const categorySelect = document.getElementById('vendorEmail');
-            
-        //     categorySelect.innerHTML = '';
-
-        //     supplier.forEach((email) => {
-        //         const option = document.createElement('option');
-                
-        //         option.value = email.id;
-        //         option.text = email.corporate_name+' - '+email.billing_email;
-        //         categorySelect.appendChild(option);
-        //     })
-            
-        // } catch (error) {
-        //     console.error(error);
-        // }
-        
         $.ajax({
             type: "POST",
             url: "{{url('refresh_rfq_vendor')}}",
@@ -310,11 +287,48 @@
         })
     }
 
-    $("#tablewithSearch").DataTable({
-        dom: 'Bfrtip',
-        ordering: true,
-        pageLength: 25,
-        paging: true,
-    });
+    function refreshRfqItem(value)
+    {
+        $.ajax({
+            type: "POST",
+            url: "{{url('refresh_rfq_item')}}",
+            data: {
+                data: value
+            },
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            },
+            success: function(response) {
+                $('#rfqParent').children().remove()
+
+                $.each(response.rfq, function(key, data) {
+                    console.log(data);
+                    
+                    var rfq = `
+                        <div class="form-group">
+                            <input type="checkbox" name="purchaseOrderItem[]" value="${data.inventory_id}">
+                            ${data.item_description}
+                        </div>
+                    `
+                    $("#rfqParent").append(rfq)
+                })
+                // $("[name='vendor']").html(response)
+            }
+        })
+    }
+
+    $(document).ready(function() {
+        $("#tablewithSearch").DataTable({
+            dom: 'Bfrtip',
+            ordering: true,
+            pageLength: 25,
+            paging: true,
+        });
+
+        $("[name='purchase_request']").on('change', function() {
+            showVendorEmail($(this).val())
+            refreshRfqItem($(this).val())
+        })
+    })
 </script>
 @endsection

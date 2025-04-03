@@ -10,5 +10,4 @@ class RfqItem extends Model
     {
         return $this->belongsTo(PurchaseItem::class);
     }
-    
 }

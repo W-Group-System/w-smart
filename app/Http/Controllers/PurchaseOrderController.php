@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\PurchaseOrder;
+use App\PurchaseOrderItem;
 use App\PurchaseRequest;
 use App\RfqEmail;
+use App\RfqItem;
 use App\SupplierAccreditation;
 use GuzzleHttp\Client;
 use GuzzleHttp\HandlerStack;
@@ -24,7 +26,7 @@ class PurchaseOrderController extends Controller
         $start_date = $request->start_date;
         $end_date = $request->end_date;
 
-        $purchase_request = PurchaseRequest::doesntHave('purchaseOrder')->where('status','For Canvassing')->get();
+        $purchase_request = PurchaseRequest::with('rfqItem')->doesntHave('purchaseOrder')->where('status','For Canvassing')->get();
         $vendors = RfqEmail::get();
         
         $purchase_order = PurchaseOrder::with('purchaseRequest')->get();
@@ -61,7 +63,7 @@ class PurchaseOrderController extends Controller
         ]);
         $po_data = json_decode($response->getBody()->getContents());
         $po_number = collect($po_data->items)->first()->tranid;
-
+        
         return view('purchased_order',compact('start_date','end_date','purchase_request','purchase_order','vendors','po_number'));
     }
 
@@ -107,6 +109,14 @@ class PurchaseOrderController extends Controller
         $purchase_order->expected_delivery_date = $request->expected_delivery_date; 
         $purchase_order->save();
 
+        foreach($request->purchaseOrderItem as $purchaseOrderItem)
+        {
+            $po_item = new PurchaseOrderItem;
+            $po_item->inventory_id = $purchaseOrderItem;
+            $po_item->purchase_order_id = $purchase_order->id;
+            $po_item->save();
+        }
+
         Alert::success('Successfully Saved')->persistent('Dismiss');
         return back();
     }
@@ -120,7 +130,7 @@ class PurchaseOrderController extends Controller
     public function show($id)
     {
         // $start_date = $request->start_date;
-        $po = PurchaseOrder::with('purchaseRequest.rfqItem.purchaseItem.inventory', 'supplier')->findOrFail($id);
+        $po = PurchaseOrder::with('purchaseRequest.rfqItem.purchaseItem.inventory', 'supplier', 'purchaseOrderItem.inventory')->findOrFail($id);
 
         $middleware = new Oauth1([
             'consumer_key'    => env('CONSUMER_KEY'),
@@ -436,5 +446,21 @@ class PurchaseOrderController extends Controller
 
         Alert::success("Successfully Cancelled")->persistent('Dismiss');
         return back();
+    }
+
+    public function refreshRfqItem(Request $request)
+    {
+        $rfq_items_array = [];
+
+        $rfqs = RfqItem::with('purchaseItem.inventory')->where('purchase_request_id', $request->data)->get();
+
+        foreach($rfqs as $rfq)
+        {
+            $rfq_items_array[] = $rfq->purchaseItem->inventory;
+        } 
+        
+        return response()->json([
+            'rfq' => $rfq_items_array
+        ]);
     }
 }
