@@ -18,4 +18,8 @@ class PurchaseOrder extends Model
     {
         return $this->belongsTo(SupplierAccreditation::class,'supplier_id');
     }
+    public function purchaseOrderApprovers()
+    {
+        return $this->hasMany(PurchaseOrderApprover::class);
+    }
 }

@@ -239,28 +239,31 @@
                             </tr>
                         </thead>
                         <tbody>
-                            {{-- @foreach ($purchase_requests as $pr)
+                            @foreach ($purchase_order_approval as $approval)
+                                @php
+                                    $po = $approval->purchaseOrder;
+                                @endphp
                                 <tr>
                                     <td>
-                                        <a href="{{url('procurement/show-purchase-request/'.$pr->id.'/'.'?origin=for_approval')}}" title="View" class="btn btn-sm btn-info text-white" >
+                                        <a href="{{url('procurement/show_purchase_order/'.$po->id.'/'.'?origin=for_approval')}}" title="View" class="btn btn-sm btn-info text-white" >
                                             <i class="ti-eye"></i>
                                         </a>
                                         
-                                        @if($pr->status == 'Returned')
+                                        {{-- @if($pr->status == 'Returned')
                                         <button type="button" class="btn btn-sm btn-warning text-white" title="Edit" data-bs-toggle="modal" data-bs-target="#editPurchaseRequest{{$pr->id}}">
                                             <i class="bi bi-pencil-square"></i>
                                         </button>
-                                        @endif
+                                        @endif --}}
                                     </td>
-                                    <td>{{str_pad($pr->id,6,'0',STR_PAD_LEFT)}}</td>
+                                    <td>{{$po->purchase_order_no}}</td>
                                     <td>
-                                        @foreach ($pr->purchaseItems as $item)
-                                            {{$item->inventory->item_description}} <br>
+                                        @foreach ($po->purchaseOrderItem as $orderItem)
+                                            {{$orderItem->inventory->item_description}} <br>
                                         @endforeach
                                     </td>
                                 </tr>
     
-                            @endforeach --}}
+                            @endforeach
                         </tbody>
                     </table>
                 </div>        

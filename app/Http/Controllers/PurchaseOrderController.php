@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\PurchaseApprover;
 use App\PurchaseOrder;
+use App\PurchaseOrderApprover;
 use App\PurchaseOrderItem;
 use App\PurchaseRequest;
 use App\RfqEmail;
@@ -30,6 +32,7 @@ class PurchaseOrderController extends Controller
         $vendors = RfqEmail::get();
         
         $purchase_order = PurchaseOrder::with('purchaseRequest')->get();
+        $purchase_approvers = PurchaseApprover::get();
 
         $stack = HandlerStack::create();
             
@@ -64,7 +67,7 @@ class PurchaseOrderController extends Controller
         $po_data = json_decode($response->getBody()->getContents());
         $po_number = collect($po_data->items)->first()->tranid;
         
-        return view('purchased_order',compact('start_date','end_date','purchase_request','purchase_order','vendors','po_number'));
+        return view('purchased_order',compact('start_date','end_date','purchase_request','purchase_order','vendors','po_number','purchase_approvers'));
     }
 
     /**
@@ -85,6 +88,7 @@ class PurchaseOrderController extends Controller
      */
     public function store(Request $request)
     {
+        // dd($request->all());
         $purchase_order = PurchaseOrder::orderBy('id','desc')->first();
         if ($purchase_order) 
         {
@@ -117,6 +121,24 @@ class PurchaseOrderController extends Controller
             $po_item->save();
         }
 
+        $purchase_approvers = PurchaseApprover::orderBy('level','asc')->get();
+        foreach($purchase_approvers as $key=>$purchase_approver)
+        {
+            $pr_approver = new PurchaseOrderApprover();
+            $pr_approver->purchase_order_id = $purchase_order->id;
+            $pr_approver->user_id = $purchase_approver->user_id;
+            $pr_approver->level = $purchase_approver->level;
+            if ($key == 0)
+            {
+                $pr_approver->status = 'Pending';
+            }
+            else
+            {
+                $pr_approver->status = 'Waiting';
+            }
+            $pr_approver->save();
+        }
+
         Alert::success('Successfully Saved')->persistent('Dismiss');
         return back();
     }
@@ -130,7 +152,7 @@ class PurchaseOrderController extends Controller
     public function show($id)
     {
         // $start_date = $request->start_date;
-        $po = PurchaseOrder::with('purchaseRequest.rfqItem.purchaseItem.inventory', 'supplier', 'purchaseOrderItem.inventory')->findOrFail($id);
+        $po = PurchaseOrder::with('purchaseRequest.rfqItem.purchaseItem.inventory', 'supplier', 'purchaseOrderItem.inventory', 'purchaseOrderApprovers')->findOrFail($id);
 
         $middleware = new Oauth1([
             'consumer_key'    => env('CONSUMER_KEY'),
@@ -233,107 +255,132 @@ class PurchaseOrderController extends Controller
 
     public function approved(Request $request)
     {
+        // dd($request->all());
         try {
-            $purchase_order = PurchaseOrder::with('purchaseRequest.rfqItem.purchaseItem.inventory', 'supplier')->findOrFail($request->id);
-            $purchase_order->status = 'Approved';
-            $purchase_order->save();
+            $purchase_order_approvers = PurchaseOrderApprover::where('purchase_order_id', $request->id)->where('status','Pending')->first();
+            $purchase_order_approvers->status = 'Approved';
+            $purchase_order_approvers->save();
 
-            $items_array = [];
-            foreach($purchase_order->purchaseRequest->rfqItem as $rfq_item)
+            $purchase_order_approvers = PurchaseOrderApprover::where('status', 'Waiting')->orderBy('level','asc')->get();
+            
+            if($purchase_order_approvers->isNotEmpty())
             {
-                $items_array[] = [
-                    'item' => [
-                        'id' => $rfq_item->purchaseItem->inventory->inventory_id,
-                        'refName' => $rfq_item->purchaseItem->inventory->item_code
+                foreach($purchase_order_approvers as $key=>$po_approver)
+                {
+                    if ($key == 0)
+                    {
+                        $po_approver->status = 'Pending';
+                    }
+                    else
+                    {
+                        $po_approver->status = 'Waiting';
+                    }
+    
+                    $po_approver->save();
+                }
+            }
+            else
+            {
+                $purchase_order = PurchaseOrder::with('purchaseRequest.rfqItem.purchaseItem.inventory', 'supplier')->findOrFail($request->id);
+                $purchase_order->status = 'Approved';
+                $purchase_order->save();
+
+                $items_array = [];
+                foreach($purchase_order->purchaseRequest->rfqItem as $rfq_item)
+                {
+                    $items_array[] = [
+                        'item' => [
+                            'id' => $rfq_item->purchaseItem->inventory->inventory_id,
+                            'refName' => $rfq_item->purchaseItem->inventory->item_code
+                        ]
+                    ];
+                }
+                
+                $data = [
+                    "tranDate" => date('Y-m-d'),
+                    "dueDate" => date('Y-m-d', strtotime($purchase_order->expected_delivery_date)),
+                    // Vendor
+                    "entity" => [
+                        "id" => $purchase_order->supplier->id,
+                        "refName" =>  $purchase_order->supplier->corporate_name
+                    ],
+                    // "entity" => [
+                    //     "id" => 16150,
+                    //     "refName" =>  'DPLUS SIGN ADVERTISING CORPORATION'
+                    // ],
+                    "location" => [
+                        "id" => "1",
+                        "refName" => "Head Office"
+                    ],
+                    "department" => [
+                        "id" => $purchase_order->purchaseRequest->department->id,
+                        "refName" => $purchase_order->purchaseRequest->department->name
+                    ],
+                    "class" => [
+                        "id" => $purchase_order->purchaseRequest->classification->id,
+                        "refName" => $purchase_order->purchaseRequest->classification->name
+                    ],
+                    // Task Memo
+                    "custbody8" => "Generate GRN upon completion.",
+                    // Task Assigned To
+                    "custbody36" => [
+                        "id" => $purchase_order->purchaseRequest->assignedTo->id,
+                        "refName" => $purchase_order->purchaseRequest->assignedTo->name
+                    ],
+                    // Requestor
+                    "custbody38" => [
+                        "id" => auth()->user()->id,
+                        "refName" => auth()->user()->name
+                    ],
+                    // Approver
+                    "custbody41" => [
+                        "id" => "15566",
+                        "refName" => "Jemirald D Cerilla"
+                    ],
+                    // Special Instruction
+                    "custbody39" => "*** IMPORTANT! PAYMENT INSTRUCTIONS ***\r\n\r\nCOMPANY NAME: W Tower Condominium Corporation\r\nADDRESS: 0001 W Tower, 39th Street, North Bonifacio Triangle, Bonifacio Global City, Taguig City\r\nT.I.N. No.: 008-019-430-000\r\nBUSINESS STYLE: W Tower Condominium Corporation",
+                    // Assigned To
+                    "employee" => [
+                        "id" => $purchase_order->purchaseRequest->assignedTo->id,
+                        "refName" => $purchase_order->purchaseRequest->assignedTo->name
+                    ],
+                    "currency" => [
+                        "id" => "1",
+                        "refName" => "Philippine Peso"
+                    ],
+                    "exchangeRate" => 1.0,
+                    "shippingAddress" => $purchase_order->purchaseRequest->company->shipping_address,
+                    "approvalStatus" => [
+                        "id" => "2"
+                    ],
+                    "item" => [
+                        "items" => $items_array
                     ]
                 ];
+
+                $middleware = new Oauth1([
+                    'consumer_key'    => env('CONSUMER_KEY'),
+                    'consumer_secret' => env('CONSUMER_SECRET'),
+                    'token'           => env('TOKEN'),
+                    'token_secret'    => env('TOKEN_SECRET'),
+                    'realm' => env('REALM_ID'),
+                    'signature_method' => 'HMAC-SHA256'
+                ]);
+        
+                $stack = HandlerStack::create();
+                
+                $stack->push($middleware);
+
+                $client = new Client([
+                    'base_uri' => env('NETSUITE_URL'),
+                    'handler' => $stack,
+                    'auth' => 'oauth',
+                ]);
+    
+                $client->post('purchaseOrder', [
+                    'json' => $data,
+                ]);
             }
-            
-            $data = [
-                "tranDate" => date('Y-m-d'),
-                "dueDate" => date('Y-m-d', strtotime($purchase_order->expected_delivery_date)),
-                // Vendor
-                "entity" => [
-                    "id" => $purchase_order->supplier->id,
-                    "refName" =>  $purchase_order->supplier->corporate_name
-                ],
-                // "entity" => [
-                //     "id" => 16150,
-                //     "refName" =>  'DPLUS SIGN ADVERTISING CORPORATION'
-                // ],
-                "location" => [
-                    "id" => "1",
-                    "refName" => "Head Office"
-                ],
-                "department" => [
-                    "id" => $purchase_order->purchaseRequest->department->id,
-                    "refName" => $purchase_order->purchaseRequest->department->name
-                ],
-                "class" => [
-                    "id" => $purchase_order->purchaseRequest->classification->id,
-                    "refName" => $purchase_order->purchaseRequest->classification->name
-                ],
-                // Task Memo
-                "custbody8" => "Generate GRN upon completion.",
-                // Task Assigned To
-                "custbody36" => [
-                    "id" => $purchase_order->purchaseRequest->assignedTo->id,
-                    "refName" => $purchase_order->purchaseRequest->assignedTo->name
-                ],
-                // Requestor
-                "custbody38" => [
-                    "id" => auth()->user()->id,
-                    "refName" => auth()->user()->name
-                ],
-                // Approver
-                "custbody41" => [
-                    "id" => "15566",
-                    "refName" => "Jemirald D Cerilla"
-                ],
-                // Special Instruction
-                "custbody39" => "*** IMPORTANT! PAYMENT INSTRUCTIONS ***\r\n\r\nCOMPANY NAME: W Tower Condominium Corporation\r\nADDRESS: 0001 W Tower, 39th Street, North Bonifacio Triangle, Bonifacio Global City, Taguig City\r\nT.I.N. No.: 008-019-430-000\r\nBUSINESS STYLE: W Tower Condominium Corporation",
-                // Assigned To
-                "employee" => [
-                    "id" => $purchase_order->purchaseRequest->assignedTo->id,
-                    "refName" => $purchase_order->purchaseRequest->assignedTo->name
-                ],
-                "currency" => [
-                    "id" => "1",
-                    "refName" => "Philippine Peso"
-                ],
-                "exchangeRate" => 1.0,
-                "shippingAddress" => $purchase_order->purchaseRequest->company->shipping_address,
-                "approvalStatus" => [
-                    "id" => "2"
-                ],
-                "item" => [
-                    "items" => $items_array
-                ]
-            ];
-            
-            $stack = HandlerStack::create();
-            
-            $middleware = new Oauth1([
-                'consumer_key'    => env('CONSUMER_KEY'),
-                'consumer_secret' => env('CONSUMER_SECRET'),
-                'token'           => env('TOKEN'),
-                'token_secret'    => env('TOKEN_SECRET'),
-                'realm' => env('REALM_ID'),
-                'signature_method' => 'HMAC-SHA256'
-            ]);
-            
-            $stack->push($middleware);
-
-            $client = new Client([
-                'base_uri' => env('NETSUITE_URL'),
-                'handler' => $stack,
-                'auth' => 'oauth',
-            ]);
-
-            $client->post('purchaseOrder', [
-                // 'headers' => $headers,
-                'json' => $data,
-            ]);
 
             Alert::success('Successfully Approved')->persistent('Dismiss');
             return back();

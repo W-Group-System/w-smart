@@ -33,6 +33,25 @@
                     <div id="rfqParent">
                         
                     </div>
+                    <div class="form-group mt-3">
+                        <div class="card border border-1 border-primary rounded-0">
+                            <div class="card-header bg-primary rounded-0">
+                                <p class="m-0 text-white font-weight-bold">Approver</p>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-lg-6 border border-1 border-top-bottom border-left-right font-weight-bold">Level</div>
+                                    <div class="col-lg-6 border border-1 border-top-bottom border-left-right font-weight-bold">Name</div>
+                                </div>
+                                @foreach ($purchase_approvers as $purchase_approver)
+                                    <div class="row">
+                                        <div class="col-lg-6 border border-1 border-top-bottom border-left-right">{{ $purchase_approver->level }}</div>
+                                        <div class="col-lg-6 border border-1 border-top-bottom border-left-right">{{ $purchase_approver->user->name }}</div>
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>

@@ -153,15 +153,18 @@
                                 @include('purchase_orders.received_po')
                             @endif
                         @elseif($po->status == 'Pending')
-                            <form method="POST" class="d-inline-block" action="{{url('approved_po')}}" onsubmit="show()">
-                                @csrf 
-                                <input type="hidden" name="id" value="{{$po->id}}">
-                                
-                                <button type="submit" class="btn btn-outline-success">
-                                    <i class="ti-check"></i>
-                                    Approved
-                                </button>
-                            </form>
+
+                            @foreach ($po->purchaseOrderApprovers->where('status', 'Pending')->where('user_id', auth()->user()->id) as $po_approver)
+                                <form method="POST" class="d-inline-block" action="{{url('approved_po')}}" onsubmit="show()">
+                                    @csrf 
+                                    <input type="hidden" name="id" value="{{$po->id}}">
+                                    
+                                    <button type="submit" class="btn btn-outline-success">
+                                        <i class="ti-check"></i>
+                                        Approved
+                                    </button>
+                                </form>
+                            @endforeach
 
                             {{-- <form method="POST" class="d-inline-block" action="{{url('cancel_po/'.$po->id)}}" onsubmit="show()">
                                 @csrf 
@@ -221,7 +224,7 @@
                                 <thead>
                                     <tr>
                                         <th>Item Code</th>
-                                        <th>Item Category</th>
+                                        {{-- <th>Item Category</th> --}}
                                         <th>Item Description</th>
                                         <th>Quantity</th>
                                         <th>Unit of Measurement</th>
@@ -232,7 +235,7 @@
                                         @foreach ($po->purchaseOrderItem as $item)
                                             <tr>
                                                 <td>{{$item->inventory->item_code}}</td>
-                                                <td>{{$item->inventory->item_category}}</td>
+                                                {{-- <td>{{$item->inventory->item_category}}</td> --}}
                                                 <td>{{$item->inventory->item_description}}</td>
                                                 <td>{{number_format($item->inventory->qty,2)}}</td>
                                                 <td>{{$item->unit_of_measurement}}</td>
@@ -277,6 +280,34 @@
                                     @endif
                                 </tbody>
                             </table>
+                        </div>
+                    </div>
+
+                    <div class="col-md-12 mt-3">
+                        <div class="card border border-1 border-primary rounded-0">
+                            <div class="card-header bg-primary rounded-0">
+                                <p class="m-0 text-white font-weight-bold">Approver</p>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-lg-3 border border-1 border-top-bottom border-left-right font-weight-bold">Name</div>
+                                    <div class="col-lg-3 border border-1 border-top-bottom border-left-right font-weight-bold">Status</div>
+                                    <div class="col-lg-3 border border-1 border-top-bottom border-left-right font-weight-bold">Date</div>
+                                    <div class="col-lg-3 border border-1 border-top-bottom border-left-right font-weight-bold">Remarks</div>
+                                </div>
+                                @foreach ($po->purchaseOrderApprovers as $po_approver)
+                                    <div class="row">
+                                        <div class="col-lg-3 border border-1 border-top-bottom border-left-right">{{ $po_approver->user->name }}</div>
+                                        <div class="col-lg-3 border border-1 border-top-bottom border-left-right">{{ $po_approver->status }}</div>
+                                        <div class="col-lg-3 border border-1 border-top-bottom border-left-right">
+                                            @if($po_approver->status == 'Approved')
+                                                {{ date('Y-m-d', strtotime($po_approver->updated_at)) }}
+                                            @endif
+                                        </div>
+                                        <div class="col-lg-3 border border-1 border-top-bottom border-left-right">{!! nl2br(e($po_approver->remarks)) !!}</div>
+                                    </div>
+                                @endforeach
+                            </div>
                         </div>
                     </div>
                 </div>

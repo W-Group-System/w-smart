@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\PurchaseOrderApprover;
 use App\PurchaseRequest;
 use App\PurchaseRequestApprover;
 use Illuminate\Http\Request;
@@ -22,8 +23,9 @@ class ForApprovalPurchaseRequestController extends Controller
 
         // $purchase_requests = PurchaseRequest::where('status', 'Pending')->get();
         $purchase_request_approval = PurchaseRequestApprover::with('purchase_request')->where('status','Pending')->where('user_id', auth()->user()->id)->get();
+        $purchase_order_approval = PurchaseOrderApprover::with('purchaseOrder')->where('status','Pending')->where('user_id', auth()->user()->id)->get();
 
-        return view('purchase_request.for_approval', compact('start_date','end_date','purchase_request_approval'));
+        return view('purchase_request.for_approval', compact('start_date','end_date','purchase_request_approval', 'purchase_order_approval'));
     }
 
     /**

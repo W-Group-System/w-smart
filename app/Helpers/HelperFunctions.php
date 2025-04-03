@@ -1,10 +1,13 @@
 <?php
 
 use App\Features;
+use App\PurchaseOrderApprover;
 use App\PurchaseRequest;
 use App\PurchaseRequestApprover;
 use App\Subfeatures;
 use App\UserAccessModule;
+use GuzzleHttp\HandlerStack;
+use GuzzleHttp\Subscriber\Oauth\Oauth1;
 
 function checkRoles($role_id, $name="")
 {
@@ -38,8 +41,12 @@ function checkModule($role_id, $name="")
 }
 function for_approval_count()
 {
-    $count = PurchaseRequestApprover::with('purchase_request')->where('status','Pending')->where('user_id', auth()->user()->id)->count();
+    $pr_count = PurchaseRequestApprover::with('purchase_request')->where('status','Pending')->where('user_id', auth()->user()->id)->count();
+
+    $po_count = PurchaseOrderApprover::where('status','Pending')->where('user_id', auth()->user()->id)->count();
     
+    $count = $pr_count + $po_count;
+
     return $count;
 }
 function assign_count()
