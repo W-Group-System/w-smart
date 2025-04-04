@@ -393,7 +393,6 @@ class PurchaseOrderController extends Controller
 
     public function received(Request $request,$id)
     {
-        // dd($request->all());
         try {
             $grn = substr($request->grn_no,4);
             $number = $grn+1;

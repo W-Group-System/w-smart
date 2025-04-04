@@ -76,17 +76,17 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        @foreach ($po->purchaseRequest->rfqItem as $key => $item)
+                                        @foreach ($po->purchaseOrderItem as $key => $item)
                                             <tr>
                                                 <td>
                                                     <input type="checkbox" name="receive_item[]" value="1" checked>
                                                     <input type="hidden" name="line[]" value="{{ $key+1 }}">
                                                 </td>
-                                                <td>{{$item->purchaseItem->inventory->item_code}}</td>
-                                                <td>{{$item->purchaseItem->inventory->item_description}}</td>
-                                                <td>{{ $item->purchaseItem->inventory->qty }}</td>
+                                                <td>{{$item->inventory->item_code}}</td>
+                                                <td>{{$item->inventory->item_description}}</td>
+                                                <td>{{ $item->inventory->qty }}</td>
                                                 <td>
-                                                    <input type="text" class="form-control form-control-sm" name="qty[]" value="{{ $item->purchaseItem->inventory->qty }}" required>
+                                                    <input type="text" class="form-control form-control-sm" name="qty[]" value="{{ $item->inventory->qty }}" required>
                                                 </td>
                                             </tr>
                                         @endforeach

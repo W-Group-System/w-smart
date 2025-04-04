@@ -217,8 +217,47 @@
                     </div>
                 </div>
 
-                <div class="row">
-                    <div class="col-md-12 mb-4">
+                <div class="row mb-3">
+                    <div class="col-md-12 mt-3">
+                        <div class="card border border-1 border-primary rounded-0">
+                            <div class="card-header bg-primary rounded-0">
+                                <p class="m-0 text-white font-weight-bold">Approver</p>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-lg-3 border border-1 border-top-bottom border-left-right font-weight-bold">Name</div>
+                                    <div class="col-lg-3 border border-1 border-top-bottom border-left-right font-weight-bold">Status</div>
+                                    <div class="col-lg-3 border border-1 border-top-bottom border-left-right font-weight-bold">Date</div>
+                                    <div class="col-lg-3 border border-1 border-top-bottom border-left-right font-weight-bold">Remarks</div>
+                                </div>
+                                @foreach ($po->purchaseOrderApprovers as $po_approver)
+                                    <div class="row">
+                                        <div class="col-lg-3 border border-1 border-top-bottom border-left-right">{{ $po_approver->user->name }}</div>
+                                        <div class="col-lg-3 border border-1 border-top-bottom border-left-right">{{ $po_approver->status }}</div>
+                                        <div class="col-lg-3 border border-1 border-top-bottom border-left-right">
+                                            @if($po_approver->status == 'Approved')
+                                                {{ date('Y-m-d', strtotime($po_approver->updated_at)) }}
+                                            @endif
+                                        </div>
+                                        <div class="col-lg-3 border border-1 border-top-bottom border-left-right">{!! nl2br(e($po_approver->remarks)) !!}</div>
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <ul class="nav nav-tabs" role="tablist">
+                    <li class="nav-item">
+                        <a class="nav-link active" data-toggle="tab" href="#items">Items</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-toggle="tab" href="#attachments">Attachment</a>
+                    </li>
+                </ul>
+
+                <div class="tab-content">
+                    <div class="tab-pane fade active show" id="items">
                         <div class="table-responsive">
                             <table class="table table-bordered table-hover">
                                 <thead>
@@ -228,6 +267,8 @@
                                         <th>Item Description</th>
                                         <th>Quantity</th>
                                         <th>Unit of Measurement</th>
+                                        <th>Rate</th>
+                                        <th>Tax Code</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -239,6 +280,8 @@
                                                 <td>{{$item->inventory->item_description}}</td>
                                                 <td>{{number_format($item->inventory->qty,2)}}</td>
                                                 <td>{{$item->unit_of_measurement}}</td>
+                                                <td>0.00</td>
+                                                <td></td>
                                             </tr>
                                         @endforeach
                                     @else
@@ -250,8 +293,7 @@
                             </table>
                         </div>
                     </div>
-
-                    <div class="col-md-12">
+                    <div class="tab-pane fade" id="attachments">
                         <div class="table-responsive">
                             <table class="table table-bordered table-hover">
                                 <thead>
@@ -280,34 +322,6 @@
                                     @endif
                                 </tbody>
                             </table>
-                        </div>
-                    </div>
-
-                    <div class="col-md-12 mt-3">
-                        <div class="card border border-1 border-primary rounded-0">
-                            <div class="card-header bg-primary rounded-0">
-                                <p class="m-0 text-white font-weight-bold">Approver</p>
-                            </div>
-                            <div class="card-body">
-                                <div class="row">
-                                    <div class="col-lg-3 border border-1 border-top-bottom border-left-right font-weight-bold">Name</div>
-                                    <div class="col-lg-3 border border-1 border-top-bottom border-left-right font-weight-bold">Status</div>
-                                    <div class="col-lg-3 border border-1 border-top-bottom border-left-right font-weight-bold">Date</div>
-                                    <div class="col-lg-3 border border-1 border-top-bottom border-left-right font-weight-bold">Remarks</div>
-                                </div>
-                                @foreach ($po->purchaseOrderApprovers as $po_approver)
-                                    <div class="row">
-                                        <div class="col-lg-3 border border-1 border-top-bottom border-left-right">{{ $po_approver->user->name }}</div>
-                                        <div class="col-lg-3 border border-1 border-top-bottom border-left-right">{{ $po_approver->status }}</div>
-                                        <div class="col-lg-3 border border-1 border-top-bottom border-left-right">
-                                            @if($po_approver->status == 'Approved')
-                                                {{ date('Y-m-d', strtotime($po_approver->updated_at)) }}
-                                            @endif
-                                        </div>
-                                        <div class="col-lg-3 border border-1 border-top-bottom border-left-right">{!! nl2br(e($po_approver->remarks)) !!}</div>
-                                    </div>
-                                @endforeach
-                            </div>
                         </div>
                     </div>
                 </div>
