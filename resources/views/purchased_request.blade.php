@@ -424,7 +424,7 @@ function itemDescription(value)
                                     <th>Requestor Name </th>
                                     <th>Department </th>
                                     <th>Subsidiary </th>
-                                    <th>Amount </th>
+                                    {{-- <th>Amount </th> --}}
                                     {{-- <th>Expedited </th> --}}
                                     <th>Status </th>
                                     <th>Assigned to (Buyer) </th>
@@ -456,7 +456,7 @@ function itemDescription(value)
                                         <td>{{$pr->user->name}}</td>
                                         <td>{{$pr->department->name}}</td>
                                         <td>{{$pr->subsidiary}}</td>
-                                        <td>0.00</td>
+                                        {{-- <td>0.00</td> --}}
                                         {{-- <td>Expedited</td> --}}
                                         <td>{{$pr->status}}</td>
                                         <td>{{optional($pr->assignedTo)->name}}</td>
