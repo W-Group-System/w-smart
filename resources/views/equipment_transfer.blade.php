@@ -240,8 +240,8 @@
                                     <th>Transfer To Name</th>
                                     <th>Purpose</th>
                                     <th>Date of Transfer</th>
-                                    <th>Asset Name</th>
-                                    <th>Asset Code</th>
+                                    {{-- <th>Asset Name</th> --}}
+                                    <th>Asset Code & Name</th>
                                     <th>Approver</th>
                                     <th>Remarks</th>
                                 </tr>
@@ -261,7 +261,7 @@
                                         <td>{{$transfer_asset->purpose}}</td>
                                         <td>{{date('M d Y', strtotime($transfer_asset->date_of_transfer))}}</td>
                                         <td>{{$transfer_asset->asset_name}}</td>
-                                        <td>{{$transfer_asset->asset_code}}</td>
+                                        {{-- <td>{{$transfer_asset->asset_code}}</td> --}}
                                         <td>{{$transfer_asset->type}}</td>
                                         <td>{{$transfer_asset->remarks}}</td>
                                     </tr>

@@ -423,8 +423,8 @@
                                 <tr>
                                     <th>Action</th>
                                     <th>Date Purchased</th>
-                                    <th>Asset Name</th>
-                                    <th>Asset Code</th>
+                                    <th>Asset Code & Name</th>
+                                    {{-- <th>Asset Code</th> --}}
                                     <th>Type</th>
                                     <th>Category</th>
                                     <th>Status</th>
@@ -446,7 +446,7 @@
                                         </button>
                                     </td>
                                     <td>{{date('M d Y', strtotime($equipment->date_purchased))}}</td>
-                                    <td>{{$equipment->asset_name}}</td>
+                                    {{-- <td>{{$equipment->asset_name}}</td> --}}
                                     <td>{{$equipment->asset_code}}</td>
                                     <td>{{$equipment->type}}</td>
                                     <td>{{$equipment->category->name}}</td>

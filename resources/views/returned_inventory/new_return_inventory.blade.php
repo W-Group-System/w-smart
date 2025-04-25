@@ -68,8 +68,9 @@
                                                 <th>Item Code</th>
                                                 <th>Item Description</th>
                                                 <th>Category</th>
+                                                <th>Qty</th>
                                                 <th>UOM</th>
-                                                <th>Reason of Withdrawal</th>
+                                                <th>Reason of Returned</th>
                                                 <th>Requested QTY</th>
                                             </tr>
                                         </thead>
@@ -81,13 +82,19 @@
                                                 <td>
                                                     <select data-placeholder="Select item" class="form-control js-example-basic-single" name="item[]" style="width: 100%;" required>
                                                         <option value=""></option>
-                                                        @foreach ($inventories as $inventory)
+                                                        {{-- @foreach ($inventories as $inventory)
                                                             <option value="{{ $inventory->inventory_id }}">{{ $inventory->item_description }}</option>
+                                                        @endforeach --}}
+                                                        @foreach ($withdrawal_items as $withdrawal_item)
+                                                            <option value="{{ $withdrawal_item->inventory->inventory_id }}">{{ $withdrawal_item->inventory->item_description }}</option>
                                                         @endforeach
                                                     </select>
                                                 </td>
                                                 <td>
                                                     <p id="categoryText"></p>
+                                                </td>
+                                                <td id="qty">
+                                                    
                                                 </td>
                                                 <td>
                                                     <select data-placeholder="Select uom" class="form-control js-example-basic-single" name="uom[]" style="width: 100%;" required>
@@ -107,8 +114,6 @@
                                         </tbody>
                                     </table>
                                 </div>
-                            
-                                
                                 
                                 <div class="form-group row">
                                     <div class="col-lg-12">
@@ -136,13 +141,16 @@
                     <td>
                         <select data-placeholder="Select item" class="form-control inventorySelect" name="item[]" style="width: 100%;" required>
                             <option value=""></option>
-                            @foreach ($inventories as $inventory)
-                                <option value="{{ $inventory->inventory_id }}">{{ $inventory->item_description }}</option>
+                            @foreach ($withdrawal_items as $withdrawal_item)
+                                <option value="{{ $withdrawal_item->inventory->inventory_id }}">{{ $withdrawal_item->inventory->item_description }}</option>
                             @endforeach
                         </select>
                     </td>
                     <td>
                         <p id="categoryText"></p>
+                    </td>
+                    <td id="qty">
+                        
                     </td>
                     <td>
                         <select data-placeholder="Select uom" class="form-control inventorySelect" name="uom[]" style="width: 100%;" required>
@@ -155,7 +163,7 @@
                     <td contenteditable="true" class="reason">
                         <textarea name="reason[]" class="form-control"></textarea>
                     </td>
-                    <td contenteditable="true" class="requestedQty">
+                    <td>
                         <input type="number" name="requestQty[]" class="form-control" required>
                     </td>
                 </tr>
@@ -178,17 +186,19 @@
             var value = $(this).val()
             var itemCode = $(this).closest('tr').find('#itemCodeText')
             var category = $(this).closest('tr').find('#categoryText')
+            var qty = $(this).closest('tr').find('#qty')
             
             $.ajax({
                 type:"POST",
-                url:"{{ url('refresh_inventory') }}",
+                url:"{{ url('refresh_withdrawal_inventory') }}",
                 data: {
                     id: value,
                     _token: "{{ csrf_token() }}"
                 },
                 success: function(res) {
-                    itemCode.text(res.item_code)
+                    itemCode.text(res.inventories.item_code)
                     category.text(res.category.name)
+                    qty.text(res.qty)
                 }
             })
             

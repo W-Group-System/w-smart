@@ -62,6 +62,10 @@ class WithdrawalRequestController extends Controller
             $withdrawals_items->reason = $request->reason[$key];
             $withdrawals_items->request_qty = $request->requestQty[$key];
             $withdrawals_items->save();
+
+            $inventory = Inventory::where('inventory_id', $item)->first();
+            $inventory->qty = (float)$inventory->qty - (float)$request->requestQty[$key];
+            $inventory->save();
         }
 
         Alert::success('Successfully Saved')->persistent('Dismiss');

@@ -180,7 +180,7 @@
                                 <i class="ti-minus"></i>
                             </button>
                             <div class="table-responsive mt-3">
-                                <table class="table table-bordered" width="100%" style="table-layout: fixed;">
+                                <table class="table table-bordered table-sm" width="100%" style="table-layout: fixed;">
                                     <thead>
                                         <tr>
                                             <th>Item Code</th>
@@ -188,6 +188,8 @@
                                             <th>Item Description</th>
                                             <th>Item Quantity</th>
                                             <th>Unit of Measurement</th>
+                                            <th>Amount</th>
+                                            <th>Estimated Amount</th>
                                         </tr>
                                     </thead>
                                     <tbody id="tbodyAddRow">
@@ -212,14 +214,34 @@
                                             <td>
                                                 <select data-placeholder="Select unit of measurement" name="unit_of_measurement[]" class="form-control js-example-basic-single" style="width: 100%; position: relative;" required>
                                                     <option value=""></option>
-                                                    <option value="KG">KG</option>
-                                                    <option value="G">Grams</option>
+                                                    {{-- <option value="KG">KG</option>
+                                                    <option value="G">Grams</option> --}}
+                                                    @foreach ($uoms as $uom)
+                                                        <option value="{{ $uom->id }}">{{ $uom->uomp }}</option>
+                                                    @endforeach
                                                 </select>
+                                            </td>
+                                            <td>
+                                                <p class="item_amount"></p>
+                                            </td>
+                                            <td>
+                                                <input type="number" name="estimated_amount[]" class="form-control" required>
                                             </td>
                                         </tr>
                                     </tbody>
                                 </table>
                             </div>    
+                        </div>
+                        <div class="col-lg-12">
+                            <div class="row">
+                                <div class="col-lg-6">
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <p class="card-title">Total: <span id="totalAmount">0</span></p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                         <div class="col-md-6">
                             <label for="attachments" class="form-label">Attachments:</label>
@@ -266,6 +288,7 @@ function itemDescription(element)
     var itemCode = $(element).closest('tr').find('.item_code')
     var itemCategory = $(element).closest('tr').find('.item_category')
     var itemQuantity = $(element).closest('tr').find('.item_quantity')
+    var amount = $(element).closest('tr').find('.item_amount')
     
     $.ajax({
         type: "POST",
@@ -280,6 +303,7 @@ function itemDescription(element)
             itemCode.text(data.item_code)
             itemCategory.text(data.category.name)
             itemQuantity.text(data.qty)
+            amount.text(data.cost)
         }
     })
 }
@@ -308,9 +332,16 @@ $(document).ready(function() {
                 <td>
                     <select data-placeholder="Select unit of measurement" name="unit_of_measurement[]" class="form-select js-example-basic-single" style="width: 100%; position: relative;" required>
                         <option value=""></option>
-                        <option value="KG">KG</option>
-                        <option value="G">Grams</option>
+                        @foreach ($uoms as $uom)
+                            <option value="{{ $uom->id }}">{{ $uom->uomp }}</option>
+                        @endforeach
                     </select>
+                </td>
+                <td>
+                    <p class="item_amount"></p>
+                </td>
+                <td>
+                    <input type="number" name="estimated_amount[]" class="form-control" required>
                 </td>
             </tr>
         `;

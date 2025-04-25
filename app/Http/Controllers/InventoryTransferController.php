@@ -47,6 +47,7 @@ class InventoryTransferController extends Controller
      */
     public function store(Request $request)
     {
+        // dd($request->all());
         $transfer = new Transfer();
         $transfer->transfer_from = $request->transfer_from;
         $transfer->transfer_to = $request->transfer_to;
@@ -59,9 +60,14 @@ class InventoryTransferController extends Controller
             $inventory_transfer->transfer_id = $transfer->id;
             $inventory_transfer->inventory_id = $item_code;
             $inventory_transfer->uom_id = $request->uom[$key];
-            $inventory_transfer->request_qty = $request->request_qty[$key];
+            // $inventory_transfer->request_qty = $request->request_qty[$key];
             $inventory_transfer->save();
         }
+
+        Inventory::whereIn('inventory_id', $request->item_code)
+            ->update([
+                'subsidiary' => $request->transfer_from
+            ]);
         
         Alert::success('Successfully Saved')->persistent('Dismiss');
         return back();
@@ -110,5 +116,19 @@ class InventoryTransferController extends Controller
     public function destroy($id)
     {
         //
+    }
+
+    public function refreshPerSubsidiary(Request $request)
+    {
+        // dd($request->all());
+        $inventories = Inventory::where('subsidiary', $request->id)->get();
+
+        $options = '<option>Select item code</option>';
+        foreach($inventories as $inventory)
+        {
+            $options .= '<option value="'.$inventory->inventory_id.'">'.$inventory->item_code.'</option>';
+        }
+
+        return $options;
     }
 }

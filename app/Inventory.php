@@ -44,4 +44,8 @@ class Inventory extends Model
     {
         return $this->hasMany(InventorySubsidiary::class,'inventory_id');
     }
+    public function subsidiaryId()
+    {
+        return $this->belongsTo(Subsidiary::class,'subsidiary','subsidiary_id');
+    }
 }

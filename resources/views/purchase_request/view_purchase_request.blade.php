@@ -272,7 +272,7 @@
                     <div class="col-lg-6">
                         <dl class="row">
                             <dt class="col-sm-3 text-right">Class :</dt>
-                            <dd class="col-sm-9">&nbsp;</dd>
+                            <dd class="col-sm-9">{{ $purchase_request->classification->name }}</dd>
                             <dt class="col-sm-3 text-right">Remarks</dt>
                             <dd class="col-sm-9">{!! nl2br(e($purchase_request->return_remarks)) !!}</dd>
                         </dl>
@@ -309,6 +309,12 @@
                     </div>
                 </div>
 
+                <div class="card">
+                    <div class="card-body">
+                        <p class="card-title">Total: <span id="totalAmount">&#8369;{{ number_format($purchase_request->estimateAmount->total_amount, 2) }}</span></p>
+                    </div>
+                </div>
+
                 <ul class="nav nav-tabs" role="tablist">
                     <li class="nav-item">
                         <a class="nav-link active" data-toggle="tab" href="#items">Items</a>
@@ -329,6 +335,7 @@
                                         <th>Item Description</th>
                                         <th>Quantity</th>
                                         <th>Unit of Measurement</th>
+                                        <th>Estimated Amount</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -339,7 +346,8 @@
                                                 <td>{{$item->inventory->item_category}}</td>
                                                 <td>{{$item->inventory->item_description}}</td>
                                                 <td>{{number_format($item->inventory->qty,2)}}</td>
-                                                <td>{{$item->unit_of_measurement}}</td>
+                                                <td>{{$item->inventory->uom->uomp}}</td>
+                                                <td>{{ $item->estimated_amount }}</td>
                                             </tr>
                                         @endforeach
                                     @else

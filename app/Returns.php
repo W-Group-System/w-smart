@@ -18,4 +18,8 @@ class Returns extends Model
     {
         return $this->belongsTo(Uoms::class,'uom_id');
     }
+    public function returnItem()
+    {
+        return $this->hasMany(ReturnItem::class,'return_id');
+    }
 }

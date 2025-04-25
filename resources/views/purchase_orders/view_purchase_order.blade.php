@@ -143,8 +143,7 @@
     
                     <div>
                         @if($po->status == 'Approved')
-
-                            @if($po->status != 'Received')
+                            @if($po->status != 'Received' && $po->purchaseRequest->user_id == auth()->user()->id)
                                 <button type="button" class="btn btn-outline-warning" data-toggle="modal" data-target="#received{{$po->id}}">
                                     <i class="ti-check"></i>
                                     Received
@@ -216,7 +215,25 @@
                         </dl>
                     </div>
                 </div>
-
+                <hr>
+                <div class="row">
+                    <div class="col-lg-6">
+                        <dl class="row">
+                            <dt class="col-sm-3 text-right">GRN:</dt>
+                            <dd class="col-sm-9">{{$po->grn_no}}</dd>
+                        </dl>
+                    </div>
+                    <div class="col-lg-6">
+                        <dl class="row">
+                            <dt class="col-sm-3 text-right">Received Date:</dt>
+                            <dd class="col-sm-9">
+                                @if($po->grn_no)
+                                    {{ date('M d Y', strtotime($po->updated_at)) }}
+                                @endif
+                            </dd>
+                        </dl>
+                    </div>
+                </div>
                 <div class="row mb-3">
                     <div class="col-md-12 mt-3">
                         <div class="card border border-1 border-primary rounded-0">

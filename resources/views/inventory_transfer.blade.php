@@ -483,7 +483,6 @@
                         <div class="card-body">
                             <h4 class="mb-4">Approved</h4>
                             0
-                            
                         </div>
                     </div>
                 </div>
@@ -505,12 +504,14 @@
                             <thead>
                                 <tr>
                                     <th>Action</th>
+                                    <th>Transaction Number</th>
+                                    <th>Transaction Date</th>
                                     <th>Transfer From</th>
                                     <th>Transfer To</th>
                                     <th>Item Code</th>
                                     <th>Description</th>
                                     <th>Category</th>
-                                    <th>Requested QTY</th>
+                                    {{-- <th>Requested QTY</th> --}}
                                     <th>UOM</th>
                                     <th>Status</th>
                                 </tr>
@@ -526,6 +527,8 @@
                                                 <i class="ti-pencil-alt"></i>
                                             </button> --}}
                                         </td>
+                                        <td>TRANSACT-{{ str_pad($transfer->id, 3, '0', STR_PAD_LEFT) }}</td>
+                                        <td>{{ date('M d Y', strtotime($transfer->created_at)) }}</td>
                                         <td>{{$transfer->transferFrom->subsidiary_name}}</td>
                                         <td>{{$transfer->transferTo->subsidiary_name}}</td>
                                         <td>
@@ -546,12 +549,12 @@
                                                 <hr>
                                             @endforeach
                                         </td>
-                                        <td>
+                                        {{-- <td>
                                             @foreach ($transfer->inventoryTransfer as $item)
                                                 {{$item->request_qty}} <br>
                                                 <hr>
                                             @endforeach
-                                        </td>
+                                        </td> --}}
                                         <td>
                                             @foreach ($transfer->inventoryTransfer as $item)
                                                 {{$item->uom->uomp}} <br>
@@ -581,12 +584,6 @@
 
 @section('js')
 <script>
-    function requestQtyValue(element)
-    {
-        var requestValue = $(element).closest('tr').find('#requestQty')
-        requestValue.val(element.innerText)
-    }
-
     $(document).ready(function() {
         $("#tablewithSearch").DataTable({
             dom: 'Bfrtip',
@@ -600,6 +597,7 @@
 
             var itemDescription = $(this).closest('tr').find('.itemDescriptionTd')
             var category = $(this).closest('tr').find('.categoryTd')
+            var qty = $(this).closest('tr').find('.qty')
             var itemDescriptionValue = $("[name='item_description[]']")
             var categoryValue = $("[name='category[]']")
             
@@ -620,10 +618,37 @@
                 success: function(response) {
                     itemDescription.text(response.item_description)
                     category.text(response.category.name)
+                    qty.text(response.qty)
 
                     itemDescriptionValue.val(response.item_description)
                     categoryValue.val(response.category_id)
                 }
+            })
+        })
+
+        var optionData = '';
+        $(document).on('change', "[name='transfer_from']", function() {
+            var getValue = $(this).val()
+
+            $.ajax({
+                type: "POST",
+                url: "{{ url('refresh_inventory_per_subsidiary') }}",
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    id: getValue
+                },
+                success:function(data)
+                {
+                    optionData = data
+
+                    $("[name='item_code[]']").html(data)
+
+                    $(".itemDescriptionTd").text("")
+                    $(".itemDescriptionTd").val("")
+
+                    $(".categoryTd").text("")
+                    $(".categoryTd").val("")
+                }   
             })
         })
         
@@ -632,10 +657,7 @@
                 <tr>
                     <td>
                         <select data-placeholder="Select item code" name="item_code[]" class="form-control js-example-basic-single" style="width: 100%;" required>
-                            <option value=""></option>
-                            @foreach ($inventories as $inventory)
-                                <option value="{{$inventory->inventory_id}}">{{$inventory->item_code}}</option>
-                            @endforeach
+                            ${optionData}
                         </select>
                     </td>
                     <td class="itemDescriptionTd">
@@ -652,8 +674,8 @@
                             @endforeach
                         </select>
                     </td>
-                    <td contenteditable="true" id="tdRequestQty" oninput="requestQtyValue(this)">
-                        <input type="hidden" name="request_qty[]" id="requestQty">
+                    <td class="qty">
+                        
                     </td>
                 </tr>
             `

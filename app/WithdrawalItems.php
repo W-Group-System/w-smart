@@ -14,4 +14,8 @@ class WithdrawalItems extends Model
     {
         return $this->belongsTo(Uoms::class);
     }
+    public function widthdrawal()
+    {
+        return $this->belongsTo(Withdrawal::class);
+    }
 }

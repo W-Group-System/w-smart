@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Classification;
 use App\Department;
+use App\EstimatedTotalAmount;
 use App\Inventory;
 use App\Models\User;
 use App\PurchaseApprover;
@@ -13,6 +14,7 @@ use App\PurchaseRequestApprover;
 use App\PurchaseRequestFile;
 use App\Subsidiary;
 use App\SupplierAccreditation;
+use App\Uoms;
 use App\Vendor;
 use App\VendorContact;
 use Illuminate\Http\Request;
@@ -56,8 +58,9 @@ class PurchaseRequestController extends Controller
         $inventory_list = Inventory::where('status',null)->get();
         $classifications = Classification::where('status', null)->get();
         $purchase_approvers = PurchaseApprover::orderBy('level','asc')->get();
+        $uoms = Uoms::get();
 
-        return view('purchase_request.new_purchase_request', compact('inventory_list', 'classifications', 'purchase_approvers'));
+        return view('purchase_request.new_purchase_request', compact('inventory_list', 'classifications', 'purchase_approvers', 'uoms'));
     }
 
     /**
@@ -86,6 +89,7 @@ class PurchaseRequestController extends Controller
             $purchase_item->purchase_request_id = $purchase_request->id;
             $purchase_item->inventory_id = $inventory;
             $purchase_item->unit_of_measurement = $request->unit_of_measurement[$key];
+            $purchase_item->estimated_amount = $request->estimated_amount[$key];
             $purchase_item->save();
         }
 
@@ -126,6 +130,21 @@ class PurchaseRequestController extends Controller
             $pr_approver->save();
         }
 
+        $get_qty = Inventory::whereIn('inventory_id', $request->inventory_id)->get()->pluck('qty')->toArray();
+        $estimated_amount = $request->estimated_amount;
+
+        $total_array = [];
+        foreach($estimated_amount as $key=>$est_amt)
+        {
+            $total_array[] = $est_amt * $get_qty[$key];
+        }
+        $total = collect($total_array)->sum();
+        
+        $estimated_amount = new EstimatedTotalAmount;
+        $estimated_amount->total_amount = $total;
+        $estimated_amount->purchase_request_id = $purchase_request->id;
+        $estimated_amount->save();
+
         Alert::success('Successfully Saved')->persistent('Dismiss');
         // return back();
 
@@ -159,8 +178,9 @@ class PurchaseRequestController extends Controller
         $inventory_list = Inventory::where('status',null)->get();
         $classifications = Classification::where('status', null)->get();
         $purchase_approvers = PurchaseApprover::orderBy('level','asc')->get();
+        $uoms = Uoms::get();
         
-        return view('purchase_request.edit_purchase_request',compact('purchase_request','inventory_list','classifications','purchase_approvers'));
+        return view('purchase_request.edit_purchase_request',compact('purchase_request','inventory_list','classifications','purchase_approvers', 'uoms'));
     }
 
     /**
@@ -219,6 +239,22 @@ class PurchaseRequestController extends Controller
         $purchase_request_approvers = PurchaseRequestApprover::orderBy('level','asc')->first();
         $purchase_request_approvers->status = 'Pending';
         $purchase_request_approvers->save();
+
+        $get_qty = Inventory::whereIn('inventory_id', $request->inventory_id)->get()->pluck('qty')->toArray();
+        $estimated_amount = $request->estimated_amount;
+
+        $total_array = [];
+        foreach($estimated_amount as $key=>$est_amt)
+        {
+            $total_array[] = $est_amt * $get_qty[$key];
+        }
+        $total = collect($total_array)->sum();
+
+        $estimated_amount = EstimatedTotalAmount::where('purchase_request_id', $id)->first();
+        $estimated_amount->total_amount = $total;
+        // $estimated_amount->purchase_request_id = $purchase_request->id;
+        $estimated_amount->save();
+
 
         Alert::success('Successfully Updated')->persistent('Dismiss');
         return redirect('procurement/purchase-request');
@@ -298,7 +334,8 @@ class PurchaseRequestController extends Controller
             'item_description' => $inventory->item_description,
             'item_code' => $inventory->item_code,
             'qty' => $inventory->qty,
-            'category' => $inventory->category
+            'category' => $inventory->category,
+            'cost' => $inventory->cost
         ]);
     }
 }

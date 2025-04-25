@@ -14,27 +14,27 @@
                             <input type="text" class="form-control" name="requestedBy" required>
                         </div> --}}
                         <div class="col-md-6">
-                            <label for="transferFrom" class="form-label">Transfer From</label>
+                            <label for="transferFrom" class="form-label">Transfer From <span class="text-danger">*</span></label>
                             <input type="text" class="form-control" name="transfer_from" value="{{ $disposal_asset->transfer_from }}" required>
                         </div>
                         <div class="col-md-6">
-                            <label for="transferTo" class="form-label">Transfer To</label>
+                            <label for="transferTo" class="form-label">Transfer To <span class="text-danger">*</span></label>
                             <input type="text" class="form-control" name="transfer_to" value="{{ $disposal_asset->transfer_to }}" required>
                         </div>
                         <div class="col-md-6">
-                            <label for="purpose" class="form-label">Purpose</label>
+                            <label for="purpose" class="form-label">Purpose <span class="text-danger">*</span></label>
                             <input type="text" class="form-control" name="purpose" value="{{ $disposal_asset->purpose }}" required>
                         </div>
                         <div class="col-md-6">
-                            <label for="dateOfTransfer" class="form-label">Date of Transfer</label>
+                            <label for="dateOfTransfer" class="form-label">Date of Transfer <span class="text-danger">*</span></label>
                             <input type="date" class="form-control" name="date_of_transfer" value="{{ $disposal_asset->date_of_transfer }}" required>
                         </div>
                         <div class="col-md-6">
-                            <label for="assetName" class="form-label">Asset Name</label>
+                            <label for="assetName" class="form-label">Asset Name <span class="text-danger">*</span></label>
                             <input type="text" class="form-control" name="asset_name" value="{{ $disposal_asset->asset_name }}" required>
                         </div>
                         <div class="col-md-6">
-                            <label for="assetCode" class="form-label">Asset Code</label>
+                            <label for="assetCode" class="form-label">Asset Code <span class="text-danger">*</span></label>
                             <input type="text" class="form-control" name="asset_code" value="{{ $disposal_asset->asset_code }}" required>
                         </div>
                         {{-- <div class="col-md-6 d-flex align-items-end">
@@ -42,17 +42,17 @@
                                 style="width: 100%;">View Specs</button>
                         </div> --}}
                         <div class="col-md-6">
-                            <label for="approver" class="form-label">Approver</label>
+                            <label for="approver" class="form-label">Approver <span class="text-danger">*</span></label>
                             <select class="form-control js-example-basic-single" style="width: 100%;" name="approver">
                                 <option value="" disabled selected>Select Approver</option>
                             </select>
                         </div>
                         <div class="col-md-6">
-                            <label for="remarks" class="form-label">Remarks</label>
+                            <label for="remarks" class="form-label">Remarks <span class="text-danger">*</span></label>
                             <input type="text" class="form-control" name="remarks" value="{{ $disposal_asset->remarks }}" required>
                         </div>
                         <div class="col-md-6">
-                            <label for="photo" class="form-label">Photo</label>
+                            <label for="photo" class="form-label">Photo <span class="text-danger">*</span></label>
                             <input type="file" class="form-control" name="files[]" multiple >
                         </div>
                     </div>

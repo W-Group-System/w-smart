@@ -68,6 +68,7 @@
                                                 <th>Item Code</th>
                                                 <th>Item Description</th>
                                                 <th>Category</th>
+                                                <th>Qty</th>
                                                 <th>UOM</th>
                                                 <th>Reason of Withdrawal</th>
                                                 <th>Requested QTY</th>
@@ -89,6 +90,9 @@
                                                 <td>
                                                     <p id="categoryText"></p>
                                                 </td>
+                                                <td id="qty">
+
+                                                </td>
                                                 <td>
                                                     <select data-placeholder="Select uom" class="form-control js-example-basic-single" name="uom[]" style="width: 100%;" required>
                                                         <option value=""></option>
@@ -108,8 +112,6 @@
                                     </table>
                                 </div>
                             
-                                
-                                
                                 <div class="form-group row">
                                     <div class="col-lg-12">
                                         <button type="submit" class="btn btn-success float-right">Save</button>
@@ -144,6 +146,9 @@
                     <td>
                         <p id="categoryText"></p>
                     </td>
+                    <td id="qty">
+
+                    </td>
                     <td>
                         <select data-placeholder="Select uom" class="form-control inventorySelect" name="uom[]" style="width: 100%;" required>
                             <option value=""></option>
@@ -155,7 +160,7 @@
                     <td contenteditable="true" class="reason">
                         <textarea name="reason[]" class="form-control"></textarea>
                     </td>
-                    <td contenteditable="true" class="requestedQty">
+                    <td>
                         <input type="number" name="requestQty[]" class="form-control" required>
                     </td>
                 </tr>
@@ -178,6 +183,7 @@
             var value = $(this).val()
             var itemCode = $(this).closest('tr').find('#itemCodeText')
             var category = $(this).closest('tr').find('#categoryText')
+            var qty = $(this).closest('tr').find('#qty')
             
             $.ajax({
                 type:"POST",
@@ -189,9 +195,15 @@
                 success: function(res) {
                     itemCode.text(res.item_code)
                     category.text(res.category.name)
+                    qty.text(res.qty)
                 }
             })
+        })
+
+        $(document).on('input', '[name="requestQty[]"]', function() {
+            var actualQty = $(this).closest('tr').find('#qty').text()
             
+            $(this).prop('max', actualQty)
         })
     })
 </script>

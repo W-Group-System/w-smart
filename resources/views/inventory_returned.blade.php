@@ -456,9 +456,9 @@
                                     <th>
                                         Request Number
                                     </th>
-                                    <th>
+                                    {{-- <th>
                                         Subsidiary
-                                    </th>
+                                    </th> --}}
                                     <th>
                                         Item Code
                                     </th>
@@ -466,13 +466,13 @@
                                         Item Description
                                     </th>
                                     <th>
-                                        Withdraw QTY
-                                    </th>
-                                    <th>
                                         Returned QTY
                                     </th>
                                     <th>
                                         UOM
+                                    </th>
+                                    <th>
+                                        Reason of returned
                                     </th>
                                     <th>
                                         Status
@@ -484,14 +484,45 @@
                                     <tr>
                                         <td>{{date('M d Y', strtotime($return_inventory->created_at))}}</td>
                                         <td>{{$return_inventory->requestor->name}}</td>
-                                        <td>{{$return_inventory->request_number}}</td>
-                                        <td>{{$return_inventory->subsidiary->subsidiary_name}}</td>
-                                        <td>{{$return_inventory->item_code}}</td>
-                                        <td>{{$return_inventory->item_description}}</td>
-                                        <td>{{$return_inventory->withdraw_qty}}</td>
-                                        <td>{{$return_inventory->returned_qty}}</td>
-                                        <td>{{$return_inventory->uom->uomp}}</td>
-                                        <td>{{$return_inventory->status}}</td>
+                                        <td>RETURNED-{{str_pad($return_inventory->id, 3, "0", STR_PAD_LEFT)}}</td>
+                                        {{-- <td>{{$return_inventory->subsidiary->subsidiary_name}}</td> --}}
+                                        <td>
+                                            @foreach ($return_inventory->returnItem as $returnItem)
+                                                {{ $returnItem->inventory->item_code }} <br>
+                                            @endforeach
+                                        </td>
+                                        <td>
+                                            @foreach ($return_inventory->returnItem as $returnItem)
+                                                {{ $returnItem->inventory->item_description }} <br>
+                                            @endforeach
+                                        </td>
+                                        <td>
+                                            @foreach ($return_inventory->returnItem as $returnItem)
+                                                {{ $returnItem->request_qty }} <br>
+                                            @endforeach
+                                        </td>
+                                        <td>
+                                            @foreach ($return_inventory->returnItem as $returnItem)
+                                                {{ $returnItem->uom->uomp }} <br>
+                                            @endforeach
+                                        </td>
+                                        <td>
+                                            @foreach ($return_inventory->returnItem as $returnItem)
+                                            {!! nl2br(e($returnItem->reason)) !!} <br>
+                                            <hr>
+                                            @endforeach
+                                        </td>
+                                        <td>
+                                            @if($return_inventory->status == 'Pending')
+                                            <span class="badge badge-warning">
+                                            @elseif($return_inventory->status == 'Declined')
+                                            <span class="badge badge-danger">
+                                            @elseif($return_inventory->status == 'Approved')
+                                            <span class="badge badge-success">
+                                            @endif
+                                                {{$return_inventory->status}}
+                                            </span>
+                                        </td>
                                     </tr>
                                 @endforeach
                             </tbody>

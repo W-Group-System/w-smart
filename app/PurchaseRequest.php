@@ -57,4 +57,8 @@ class PurchaseRequest extends Model
     {
         return $this->hasMany(PurchaseRequestApprover::class);
     }
+    public function estimateAmount()
+    {
+        return $this->hasOne(EstimatedTotalAmount::class);
+    }
 }

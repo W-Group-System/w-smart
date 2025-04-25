@@ -22,28 +22,11 @@
                         </div> --}}
                         <div class="col-md-6">
                             <label for="transferFrom" class="form-label">Transfer From</label>
-                            <select class="form-control js-example-basic-single" name="transfer_from" style="width: 100%;">
-                                @if(auth()->user()->subsidiary != 'HO')
-                                    <option value="1">HO</option>
-                                @endif
-                                @if(auth()->user()->subsidiary != 'WTCC')
-                                    <option value="2">WTCC</option>
-                                @endif
-                                @if(auth()->user()->subsidiary != 'CITI')
-                                    <option value="3">CITI</option>
-                                @endif
-                                @if(auth()->user()->subsidiary != 'WCC')
-                                    <option value="4">WCC</option>
-                                @endif
-                                @if(auth()->user()->subsidiary != 'WFA')
-                                    <option value="5">WFA</option>
-                                @endif
-                                @if(auth()->user()->subsidiary != 'WOI')
-                                    <option value="6">WOI</option>
-                                @endif
-                                @if(auth()->user()->subsidiary != 'WGC')
-                                    <option value="7">WGC</option>
-                                @endif
+                            <select data-placeholder="Select subsidiary" class="form-control js-example-basic-single" name="transfer_from" style="width: 100%;">
+                                <option value=""></option>
+                                @foreach ($subsidiaries->where('subsidiary_id', "!=", auth()->user()->subsidiaryid) as $subsidiary)
+                                    <option value="{{ $subsidiary->subsidiary_id }}">{{ $subsidiary->subsidiary_name }}</option>
+                                @endforeach
                             </select>
                         </div>
                         <div class="col-md-6">
@@ -52,15 +35,6 @@
                                 @foreach ($subsidiaries->where('subsidiary_id', auth()->user()->subsidiaryid) as $subsidiary)
                                     <option value="{{$subsidiary->subsidiary_id}}">{{$subsidiary->subsidiary_name}}</option>
                                 @endforeach
-                                {{-- <option value="1" {{ auth()->user()->subsidiary == 'HO' ? 'selected' : '' }}>HO</option> --}}
-                                {{-- <option value="2" {{ auth()->user()->subsidiary == 'WTCC' ? 'selected' : '' }}>WTCC
-                                </option> --}}
-                                {{-- <option value="3" {{ auth()->user()->subsidiary == 'CITI' ? 'selected' : '' }}>CITI
-                                </option> --}}
-                                {{-- <option value="4" {{ auth()->user()->subsidiary == 'WCC' ? 'selected' : '' }}>WCC</option> --}}
-                                {{-- <option value="5" {{ auth()->user()->subsidiary == 'WFA' ? 'selected' : '' }}>WFA</option> --}}
-                                {{-- <option value="6" {{ auth()->user()->subsidiary == 'WOI' ? 'selected' : '' }}>WOI</option> --}}
-                                {{-- <option value="7" {{ auth()->user()->subsidiary == 'WGC' ? 'selected' : '' }}>WGC</option> --}}
                             </select>
                         </div>
                     </div>
@@ -81,17 +55,18 @@
                                     <th>Item Description</th>
                                     <th>Category</th>
                                     <th>UOM</th>
-                                    <th>Requested QTY</th>
+                                    <th>Quantity</th>
+                                    {{-- <th>Requested QTY</th> --}}
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr>
                                     <td>
                                         <select data-placeholder="Select item code" name="item_code[]" class="form-control js-example-basic-single" style="width: 100%;" required>
-                                            <option value=""></option>
-                                            @foreach ($inventories as $inventory)
+                                            {{-- <option value=""></option>
+                                            @foreach ($inventories->where('status', null) as $inventory)
                                                 <option value="{{$inventory->inventory_id}}">{{$inventory->item_code}}</option>
-                                            @endforeach
+                                            @endforeach --}}
                                         </select>
                                     </td>
                                     <td class="itemDescriptionTd">
@@ -108,9 +83,12 @@
                                             @endforeach
                                         </select>
                                     </td>
-                                    <td contenteditable="true" id="tdRequestQty" oninput="requestQtyValue(this)">
-                                        <input type="hidden" name="request_qty[]" id="requestQty">
+                                    <td class="qty">
+                                        
                                     </td>
+                                    {{-- <td>
+                                        <input type="number" name="request_qty" class="form-control" required>
+                                    </td> --}}
                                 </tr>
                             </tbody>
                         </table>

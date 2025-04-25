@@ -480,12 +480,13 @@
                                     <th>UOM</th>
                                     <th>Cost</th>
                                     <th>Usage</th>
+                                    <th>Subsidiary</th>
                                     <th>Status</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @foreach ($inventories as $inventory)
-                                    <tr>
+                                    <tr @if($inventory->qty <= 10) class="bg-danger text-white" @endif>
                                         <td>
                                             <a href={{ url('view_inventory/'.$inventory->inventory_id) }} class="btn btn-sm btn-info">
                                                 <i class="ti-eye"></i>
@@ -522,6 +523,7 @@
                                         <td>{{$inventory->uom->uoms}}</td>
                                         <td>{{$inventory->cost}}</td>
                                         <td>{{$inventory->usage}}</td>
+                                        <td>{{ $inventory->subsidiaryId->subsidiary_name }}</td>
                                         <td>
                                             @if($inventory->status)
                                             <span class="badge badge-danger">Deactivate</span>
