@@ -72,6 +72,7 @@
                                             <th>Item Code</th>
                                             <th>Item Description</th>
                                             <th>Remaining</th>
+                                            <th>On Hand</th>
                                             <th>Quantity</th>
                                         </tr>
                                     </thead>
@@ -81,12 +82,23 @@
                                                 <td>
                                                     <input type="checkbox" name="receive_item[]" value="1" checked>
                                                     <input type="hidden" name="line[]" value="{{ $key+1 }}">
+                                                    <input type="hidden" name="inventory_id[]" value="{{ $item->inventory_id }}">
                                                 </td>
                                                 <td>{{$item->inventory->item_code}}</td>
                                                 <td>{{$item->inventory->item_description}}</td>
-                                                <td>{{ $item->inventory->qty }}</td>
                                                 <td>
-                                                    <input type="text" class="form-control form-control-sm" name="qty[]" value="{{ $item->inventory->qty }}" required>
+                                                    <input type="hidden" name="actual_qty[]" value="{{ $item->inventory->qty }}">
+                                                    {{ $item->inventory->qty }}
+                                                </td>
+                                                <td>
+                                                    {{ (int)$item->inventory->qty - (int)$item->qty }}
+                                                </td>
+                                                <td>
+                                                    @if($item->qty)
+                                                    <input type="number" class="form-control form-control-sm" name="received_qty[]" max="{{ $item->inventory->qty }}" value="{{ $item->qty }}" required>
+                                                    @else
+                                                    <input type="number" class="form-control form-control-sm" name="received_qty[]" max="{{ $item->inventory->qty }}" value="{{ $item->inventory->qty }}" required>
+                                                    @endif
                                                 </td>
                                             </tr>
                                         @endforeach

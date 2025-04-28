@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Grn;
 use App\PurchaseApprover;
 use App\PurchaseOrder;
 use App\PurchaseOrderApprover;
@@ -122,7 +123,7 @@ class PurchaseOrderController extends Controller
             $po_item->save();
         }
 
-        $purchase_approvers = PurchaseApprover::orderBy('level','asc')->get();
+        $purchase_approvers = PurchaseApprover::where('level', 2)->orderBy('level','asc')->get();
         foreach($purchase_approvers as $key=>$purchase_approver)
         {
             $pr_approver = new PurchaseOrderApprover();
@@ -395,15 +396,42 @@ class PurchaseOrderController extends Controller
 
     public function received(Request $request,$id)
     {
+        // dd($request->all());
         try {
             $grn = substr($request->grn_no,4);
             $number = $grn+1;
             $grn_display = "GRN".str_pad($number, 6, '0', STR_PAD_LEFT);
-            
+
+            $status = collect($request->actual_qty)->every(function($item, $key)use($request) {
+                return $item == $request->received_qty[$key];
+            });
+
+            $display_status = '';
+            if ($status)
+            {
+                $display_status = 'Fully Received';
+            }
+            else
+            {
+                $display_status = 'Partial Received';
+            }
+
             $purchase_order = PurchaseOrder::findOrFail($id);
-            $purchase_order->grn_no = $grn_display;
-            $purchase_order->status = 'Received';
+            $purchase_order->status = $display_status;
             $purchase_order->save();
+
+            foreach($request->inventory_id as $key=>$inventory)
+            {
+                $purchase_order_item = PurchaseOrderItem::where('inventory_id', $inventory)->first();
+                $purchase_order_item->qty = $request->received_qty[$key];
+                $purchase_order_item->save();
+            }
+            
+            $grn = new Grn;
+            $grn->purchase_order_id = $id;
+            $grn->grn_no = $grn_display;
+            $grn->save();
+            
 
             // $items_array = [];
             // foreach($request->line as $lineKey => $line)

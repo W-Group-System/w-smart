@@ -142,7 +142,7 @@
                     <h4 class="card-title mb-0">{{$po->purchase_order_no}} - {{$po->status}}</h4>
     
                     <div>
-                        @if($po->status == 'Approved')
+                        @if($po->status == 'Approved' || $po->status == 'Partial Received')
                             @if($po->status != 'Received' && $po->purchaseRequest->user_id == auth()->user()->id)
                                 <button type="button" class="btn btn-outline-warning" data-toggle="modal" data-target="#received{{$po->id}}">
                                     <i class="ti-check"></i>
@@ -220,7 +220,11 @@
                     <div class="col-lg-6">
                         <dl class="row">
                             <dt class="col-sm-3 text-right">GRN:</dt>
-                            <dd class="col-sm-9">{{$po->grn_no}}</dd>
+                            <dd class="col-sm-9">
+                                @foreach ($po->grn as $grn)
+                                    {{ $grn->grn_no }} <br>
+                                @endforeach
+                            </dd> <br>
                         </dl>
                     </div>
                     <div class="col-lg-6">
@@ -296,7 +300,7 @@
                                                 {{-- <td>{{$item->inventory->item_category}}</td> --}}
                                                 <td>{{$item->inventory->item_description}}</td>
                                                 <td>{{number_format($item->inventory->qty,2)}}</td>
-                                                <td>{{$item->unit_of_measurement}}</td>
+                                                <td>{{$item->inventory->uom->uomp}}</td>
                                                 <td>0.00</td>
                                                 <td></td>
                                             </tr>

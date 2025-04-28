@@ -172,4 +172,7 @@ Route::group(['middleware' => 'auth'], function () {
 
     // Assign Analyst
     Route::get('procurement/assign_analyst', 'AssignAnalystController@index');
+
+    // View RFQ
+    Route::get('view_rfq', 'RequestForQuotationController@index');
 });

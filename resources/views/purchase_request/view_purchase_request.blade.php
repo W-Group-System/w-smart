@@ -189,7 +189,7 @@
                             Assign
                         </button>
                         @endif
-                        @if($purchase_request->status == 'For RFQ' && auth()->user()->id == $purchase_request->user_id)
+                        @if($purchase_request->status == 'For RFQ' && auth()->user()->id == $purchase_request->assigned_to)
                         <button type="button" class="btn btn-outline-info" title="Request for quotation" data-toggle="modal" data-target="#rfq{{$purchase_request->id}}">
                             <i class="ti-receipt"></i>
                             Request For Quotation (RFQ)
@@ -215,7 +215,7 @@
                         @else
                         <a href="{{url('procurement/purchase-request')}}" type="button" class="btn btn-outline-secondary">
                             <i class="ti-arrow-left"></i>
-                            Back   
+                            Back
                         </a>
                         @endif
                     </div>

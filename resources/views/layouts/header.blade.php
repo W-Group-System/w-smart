@@ -63,6 +63,15 @@
               <span class="icon-menu"></span>
             </button>
             <ul class="navbar-nav navbar-nav-right">
+                @if(auth()->user()->role == 3)
+                <li class="nav-item dropdown">
+                    <a class="nav-link" id="notificationDropdown" href="{{ url('view_rfq') }}" data-bs-toggle="dropdown" aria-expanded="true">
+                        <i class="icon-bell mx-0"></i>
+                        <span class="badge badge-danger">{{ count_rfq(auth()->user()->id) }}</span>
+                        {{-- <span class="count"></span> --}}
+                    </a>
+                </li>
+                @endif
               <li class="nav-item nav-profile dropdown">
                 <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown" id="profileDropdown">
                   <img src="{{ asset('images/no_image.png') }}" alt="profile"/>

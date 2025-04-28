@@ -22,4 +22,8 @@ class PurchaseOrder extends Model
     {
         return $this->hasMany(PurchaseOrderApprover::class);
     }
+    public function grn()
+    {
+        return $this->hasMany(Grn::class);
+    }
 }

@@ -19,7 +19,9 @@ class RequestForQuotationController extends Controller
      */
     public function index()
     {
-        //
+        $purchased_requests = PurchaseRequest::where('status', 'For RFQ')->where('assigned_to', auth()->user()->id)->get();
+
+        return view('rfq.index', compact('purchased_requests'));
     }
 
     /**
@@ -93,7 +95,8 @@ class RequestForQuotationController extends Controller
             }
             
             Alert::success('Successfully Saved')->persistent('Dismiss');
-            return back();
+            // return back();
+            return redirect('view_rfq');
         }
 
         

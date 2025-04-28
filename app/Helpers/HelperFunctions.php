@@ -53,3 +53,7 @@ function assign_count()
 {
     return PurchaseRequest::whereNull('assigned_to')->count();
 }
+function count_rfq($assigned_to)
+{
+    return PurchaseRequest::where('assigned_to', $assigned_to)->where('status', 'For RFQ')->count();
+}

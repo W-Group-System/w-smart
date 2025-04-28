@@ -43,11 +43,13 @@
                                     <div class="col-lg-6 border border-1 border-top-bottom border-left-right font-weight-bold">Level</div>
                                     <div class="col-lg-6 border border-1 border-top-bottom border-left-right font-weight-bold">Name</div>
                                 </div>
-                                @foreach ($purchase_approvers as $purchase_approver)
-                                    <div class="row">
-                                        <div class="col-lg-6 border border-1 border-top-bottom border-left-right">{{ $purchase_approver->level }}</div>
-                                        <div class="col-lg-6 border border-1 border-top-bottom border-left-right">{{ $purchase_approver->user->name }}</div>
-                                    </div>
+                                @foreach ($purchase_approvers as $key=>$purchase_approver)
+                                    @if($key == 1)
+                                        <div class="row">
+                                            <div class="col-lg-6 border border-1 border-top-bottom border-left-right">{{ $key }}</div>
+                                            <div class="col-lg-6 border border-1 border-top-bottom border-left-right">{{ $purchase_approver->user->name }}</div>
+                                        </div>
+                                    @endif
                                 @endforeach
                             </div>
                         </div>
