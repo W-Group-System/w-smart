@@ -318,7 +318,18 @@
 
                 <div class="card">
                     <div class="card-body">
+                        @if($purchase_request->estimateAmount->total_amount != 0.00)
                         <p class="card-title">Total: <span id="totalAmount">&#8369;{{ number_format($purchase_request->estimateAmount->total_amount, 2) }}</span></p>
+                        @else
+                        @php
+                            $total_amount = [];
+                            foreach ($purchase_request->purchaseItems as $key => $purchaseItem) {
+                                $total_amount[] = (int)$purchaseItem->inventory->cost;
+                            }
+                            $total = collect($total_amount)->sum();
+                        @endphp
+                        <p class="card-title">Total : <span>&#8369; {{ $total }}</span></p>
+                        @endif
                     </div>
                 </div>
 
