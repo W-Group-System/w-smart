@@ -142,6 +142,9 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('cancel_po/{id}', 'PurchaseOrderController@cancelled');
     Route::post('refresh_rfq_item', 'PurchaseOrderController@refreshRfqItem');
 
+    // View GRN
+    Route::get('view_grn/{id}', 'PurchaseOrderController@viewGrn');
+
     // Vendors
     Route::get('/settings/vendors', 'VendorController@index')->name('settings.vendors');
     Route::post('/settings/store-vendor','VendorController@store');

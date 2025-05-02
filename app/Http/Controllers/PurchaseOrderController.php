@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Grn;
+use App\GrnItemHistory;
 use App\PurchaseApprover;
 use App\PurchaseOrder;
 use App\PurchaseOrderApprover;
@@ -398,8 +399,16 @@ class PurchaseOrderController extends Controller
     {
         // dd($request->all());
         try {
-            $grn = substr($request->grn_no,4);
-            $number = $grn+1;
+            $grn_data = Grn::orderBy('id','desc')->first();
+            if ($grn_data)
+            {
+                $grn = substr($grn_data->grn_no,4);
+                $number = $grn+1;
+            }
+            else
+            {
+                $number = '00001';
+            }
             $grn_display = "GRN".str_pad($number, 6, '0', STR_PAD_LEFT);
 
             $status = collect($request->actual_qty)->every(function($item, $key)use($request) {
@@ -420,19 +429,25 @@ class PurchaseOrderController extends Controller
             $purchase_order->status = $display_status;
             $purchase_order->save();
 
+            $grn = new Grn;
+            $grn->purchase_order_id = $id;
+            $grn->grn_no = $grn_display;
+            $grn->save();
+
             foreach($request->inventory_id as $key=>$inventory)
             {
                 $purchase_order_item = PurchaseOrderItem::where('inventory_id', $inventory)->first();
                 $purchase_order_item->qty = $request->received_qty[$key];
                 $purchase_order_item->save();
+
+                $grn_item_history = new GrnItemHistory;
+                $grn_item_history->grn_id = $grn->id;
+                $grn_item_history->inventory_id = $inventory;
+                $grn_item_history->purchase_order_id = $id;
+                $grn_item_history->received_qty =  $request->received_qty[$key];
+                $grn_item_history->save();
             }
             
-            $grn = new Grn;
-            $grn->purchase_order_id = $id;
-            $grn->grn_no = $grn_display;
-            $grn->save();
-            
-
             // $items_array = [];
             // foreach($request->line as $lineKey => $line)
             // {
@@ -504,5 +519,12 @@ class PurchaseOrderController extends Controller
         return response()->json([
             'rfq' => $rfq_items_array
         ]);
+    }
+
+    public function viewGrn($id)
+    {
+        $grn = Grn::with('purchaseOrder')->findOrFail($id);
+
+        return view('grn.view_grn', compact('grn'));
     }
 }

@@ -222,7 +222,9 @@
                             <dt class="col-sm-3 text-right">GRN:</dt>
                             <dd class="col-sm-9">
                                 @foreach ($po->grn as $grn)
+                                <a href="{{ url('view_grn/'.$grn->id) }}">
                                     {{ $grn->grn_no }} <br>
+                                </a>
                                 @endforeach
                             </dd> <br>
                         </dl>

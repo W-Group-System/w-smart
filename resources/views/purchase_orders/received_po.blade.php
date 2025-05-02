@@ -91,13 +91,16 @@
                                                     {{ $item->inventory->qty }}
                                                 </td>
                                                 <td>
-                                                    {{ (int)$item->inventory->qty - (int)$item->qty }}
+                                                    @php
+                                                        $on_hand = (int)$item->inventory->qty - (int)$item->qty;
+                                                    @endphp
+                                                    {{ $on_hand }}
                                                 </td>
                                                 <td>
                                                     @if($item->qty)
-                                                    <input type="number" class="form-control form-control-sm" name="received_qty[]" max="{{ $item->inventory->qty }}" value="{{ $item->qty }}" required>
+                                                    <input type="number" class="form-control form-control-sm" name="received_qty[]" max="{{ $on_hand }}"  @if($on_hand != 0) required @endif>
                                                     @else
-                                                    <input type="number" class="form-control form-control-sm" name="received_qty[]" max="{{ $item->inventory->qty }}" value="{{ $item->inventory->qty }}" required>
+                                                    <input type="number" class="form-control form-control-sm" name="received_qty[]" max="{{ $on_hand}}" @if($on_hand != 0) required @endif>
                                                     @endif
                                                 </td>
                                             </tr>

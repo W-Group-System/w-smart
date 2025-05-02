@@ -252,7 +252,13 @@
                                         </button> --}}
                                     </td>
                                     <td>{{$po->purchase_order_no}}</td>
-                                    <td>{{$po->grn_no}}</td>
+                                    <td>
+                                        @foreach ($po->grn as $grn)
+                                        <a href="{{ url('view_grn/'.$grn->id) }}">
+                                            {{ $grn->grn_no }} <br>
+                                        </a>
+                                        @endforeach
+                                    </td>
                                     <td>{{$po->status}}</td>
                                 </tr>
                             @endforeach
