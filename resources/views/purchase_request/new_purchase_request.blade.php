@@ -214,8 +214,6 @@
                                             <td>
                                                 <select data-placeholder="Select unit of measurement" name="unit_of_measurement[]" class="form-control js-example-basic-single" style="width: 100%; position: relative;" required>
                                                     <option value=""></option>
-                                                    {{-- <option value="KG">KG</option>
-                                                    <option value="G">Grams</option> --}}
                                                     @foreach ($uoms as $uom)
                                                         <option value="{{ $uom->id }}">{{ $uom->uomp }}</option>
                                                     @endforeach
@@ -225,7 +223,7 @@
                                                 <p class="item_amount"></p>
                                             </td>
                                             <td>
-                                                <input type="number" name="estimated_amount[]" class="form-control" required>
+                                                <input type="number" name="estimated_amount[]" class="form-control" >
                                             </td>
                                         </tr>
                                     </tbody>
@@ -341,7 +339,7 @@ $(document).ready(function() {
                     <p class="item_amount"></p>
                 </td>
                 <td>
-                    <input type="number" name="estimated_amount[]" class="form-control" required>
+                    <input type="number" name="estimated_amount[]" class="form-control" >
                 </td>
             </tr>
         `;
