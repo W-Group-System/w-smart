@@ -458,7 +458,15 @@ function itemDescription(value)
                                         <td>{{$pr->subsidiary}}</td>
                                         {{-- <td>0.00</td> --}}
                                         {{-- <td>Expedited</td> --}}
-                                        <td>{{$pr->status}}</td>
+                                        <td>
+                                            @if($pr->purchaseOrder)
+                                                @if($pr->purchaseOrder->status == 'Fully Received' || $pr->purchaseOrder->status == 'Partial Received')
+                                                {{ $pr->purchaseOrder->status  }}
+                                                @endif
+                                            @else
+                                            {{$pr->status}}
+                                            @endif                                            
+                                        </td>
                                         <td>{{optional($pr->assignedTo)->name}}</td>
                                         <td>{{date('m/d/Y', strtotime($pr->created_at))}}</td>
                                     </tr>
