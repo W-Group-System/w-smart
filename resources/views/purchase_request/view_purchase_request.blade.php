@@ -196,16 +196,23 @@
                         </button>
                         @endif
         
-                        {{-- @if($purchase_request->status == 'Pending'  && request('origin') == 'for_approval') --}}
-                        @if($purchase_request->assigned_to)
+                        @if(auth()->user()->role == 4)
                             @foreach ($purchase_request->purchaseRequestApprovers->where('status', 'Pending')->where('user_id', auth()->user()->id) as $pr_approver)
-                            <button type="button" class="btn btn-outline-success" title="Request for quotation" data-toggle="modal" data-target="#view{{$purchase_request->id}}">
-                                <i class="ti-control-play"></i>
-                                Action
-                            </button>
+                                <button type="button" class="btn btn-outline-success" title="Request for quotation" data-toggle="modal" data-target="#view{{$purchase_request->id}}">
+                                    <i class="ti-control-play"></i>
+                                    Action
+                                </button>
                             @endforeach
-                        @endif
-                        {{-- @endif --}}
+                        @else
+                            @if($purchase_request->assigned_to)
+                                @foreach ($purchase_request->purchaseRequestApprovers->where('status', 'Pending')->where('user_id', auth()->user()->id) as $pr_approver)
+                                <button type="button" class="btn btn-outline-success" title="Request for quotation" data-toggle="modal" data-target="#view{{$purchase_request->id}}">
+                                    <i class="ti-control-play"></i>
+                                    Action
+                                </button>
+                                @endforeach
+                            @endif
+                        @endif 
         
                         @if(request('origin') == 'for_approval')
                         <a href="{{url('procurement/for-approval-pr')}}" type="button" class="btn btn-outline-secondary">
