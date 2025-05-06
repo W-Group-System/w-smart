@@ -449,7 +449,6 @@
                         <div class="card-body">
                             <h4 class="mb-4">Withdrawal</h4>
                             0
-                            
                         </div>
                     </div>
                 </div>
@@ -486,7 +485,7 @@
                             </thead>
                             <tbody>
                                 @foreach ($inventories as $inventory)
-                                    <tr @if($inventory->qty <= 10) class="bg-danger text-white" @endif>
+                                    <tr>
                                         <td>
                                             <a href={{ url('view_inventory/'.$inventory->inventory_id) }} class="btn btn-sm btn-info">
                                                 <i class="ti-eye"></i>
@@ -523,7 +522,11 @@
                                         <td>{{$inventory->uom->uoms}}</td>
                                         <td>{{$inventory->cost}}</td>
                                         <td>{{$inventory->usage}}</td>
-                                        <td>{{ $inventory->subsidiaryId->subsidiary_name }}</td>
+                                        <td>
+                                            @foreach ($inventory->inventory_subsidiary as $subsidiary)
+                                                {{ $subsidiary->subsidiary->subsidiary_name }} <br>
+                                            @endforeach
+                                        </td>
                                         <td>
                                             @if($inventory->status)
                                             <span class="badge badge-danger">Deactivate</span>
