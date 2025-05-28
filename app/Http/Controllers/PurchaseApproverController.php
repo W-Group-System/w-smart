@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\ItemApprover;
 use App\Models\User;
 use App\PurchaseApprover;
+use App\Subsidiary;
 use Illuminate\Http\Request;
 use RealRashid\SweetAlert\Facades\Alert;
 
@@ -17,10 +19,12 @@ class PurchaseApproverController extends Controller
     public function index()
     {
         $approvers = User::where('status', null)->get();
+        $subsidiaries = Subsidiary::get();
 
         $purchase_approvers = PurchaseApprover::get();
+        $item_approvers = ItemApprover::get();
 
-        return view('purchase_approver.index', compact('approvers', 'purchase_approvers'));
+        return view('purchase_approver.index', compact('approvers', 'purchase_approvers', 'subsidiaries', 'item_approvers'));
     }
 
     /**
@@ -98,5 +102,21 @@ class PurchaseApproverController extends Controller
     public function destroy($id)
     {
         //
+    }
+
+    public function storeItemApprover(Request $request)
+    {
+        // dd($request->all());
+        foreach($request->employee as $key=>$employee)
+        {
+            $item_approver = new ItemApprover;
+            $item_approver->user_id = $employee;
+            $item_approver->level = $key+1;
+            $item_approver->subsidiary_id = $request->subsidiary;
+            $item_approver->save();
+        }
+
+        Alert::success('Successfully Saved')->persistent('Dismiss');
+        return back();
     }
 }

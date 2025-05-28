@@ -39,7 +39,7 @@
                 <div class="card-body">
                     <h4 class="card-title">Item Approver</h4>
 
-                    <button type="button" class="btn btn-outline-success mb-4" data-toggle="modal" data-target="#newItem">
+                    <button type="button" class="btn btn-outline-success mb-4" data-toggle="modal" data-target="#newItemApprover">
                         <i class="ti-plus"></i>
                         Add Item Approver
                     </button>
@@ -53,7 +53,12 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                
+                                @foreach ($item_approvers as $approver)
+                                    <tr>
+                                        <td>{{ $approver->user->name }}</td>
+                                        <td>{{ $approver->subsidiary->subsidiary_name }}</td>
+                                    </tr>
+                                @endforeach
                             </tbody>
                         </table>
                     </div>
@@ -63,6 +68,7 @@
     </div>
 
     @include('purchase_approver.new_purchase_approver')
+    @include('purchase_approver.new_item_approver')
 @endsection
 
 @section('js')

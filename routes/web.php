@@ -108,6 +108,7 @@ Route::group(['middleware' => 'auth'], function () {
     // PR/PO Approvers
     Route::get('settings/purchase_approver', 'PurchaseApproverController@index');
     Route::post('store_purchase_approver', 'PurchaseApproverController@store');
+    Route::post('store_item_approver', 'PurchaseApproverController@storeItemApprover');
 
     # Procurement 
 

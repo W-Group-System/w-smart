@@ -49,7 +49,6 @@ class UserController extends Controller
         $users->email = $request->email;
         $users->position = $request->position;
         $users->subsidiaryid = $request->subsidiary;
-        $users->subsidiary = $subsidiary->subsidiary_name;
         $users->department_id = $request->department;
         $users->password = bcrypt('wgroup1nc');
         $users->save();
@@ -83,14 +82,13 @@ class UserController extends Controller
         //     'data' => $user
         // ]);
 
-        $subsidiary = Subsidiary::where('subsidiary_id', $request->subsidiary)->first();
+        // $subsidiary = Subsidiary::where('subsidiary_id', $request->subsidiary)->first();
 
         $users = User::findOrFail($id);
         $users->name = $request->name;
         $users->email = $request->email;
         $users->position = $request->position;
         $users->subsidiaryid = $request->subsidiary;
-        $users->subsidiary = $subsidiary->subsidiary_name;
         $users->department_id = $request->department;
         $users->save();
 
