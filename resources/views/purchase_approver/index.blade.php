@@ -2,7 +2,7 @@
 
 @section('content')
     <div class="row">
-        <div class="col-lg-12">
+        <div class="col-lg-6">
             <div class="card">
                 <div class="card-body">
                     <h4 class="card-title">Purchase Approvers</h4>
@@ -34,6 +34,32 @@
                 
             </div>
         </div>
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="card-title">Item Approver</h4>
+
+                    <button type="button" class="btn btn-outline-success mb-4" data-toggle="modal" data-target="#newItem">
+                        <i class="ti-plus"></i>
+                        Add Item Approver
+                    </button>
+
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover" id="approverTable">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Subsidiary</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     @include('purchase_approver.new_purchase_approver')
@@ -43,6 +69,13 @@
 <script>
     $(document).ready(function() {
         $("#tablewithSearch").DataTable({
+            dom: 'Bfrtip',
+            ordering: false,
+            pageLength: 25,
+            paging: true,
+        });
+
+        $("#approverTable").DataTable({
             dom: 'Bfrtip',
             ordering: false,
             pageLength: 25,

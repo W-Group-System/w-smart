@@ -401,16 +401,18 @@ class PurchaseOrderController extends Controller
     {
         // dd($request->all());
         try {
-            $grn_data = Grn::orderBy('id','desc')->first();
-            if ($grn_data)
-            {
-                $grn = substr($grn_data->grn_no,4);
-                $number = $grn+1;
-            }
-            else
-            {
-                $number = '00001';
-            }
+            // $grn_data = Grn::orderBy('id','desc')->first();
+            // if ($grn_data)
+            // {
+            //     $grn = substr($grn_data->grn_no,4);
+            //     $number = $grn+1;
+            // }
+            // else
+            // {
+            //     $number = '00001';
+            // }
+            $grn = substr($request->grn_no,4);
+            $number = $grn+1;
             $grn_display = "GRN".str_pad($number, 6, '0', STR_PAD_LEFT);
 
             $status = collect($request->actual_qty)->every(function($item, $key)use($request) {
@@ -429,12 +431,12 @@ class PurchaseOrderController extends Controller
 
             $purchase_order = PurchaseOrder::findOrFail($id);
             $purchase_order->status = $display_status;
-            $purchase_order->save();
+            // $purchase_order->save();
 
             $grn = new Grn;
             $grn->purchase_order_id = $id;
             $grn->grn_no = $grn_display;
-            $grn->save();
+            // $grn->save();
 
             foreach($request->inventory_id as $key=>$inventory)
             {
@@ -447,47 +449,47 @@ class PurchaseOrderController extends Controller
                 $grn_item_history->inventory_id = $inventory;
                 $grn_item_history->purchase_order_id = $id;
                 $grn_item_history->received_qty =  $request->received_qty[$key];
-                $grn_item_history->save();
+                // $grn_item_history->save();
             }
             
-            // $items_array = [];
-            // foreach($request->line as $lineKey => $line)
-            // {
-            //     $items_array[] = [
-            //         'orderLine' => (int)$line,
-            //         'quantity' => isset($request->qty[$lineKey]) ? (int)$request->qty[$lineKey] : 0,
-            //         'itemReceive' => isset($request->receive_item[$lineKey]) ? true : false
-            //     ];
-            // }
+            $items_array = [];
+            foreach($request->line as $lineKey => $line)
+            {
+                $items_array[] = [
+                    'orderLine' => (int)$line,
+                    'quantity' => isset($request->received_qty[$lineKey]) ? (int)$request->received_qty[$lineKey] : 0,
+                    'itemReceive' => isset($request->receive_item[$lineKey]) ? true : false
+                ];
+            }
             
-            // $data = [
-            //     "item" => [
-            //         'items' => $items_array
-            //     ],
-            // ];
+            $data = [
+                "item" => [
+                    'items' => $items_array
+                ],
+            ];
             
-            // $stack = HandlerStack::create();
+            $stack = HandlerStack::create();
                 
-            // $middleware = new Oauth1([
-            //     'consumer_key'    => env('CONSUMER_KEY'),
-            //     'consumer_secret' => env('CONSUMER_SECRET'),
-            //     'token'           => env('TOKEN'),
-            //     'token_secret'    => env('TOKEN_SECRET'),
-            //     'realm' => env('REALM_ID'),
-            //     'signature_method' => 'HMAC-SHA256'
-            // ]);
+            $middleware = new Oauth1([
+                'consumer_key'    => env('CONSUMER_KEY'),
+                'consumer_secret' => env('CONSUMER_SECRET'),
+                'token'           => env('TOKEN'),
+                'token_secret'    => env('TOKEN_SECRET'),
+                'realm' => env('REALM_ID'),
+                'signature_method' => 'HMAC-SHA256'
+            ]);
             
-            // $stack->push($middleware);
+            $stack->push($middleware);
 
-            // $client = new Client([
-            //     'base_uri' => env('NETSUITE_URL'),
-            //     'handler' => $stack,
-            //     'auth' => 'oauth',
-            // ]);
+            $client = new Client([
+                'base_uri' => env('NETSUITE_URL'),
+                'handler' => $stack,
+                'auth' => 'oauth',
+            ]);
 
-            // $client->post('purchaseOrder/'.$request->po_id.'/!transform/itemReceipt', [
-            //     'json' => $data,
-            // ]);
+            $client->post('purchaseOrder/'.$request->po_id.'/!transform/itemReceipt', [
+                'json' => $data,
+            ]);
 
             Alert::success('Successfully Received')->persistent('Dismiss');
             return back();

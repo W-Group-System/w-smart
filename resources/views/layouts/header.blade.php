@@ -284,7 +284,7 @@
                             @endif
                             @if(checkRoles(auth()->user()->role, 'Purchase Approvers'))
                             <li class="nav-item dashboard-list" id="uom-item">
-                                <a class="nav-link" href="{{url('settings/purchase_approver')}}">Purchase Approvers</a>
+                                <a class="nav-link" href="{{url('settings/purchase_approver')}}">Approvers</a>
                             </li>
                             @endif
                         </ul>
